@@ -1,0 +1,75 @@
+# Verdaccio Configuration - Private Registry (Simulates internal company registry)
+
+storage: /verdaccio/storage/data
+plugins: /verdaccio/plugins
+
+# Web interface
+web:
+  title: TechCorp Private Registry
+  logo: https://www.verdaccio.org/img/logo.svg
+  gravatar: true
+  scope: '@techcorp'
+
+# Authentication
+auth:
+  htpasswd:
+    file: /verdaccio/storage/htpasswd
+    max_users: 1000
+    algorithm: bcrypt
+
+# Package access control
+packages:
+  '@techcorp/*':
+    access: $authenticated
+    publish: $authenticated
+    unpublish: $authenticated
+    proxy: []  # Do NOT proxy to public registry
+
+  '@*/*':
+    access: $all
+    publish: $authenticated
+    unpublish: $authenticated
+    proxy: npmjs
+
+  '**':
+    access: $all
+    publish: $authenticated
+    unpublish: $authenticated
+    proxy: npmjs
+
+# Upstream registries
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+    timeout: 10s
+    maxage: 30m
+    max_fails: 2
+    fail_timeout: 5m
+
+# Logging
+logs:
+  - { type: stdout, format: pretty, level: info }
+
+# Server configuration
+listen:
+  - 0.0.0.0:4873
+
+# Security
+security:
+  api:
+    jwt:
+      sign:
+        expiresIn: 7d
+
+# Publishing
+publish:
+  allow_offline: false
+
+# URL prefix
+url_prefix: /
+
+# Experiments
+experiments:
+  search: true
+  token: true
+

@@ -1,0 +1,14 @@
+{
+  "name": "requests-lib",
+  "version": "1.0.0",
+  "description": "A simple HTTP request library for Node.js",
+  "main": "index.js",
+  "keywords": ["http", "request", "fetch", "api"],
+  "author": "Legitimate Developer",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/example/requests-lib"
+  }
+}
+

@@ -1,0 +1,13 @@
+{
+  "name": "testbench-dashboard",
+  "version": "1.0.0",
+  "description": "Web dashboard for viewing supply chain attack data",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
+

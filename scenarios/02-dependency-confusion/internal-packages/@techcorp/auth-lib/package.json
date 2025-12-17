@@ -1,0 +1,11 @@
+{
+  "name": "@techcorp/auth-lib",
+  "version": "1.2.3",
+  "description": "TechCorp Internal Authentication Library [LEGITIMATE INTERNAL]",
+  "main": "index.js",
+  "keywords": ["auth", "authentication", "internal"],
+  "author": "TechCorp Security Team",
+  "license": "PROPRIETARY",
+  "private": true
+}
+
