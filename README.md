@@ -1,0 +1,186 @@
+# Supply Chain Attack Test Bench 🔐
+
+A comprehensive cybersecurity learning platform for understanding, practicing, and defending against supply chain attacks.
+
+## 🎯 Overview
+
+This test bench provides hands-on practical scenarios to learn about supply chain attacks - one of the most critical and emerging threats in modern software development. Candidates will set up vulnerable environments, execute attacks, detect compromises, and implement defenses.
+
+## 🚀 What You'll Learn
+
+- **Typosquatting Attacks**: How attackers exploit package name confusion
+- **Dependency Confusion**: Private vs public package resolution vulnerabilities
+- **Compromised Packages**: How legitimate packages get hijacked
+- **Malicious Updates**: Trojan horse updates to trusted packages
+- **Build System Compromise**: CI/CD pipeline exploitation
+- **Detection & Mitigation**: Tools and techniques to defend your supply chain
+
+## 📋 Prerequisites
+
+- **Operating System**: Linux, macOS, or Windows with WSL2
+- **Software Requirements**:
+  - Docker & Docker Compose
+  - Python 3.8+
+  - Node.js 16+
+  - Git
+- **Knowledge Level**: Basic understanding of package managers (npm, pip, etc.)
+
+## 🏗️ Project Structure
+
+```
+testbench/
+├── scenarios/                  # Attack scenario labs
+│   ├── 01-typosquatting/      # Lab 1: Typosquatting attack
+│   ├── 02-dependency-confusion/ # Lab 2: Dependency confusion
+│   ├── 03-compromised-package/ # Lab 3: Package compromise
+│   ├── 04-malicious-update/   # Lab 4: Update attacks
+│   └── 05-build-compromise/   # Lab 5: CI/CD compromise
+├── vulnerable-apps/           # Sample vulnerable applications
+│   ├── nodejs-app/           # Vulnerable Node.js application
+│   ├── python-app/           # Vulnerable Python application
+│   └── build-pipeline/       # Vulnerable CI/CD setup
+├── malicious-packages/        # Example malicious packages (for learning)
+├── detection-tools/          # Security scanning and detection tools
+├── docker/                   # Docker configurations
+├── docs/                     # Detailed documentation
+└── scripts/                  # Setup and utility scripts
+```
+
+## 🔧 Quick Start
+
+### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd testbench
+```
+
+### 2. Run Setup Script
+
+```bash
+chmod +x scripts/setup.sh
+./scripts/setup.sh
+```
+
+### 3. Start the Test Environment
+
+```bash
+docker-compose up -d
+```
+
+### 4. Begin Your First Scenario
+
+```bash
+cd scenarios/01-typosquatting
+cat README.md  # Read the scenario instructions
+```
+
+## 📚 Scenario Overview
+
+### Scenario 1: Typosquatting Attack (Beginner)
+**Duration**: 30-45 minutes  
+**Objective**: Create and exploit a typosquatted package to exfiltrate data  
+**Skills**: Package creation, social engineering, data exfiltration
+
+### Scenario 2: Dependency Confusion (Intermediate)
+**Duration**: 45-60 minutes  
+**Objective**: Exploit private/public package resolution to inject malicious code  
+**Skills**: Package registry manipulation, scope confusion
+
+### Scenario 3: Compromised Package (Intermediate)
+**Duration**: 60 minutes  
+**Objective**: Simulate account takeover and malicious package update  
+**Skills**: Credential compromise, package hijacking
+
+### Scenario 4: Malicious Update (Advanced)
+**Duration**: 60-90 minutes  
+**Objective**: Deploy a trojan update that appears legitimate  
+**Skills**: Code obfuscation, persistence techniques
+
+### Scenario 5: Build System Compromise (Advanced)
+**Duration**: 90+ minutes  
+**Objective**: Compromise CI/CD pipeline to inject backdoors  
+**Skills**: Pipeline manipulation, artifact poisoning
+
+## 🛡️ Defense & Detection
+
+Each scenario includes:
+- ✅ Detection techniques and tools
+- ✅ Mitigation strategies
+- ✅ Best practices for prevention
+- ✅ Real-world case studies
+
+## ⚠️ Safety & Ethics
+
+**IMPORTANT**: This test bench is for **educational purposes only**.
+
+- ✅ Use ONLY in isolated environments
+- ✅ Never deploy malicious code to public repositories
+- ✅ Do not test on systems you don't own
+- ✅ Follow responsible disclosure practices
+
+All malicious packages in this testbench are:
+- Clearly labeled as educational
+- Designed to work only in the test environment
+- Incapable of causing real harm when used as instructed
+
+## 🔒 Security Notice
+
+This repository contains intentionally vulnerable code and malicious package examples for educational purposes. All examples include safeguards to prevent accidental deployment:
+
+- Environment variable checks (requires `TESTBENCH_MODE=enabled`)
+- Localhost-only operations
+- Clear warning messages
+- No actual credential harvesting
+
+## 📖 Documentation
+
+- [Complete Setup Guide](docs/SETUP.md)
+- [Scenario Walkthroughs](docs/SCENARIOS.md)
+- [Defense Strategies](docs/DEFENSE.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Additional Resources](docs/RESOURCES.md)
+
+## 🎓 Learning Path
+
+**Recommended Order**:
+1. Read background material on supply chain attacks
+2. Complete scenarios in order (1-5)
+3. Review detection tools and techniques
+4. Implement defenses in the vulnerable applications
+5. Create your own attack scenario (capstone)
+
+## 🤝 Contributing
+
+This is an educational project. Contributions are welcome:
+- New attack scenarios
+- Improved detection tools
+- Better documentation
+- Bug fixes and enhancements
+
+## 📜 License
+
+MIT License - See [LICENSE](LICENSE) file for details
+
+## 🙏 Acknowledgments
+
+Based on real-world supply chain attacks including:
+- SolarWinds (2020)
+- CodeCov (2021)
+- Event-stream (2018)
+- UA-Parser-js (2021)
+- Colors.js & Faker.js (2022)
+
+## 📞 Support
+
+For questions or issues:
+- Open an issue on GitHub
+- Check the troubleshooting guide
+- Review the FAQ in docs/
+
+---
+
+**Remember**: With great power comes great responsibility. Use these skills to defend, not to harm.
+
+🔐 Happy Learning!
+

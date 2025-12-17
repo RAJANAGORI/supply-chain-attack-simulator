@@ -1,0 +1,97 @@
+version: '3.8'
+
+services:
+  # Mock Attacker Server - Receives exfiltrated data
+  mock-server:
+    image: node:18-alpine
+    container_name: testbench-mock-server
+    working_dir: /app
+    volumes:
+      - ../scenarios/01-typosquatting/infrastructure:/app
+    command: node mock-server.js
+    ports:
+      - "3000:3000"
+    environment:
+      - TESTBENCH_MODE=enabled
+    networks:
+      - testbench-network
+    restart: unless-stopped
+
+  # Verdaccio - Private NPM Registry (simulates internal registry)
+  private-registry:
+    image: verdaccio/verdaccio:5
+    container_name: testbench-private-registry
+    ports:
+      - "4873:4873"
+    volumes:
+      - ./verdaccio/private-config.yaml:/verdaccio/conf/config.yaml
+      - verdaccio-private-storage:/verdaccio/storage
+      - verdaccio-private-plugins:/verdaccio/plugins
+    environment:
+      - VERDACCIO_PORT=4873
+    networks:
+      - testbench-network
+    restart: unless-stopped
+
+  # Second Verdaccio - Public NPM Registry (simulates npmjs.com)
+  public-registry:
+    image: verdaccio/verdaccio:5
+    container_name: testbench-public-registry
+    ports:
+      - "4874:4873"
+    volumes:
+      - ./verdaccio/public-config.yaml:/verdaccio/conf/config.yaml
+      - verdaccio-public-storage:/verdaccio/storage
+      - verdaccio-public-plugins:/verdaccio/plugins
+    environment:
+      - VERDACCIO_PORT=4873
+    networks:
+      - testbench-network
+    restart: unless-stopped
+
+  # Network monitoring tool
+  network-monitor:
+    image: nicolaka/netshoot
+    container_name: testbench-network-monitor
+    command: >
+      sh -c "echo 'Network Monitor Ready' && tail -f /dev/null"
+    networks:
+      - testbench-network
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+
+  # Simple web UI for viewing captured data
+  web-dashboard:
+    image: node:18-alpine
+    container_name: testbench-dashboard
+    working_dir: /app
+    volumes:
+      - ./dashboard:/app
+    command: sh -c "npm install && node server.js"
+    ports:
+      - "8080:8080"
+    environment:
+      - MOCK_SERVER_URL=http://mock-server:3000
+      - TESTBENCH_MODE=enabled
+    networks:
+      - testbench-network
+    depends_on:
+      - mock-server
+    restart: unless-stopped
+
+networks:
+  testbench-network:
+    name: testbench-network
+    driver: bridge
+
+volumes:
+  verdaccio-private-storage:
+    name: testbench-private-storage
+  verdaccio-private-plugins:
+    name: testbench-private-plugins
+  verdaccio-public-storage:
+    name: testbench-public-storage
+  verdaccio-public-plugins:
+    name: testbench-public-plugins
+

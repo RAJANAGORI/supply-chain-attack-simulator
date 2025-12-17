@@ -1,0 +1,13 @@
+{
+  "name": "victim-application",
+  "version": "1.0.0",
+  "description": "Sample application that accidentally installs typosquatted package",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}
+

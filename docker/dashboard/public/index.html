@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supply Chain Attack Testbench - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #764ba2;
+        }
+        
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .data-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .data-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .capture-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+        
+        .capture-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .attack-type {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .attack-typosquatting {
+            background: #3498db;
+            color: white;
+        }
+        
+        .attack-dependency-confusion {
+            background: #e67e22;
+            color: white;
+        }
+        
+        .attack-compromised-package {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .data-content {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Supply Chain Attack Testbench</h1>
+            <p class="subtitle">Educational Platform for Learning Supply Chain Security</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Captures</h3>
+                <div class="stat-number" id="total-captures">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Typosquatting</h3>
+                <div class="stat-number" id="typosquatting-count">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Dependency Confusion</h3>
+                <div class="stat-number" id="dep-confusion-count">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Compromised Packages</h3>
+                <div class="stat-number" id="compromised-count">0</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn-primary" onclick="refreshData()">🔄 Refresh Data</button>
+            <button class="btn-danger" onclick="clearData()">🗑️ Clear All Data</button>
+            <button class="btn-primary" onclick="exportData()">📥 Export JSON</button>
+        </div>
+        
+        <div class="data-section">
+            <h2>Captured Attack Data</h2>
+            <div id="data-container">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>Loading captured data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let capturedData = { captures: [] };
+        
+        async function refreshData() {
+            try {
+                const response = await fetch('/api/captured-data');
+                capturedData = await response.json();
+                updateStats();
+                renderData();
+            } catch (error) {
+                document.getElementById('data-container').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <h3>Error Loading Data</h3>
+                        <p>${error.message}</p>
+                        <p>Make sure the mock server is running.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function updateStats() {
+            const captures = capturedData.captures || [];
+            document.getElementById('total-captures').textContent = captures.length;
+            
+            const typosquatting = captures.filter(c => c.data.attack === 'typosquatting').length;
+            const depConfusion = captures.filter(c => c.data.attack === 'dependency-confusion').length;
+            const compromised = captures.filter(c => c.data.attack === 'compromised-package').length;
+            
+            document.getElementById('typosquatting-count').textContent = typosquatting;
+            document.getElementById('dep-confusion-count').textContent = depConfusion;
+            document.getElementById('compromised-count').textContent = compromised;
+        }
+        
+        function renderData() {
+            const container = document.getElementById('data-container');
+            const captures = capturedData.captures || [];
+            
+            if (captures.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h3>No Data Captured Yet</h3>
+                        <p>Run one of the attack scenarios to see captured data here.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = captures.reverse().map((capture, idx) => {
+                const attackType = capture.data.attack || 'unknown';
+                const attackClass = `attack-${attackType}`;
+                
+                return `
+                    <div class="capture-item">
+                        <div class="capture-header">
+                            <div>
+                                <span class="attack-type ${attackClass}">
+                                    ${attackType.toUpperCase().replace(/-/g, ' ')}
+                                </span>
+                            </div>
+                            <div class="timestamp">
+                                ${new Date(capture.timestamp).toLocaleString()}
+                            </div>
+                        </div>
+                        <div class="data-content">
+                            <pre>${JSON.stringify(capture.data, null, 2)}</pre>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function clearData() {
+            if (!confirm('Are you sure you want to clear all captured data?')) {
+                return;
+            }
+            
+            try {
+                await fetch('/api/captured-data', { method: 'DELETE' });
+                await refreshData();
+                alert('✅ Data cleared successfully');
+            } catch (error) {
+                alert('❌ Error clearing data: ' + error.message);
+            }
+        }
+        
+        function exportData() {
+            const dataStr = JSON.stringify(capturedData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `testbench-captured-data-${Date.now()}.json`;
+            link.click();
+        }
+        
+        // Auto-refresh every 5 seconds
+        setInterval(refreshData, 5000);
+        
+        // Initial load
+        refreshData();
+    </script>
+</body>
+</html>
+

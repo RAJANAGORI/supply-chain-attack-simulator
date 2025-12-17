@@ -1,0 +1,19 @@
+{
+  "name": "techcorp-web-app",
+  "version": "1.0.0",
+  "description": "TechCorp's internal web application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "preinstall": "node scripts/validate-dependencies.js || true"
+  },
+  "dependencies": {
+    "@techcorp/auth-lib": "^1.0.0",
+    "@techcorp/data-utils": "^1.0.0",
+    "@techcorp/api-client": "^1.0.0",
+    "express": "^4.18.0"
+  },
+  "author": "TechCorp Internal Team",
+  "license": "PROPRIETARY"
+}
+

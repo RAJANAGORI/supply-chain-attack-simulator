@@ -1,0 +1,48 @@
+MIT License
+
+Copyright (c) 2024 Supply Chain Attack Testbench
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+EDUCATIONAL USE NOTICE:
+
+This software contains intentionally vulnerable code and malicious package 
+examples designed for educational purposes only. 
+
+Users of this software agree to:
+
+1. Use this software ONLY in isolated, controlled environments
+2. NEVER deploy any of the intentionally vulnerable or malicious code to 
+   production systems
+3. NEVER publish the malicious package examples to public package registries
+4. Take responsibility for any misuse of the techniques demonstrated
+5. Follow all applicable laws and regulations
+6. Use this software only for legitimate security research and education
+
+The authors and contributors are not responsible for any misuse of this 
+educational software or any damages resulting from its use.
+
+BY USING THIS SOFTWARE, YOU ACKNOWLEDGE THAT:
+- This is for EDUCATIONAL PURPOSES ONLY
+- You understand the ethical implications
+- You will use this responsibly
+- You will not use this for malicious purposes
+

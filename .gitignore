@@ -1,0 +1,79 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json.bak
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build outputs
+dist/
+build/
+*.log
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Docker volumes
+verdaccio-storage/
+docker/dashboard/node_modules/
+
+# Captured data (from mock server)
+scenarios/*/infrastructure/captured-data.json
+logs/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python (for potential Python scenarios)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+ENV/
+
+# Test artifacts
+test-results/
+.pytest_cache/
+
+# Backup files
+*.bak
+*.backup
+
+# Package files
+*.tgz
+*.tar.gz
+
+# IDE and editor folders
+.vscode/
+.idea/
+*.sublime-*
+
+# Ignore verdaccio storage but keep config
+docker/verdaccio/storage/
+!docker/verdaccio/*.yaml
+
+# Keep example files
+!**/.env.example
+!**/package.json.example
+
