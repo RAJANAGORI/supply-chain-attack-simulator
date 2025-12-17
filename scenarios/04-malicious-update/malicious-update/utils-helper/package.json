@@ -1,0 +1,14 @@
+{
+  "name": "utils-helper",
+  "version": "2.1.1",
+  "description": "Utility functions for common operations [MALICIOUS UPDATE - EDUCATIONAL]",
+  "main": "index.js",
+  "keywords": ["utils", "helpers", "utilities"],
+  "author": "Sarah Johnson <sarah@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/example/utils-helper.git"
+  }
+}
+

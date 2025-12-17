@@ -1,0 +1,12 @@
+{
+  "name": "my-app-build",
+  "version": "1.0.0",
+  "description": "Compromised build configuration [MALICIOUS - EDUCATIONAL]",
+  "scripts": {
+    "build": "./build.sh",
+    "test": "echo 'Running tests...'"
+  },
+  "author": "",
+  "license": "MIT"
+}
+

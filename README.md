@@ -46,6 +46,23 @@ testbench/
 └── scripts/                  # Setup and utility scripts
 ```
 
+## 🎓 New to This Project?
+
+**If you're completely new and want step-by-step guidance:**
+
+1. **Run the interactive starter script:**
+   ```bash
+   chmod +x START_HERE.sh
+   ./START_HERE.sh
+   ```
+
+2. **Or read the complete beginner's guide:**
+   ```bash
+   cat docs/ZERO_TO_HERO.md
+   ```
+
+This guide will take you from zero knowledge to completing your first scenario with detailed explanations of every step.
+
 ## 🔧 Quick Start
 
 ### 1. Clone the Repository
@@ -135,11 +152,15 @@ This repository contains intentionally vulnerable code and malicious package exa
 
 ## 📖 Documentation
 
+- **[Zero to Hero Guide](docs/ZERO_TO_HERO.md)** ⭐ **START HERE if you're new!**
+- [Quick Reference Card](docs/QUICK_REFERENCE.md) - Essential commands cheat sheet
 - [Complete Setup Guide](docs/SETUP.md)
-- [Scenario Walkthroughs](docs/SCENARIOS.md)
-- [Defense Strategies](docs/DEFENSE.md)
-- [Troubleshooting](docs/TROUBLESHOOTING.md)
-- [Additional Resources](docs/RESOURCES.md)
+- [Quick Start Guide](docs/QUICK_START.md)
+- [Best Practices](docs/BEST_PRACTICES.md)
+- [Scenario Walkthroughs](docs/SCENARIOS.md) (if exists)
+- [Defense Strategies](docs/DEFENSE.md) (if exists)
+- [Troubleshooting](docs/TROUBLESHOOTING.md) (if exists)
+- [Additional Resources](docs/RESOURCES.md) (if exists)
 
 ## 🎓 Learning Path
 

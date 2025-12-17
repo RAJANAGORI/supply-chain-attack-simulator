@@ -1,0 +1,12 @@
+{
+  "name": "my-application",
+  "version": "1.0.0",
+  "description": "Application using compromised build artifacts",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "node dist/app.js"
+  },
+  "author": "",
+  "license": "MIT"
+}
+

@@ -1,0 +1,12 @@
+{
+  "name": "my-app-build",
+  "version": "1.0.0",
+  "description": "Legitimate build configuration",
+  "scripts": {
+    "build": "./build.sh",
+    "test": "echo 'Running tests...'"
+  },
+  "author": "",
+  "license": "MIT"
+}
+
