@@ -13,16 +13,17 @@ This test bench provides hands-on practical scenarios to learn about supply chai
 - **Compromised Packages**: How legitimate packages get hijacked
 - **Malicious Updates**: Trojan horse updates to trusted packages
 - **Build System Compromise**: CI/CD pipeline exploitation
+- **Shai-Hulud Attack**: Self-replicating supply chain attacks with credential harvesting
 - **Detection & Mitigation**: Tools and techniques to defend your supply chain
 
 ## 📋 Prerequisites
 
 - **Operating System**: Linux, macOS, or Windows with WSL2
 - **Software Requirements**:
-  - Docker & Docker Compose
   - Python 3.8+
   - Node.js 16+
   - Git
+  - Docker & Docker Compose (optional, for advanced scenarios)
 - **Knowledge Level**: Basic understanding of package managers (npm, pip, etc.)
 
 ## 🏗️ Project Structure
@@ -34,7 +35,8 @@ testbench/
 │   ├── 02-dependency-confusion/ # Lab 2: Dependency confusion
 │   ├── 03-compromised-package/ # Lab 3: Package compromise
 │   ├── 04-malicious-update/   # Lab 4: Update attacks
-│   └── 05-build-compromise/   # Lab 5: CI/CD compromise
+│   ├── 05-build-compromise/   # Lab 5: CI/CD compromise
+│   └── 06-sha-hulud/          # Lab 6: Self-replicating attack
 ├── vulnerable-apps/           # Sample vulnerable applications
 │   ├── nodejs-app/           # Vulnerable Node.js application
 │   ├── python-app/           # Vulnerable Python application
@@ -79,13 +81,7 @@ chmod +x scripts/setup.sh
 ./scripts/setup.sh
 ```
 
-### 3. Start the Test Environment
-
-```bash
-docker-compose up -d
-```
-
-### 4. Begin Your First Scenario
+### 3. Begin Your First Scenario
 
 ```bash
 cd scenarios/01-typosquatting
@@ -118,6 +114,12 @@ cat README.md  # Read the scenario instructions
 **Duration**: 90+ minutes  
 **Objective**: Compromise CI/CD pipeline to inject backdoors  
 **Skills**: Pipeline manipulation, artifact poisoning
+
+### Scenario 6: Shai-Hulud Self-Replicating Attack (Expert)
+**Duration**: 120+ minutes  
+**Objective**: Understand and defend against self-replicating supply chain attacks  
+**Skills**: Credential harvesting, post-install exploitation, forensic analysis, incident response  
+**Description**: Learn about one of the most sophisticated supply chain attacks that compromised hundreds of npm packages. This scenario covers credential theft, self-replication mechanisms, and comprehensive incident response.
 
 ## 🛡️ Defense & Detection
 
@@ -166,10 +168,12 @@ This repository contains intentionally vulnerable code and malicious package exa
 
 **Recommended Order**:
 1. Read background material on supply chain attacks
-2. Complete scenarios in order (1-5)
+2. Complete scenarios in order (1-6)
 3. Review detection tools and techniques
 4. Implement defenses in the vulnerable applications
 5. Create your own attack scenario (capstone)
+
+**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures.
 
 ## 🤝 Contributing
 
