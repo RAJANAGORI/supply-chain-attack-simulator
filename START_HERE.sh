@@ -45,14 +45,14 @@ else
     MISSING=1
 fi
 
-# Check Docker (optional)
-if command -v docker &> /dev/null; then
-    echo -e "${GREEN}✅ Docker: $(docker --version)${NC}"
-    DOCKER_AVAILABLE=1
-else
-    echo -e "${YELLOW}⚠️  Docker not found (optional, but recommended)${NC}"
-    DOCKER_AVAILABLE=0
-fi
+# # Check Docker (optional)
+# if command -v docker &> /dev/null; then
+#     echo -e "${GREEN}✅ Docker: $(docker --version)${NC}"
+#     DOCKER_AVAILABLE=1
+# else
+#     echo -e "${YELLOW}⚠️  Docker not found (optional, but recommended)${NC}"
+#     DOCKER_AVAILABLE=0
+# fi
 
 echo ""
 
@@ -99,32 +99,32 @@ chmod +x scripts/setup.sh
 
 echo ""
 
-# Step 4: Start Docker services (if available)
-if [ $DOCKER_AVAILABLE -eq 1 ]; then
-    echo -e "${BLUE}Step 4: Starting Docker services...${NC}"
-    echo ""
-    read -p "Start Docker services? (y/N): " -n 1 -r
-    echo ""
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        cd docker
-        if docker compose version &> /dev/null; then
-            docker compose up -d
-        elif command -v docker-compose &> /dev/null; then
-            docker-compose up -d
-        fi
-        cd ..
-        echo -e "${GREEN}✅ Docker services started${NC}"
-        echo ""
-        echo "Services available at:"
-        echo "  - Mock Server: http://localhost:3000"
-        echo "  - Dashboard: http://localhost:8080"
-    fi
-else
-    echo -e "${YELLOW}Step 4: Skipping Docker (not available)${NC}"
-    echo "You can start the mock server manually later."
-fi
+# # Step 4: Start Docker services (if available)
+# if [ $DOCKER_AVAILABLE -eq 1 ]; then
+#     echo -e "${BLUE}Step 4: Starting Docker services...${NC}"
+#     echo ""
+#     read -p "Start Docker services? (y/N): " -n 1 -r
+#     echo ""
+#     if [[ $REPLY =~ ^[Yy]$ ]]; then
+#         cd docker
+#         if docker compose version &> /dev/null; then
+#             docker compose up -d
+#         elif command -v docker-compose &> /dev/null; then
+#             docker-compose up -d
+#         fi
+#         cd ..
+#         echo -e "${GREEN}✅ Docker services started${NC}"
+#         echo ""
+#         echo "Services available at:"
+#         echo "  - Mock Server: http://localhost:3000"
+#         echo "  - Dashboard: http://localhost:8080"
+#     fi
+# else
+#     echo -e "${YELLOW}Step 4: Skipping Docker (not available)${NC}"
+#     echo "You can start the mock server manually later."
+# fi
 
-echo ""
+# echo ""
 
 # Step 5: Setup Scenario 1
 echo -e "${BLUE}Step 5: Setting up Scenario 1 (Typosquatting)...${NC}"
@@ -160,7 +160,7 @@ echo "   ${CYAN}npm start${NC}"
 echo ""
 echo "3. View captured data:"
 echo "   ${CYAN}curl http://localhost:3000/captured-data${NC}"
-echo "   Or open: ${CYAN}http://localhost:8080${NC}"
+# echo "   Or open: ${CYAN}http://localhost:8080${NC}"
 echo ""
 echo -e "${YELLOW}📚 Documentation:${NC}"
 echo "   - Zero to Hero Guide: ${CYAN}docs/ZERO_TO_HERO.md${NC}"
