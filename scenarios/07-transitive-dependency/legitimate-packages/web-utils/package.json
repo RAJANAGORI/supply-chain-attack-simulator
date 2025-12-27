@@ -1,0 +1,13 @@
+{
+  "name": "web-utils",
+  "version": "2.1.0",
+  "description": "Web utility functions for common tasks",
+  "main": "index.js",
+  "keywords": ["web", "utils", "utilities"],
+  "author": "Web Tools Inc.",
+  "license": "MIT",
+  "dependencies": {
+    "data-processor": "^1.2.0"
+  }
+}
+

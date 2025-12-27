@@ -1,0 +1,17 @@
+{
+  "name": "data-processor",
+  "version": "1.2.1",
+  "description": "A utility library for processing and transforming data arrays",
+  "main": "index.js",
+  "keywords": ["data", "processing", "array", "utility"],
+  "author": "Data Tools Inc.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/datatools/data-processor.git"
+  },
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  }
+}
+
