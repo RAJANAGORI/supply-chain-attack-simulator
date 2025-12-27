@@ -14,6 +14,7 @@ This test bench provides hands-on practical scenarios to learn about supply chai
 - **Malicious Updates**: Trojan horse updates to trusted packages
 - **Build System Compromise**: CI/CD pipeline exploitation
 - **Shai-Hulud Attack**: Self-replicating supply chain attacks with credential harvesting
+- **Package Lock File Manipulation**: Attacks through manipulated lock files
 - **Transitive Dependency Attacks**: Attacks through dependencies of dependencies
 - **Detection & Mitigation**: Tools and techniques to defend your supply chain
 
@@ -38,6 +39,7 @@ testbench/
 │   ├── 04-malicious-update/   # Lab 4: Update attacks
 │   ├── 05-build-compromise/   # Lab 5: CI/CD compromise
 │   ├── 06-sha-hulud/          # Lab 6: Self-replicating attack
+│   └── 08-package-lock-file-manipulation/ # Lab 8: Lock file manipulation
 │   └── 07-transitive-dependency/ # Lab 7: Transitive dependency attack
 ├── vulnerable-apps/           # Sample vulnerable applications
 │   ├── nodejs-app/           # Vulnerable Node.js application
@@ -123,6 +125,11 @@ cat README.md  # Read the scenario instructions
 **Skills**: Credential harvesting, post-install exploitation, forensic analysis, incident response  
 **Description**: Learn about one of the most sophisticated supply chain attacks that compromised hundreds of npm packages. This scenario covers credential theft, self-replication mechanisms, and comprehensive incident response.
 
+### Scenario 8: Package Lock File Manipulation (Intermediate)
+**Duration**: 60-90 minutes  
+**Objective**: Understand and defend against lock file manipulation attacks  
+**Skills**: Lock file validation, integrity checking, CI/CD security  
+**Description**: Learn how attackers manipulate package-lock.json to inject malicious packages. This scenario demonstrates why lock files are trusted by package managers and how to detect and prevent lock file tampering. Critical for CI/CD pipeline security.
 ### Scenario 7: Transitive Dependency Attack (Intermediate)
 **Duration**: 60-90 minutes  
 **Objective**: Understand and defend against attacks through transitive dependencies  
@@ -181,6 +188,7 @@ This repository contains intentionally vulnerable code and malicious package exa
 4. Implement defenses in the vulnerable applications
 5. Create your own attack scenario (capstone)
 
+**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenario 8 (Package Lock File Manipulation) is intermediate level and critical for CI/CD security.
 **Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenario 7 (Transitive Dependency) is intermediate level and can be completed after scenarios 1-3.
 
 ## 🤝 Contributing
