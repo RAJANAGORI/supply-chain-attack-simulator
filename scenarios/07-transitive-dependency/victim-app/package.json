@@ -1,0 +1,13 @@
+{
+  "name": "victim-app",
+  "version": "1.0.0",
+  "description": "Application that uses web-utils (which depends on data-processor)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "web-utils": "file:../legitimate-packages/web-utils"
+  }
+}
+
