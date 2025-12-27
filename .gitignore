@@ -77,3 +77,4 @@ docker/verdaccio/storage/
 !**/.env.example
 !**/package.json.example
 
+ENHANCEMENT_IDEAS.md
