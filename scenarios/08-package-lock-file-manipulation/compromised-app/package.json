@@ -1,0 +1,14 @@
+{
+  "name": "compromised-app",
+  "version": "1.0.0",
+  "description": "Application with pre-compromised package-lock.json (attacker has already manipulated it)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "lodash": "^4.17.21"
+  }
+}
+

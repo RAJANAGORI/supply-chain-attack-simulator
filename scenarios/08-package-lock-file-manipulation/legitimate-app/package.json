@@ -1,0 +1,14 @@
+{
+  "name": "legitimate-app",
+  "version": "1.0.0",
+  "description": "Legitimate application with clean dependencies",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "lodash": "^4.17.21"
+  }
+}
+

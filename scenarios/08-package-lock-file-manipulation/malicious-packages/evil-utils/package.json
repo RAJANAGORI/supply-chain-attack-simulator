@@ -1,0 +1,13 @@
+{
+  "name": "evil-utils",
+  "version": "1.0.0",
+  "description": "Malicious utility package injected via lock file manipulation",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  },
+  "keywords": ["utils", "utility"],
+  "author": "Attacker",
+  "license": "MIT"
+}
+
