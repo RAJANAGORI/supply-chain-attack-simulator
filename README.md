@@ -14,6 +14,7 @@ This test bench provides hands-on practical scenarios to learn about supply chai
 - **Malicious Updates**: Trojan horse updates to trusted packages
 - **Build System Compromise**: CI/CD pipeline exploitation
 - **Shai-Hulud Attack**: Self-replicating supply chain attacks with credential harvesting
+- **Transitive Dependency Attacks**: Attacks through dependencies of dependencies
 - **Detection & Mitigation**: Tools and techniques to defend your supply chain
 
 ## 📋 Prerequisites
@@ -36,7 +37,8 @@ testbench/
 │   ├── 03-compromised-package/ # Lab 3: Package compromise
 │   ├── 04-malicious-update/   # Lab 4: Update attacks
 │   ├── 05-build-compromise/   # Lab 5: CI/CD compromise
-│   └── 06-sha-hulud/          # Lab 6: Self-replicating attack
+│   ├── 06-sha-hulud/          # Lab 6: Self-replicating attack
+│   └── 07-transitive-dependency/ # Lab 7: Transitive dependency attack
 ├── vulnerable-apps/           # Sample vulnerable applications
 │   ├── nodejs-app/           # Vulnerable Node.js application
 │   ├── python-app/           # Vulnerable Python application
@@ -121,6 +123,12 @@ cat README.md  # Read the scenario instructions
 **Skills**: Credential harvesting, post-install exploitation, forensic analysis, incident response  
 **Description**: Learn about one of the most sophisticated supply chain attacks that compromised hundreds of npm packages. This scenario covers credential theft, self-replication mechanisms, and comprehensive incident response.
 
+### Scenario 7: Transitive Dependency Attack (Intermediate)
+**Duration**: 60-90 minutes  
+**Objective**: Understand and defend against attacks through transitive dependencies  
+**Skills**: Dependency tree analysis, transitive dependency auditing, detection techniques  
+**Description**: Learn how attackers compromise packages that are dependencies of dependencies. This scenario demonstrates why transitive dependencies are hard to detect and how to audit entire dependency trees. Based on real-world attacks like event-stream → flatmap-stream (2018).
+
 ## 🛡️ Defense & Detection
 
 Each scenario includes:
@@ -173,7 +181,7 @@ This repository contains intentionally vulnerable code and malicious package exa
 4. Implement defenses in the vulnerable applications
 5. Create your own attack scenario (capstone)
 
-**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures.
+**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenario 7 (Transitive Dependency) is intermediate level and can be completed after scenarios 1-3.
 
 ## 🤝 Contributing
 
