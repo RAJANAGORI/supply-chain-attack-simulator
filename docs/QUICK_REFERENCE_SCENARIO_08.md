@@ -227,3 +227,4 @@ node detection-tools/lock-file-validator.js .  # Verify
 2. **victim-app/**: Lock file manipulated, packages installed, attack active
 3. **compromised-app/**: Lock file pre-manipulated, ready to demonstrate attack
 
+

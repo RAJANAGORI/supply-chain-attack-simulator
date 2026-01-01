@@ -1,0 +1,10 @@
+{
+  "name": "victim-app",
+  "version": "1.0.0",
+  "description": "Application using compromised repository with malicious submodule",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+}
+
