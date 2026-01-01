@@ -1,0 +1,20 @@
+{
+  "name": "secure-utils",
+  "version": "1.0.0",
+  "description": "Secure utility functions with package signing",
+  "main": "index.js",
+  "keywords": ["utils", "security", "signed"],
+  "author": "Secure Tools Inc.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/securetools/secure-utils.git"
+  },
+  "signing": {
+    "keyId": "0xABC12345",
+    "keyFingerprint": "ABCD 1234 EFGH 5678 90AB CDEF 1234 5678 90AB CDEF",
+    "signedBy": "Secure Tools Inc. <security@securetools.com>",
+    "signatureDate": "2024-01-15T10:30:00Z"
+  }
+}
+

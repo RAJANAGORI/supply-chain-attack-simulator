@@ -1,0 +1,4 @@
+[submodule "legitimate-lib"]
+	path = libs/legitimate-lib
+	url = https://github.com/legitproject/legitimate-lib.git
+

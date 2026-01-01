@@ -1,0 +1,13 @@
+{
+  "name": "victim-app",
+  "version": "1.0.0",
+  "description": "Application using signed secure-utils package",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "secure-utils": "file:../compromised-package/secure-utils"
+  }
+}
+

@@ -14,8 +14,10 @@ This test bench provides hands-on practical scenarios to learn about supply chai
 - **Malicious Updates**: Trojan horse updates to trusted packages
 - **Build System Compromise**: CI/CD pipeline exploitation
 - **Shai-Hulud Attack**: Self-replicating supply chain attacks with credential harvesting
-- **Package Lock File Manipulation**: Attacks through manipulated lock files
 - **Transitive Dependency Attacks**: Attacks through dependencies of dependencies
+- **Package Lock File Manipulation**: Attacks through manipulated lock files
+- **Package Signing Bypass**: Attacks through compromised signing keys
+- **Git Submodule Attacks**: Attacks through malicious git submodules
 - **Detection & Mitigation**: Tools and techniques to defend your supply chain
 
 ## 📋 Prerequisites
@@ -39,8 +41,10 @@ testbench/
 │   ├── 04-malicious-update/   # Lab 4: Update attacks
 │   ├── 05-build-compromise/   # Lab 5: CI/CD compromise
 │   ├── 06-sha-hulud/          # Lab 6: Self-replicating attack
-│   └── 08-package-lock-file-manipulation/ # Lab 8: Lock file manipulation
-│   └── 07-transitive-dependency/ # Lab 7: Transitive dependency attack
+│   ├── 07-transitive-dependency/ # Lab 7: Transitive dependency attack
+│   ├── 08-package-lock-file-manipulation/ # Lab 8: Lock file manipulation
+│   ├── 09-package-signing-bypass/ # Lab 9: Package signing bypass
+│   └── 10-git-submodule-attack/ # Lab 10: Git submodule attack
 ├── vulnerable-apps/           # Sample vulnerable applications
 │   ├── nodejs-app/           # Vulnerable Node.js application
 │   ├── python-app/           # Vulnerable Python application
@@ -125,16 +129,29 @@ cat README.md  # Read the scenario instructions
 **Skills**: Credential harvesting, post-install exploitation, forensic analysis, incident response  
 **Description**: Learn about one of the most sophisticated supply chain attacks that compromised hundreds of npm packages. This scenario covers credential theft, self-replication mechanisms, and comprehensive incident response.
 
-### Scenario 8: Package Lock File Manipulation (Intermediate)
-**Duration**: 60-90 minutes  
-**Objective**: Understand and defend against lock file manipulation attacks  
-**Skills**: Lock file validation, integrity checking, CI/CD security  
-**Description**: Learn how attackers manipulate package-lock.json to inject malicious packages. This scenario demonstrates why lock files are trusted by package managers and how to detect and prevent lock file tampering. Critical for CI/CD pipeline security.
 ### Scenario 7: Transitive Dependency Attack (Intermediate)
 **Duration**: 60-90 minutes  
 **Objective**: Understand and defend against attacks through transitive dependencies  
 **Skills**: Dependency tree analysis, transitive dependency auditing, detection techniques  
 **Description**: Learn how attackers compromise packages that are dependencies of dependencies. This scenario demonstrates why transitive dependencies are hard to detect and how to audit entire dependency trees. Based on real-world attacks like event-stream → flatmap-stream (2018).
+
+### Scenario 8: Package Lock File Manipulation (Intermediate)
+**Duration**: 60-90 minutes  
+**Objective**: Understand and defend against lock file manipulation attacks  
+**Skills**: Lock file validation, integrity checking, CI/CD security  
+**Description**: Learn how attackers manipulate package-lock.json to inject malicious packages. This scenario demonstrates why lock files are trusted by package managers and how to detect and prevent lock file tampering. Critical for CI/CD pipeline security.
+
+### Scenario 9: Package Signing Bypass (Advanced)
+**Duration**: 90+ minutes  
+**Objective**: Understand and defend against signing bypass attacks through key compromise  
+**Skills**: Signature verification, key management, key rotation, behavioral analysis  
+**Description**: Learn how attackers compromise package signing keys to sign malicious packages. This scenario demonstrates why signature verification alone is insufficient and how to detect key compromise. Based on real-world attacks like SolarWinds (2020).
+
+### Scenario 10: Git Submodule Attack (Intermediate)
+**Duration**: 60-90 minutes  
+**Objective**: Understand and defend against attacks through malicious git submodules  
+**Skills**: Submodule validation, .gitmodules analysis, repository security  
+**Description**: Learn how attackers add malicious git submodules to legitimate repositories. This scenario demonstrates how submodules can execute code automatically and how to detect and prevent submodule attacks.
 
 ## 🛡️ Defense & Detection
 
@@ -188,8 +205,7 @@ This repository contains intentionally vulnerable code and malicious package exa
 4. Implement defenses in the vulnerable applications
 5. Create your own attack scenario (capstone)
 
-**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenario 8 (Package Lock File Manipulation) is intermediate level and critical for CI/CD security.
-**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenario 7 (Transitive Dependency) is intermediate level and can be completed after scenarios 1-3.
+**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenarios 7-8 are intermediate level. Scenario 9 (Package Signing Bypass) is advanced and requires understanding of cryptographic signing. Scenario 10 (Git Submodule) is intermediate level and requires basic git knowledge.
 
 ## 🤝 Contributing
 

