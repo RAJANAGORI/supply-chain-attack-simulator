@@ -18,6 +18,7 @@ This test bench provides hands-on practical scenarios to learn about supply chai
 - **Package Lock File Manipulation**: Attacks through manipulated lock files
 - **Package Signing Bypass**: Attacks through compromised signing keys
 - **Git Submodule Attacks**: Attacks through malicious git submodules
+- **Registry Mirror Poisoning**: Attacks through compromised internal mirrors (Enterprise-specific)
 - **Detection & Mitigation**: Tools and techniques to defend your supply chain
 
 ## 📋 Prerequisites
@@ -44,7 +45,8 @@ testbench/
 │   ├── 07-transitive-dependency/ # Lab 7: Transitive dependency attack
 │   ├── 08-package-lock-file-manipulation/ # Lab 8: Lock file manipulation
 │   ├── 09-package-signing-bypass/ # Lab 9: Package signing bypass
-│   └── 10-git-submodule-attack/ # Lab 10: Git submodule attack
+│   ├── 10-git-submodule-attack/ # Lab 10: Git submodule attack
+│   └── 11-registry-mirror-poisoning/ # Lab 11: Registry mirror poisoning
 ├── vulnerable-apps/           # Sample vulnerable applications
 │   ├── nodejs-app/           # Vulnerable Node.js application
 │   ├── python-app/           # Vulnerable Python application
@@ -153,6 +155,12 @@ cat README.md  # Read the scenario instructions
 **Skills**: Submodule validation, .gitmodules analysis, repository security  
 **Description**: Learn how attackers add malicious git submodules to legitimate repositories. This scenario demonstrates how submodules can execute code automatically and how to detect and prevent submodule attacks.
 
+### Scenario 11: Registry Mirror Poisoning (Advanced)
+**Duration**: 90+ minutes  
+**Objective**: Understand and defend against attacks through compromised registry mirrors  
+**Skills**: Mirror validation, upstream verification, registry security  
+**Description**: Learn how attackers compromise internal npm registry mirrors to serve malicious packages. This enterprise-specific scenario demonstrates why mirrors are single points of failure and how to validate mirror integrity. Critical for organizations using internal package registries.
+
 ## 🛡️ Defense & Detection
 
 Each scenario includes:
@@ -205,7 +213,7 @@ This repository contains intentionally vulnerable code and malicious package exa
 4. Implement defenses in the vulnerable applications
 5. Create your own attack scenario (capstone)
 
-**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenarios 7-8 are intermediate level. Scenario 9 (Package Signing Bypass) is advanced and requires understanding of cryptographic signing. Scenario 10 (Git Submodule) is intermediate level and requires basic git knowledge.
+**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenarios 7-8, 10 are intermediate level. Scenarios 9, 11 are advanced - Scenario 9 requires understanding of cryptographic signing, and Scenario 11 is enterprise-specific and requires understanding of internal registry infrastructure.
 
 ## 🤝 Contributing
 
