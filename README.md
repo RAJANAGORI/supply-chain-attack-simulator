@@ -19,6 +19,7 @@ This test bench provides hands-on practical scenarios to learn about supply chai
 - **Package Signing Bypass**: Attacks through compromised signing keys
 - **Git Submodule Attacks**: Attacks through malicious git submodules
 - **Registry Mirror Poisoning**: Attacks through compromised internal mirrors (Enterprise-specific)
+- **Workspace/Monorepo Attack**: Attacks through compromised workspace packages (Common in modern development)
 - **Detection & Mitigation**: Tools and techniques to defend your supply chain
 
 ## 📋 Prerequisites
@@ -46,7 +47,8 @@ testbench/
 │   ├── 08-package-lock-file-manipulation/ # Lab 8: Lock file manipulation
 │   ├── 09-package-signing-bypass/ # Lab 9: Package signing bypass
 │   ├── 10-git-submodule-attack/ # Lab 10: Git submodule attack
-│   └── 11-registry-mirror-poisoning/ # Lab 11: Registry mirror poisoning
+│   ├── 11-registry-mirror-poisoning/ # Lab 11: Registry mirror poisoning
+│   └── 12-workspace-monorepo-attack/ # Lab 12: Workspace/monorepo attack
 ├── vulnerable-apps/           # Sample vulnerable applications
 │   ├── nodejs-app/           # Vulnerable Node.js application
 │   ├── python-app/           # Vulnerable Python application
@@ -161,6 +163,12 @@ cat README.md  # Read the scenario instructions
 **Skills**: Mirror validation, upstream verification, registry security  
 **Description**: Learn how attackers compromise internal npm registry mirrors to serve malicious packages. This enterprise-specific scenario demonstrates why mirrors are single points of failure and how to validate mirror integrity. Critical for organizations using internal package registries.
 
+### Scenario 12: Workspace/Monorepo Attack (Intermediate)
+**Duration**: 60-90 minutes  
+**Objective**: Understand and defend against attacks through compromised workspace packages  
+**Skills**: Workspace security, monorepo auditing, postinstall monitoring  
+**Description**: Learn how attackers compromise packages within npm workspaces or monorepos. This scenario demonstrates why workspace packages are a critical attack vector and how one compromised package can affect all packages in the workspace. Common in modern development with monorepo tools like Lerna, Nx, and Turborepo.
+
 ## 🛡️ Defense & Detection
 
 Each scenario includes:
@@ -202,7 +210,7 @@ This repository contains intentionally vulnerable code and malicious package exa
 - [Scenario Walkthroughs](docs/SCENARIOS.md) (if exists)
 - [Defense Strategies](docs/DEFENSE.md) (if exists)
 - [Troubleshooting](docs/TROUBLESHOOTING.md) (if exists)
-- [Additional Resources](docs/RESOURCES.md) (if exists)
+- [Additional Resources](docs/RESOURCES.md) - External links, articles, tools, and references
 
 ## 🎓 Learning Path
 
@@ -213,7 +221,7 @@ This repository contains intentionally vulnerable code and malicious package exa
 4. Implement defenses in the vulnerable applications
 5. Create your own attack scenario (capstone)
 
-**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenarios 7-8, 10 are intermediate level. Scenarios 9, 11 are advanced - Scenario 9 requires understanding of cryptographic signing, and Scenario 11 is enterprise-specific and requires understanding of internal registry infrastructure.
+**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenarios 7-8, 10, 12 are intermediate level. Scenarios 9, 11 are advanced - Scenario 9 requires understanding of cryptographic signing, and Scenario 11 is enterprise-specific and requires understanding of internal registry infrastructure. Scenario 12 is common in modern development and requires understanding of npm workspaces and monorepo structure.
 
 ## 🤝 Contributing
 
