@@ -64,6 +64,9 @@ test-results/
 *.tgz
 *.tar.gz
 
+# Local writing / content drafts
+subsstack/
+
 # IDE and editor folders
 .vscode/
 .idea/
