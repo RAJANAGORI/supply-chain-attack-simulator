@@ -1,0 +1,12 @@
+{
+  "name": "clean-utils",
+  "version": "1.0.0",
+  "description": "Utility helpers for cleaning strings and input",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/example/clean-utils.git"
+  },
+  "author": "Clean Maintainers <maintainers@example.com>",
+  "license": "MIT"
+}

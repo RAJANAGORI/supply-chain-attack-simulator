@@ -21,6 +21,8 @@ This test bench provides hands-on practical scenarios to learn about supply chai
 - **Registry Mirror Poisoning**: Attacks through compromised internal mirrors (Enterprise-specific)
 - **Workspace/Monorepo Attack**: Attacks through compromised workspace packages (Common in modern development)
 - **Detection & Mitigation**: Tools and techniques to defend your supply chain
+ - **Package Metadata Manipulation**: Spoofed metadata, tarball integrity mismatches
+ - **Container Image Supply Chain Attack**: Malicious image layers or startup exfiltration
 
 ## 📋 Prerequisites
 
@@ -48,7 +50,9 @@ testbench/
 │   ├── 09-package-signing-bypass/ # Lab 9: Package signing bypass
 │   ├── 10-git-submodule-attack/ # Lab 10: Git submodule attack
 │   ├── 11-registry-mirror-poisoning/ # Lab 11: Registry mirror poisoning
-│   └── 12-workspace-monorepo-attack/ # Lab 12: Workspace/monorepo attack
+│   ├── 12-workspace-monorepo-attack/ # Lab 12: Workspace/monorepo attack
+│   ├── 13-package-metadata-manipulation/ # Lab 13: Package metadata manipulation
+│   └── 14-container-image-supply-chain-attack/ # Lab 14: Container image supply chain attack
 ├── vulnerable-apps/           # Sample vulnerable applications
 │   ├── nodejs-app/           # Vulnerable Node.js application
 │   ├── python-app/           # Vulnerable Python application
@@ -169,6 +173,18 @@ cat README.md  # Read the scenario instructions
 **Skills**: Workspace security, monorepo auditing, postinstall monitoring  
 **Description**: Learn how attackers compromise packages within npm workspaces or monorepos. This scenario demonstrates why workspace packages are a critical attack vector and how one compromised package can affect all packages in the workspace. Common in modern development with monorepo tools like Lerna, Nx, and Turborepo.
 
+### Scenario 13: Package Metadata Manipulation (Intermediate)
+**Duration**: 45-75 minutes  
+**Objective**: Detect and defend against manipulated package metadata and tarball integrity mismatches  
+**Skills**: Metadata validation, SBOM checks, registry verification  
+**Description**: Attackers can spoof package metadata (repository, author, tarball URLs, integrity fields) to mislead consumers or redirect installs to malicious mirrors. This scenario shows how to detect inconsistencies and validate package provenance.
+
+### Scenario 14: Container Image Supply Chain Attack (Advanced)
+**Duration**: 60-120 minutes  
+**Objective**: Detect malicious image layers and runtime exfiltration from container images  
+**Skills**: Image layer inspection, image signing (cosign/notary), runtime monitoring  
+**Description**: Demonstrates how a compromised base image or registry can introduce malicious layers that exfiltrate data at container startup. Learn static and runtime detection and CI/CD mitigations.
+
 ## 🛡️ Defense & Detection
 
 Each scenario includes:
@@ -221,7 +237,7 @@ This repository contains intentionally vulnerable code and malicious package exa
 4. Implement defenses in the vulnerable applications
 5. Create your own attack scenario (capstone)
 
-**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenarios 7-8, 10, 12 are intermediate level. Scenarios 9, 11 are advanced - Scenario 9 requires understanding of cryptographic signing, and Scenario 11 is enterprise-specific and requires understanding of internal registry infrastructure. Scenario 12 is common in modern development and requires understanding of npm workspaces and monorepo structure.
+**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenarios 7-8, 10, 12, 13 are intermediate level. Scenarios 9, 11, 14 are advanced - Scenario 9 requires understanding of cryptographic signing, Scenario 11 is enterprise-specific (internal registries), and Scenario 14 requires familiarity with container tooling and image provenance. Scenario 12 is common in modern development and requires understanding of npm workspaces and monorepo structure.
 
 ## 🤝 Contributing
 

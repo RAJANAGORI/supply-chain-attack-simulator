@@ -1,0 +1,8 @@
+{
+  "name": "victim-app-metadata",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "clean-utils": "^1.0.0"
+  }
+}
