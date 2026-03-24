@@ -185,6 +185,42 @@ cat README.md  # Read the scenario instructions
 **Skills**: Image layer inspection, image signing (cosign/notary), runtime monitoring  
 **Description**: Demonstrates how a compromised base image or registry can introduce malicious layers that exfiltrate data at container startup. Learn static and runtime detection and CI/CD mitigations.
 
+### Scenario 15: Developer Tool Compromise (Advanced)
+**Duration**: 45-75 minutes  
+**Objective**: Simulate compromised developer tools (IDE extensions/CLIs) that run malicious code during development.  
+**Skills**: Build-time code execution, tool pinning, postinstall/suspicious script detection  
+**Description**: Practice detecting “trusted tooling” compromise patterns and apply mitigations like isolation and signature/pinning checks.
+
+### Scenario 16: Package Cache Poisoning (Intermediate)
+**Duration**: 45-75 minutes  
+**Objective**: Simulate poisoned local caches that persist across reinstalls.  
+**Skills**: Cache integrity validation, persistence analysis, mitigation recommendations  
+**Description**: Learn how attackers exploit caching layers and how to detect/clear poisoned artifacts safely.
+
+### Scenario 17: Multi-Stage Attack Chain (Advanced)
+**Duration**: 60-90 minutes  
+**Objective**: Correlate evidence across a chained, multi-stage supply chain attack.  
+**Skills**: Kill-chain thinking, evidence correlation, multi-step detection  
+**Description**: Understand how early-stage compromises enable later-stage impact and why correlation is key.
+
+### Scenario 18: Package Manager Plugin Attack (Advanced)
+**Duration**: 45-75 minutes  
+**Objective**: Simulate malicious package-manager plugins that intercept installs and inject payloads.  
+**Skills**: Plugin hook auditing, build-tool isolation, injection marker detection  
+**Description**: Practice isolating untrusted plugins and detecting installation-time tampering patterns.
+
+### Scenario 19: SBOM Manipulation Attack (Advanced)
+**Duration**: 45-75 minutes  
+**Objective**: Simulate SBOM pipelines that omit malicious dependencies.  
+**Skills**: SBOM authenticity checks, cross-verification, mismatch detection  
+**Description**: Learn how to validate SBOM truth against dependency reality and detect omissions.
+
+### Scenario 20: Package Version Confusion (Advanced)
+**Duration**: 45-75 minutes  
+**Objective**: Simulate version-selection ambiguity that installs an attacker’s high version.  
+**Skills**: Version-selection heuristics, registry trust validation, pinning/lockfile guidance  
+**Description**: Practice detecting suspicious version selection and enforcing deterministic installs.
+
 ## 🛡️ Defense & Detection
 
 Each scenario includes:

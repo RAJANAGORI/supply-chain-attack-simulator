@@ -1,0 +1,15 @@
+{
+  "name": "victim-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Victim app for version confusion simulation",
+  "main": "index.js",
+  "dependencies": {
+    "version-confuser-lib": "*"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "license": "MIT"
+}
+

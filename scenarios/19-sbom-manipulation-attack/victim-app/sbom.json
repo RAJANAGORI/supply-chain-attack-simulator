@@ -1,0 +1,6 @@
+{
+  "bomFormat": "educational-sbom-v1",
+  "dependencies": [
+    "safe-lib"
+  ]
+}
