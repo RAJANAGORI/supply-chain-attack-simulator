@@ -1,0 +1,8 @@
+{
+  "name": "target-lib",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "Target package for plugin injection simulation",
+  "license": "MIT"
+}
+

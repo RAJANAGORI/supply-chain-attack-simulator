@@ -1,0 +1,8 @@
+{
+  "name": "stage1-access-lib",
+  "version": "1.0.0",
+  "description": "Stage 1 initial access package (educational simulation)",
+  "main": "index.js",
+  "license": "MIT"
+}
+

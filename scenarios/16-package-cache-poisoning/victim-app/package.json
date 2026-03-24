@@ -1,0 +1,13 @@
+{
+  "name": "victim-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Victim app using poisoned package cache (educational simulation)",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node scripts/install-from-cache.js",
+    "start": "node index.js"
+  },
+  "license": "MIT"
+}
+

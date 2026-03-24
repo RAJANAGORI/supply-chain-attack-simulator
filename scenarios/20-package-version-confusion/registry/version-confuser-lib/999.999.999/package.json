@@ -1,0 +1,8 @@
+{
+  "name": "version-confuser-lib",
+  "version": "999.999.999",
+  "description": "Malicious high-version package (educational simulation)",
+  "main": "index.js",
+  "license": "MIT"
+}
+

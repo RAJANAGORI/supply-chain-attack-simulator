@@ -1,0 +1,10 @@
+{
+  "dependencies": [
+    "safe-lib",
+    "malicious-lib"
+  ],
+  "maliciousOmitted": [
+    "malicious-lib"
+  ]
+}
+

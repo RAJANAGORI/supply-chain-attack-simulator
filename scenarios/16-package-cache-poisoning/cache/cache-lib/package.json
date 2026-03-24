@@ -1,0 +1,8 @@
+{
+  "name": "cache-lib",
+  "version": "2.0.0",
+  "description": "Cache-poisoned library (educational simulation)",
+  "main": "index.js",
+  "license": "MIT"
+}
+

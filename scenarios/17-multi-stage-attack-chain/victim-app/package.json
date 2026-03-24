@@ -1,0 +1,15 @@
+{
+  "name": "victim-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Victim app for multi-stage attack chain simulation",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "stage1-access-lib": "file:../packages/stage1-access-lib",
+    "stage2-compromised-lib": "file:../packages/stage2-compromised-lib"
+  }
+}

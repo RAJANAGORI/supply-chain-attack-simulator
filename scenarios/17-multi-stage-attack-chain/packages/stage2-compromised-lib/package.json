@@ -1,0 +1,8 @@
+{
+  "name": "stage2-compromised-lib",
+  "version": "1.0.0",
+  "description": "Stage 2 compromised package (educational simulation)",
+  "main": "index.js",
+  "license": "MIT"
+}
+
