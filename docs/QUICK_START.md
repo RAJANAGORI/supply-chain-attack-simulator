@@ -42,9 +42,12 @@ cd docker && docker-compose up -d
 node scenarios/01-typosquatting/infrastructure/mock-server.js &
 ```
 
-### 5. Open Dashboard
+### 5. View Captured Data (CLI)
 
-Visit http://localhost:8080 in your browser.
+```bash
+# Check what the mock server has captured so far
+curl http://localhost:3000/captured-data
+```
 
 ## 🎯 Your First Attack Scenario
 
@@ -104,8 +107,6 @@ npm start
 # Check what data was captured
 curl http://localhost:3000/captured-data
 
-# Or view in dashboard
-# http://localhost:8080
 ```
 
 🎉 **Congratulations!** You've completed your first supply chain attack!
@@ -127,6 +128,7 @@ node ../../detection-tools/package-scanner.js victim-app
 ```
 
 The scanner should detect:
+
 - Suspicious network requests
 - Data exfiltration patterns
 - Anomalous behavior
@@ -153,7 +155,6 @@ The scanner should detect:
 
 - **Package Scanner**: `detection-tools/package-scanner.js`
 - **Network Monitor**: `detection-tools/network-monitor.sh`
-- **Dashboard**: http://localhost:8080
 
 ### Read Documentation
 
@@ -163,12 +164,11 @@ The scanner should detect:
 
 ## 💡 Pro Tips
 
-### Tip 1: Use the Dashboard
+### Tip 1: View Captured Data (CLI)
 
-The web dashboard at http://localhost:8080 provides a visual interface to:
-- View all captured attack data
-- Monitor in real-time
-- Export data for analysis
+```bash
+curl http://localhost:3000/captured-data
+```
 
 ### Tip 2: Clean Up Between Scenarios
 
@@ -176,7 +176,6 @@ The web dashboard at http://localhost:8080 provides a visual interface to:
 # Clear captured data
 curl -X DELETE http://localhost:3000/captured-data
 
-# Or use dashboard "Clear All Data" button
 ```
 
 ### Tip 3: Reset Environment
@@ -195,7 +194,7 @@ docker-compose up -d
 ### Tip 4: Save Your Work
 
 ```bash
-# Export captured data from dashboard
+# Export captured data from the mock server endpoint
 curl http://localhost:3000/captured-data > my-analysis.json
 ```
 
@@ -209,18 +208,6 @@ curl http://localhost:3000/captured-data
 
 # If not, start it
 node scenarios/01-typosquatting/infrastructure/mock-server.js &
-```
-
-### Dashboard Not Loading?
-
-```bash
-# Check if running
-curl http://localhost:8080
-
-# If not, start it
-cd docker/dashboard
-npm install
-node server.js &
 ```
 
 ### TESTBENCH_MODE Not Set?
@@ -290,4 +277,3 @@ This is a **learning environment**:
 **Now go explore and learn!** 🚀🔐
 
 For detailed instructions, see the [Complete Setup Guide](SETUP.md).
-

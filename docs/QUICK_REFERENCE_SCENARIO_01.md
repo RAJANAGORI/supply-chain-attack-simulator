@@ -42,7 +42,6 @@ npm start
 
 # 6. Check captured data
 curl http://localhost:3000/captured-data
-# OR open browser: http://localhost:8080
 ```
 
 ## 🔍 Detection Commands
@@ -67,7 +66,6 @@ node package-scanner.js ../scenarios/01-typosquatting/victim-app
 ```bash
 # Check if services are running
 curl http://localhost:3000/captured-data
-curl http://localhost:8080
 
 # View Docker services
 docker-compose ps

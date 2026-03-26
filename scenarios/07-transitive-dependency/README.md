@@ -454,7 +454,7 @@ npm audit fix
 ### Exercise 3: Defense Implementation
 - Implement dependency pinning
 - Set up automated scanning
-- Create monitoring dashboards
+- Create monitoring outputs
 - Document incident response procedures
 
 ## 📚 Additional Resources

@@ -34,7 +34,6 @@ temp/
 
 # Docker volumes
 verdaccio-storage/
-docker/dashboard/node_modules/
 
 # Captured data (from mock server)
 scenarios/*/infrastructure/captured-data.json

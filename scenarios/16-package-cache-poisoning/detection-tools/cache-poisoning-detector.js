@@ -18,7 +18,7 @@ function readIfExists(p) {
 }
 
 const scenarioRoot = path.join(process.cwd());
-// When called with "victim-app" from the dashboard, cwd might be scenario root or elsewhere.
+// When called with "victim-app", cwd might be scenario root or elsewhere.
 const target = process.argv[2] || '.';
 const root = path.isAbsolute(target) ? target : path.join(process.cwd(), target);
 

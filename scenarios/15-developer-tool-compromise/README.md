@@ -30,7 +30,7 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-Start the mock listener (if not already running, e.g. outside the dashboard):
+Start the mock listener (if not already running, e.g. in a separate terminal):
 
 ```bash
 node infrastructure/mock-server.js &

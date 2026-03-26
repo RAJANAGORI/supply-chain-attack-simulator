@@ -121,21 +121,9 @@ echo -e "${GREEN}✅ Scripts configured${NC}"
 echo ""
 echo "📁 Creating directory structure..."
 mkdir -p logs
-# mkdir -p docker/dashboard/public
 mkdir -p detection-tools
 mkdir -p docs
 echo -e "${GREEN}✅ Directories created${NC}"
-
-# # Install dashboard dependencies (if Docker not used)
-# if [ ! -f "docker/dashboard/node_modules/.installed" ]; then
-#     echo ""
-#     echo "📦 Installing dashboard dependencies..."
-#     cd docker/dashboard
-#     npm install --silent
-#     touch node_modules/.installed
-#     cd ../..
-#     echo -e "${GREEN}✅ Dashboard dependencies installed${NC}"
-# fi
 
 # # Start Docker services if available
 # if command -v docker &> /dev/null; then
@@ -154,7 +142,6 @@ echo -e "${GREEN}✅ Directories created${NC}"
 #         echo ""
 #         echo "Services available at:"
 #         echo "  - Mock Server: http://localhost:3000"
-#         echo "  - Dashboard: http://localhost:8080"
 #         echo "  - Private Registry: http://localhost:4873"
 #         echo "  - Public Registry: http://localhost:4874"
 #     else
@@ -183,9 +170,6 @@ echo "   cd scenarios/01-typosquatting"
 echo "   cat README.md"
 echo "   ./setup.sh"
 echo ""
-# echo "2. Open the dashboard:"
-# echo "   http://localhost:8080"
-# echo ""
 echo "2. Read the documentation:"
 echo "   cat docs/SETUP.md"
 echo ""

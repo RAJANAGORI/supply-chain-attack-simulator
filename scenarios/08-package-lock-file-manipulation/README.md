@@ -468,7 +468,7 @@ node ../detection-tools/lock-file-validator.js .
 - Create a CI/CD pipeline check
 - Set up git hooks for validation
 - Implement automated alerts
-- Create monitoring dashboard
+- Create monitoring outputs
 
 ### Exercise 2: Defense Implementation
 - Implement lock file validation

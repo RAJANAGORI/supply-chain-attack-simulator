@@ -120,7 +120,6 @@ source ~/.bashrc  # or ~/.zshrc
 If using Docker, the services are configured via `docker/docker-compose.yml`:
 
 - **Mock Server**: Port 3000
-- **Dashboard**: Port 8080
 - **Private Registry**: Port 4873
 - **Public Registry**: Port 4874
 
@@ -164,14 +163,6 @@ cd scenarios/01-typosquatting/infrastructure
 node mock-server.js &
 ```
 
-#### Start Dashboard
-
-```bash
-cd docker/dashboard
-npm install
-node server.js &
-```
-
 #### Start Verdaccio Registries
 
 ```bash
@@ -189,13 +180,10 @@ npx verdaccio -c docker/verdaccio/public-config.yaml -l 4874 &
 1. **Mock Server**: http://localhost:3000/captured-data
    - Should return: `{"captures": []}`
 
-2. **Dashboard**: http://localhost:8080
-   - Should display the testbench dashboard
-
-3. **Private Registry**: http://localhost:4873
+2. **Private Registry**: http://localhost:4873
    - Should show Verdaccio web interface
 
-4. **Public Registry**: http://localhost:4874
+3. **Public Registry**: http://localhost:4874
    - Should show Verdaccio web interface
 
 ### Run Test Scenario
