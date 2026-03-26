@@ -191,7 +191,6 @@ docker-compose up -d
 
 This starts:
 - **Mock Attacker Server** (port 3000) - Receives "stolen" data
-- **Dashboard** (port 8080) - Web interface to view attacks
 - **Package Registries** (ports 4873, 4874) - Local npm registries
 
 **Verify services are running:**
@@ -400,10 +399,11 @@ A JSON object with captured data, including:
 - System information (platform, Node.js version)
 - Timestamp of when it was captured
 
-**Or view it in the web dashboard:**
-Open your browser and go to: http://localhost:8080
+You can also export this captured JSON (for example):
 
-You should see a dashboard showing the captured data!
+```bash
+curl http://localhost:3000/captured-data > captured-data.json
+```
 
 ### Step 5: Understand What Happened
 
