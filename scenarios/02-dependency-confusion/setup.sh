@@ -42,6 +42,16 @@ mkdir -p detection-tools
 echo "✅ Directories created"
 echo ""
 
+# Seed malicious package metadata so flow doesn't break after copying index.js
+cat > attacker-packages/@techcorp/auth-lib/package.json << 'EOF'
+{
+  "name": "@techcorp/auth-lib",
+  "version": "999.999.999",
+  "description": "TechCorp Authentication Library [MALICIOUS - EDUCATIONAL]",
+  "main": "index.js"
+}
+EOF
+
 # Create leaked package.json (simulates reconnaissance)
 echo "📄 Creating leaked data (reconnaissance simulation)..."
 cat > leaked-data/package.json << 'EOF'
@@ -252,9 +262,9 @@ echo ""
 echo "4. Create malicious package using template:"
 echo "   cp templates/dependency-confusion-template.js attacker-packages/@techcorp/auth-lib/index.js"
 echo ""
-echo "5. Set malicious package version:"
+echo "5. Confirm malicious package metadata:"
 echo "   cd attacker-packages/@techcorp/auth-lib"
-echo "   # Edit package.json, set version to 999.999.999"
+echo "   cat package.json"
 echo ""
 echo "6. Install in corporate app (link for testing):"
 echo "   cd ../../corporate-app"
