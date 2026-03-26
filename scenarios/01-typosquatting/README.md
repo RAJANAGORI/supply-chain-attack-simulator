@@ -95,8 +95,8 @@ cd request-lib
 
 1. **Start the Mock Attacker Server**:
 ```bash
-cd ../../infrastructure
-docker-compose up -d mock-server
+node infrastructure/mock-server.js &
+curl http://localhost:3000/captured-data
 ```
 
 2. **Publish to Local Registry**:

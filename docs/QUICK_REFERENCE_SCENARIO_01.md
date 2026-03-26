@@ -13,11 +13,6 @@ source ~/.zshrc
 # 2. Run main setup
 chmod +x scripts/setup.sh
 ./scripts/setup.sh
-
-# 3. Start Docker services (if available)
-cd docker
-docker-compose up -d
-cd ..
 ```
 
 ## 🎯 Scenario 1: Quick Start
@@ -29,7 +24,7 @@ cd scenarios/01-typosquatting
 # 2. Run scenario setup
 ./setup.sh
 
-# 3. Start mock server (if not using Docker)
+# 3. Start mock server (in a separate terminal)
 node infrastructure/mock-server.js &
 
 # 4. Install malicious package (simulate typo)
@@ -67,12 +62,6 @@ node package-scanner.js ../scenarios/01-typosquatting/victim-app
 # Check if services are running
 curl http://localhost:3000/captured-data
 
-# View Docker services
-docker-compose ps
-
-# Stop Docker services
-docker-compose down
-
 # Clear captured data
 curl -X DELETE http://localhost:3000/captured-data
 
@@ -102,7 +91,6 @@ scenarios/01-typosquatting/
 | Port 3000 in use | `lsof -i :3000` then `kill -9 <PID>` |
 | Mock server not running | `node infrastructure/mock-server.js &` |
 | Cannot find module | `cd victim-app && npm install` |
-| Docker not starting | `docker-compose logs` |
 
 ## 📚 Documentation Links
 

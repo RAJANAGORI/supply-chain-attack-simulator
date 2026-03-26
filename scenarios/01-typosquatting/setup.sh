@@ -73,17 +73,6 @@ fi
 cd ..
 echo ""
 
-# Check if Docker is available
-if command -v docker >/dev/null 2>&1; then
-    echo "🐳 Docker detected"
-    echo "You can start the mock attacker server with:"
-    echo "   cd infrastructure && docker-compose up -d"
-else
-    echo "⚠️  Docker not found. You'll need to run the mock server manually."
-fi
-echo ""
-
-# Create a simple mock server if Docker is not used
 echo "📝 Creating standalone mock server..."
 cat > infrastructure/mock-server.js << 'EOF'
 /**

@@ -31,7 +31,6 @@ This test bench provides hands-on practical scenarios to learn about supply chai
   - Python 3.8+
   - Node.js 16+
   - Git
-  - Docker & Docker Compose (optional, for advanced scenarios)
 - **Knowledge Level**: Basic understanding of package managers (npm, pip, etc.)
 
 ## 🏗️ Project Structure
@@ -59,7 +58,6 @@ testbench/
 │   └── build-pipeline/       # Vulnerable CI/CD setup
 ├── malicious-packages/        # Example malicious packages (for learning)
 ├── detection-tools/          # Security scanning and detection tools
-├── docker/                   # Docker configurations
 ├── docs/                     # Detailed documentation
 └── scripts/                  # Setup and utility scripts
 ```

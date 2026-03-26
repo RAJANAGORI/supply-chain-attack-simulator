@@ -83,25 +83,7 @@ npm --version
 
 Both should show version numbers.
 
-### Step 3: Check if Docker is Installed (Optional but Recommended)
-
-```bash
-docker --version
-```
-
-**If you see a version number**:
-- ✅ Great! Docker will make things easier.
-
-**If you see "command not found"**:
-- That's okay! We can work without Docker. You'll just need to run a few extra commands.
-
-#### Installing Docker on macOS (Optional):
-1. Go to https://www.docker.com/products/docker-desktop
-2. Download Docker Desktop for Mac
-3. Install and start Docker Desktop
-4. Wait for Docker to start (you'll see a whale icon in your menu bar)
-
-### Step 4: Verify Git is Installed
+### Step 3: Verify Git is Installed
 
 ```bash
 git --version
@@ -173,34 +155,21 @@ chmod +x scripts/setup.sh
 - The script will check your system
 - It will ask for confirmation (type `y` and press Enter)
 - It will install dependencies (this might take a few minutes)
-- If Docker is available, it will start services automatically
 
 **If you see any errors:**
 - Read the error message carefully
 - Most common issues are missing Node.js or npm
 - Refer to Part 2 to install missing prerequisites
 
-### Step 4: Start Docker Services (If Docker is Available)
+### Step 4: Start the Mock Server (CLI)
 
-If Docker is installed, start the services:
+We’ll start the mock server manually (in a separate terminal) when needed:
 
 ```bash
-cd docker
-docker-compose up -d
+cd scenarios/01-typosquatting
+node infrastructure/mock-server.js &
+curl http://localhost:3000/captured-data
 ```
-
-This starts:
-- **Mock Attacker Server** (port 3000) - Receives "stolen" data
-- **Package Registries** (ports 4873, 4874) - Local npm registries
-
-**Verify services are running:**
-```bash
-docker-compose ps
-```
-
-You should see several services with status "Up".
-
-**If Docker is NOT available**, don't worry! We'll start the mock server manually later.
 
 ---
 
@@ -252,11 +221,7 @@ cd scenarios/01-typosquatting
 
 This server will receive the data that the malicious package tries to "steal". In a real attack, this would be an attacker's server, but in our test environment, it's just localhost.
 
-**If you have Docker running:**
-The mock server should already be running from Part 3, Step 4.
-
-**If you DON'T have Docker:**
-Start it manually:
+Start it manually (in a separate terminal):
 
 ```bash
 # Make sure you're in the scenario directory
@@ -562,11 +527,7 @@ For internal packages:
 After you're done experimenting:
 
 ```bash
-# Stop Docker services (if running)
-cd docker
-docker-compose down
-
-# Or stop the mock server manually
+# Stop the mock server manually
 # Find the process and kill it:
 # ps aux | grep mock-server
 # kill <PID>
@@ -645,21 +606,6 @@ npm install
 2. Check TESTBENCH_MODE: `echo $TESTBENCH_MODE`
 3. Restart the mock server
 4. Check application logs for errors
-
-### Problem: "Docker services won't start"
-
-**Solution:**
-```bash
-# Check Docker is running
-docker ps
-
-# Check logs
-docker-compose logs
-
-# Restart
-docker-compose down
-docker-compose up -d
-```
 
 ---
 

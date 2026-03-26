@@ -71,10 +71,6 @@ subsstack/
 .idea/
 *.sublime-*
 
-# Ignore verdaccio storage but keep config
-docker/verdaccio/storage/
-!docker/verdaccio/*.yaml
-
 # Keep example files
 !**/.env.example
 !**/package.json.example

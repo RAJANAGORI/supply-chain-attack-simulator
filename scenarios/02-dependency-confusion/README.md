@@ -39,7 +39,6 @@ When a higher version exists on the public registry, it may take precedence!
 ### Prerequisites
 - Node.js 16+ and npm installed
 - Verdaccio (local npm registry)
-- Docker (optional)
 
 ### Environment Setup
 
@@ -108,12 +107,10 @@ grep "@techcorp" leaked-data/package.json
 #### Step 1: Set Up Registries
 
 ```bash
-# Start local "public" registry (simulates npmjs.com)
-cd infrastructure
-docker-compose up -d public-registry
-
-# Start local "private" registry (simulates TechCorp's internal registry)
-docker-compose up -d private-registry
+# This scenario uses local registries (Verdaccio).
+# Start them in separate terminals:
+npx verdaccio -l 4873 &
+npx verdaccio -l 4874 &
 ```
 
 #### Step 2: Create Malicious Package
