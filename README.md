@@ -20,9 +20,15 @@ This test bench provides hands-on practical scenarios to learn about supply chai
 - **Git Submodule Attacks**: Attacks through malicious git submodules
 - **Registry Mirror Poisoning**: Attacks through compromised internal mirrors (Enterprise-specific)
 - **Workspace/Monorepo Attack**: Attacks through compromised workspace packages (Common in modern development)
-- **Detection & Mitigation**: Tools and techniques to defend your supply chain
- - **Package Metadata Manipulation**: Spoofed metadata, tarball integrity mismatches
- - **Container Image Supply Chain Attack**: Malicious image layers or startup exfiltration
+- **Package Metadata Manipulation**: Spoofed metadata and tarball integrity mismatches
+- **Container Image Supply Chain Attack**: Malicious image layers or startup exfiltration
+- **Developer Tool Compromise**: Malicious IDE/CLI/dev-tool packages that execute during development
+- **Package Cache Poisoning**: Poisoned local caches that persist across reinstalls
+- **Multi-Stage Attack Chains**: Correlated, chained supply chain compromises across stages
+- **Package Manager Plugin Attacks**: Malicious plugin hooks that tamper with installs
+- **SBOM Manipulation Attacks**: Omitted/falsified dependency metadata in SBOM pipelines
+- **Package Version Confusion**: Ambiguous version selection that installs attacker-controlled releases
+- **Detection & Mitigation**: Practical tooling and defensive workflows across all scenarios
 
 ## 📋 Prerequisites
 
@@ -32,6 +38,7 @@ This test bench provides hands-on practical scenarios to learn about supply chai
   - Node.js 16+
   - Git
 - **Knowledge Level**: Basic understanding of package managers (npm, pip, etc.)
+- **Runtime model**: CLI-only (no dashboard/web UI required)
 
 ## 🏗️ Project Structure
 
@@ -51,13 +58,20 @@ testbench/
 │   ├── 11-registry-mirror-poisoning/ # Lab 11: Registry mirror poisoning
 │   ├── 12-workspace-monorepo-attack/ # Lab 12: Workspace/monorepo attack
 │   ├── 13-package-metadata-manipulation/ # Lab 13: Package metadata manipulation
-│   └── 14-container-image-supply-chain-attack/ # Lab 14: Container image supply chain attack
+│   ├── 14-container-image-supply-chain-attack/ # Lab 14: Container image supply chain attack
+│   ├── 15-developer-tool-compromise/ # Lab 15: Developer tool compromise
+│   ├── 16-package-cache-poisoning/ # Lab 16: Package cache poisoning
+│   ├── 17-multi-stage-attack-chain/ # Lab 17: Multi-stage attack chain
+│   ├── 18-package-manager-plugin-attack/ # Lab 18: Package manager plugin attack
+│   ├── 19-sbom-manipulation-attack/ # Lab 19: SBOM manipulation attack
+│   └── 20-package-version-confusion/ # Lab 20: Package version confusion
 ├── vulnerable-apps/           # Sample vulnerable applications
 │   ├── nodejs-app/           # Vulnerable Node.js application
 │   ├── python-app/           # Vulnerable Python application
 │   └── build-pipeline/       # Vulnerable CI/CD setup
 ├── malicious-packages/        # Example malicious packages (for learning)
 ├── detection-tools/          # Security scanning and detection tools
+├── .github/ISSUE_TEMPLATE/   # GitHub issue forms
 ├── docs/                     # Detailed documentation
 └── scripts/                  # Setup and utility scripts
 ```
@@ -95,11 +109,23 @@ chmod +x scripts/setup.sh
 ./scripts/setup.sh
 ```
 
-### 3. Begin Your First Scenario
+### 3. Run Scenario 1 (CLI)
 
 ```bash
 cd scenarios/01-typosquatting
-cat README.md  # Read the scenario instructions
+./setup.sh
+node infrastructure/mock-server.js &
+cd victim-app
+npm install ../malicious-packages/request-lib
+export TESTBENCH_MODE=enabled
+npm start
+curl http://localhost:3000/captured-data
+```
+
+### 4. Clean up the Scenario Port
+
+```bash
+sudo ./scripts/kill-port.sh 3000
 ```
 
 ## 📚 Scenario Overview
@@ -257,10 +283,15 @@ This repository contains intentionally vulnerable code and malicious package exa
 - [Complete Setup Guide](docs/SETUP.md)
 - [Quick Start Guide](docs/QUICK_START.md)
 - [Best Practices](docs/BEST_PRACTICES.md)
-- [Scenario Walkthroughs](docs/SCENARIOS.md) (if exists)
-- [Defense Strategies](docs/DEFENSE.md) (if exists)
-- [Troubleshooting](docs/TROUBLESHOOTING.md) (if exists)
+- [Scenario Walkthroughs](docs/SCENARIOS.md) - includes scenario-to-port mapping and port cleanup guidance
 - [Additional Resources](docs/RESOURCES.md) - External links, articles, tools, and references
+
+## 🧾 Issue Templates
+
+GitHub issue forms are preconfigured under `.github/ISSUE_TEMPLATE`:
+- `bug_report.yaml`
+- `feature_request.yaml`
+- `scenario_issue.yaml`
 
 ## 🎓 Learning Path
 
