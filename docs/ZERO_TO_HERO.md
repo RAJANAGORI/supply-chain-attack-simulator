@@ -5,7 +5,6 @@ This guide gets a newcomer from zero to running their first scenario and underst
 1) Prerequisites
    - Node.js 16+, npm
    - Python 3.8+ (some helpers)
-   - Docker (optional for container scenarios)
    - Git
 
 2) Clone and setup

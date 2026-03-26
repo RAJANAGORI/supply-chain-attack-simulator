@@ -560,10 +560,6 @@ Implement preventive measures:
 # Stop mock server (if running manually)
 # ps aux | grep mock-server
 # kill <PID>
-
-# Or if using Docker
-cd ../../docker
-docker-compose down
 ```
 
 ### What You've Accomplished

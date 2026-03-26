@@ -593,10 +593,6 @@ Implement preventive measures:
 # Stop all infrastructure services
 # ps aux | grep -E "mock-cdn|credential-harvester|github-actions"
 # kill <PIDs>
-
-# Or if using Docker
-cd ../../docker
-docker-compose down
 ```
 
 ### What You've Accomplished

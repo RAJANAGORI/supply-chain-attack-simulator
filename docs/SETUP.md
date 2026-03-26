@@ -21,8 +21,7 @@ This guide will walk you through setting up the Supply Chain Attack Testbench on
 
 ### Optional Software
 
-- **Docker**: Version 20.10 or higher
-- **Docker Compose**: Version 2.0 or higher
+None.
 
 ### Supported Operating Systems
 
@@ -48,9 +47,6 @@ This guide will walk you through setting up the Supply Chain Attack Testbench on
 
 # Install Node.js
 brew install node
-
-# Install Docker (optional)
-brew install --cask docker
 ```
 
 #### Ubuntu/Debian Linux
@@ -62,10 +58,6 @@ sudo apt update
 # Install Node.js and npm
 curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
 sudo apt install -y nodejs
-
-# Install Docker (optional)
-curl -fsSL https://get.docker.com | sudo sh
-sudo usermod -aG docker $USER
 ```
 
 #### Windows (WSL2)
@@ -96,7 +88,6 @@ The setup script will:
 - Install dependencies
 - Configure environment variables
 - Create necessary directories
-- Start Docker services (if available)
 
 ## Configuration
 
@@ -115,16 +106,6 @@ Apply changes:
 source ~/.bashrc  # or ~/.zshrc
 ```
 
-### Docker Configuration
-
-If using Docker, the services are configured via `docker/docker-compose.yml`:
-
-- **Mock Server**: Port 3000
-- **Private Registry**: Port 4873
-- **Public Registry**: Port 4874
-
-To customize ports, edit `docker/docker-compose.yml`.
-
 ### NPM Configuration
 
 For dependency confusion scenarios, configure npm registry scopes.
@@ -141,20 +122,7 @@ registry=https://registry.npmjs.org/
 
 ## Starting Services
 
-### Using Docker (Recommended)
-
-```bash
-cd docker
-docker-compose up -d
-```
-
-Verify services are running:
-
-```bash
-docker-compose ps
-```
-
-### Manual Startup (Without Docker)
+### Manual Startup (CLI)
 
 #### Start Mock Server
 
@@ -163,28 +131,12 @@ cd scenarios/01-typosquatting/infrastructure
 node mock-server.js &
 ```
 
-#### Start Verdaccio Registries
-
-```bash
-# Private registry
-npx verdaccio -c docker/verdaccio/private-config.yaml -l 4873 &
-
-# Public registry
-npx verdaccio -c docker/verdaccio/public-config.yaml -l 4874 &
-```
-
 ## Verifying Installation
 
 ### Check Services
 
 1. **Mock Server**: http://localhost:3000/captured-data
    - Should return: `{"captures": []}`
-
-2. **Private Registry**: http://localhost:4873
-   - Should show Verdaccio web interface
-
-3. **Public Registry**: http://localhost:4874
-   - Should show Verdaccio web interface
 
 ### Run Test Scenario
 
@@ -220,27 +172,10 @@ Add to shell config for persistence.
 **Solution**:
 ```bash
 # Find process using the port
-lsof -i :3000  # or :8080, :4873, :4874
+lsof -i :3000
 
 # Kill the process
 kill -9 <PID>
-
-# Or change port in docker-compose.yml
-```
-
-### Issue: "Docker services won't start"
-
-**Solution**:
-```bash
-# Check Docker is running
-docker ps
-
-# Check logs
-docker-compose logs
-
-# Restart services
-docker-compose down
-docker-compose up -d
 ```
 
 ### Issue: "npm install fails"
@@ -307,10 +242,6 @@ Update malicious package templates to use new port.
 export DEBUG=testbench:*
 export NODE_ENV=development
 ```
-
-### Custom Registry Configuration
-
-Edit `docker/verdaccio/private-config.yaml` or `public-config.yaml` for registry customization.
 
 ## Security Notes
 

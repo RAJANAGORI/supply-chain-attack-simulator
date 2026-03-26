@@ -9,10 +9,9 @@ Get up and running with the Supply Chain Attack Testbench in 5 minutes!
 ```bash
 node --version   # Should be v16+
 npm --version    # Should be v7+
-docker --version # Optional but recommended
 ```
 
-If missing, install from [nodejs.org](https://nodejs.org) and [docker.com](https://docker.com).
+If missing, install from [nodejs.org](https://nodejs.org).
 
 ### 2. Clone and Setup
 
@@ -35,10 +34,7 @@ export TESTBENCH_MODE=enabled
 ### 4. Start Services
 
 ```bash
-# With Docker (recommended)
-cd docker && docker-compose up -d
-
-# OR manually
+# Start the mock server manually
 node scenarios/01-typosquatting/infrastructure/mock-server.js &
 ```
 
@@ -181,14 +177,8 @@ curl -X DELETE http://localhost:3000/captured-data
 ### Tip 3: Reset Environment
 
 ```bash
-# Stop all services
-cd docker && docker-compose down
-
 # Clear node_modules
 find . -name "node_modules" -type d -exec rm -rf {} +
-
-# Restart fresh
-docker-compose up -d
 ```
 
 ### Tip 4: Save Your Work

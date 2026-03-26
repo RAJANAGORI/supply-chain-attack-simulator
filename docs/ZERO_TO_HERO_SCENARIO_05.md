@@ -54,7 +54,6 @@ Before we start, make sure you've completed:
 - ✅ Scenario 3 (Compromised Package)
 - ✅ Scenario 6 (Shai-Hulud)
 - ✅ Node.js 16+ and npm installed
-- ✅ Docker (for CI/CD simulation)
 - ✅ TESTBENCH_MODE enabled
 
 ---
@@ -117,7 +116,7 @@ cd scenarios/05-build-compromise
 
 **Build systems** compile source code into deployable artifacts:
 - Source code → Build process → Compiled artifacts
-- Examples: npm build, webpack, docker build
+- Examples: npm build, webpack
 - Often automated in CI/CD pipelines
 
 ### Step 2: The Vulnerability
@@ -328,11 +327,7 @@ env:
 
 ### Prevention Strategy 3: Build Isolation
 
-```bash
-# Use isolated build containers
-docker build -t build-image .
-docker run --rm build-image npm run build
-```
+Run builds in an isolated environment (dedicated build user + clean working directory) and only pass the minimum required secrets.
 
 ### Prevention Strategy 4: Artifact Verification
 

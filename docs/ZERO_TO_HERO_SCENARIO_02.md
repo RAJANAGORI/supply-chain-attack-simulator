@@ -53,7 +53,6 @@ Before we start, make sure you've completed:
 
 - ✅ Scenario 1 (Typosquatting) - Understanding basic supply chain attacks
 - ✅ Node.js 16+ and npm installed
-- ✅ Docker (optional but recommended)
 - ✅ TESTBENCH_MODE enabled
 
 Verify your setup:
@@ -61,7 +60,6 @@ Verify your setup:
 ```bash
 node --version   # Should be v16+
 npm --version    # Should be v7+
-docker --version # Optional
 echo $TESTBENCH_MODE  # Should output: enabled
 ```
 
@@ -234,7 +232,7 @@ cat index.js
 # Go back to scenario root
 cd ../../
 
-# Start mock server (if not already running from Docker)
+# Start mock server (in a separate terminal, if not already running)
 node ../01-typosquatting/infrastructure/mock-server.js &
 ```
 
@@ -542,10 +540,6 @@ npm uses semantic versioning (semver) to resolve versions:
 # Stop mock server (if running manually)
 # Find process: ps aux | grep mock-server
 # Kill it: kill <PID>
-
-# Or if using Docker
-cd ../../docker
-docker-compose down
 ```
 
 ### What You've Accomplished

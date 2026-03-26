@@ -237,9 +237,8 @@ env:
 #### Prevention Strategy 3: Build Isolation
 
 ```bash
-# Use isolated build containers
-docker build -t build-image .
-docker run --rm build-image npm run build
+# Run builds in an isolated environment (dedicated build user + clean working directory)
+# and only pass the minimum required secrets.
 ```
 
 #### Prevention Strategy 4: Artifact Verification

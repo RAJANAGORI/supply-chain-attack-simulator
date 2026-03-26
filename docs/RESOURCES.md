@@ -125,11 +125,6 @@ A curated collection of external resources, tools, articles, and references for 
   - Features: Container vulnerability analysis
   - Open-source
 
-- **Docker Scout**
-  - Website: https://docs.docker.com/scout/
-  - Features: Container security scanning
-  - Integrated with Docker
-
 ---
 
 ## 📄 Research Papers & Articles
@@ -377,8 +372,6 @@ A curated collection of external resources, tools, articles, and references for 
 
 ### Container Registries
 
-- **Docker Hub Security**
-  - Website: https://docs.docker.com/docker-hub/security-scanning/
   - Features: Image scanning
 
 - **Harbor**

@@ -362,22 +362,7 @@ npx @microsoft/sbom-tool generate -b ./output -bc . -pn MyApp -pv 1.0.0
 
 **Why**: Prevent compromised builds from affecting production.
 
-```yaml
-# Use Docker for isolated builds
-FROM node:18-alpine AS builder
-
-# Install dependencies
-COPY package*.json ./
-RUN npm ci --only=production --audit
-
-# Build application
-COPY . .
-RUN npm run build
-
-# Final image with only necessary files
-FROM node:18-alpine
-COPY --from=builder /app/dist ./dist
-```
+Use a dedicated build user / sandboxed environment and keep build and runtime environments separated.
 
 ## Runtime Protection
 

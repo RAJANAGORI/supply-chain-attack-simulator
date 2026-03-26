@@ -32,7 +32,7 @@ cat > package.json << 'EOF'
 }
 EOF
 
-# 3. Start mock server (if not using Docker)
+# 3. Start mock server (in a separate terminal)
 node ../../01-typosquatting/infrastructure/mock-server.js &
 
 # 4. Install malicious package in corporate app

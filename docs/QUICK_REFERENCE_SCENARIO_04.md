@@ -18,7 +18,7 @@ export TESTBENCH_MODE=enabled
 ## 🎯 Attack Execution
 
 ```bash
-# 1. Start mock server (if not using Docker)
+# 1. Start mock server (in a separate terminal)
 node ../01-typosquatting/infrastructure/mock-server.js &
 
 # 2. Install legitimate version
