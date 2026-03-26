@@ -1,0 +1,75 @@
+name: Bug Report
+description: Report a reproducible bug in scenarios, setup scripts, CLI flow, or docs
+title: "[BUG]: "
+labels: ["bug"]
+assignees:
+  - RAJANAGORI
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please provide enough detail to reproduce it quickly.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Scenario setup script
+        - Scenario README instructions
+        - Detection tools
+        - Mock server / captured-data flow
+        - CLI command flow
+        - Documentation
+        - Repository tooling
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected to happen.
+      placeholder: "Observed behavior vs expected behavior"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide exact steps, commands, and inputs.
+      placeholder: |
+        1. cd scenarios/NN-...
+        2. ./setup.sh
+        3. Run ...
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: input
+    id: scenario
+    attributes:
+      label: Scenario number/name
+      description: Which scenario is affected?
+      placeholder: "e.g., 02-dependency-confusion"
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, architecture, Node/npm versions
+      placeholder: "Ubuntu 24.04 x64, Node 24.x, npm 11.x"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste relevant command output, stack traces, or screenshots.
+      placeholder: "Paste logs here"
+    validations:
+      required: false

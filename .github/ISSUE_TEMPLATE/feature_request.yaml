@@ -1,0 +1,68 @@
+name: Feature Request
+description: Suggest a new scenario, enhancement, or simulator capability
+title: "[FEATURE]: "
+labels: ["enhancement"]
+assignees:
+  - RAJANAGORI
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement for the supply-chain attack simulator.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Request type
+      options:
+        - New attack scenario
+        - Detection improvement
+        - Documentation improvement
+        - Setup/CLI workflow improvement
+        - New helper script/tooling
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: Short request title
+      placeholder: "Add scenario for dependency typo in private registries"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What pain point does this solve?
+      placeholder: "Currently ... which makes ... difficult."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe what should be added/changed.
+      placeholder: "Add/Change ... in scenarios/... so users can ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional alternatives or workarounds.
+      placeholder: "Alternative approaches..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_info
+    attributes:
+      label: Additional context
+      description: Links, references, examples, or related issues.
+      placeholder: "Any additional information"
+    validations:
+      required: false

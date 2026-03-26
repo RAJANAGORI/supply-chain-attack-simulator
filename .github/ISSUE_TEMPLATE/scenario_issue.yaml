@@ -1,0 +1,68 @@
+name: Scenario Issue Report
+description: Report a scenario-specific issue in setup, execution, or detection steps
+title: "[SCENARIO]: "
+labels: ["scenario"]
+assignees:
+  - RAJANAGORI
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a scenario issue. Please include exact commands and outputs.
+
+  - type: input
+    id: scenario
+    attributes:
+      label: Scenario
+      description: Scenario directory name
+      placeholder: "e.g., 09-package-signing-bypass"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: step_type
+    attributes:
+      label: Where did it fail?
+      options:
+        - setup.sh
+        - victim app install/run
+        - mock server start
+        - detection tools
+        - README instructions
+    validations:
+      required: true
+
+  - type: textarea
+    id: command_run
+    attributes:
+      label: Command(s) run
+      placeholder: |
+        cd scenarios/...
+        ./setup.sh
+        npm install ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual output/error
+      placeholder: "Paste terminal output/error logs"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: "What should have happened?"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "OS, Node/npm versions"
+    validations:
+      required: false
