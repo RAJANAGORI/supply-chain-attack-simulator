@@ -8,9 +8,9 @@
     "preinstall": "node scripts/validate-dependencies.js || true"
   },
   "dependencies": {
-    "@techcorp/auth-lib": "^1.0.0",
-    "@techcorp/data-utils": "^1.0.0",
-    "@techcorp/api-client": "^1.0.0",
+    "@techcorp/auth-lib": "file:../internal-packages/@techcorp/auth-lib",
+    "@techcorp/data-utils": "file:../internal-packages/@techcorp/data-utils",
+    "@techcorp/api-client": "file:../internal-packages/@techcorp/api-client",
     "express": "^4.18.0"
   },
   "author": "TechCorp Internal Team",
