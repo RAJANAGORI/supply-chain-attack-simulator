@@ -87,3 +87,13 @@ This file provides a concise reference for each scenario included in the testben
 ---
 
 Tip: Use `cat scenarios/NN-name/README.md` to open scenario instructions. Each scenario includes a `setup.sh`, mock infrastructure, detection tools, and recommended exercises. For a short walkthrough, see `docs/ZERO_TO_HERO_SCENARIO_NN.md`; for command cheat sheets, see `docs/QUICK_REFERENCE_SCENARIO_NN.md` (replace `NN` with the scenario number).
+
+## Port Cleanup (free ports between scenarios)
+
+After finishing a scenario, free the port(s) used by that scenario's mock attacker server(s) to avoid `EADDRINUSE` / “port already in use” errors on the next run.
+
+Run:
+
+```bash
+sudo ./scripts/kill-port.sh <PORT>
+```
