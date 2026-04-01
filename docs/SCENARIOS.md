@@ -86,7 +86,7 @@ This file provides a concise reference for each scenario included in the testben
 
 ---
 
-Tip: Use `cat scenarios/NN-name/README.md` to open scenario instructions. Each scenario includes a `setup.sh`, mock infrastructure, detection tools, and recommended exercises. For a short walkthrough, see `docs/ZERO_TO_HERO_SCENARIO_NN.md`; for command cheat sheets, see `docs/QUICK_REFERENCE_SCENARIO_NN.md` (replace `NN` with the scenario number).
+Tip: Use `cat scenarios/NN-name/README.md` to open scenario instructions. Each scenario includes a `setup.sh`, mock infrastructure, detection tools, and recommended exercises. For a short walkthrough, see `docs/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_NN.md`; for command cheat sheets, see `docs/scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_NN.md` (replace `NN` with the scenario number).
 
 ## Port Cleanup (free ports between scenarios)
 

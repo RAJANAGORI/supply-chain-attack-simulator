@@ -278,7 +278,15 @@ This repository contains intentionally vulnerable code and malicious package exa
 
 ## 📖 Documentation
 
+- **[Docs Map](docs/README.md)** - Organized index of all documentation
 - **[Zero to Hero Guide](docs/ZERO_TO_HERO.md)** ⭐ **START HERE if you're new!**
+- **[Supply Chain Attacks: Zero to Hero](docs/learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md)** - Landing page with progression path
+- **[Scenario Learning Path](docs/learning-path/SCENARIO_LEARNING_PATH.md)** - Beginner/intermediate/advanced map with outcomes
+- **[Module Template](docs/modules/MODULE_TEMPLATE.md)** - Reusable format for teaching any scenario
+- **[Module Instances Index](docs/modules/MODULE_INSTANCES_INDEX.md)** - Quick links to scenario module files (01-20)
+- **[All Scenario Module Instances](docs/modules/MODULE_INSTANCES_ALL_SCENARIOS.md)** - Ready-to-teach cards for scenarios 01-20
+- **[Teaching Delivery Pack](docs/learning-path/TEACHING_DELIVERY_PACK.md)** - Talk/docs/course/simulator variants
+- **[Capstone Rubric](docs/learning-path/CAPSTONE_RUBRIC.md)** - Final exercise and scoring criteria
 - [Quick Reference Card](docs/QUICK_REFERENCE.md) - Essential commands cheat sheet
 - [Complete Setup Guide](docs/SETUP.md)
 - [Quick Start Guide](docs/QUICK_START.md)
