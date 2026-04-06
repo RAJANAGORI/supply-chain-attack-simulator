@@ -1,0 +1,13 @@
+title: Supply Chain Attack Simulator
+description: >-
+  A hands-on cybersecurity training platform with 20 real-world attack scenarios
+  for understanding, practicing, and defending against software supply chain attacks.
+url: "https://rajanagori.github.io"
+baseurl: "/supply-chain-attack-simulator"
+theme: null
+plugins: []
+include:
+  - index.html
+  - 404.html
+  - robots.txt
+  - sitemap.xml

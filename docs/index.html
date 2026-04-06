@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <!-- Primary Meta Tags -->
+  <title>Supply Chain Attack Simulator | Hands-On Cybersecurity Training Platform</title>
+  <meta name="title" content="Supply Chain Attack Simulator | Hands-On Cybersecurity Training Platform">
+  <meta name="description" content="Master software supply chain security with 20 real-world attack scenarios. Hands-on labs covering typosquatting, dependency confusion, CI/CD compromise, container attacks, and more. Open-source educational platform.">
+  <meta name="keywords" content="supply chain attack, cybersecurity training, software security, dependency confusion, typosquatting, CI/CD security, npm security, package security, SBOM, container security, open source security, security testing, penetration testing, red team, blue team, OWASP, supply chain security simulator">
+  <meta name="author" content="Raja Nagori">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <meta name="bingbot" content="index, follow">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="color-scheme" content="dark">
+  <meta name="generator" content="Supply Chain Attack Simulator">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://rajanagori.github.io/supply-chain-attack-simulator/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://rajanagori.github.io/supply-chain-attack-simulator/">
+  <meta property="og:title" content="Supply Chain Attack Simulator | Hands-On Cybersecurity Training">
+  <meta property="og:description" content="Master software supply chain security with 20 real-world attack scenarios. Open-source hands-on labs for defenders, red teamers, and security engineers.">
+  <meta property="og:image" content="https://rajanagori.github.io/supply-chain-attack-simulator/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Supply Chain Attack Simulator - 20 Real-World Attack Scenarios">
+  <meta property="og:site_name" content="Supply Chain Attack Simulator">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://rajanagori.github.io/supply-chain-attack-simulator/">
+  <meta name="twitter:title" content="Supply Chain Attack Simulator | Cybersecurity Training Platform">
+  <meta name="twitter:description" content="20 real-world supply chain attack scenarios. Hands-on labs for typosquatting, dependency confusion, CI/CD compromise, container attacks & more.">
+  <meta name="twitter:image" content="https://rajanagori.github.io/supply-chain-attack-simulator/og-image.png">
+  <meta name="twitter:image:alt" content="Supply Chain Attack Simulator">
+  <meta name="twitter:creator" content="@yourhandle">
+
+  <!-- Additional SEO -->
+  <link rel="sitemap" type="application/xml" href="/supply-chain-attack-simulator/sitemap.xml">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Supply Chain Attack Simulator",
+    "alternateName": "Supply Chain Attack Test Bench",
+    "description": "A comprehensive cybersecurity learning platform for understanding, practicing, and defending against software supply chain attacks with 20 real-world scenarios.",
+    "url": "https://rajanagori.github.io/supply-chain-attack-simulator/",
+    "applicationCategory": "SecurityApplication",
+    "operatingSystem": "Linux, macOS, Windows (WSL2)",
+    "license": "https://opensource.org/licenses/MIT",
+    "isAccessibleForFree": true,
+    "author": {
+      "@type": "Person",
+      "name": "Raja Nagori",
+      "url": "https://github.com/rajanagori"
+    },
+    "codeRepository": "https://github.com/rajanagori/supply-chain-attack-simulator",
+    "programmingLanguage": ["JavaScript", "Node.js", "Shell", "Python"],
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Supply Chain Attack Simulator - Hands-On Training",
+    "description": "Learn to detect, exploit, and defend against 20 real-world software supply chain attack scenarios including typosquatting, dependency confusion, CI/CD compromise, and more.",
+    "provider": {
+      "@type": "Person",
+      "name": "Raja Nagori"
+    },
+    "educationalLevel": "Beginner to Expert",
+    "numberOfCredits": 20,
+    "hasCourseInstance": {
+      "@type": "CourseInstance",
+      "courseMode": "self-paced",
+      "courseWorkload": "PT40H"
+    },
+    "about": [
+      "Supply Chain Security",
+      "Software Security",
+      "Cybersecurity",
+      "Penetration Testing",
+      "DevSecOps"
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the Supply Chain Attack Simulator?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The Supply Chain Attack Simulator is a comprehensive, open-source cybersecurity learning platform with 20 hands-on scenarios for understanding, practicing, and defending against software supply chain attacks. It covers typosquatting, dependency confusion, CI/CD compromise, container attacks, SBOM manipulation, and more."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is it safe to use the Supply Chain Attack Simulator?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. All malicious packages are clearly labeled as educational, designed to work only in the test environment with TESTBENCH_MODE=enabled, and incapable of causing real harm when used as instructed. Operations are localhost-only with clear warning messages."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are the prerequisites?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "You need Node.js 16+, Python 3.8+, Git, and basic understanding of package managers (npm, pip). The platform runs on Linux, macOS, or Windows with WSL2."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is the Supply Chain Attack Simulator free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, the Supply Chain Attack Simulator is completely free and open source under the MIT License. It is available on GitHub for anyone to use, fork, and contribute to."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How many attack scenarios are included?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The simulator includes 20 comprehensive attack scenarios ranging from beginner to expert level, covering typosquatting, dependency confusion, compromised packages, malicious updates, build system compromise, self-replicating attacks, transitive dependencies, lock file manipulation, signing bypass, git submodule attacks, registry mirror poisoning, monorepo attacks, metadata manipulation, container image attacks, developer tool compromise, cache poisoning, multi-stage chains, plugin attacks, SBOM manipulation, and version confusion."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use this for professional training?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely. The platform includes teaching delivery packs, module templates, capstone rubrics, and learning paths designed for professional security training. It has been presented at BlackHat Arsenal and OWASP events."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://rajanagori.github.io/supply-chain-attack-simulator/"
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    /* ===== CSS Custom Properties ===== */
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #0f0f17;
+      --bg-tertiary: #14141f;
+      --bg-card: #16162366;
+      --bg-card-hover: #1a1a2d88;
+      --bg-glass: rgba(22, 22, 35, 0.6);
+
+      --text-primary: #e8e8f0;
+      --text-secondary: #9d9daf;
+      --text-muted: #6b6b7b;
+
+      --accent-primary: #6366f1;
+      --accent-secondary: #8b5cf6;
+      --accent-tertiary: #a855f7;
+      --accent-glow: rgba(99, 102, 241, 0.15);
+      --accent-glow-strong: rgba(99, 102, 241, 0.3);
+
+      --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.15);
+      --orange: #f97316;
+      --amber: #f59e0b;
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.15);
+      --cyan: #06b6d4;
+      --cyan-glow: rgba(6, 182, 212, 0.15);
+
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-accent: rgba(99, 102, 241, 0.2);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 40px var(--accent-glow);
+
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+      scroll-padding-top: 80px;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a {
+      color: var(--accent-primary);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+    a:hover { color: var(--accent-secondary); }
+
+    img { max-width: 100%; height: auto; display: block; }
+
+    code {
+      font-family: var(--font-mono);
+      background: var(--bg-tertiary);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.875em;
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* ===== Scrollbar ===== */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+    /* ===== Utility ===== */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section {
+      padding: 100px 0;
+      position: relative;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .section-title {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .section-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 640px;
+      line-height: 1.7;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+    .section-header .section-subtitle {
+      margin: 0 auto;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-tertiary) 50%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-accent);
+      background: var(--accent-glow);
+      color: var(--accent-primary);
+      font-family: var(--font-mono);
+      letter-spacing: 0.05em;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      text-decoration: none;
+      font-family: var(--font-sans);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      backdrop-filter: blur(12px);
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent-primary);
+      background: var(--accent-glow);
+      color: var(--text-primary);
+    }
+
+    /* ===== Animated Background ===== */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image:
+        linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+      background-size: 64px 64px;
+    }
+
+    .bg-glow {
+      position: fixed;
+      z-index: -1;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .bg-glow-1 {
+      top: -200px;
+      left: -100px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15), transparent 70%);
+    }
+    .bg-glow-2 {
+      top: 40%;
+      right: -200px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.1), transparent 70%);
+    }
+    .bg-glow-3 {
+      bottom: -200px;
+      left: 30%;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.08), transparent 70%);
+    }
+
+    /* ===== Navigation ===== */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 0 24px;
+      transition: all var(--transition-base);
+    }
+
+    .nav.scrolled {
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+    }
+    .nav-brand:hover { color: var(--text-primary); }
+
+    .nav-brand svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: color var(--transition-fast);
+      position: relative;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent-primary);
+      transition: width var(--transition-base);
+      border-radius: 1px;
+    }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-github {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+    .nav-github:hover {
+      border-color: var(--accent-primary);
+      color: var(--text-primary);
+    }
+    .nav-github svg { width: 18px; height: 18px; }
+
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-hamburger span {
+      width: 24px;
+      height: 2px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transition: all var(--transition-fast);
+    }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 72px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 10, 15, 0.97);
+      backdrop-filter: blur(20px);
+      z-index: 999;
+      padding: 40px 24px;
+    }
+    .mobile-menu.open { display: flex; flex-direction: column; gap: 24px; }
+    .mobile-menu a {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .mobile-menu a:hover { color: var(--text-primary); }
+
+    /* ===== Hero ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      padding-top: 72px;
+      overflow: hidden;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+    }
+
+    .hero-badge {
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.25rem, 6vw, 4rem);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+
+    .hero-description {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      margin-bottom: 40px;
+      max-width: 580px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 56px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+    }
+    .hero-stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      background: linear-gradient(135deg, var(--accent-primary), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .hero-visual {
+      position: absolute;
+      right: -60px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 520px;
+      height: 520px;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .hero-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid var(--border-accent);
+    }
+    .hero-ring-1 {
+      inset: 0;
+      animation: rotate 40s linear infinite;
+    }
+    .hero-ring-2 {
+      inset: 40px;
+      border-color: rgba(139, 92, 246, 0.15);
+      animation: rotate 30s linear infinite reverse;
+    }
+    .hero-ring-3 {
+      inset: 80px;
+      border-color: rgba(6, 182, 212, 0.12);
+      animation: rotate 20s linear infinite;
+    }
+
+    .hero-ring-dot {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      box-shadow: 0 0 16px var(--accent-primary);
+    }
+    .hero-ring-1 .hero-ring-dot { top: -4px; left: 50%; }
+    .hero-ring-2 .hero-ring-dot { bottom: -4px; right: 20%; }
+    .hero-ring-3 .hero-ring-dot { top: 30%; left: -4px; }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== Conference Banner ===== */
+    .conference-banner {
+      background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 40px 0;
+      text-align: center;
+    }
+
+    .conference-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+
+    .conference-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.6;
+      transition: opacity var(--transition-base);
+    }
+    .conference-item:hover { opacity: 1; }
+    .conference-item-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .conference-item-detail {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ===== Why Section ===== */
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .why-card {
+      padding: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-base);
+      position: relative;
+      overflow: hidden;
+    }
+    .why-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+    .why-card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-glow);
+    }
+    .why-card:hover::before { opacity: 1; }
+
+    .why-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      background: var(--accent-glow);
+      border: 1px solid var(--border-accent);
+    }
+
+    .why-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .why-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* ===== Scenarios ===== */
+    .scenarios-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .scenario-card {
+      padding: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      transition: all var(--transition-base);
+      cursor: default;
+      position: relative;
+    }
+    .scenario-card:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .scenario-number {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .scenario-card h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .scenario-card p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .scenario-level {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+    }
+    .level-beginner {
+      background: var(--emerald-glow);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .level-intermediate {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--amber);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .level-advanced {
+      background: var(--red-glow);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    .level-expert {
+      background: rgba(168, 85, 247, 0.1);
+      color: var(--accent-tertiary);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+
+    /* ===== How It Works ===== */
+    .how-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .how-card {
+      display: flex;
+      gap: 20px;
+      padding: 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-base);
+    }
+    .how-card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+    }
+
+    .how-card-number {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1rem;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: #fff;
+    }
+
+    .how-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .how-card p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ===== Architecture ===== */
+    .arch-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .arch-diagram {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .arch-diagram::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, var(--accent-glow), transparent 70%);
+      pointer-events: none;
+    }
+
+    .arch-tree {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      position: relative;
+      z-index: 1;
+    }
+    .arch-tree .dir { color: var(--accent-primary); font-weight: 600; }
+    .arch-tree .file { color: var(--text-muted); }
+    .arch-tree .comment { color: var(--text-muted); font-style: italic; }
+
+    .arch-features {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .arch-feature {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .arch-feature-icon {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      background: var(--accent-glow);
+      border: 1px solid var(--border-accent);
+    }
+
+    .arch-feature h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .arch-feature p {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ===== Quick Start ===== */
+    .quickstart-steps {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .qs-step {
+      position: relative;
+      padding: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-base);
+    }
+    .qs-step:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+    }
+
+    .qs-step-num {
+      position: absolute;
+      top: -12px;
+      left: 24px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 0.85rem;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .qs-step h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      margin-top: 8px;
+    }
+
+    .qs-code {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      line-height: 1.8;
+      overflow-x: auto;
+      color: var(--text-secondary);
+      position: relative;
+    }
+    .qs-code .prompt { color: var(--emerald); user-select: none; }
+    .qs-code .cmd { color: var(--text-primary); }
+    .qs-code .comment { color: var(--text-muted); }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 10px;
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .copy-btn:hover {
+      color: var(--accent-primary);
+      border-color: var(--accent-primary);
+    }
+
+    /* ===== Attack Flow ===== */
+    .flow-section {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .flow-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .flow-container::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at top left, var(--red-glow), transparent 50%),
+                  radial-gradient(ellipse at bottom right, var(--emerald-glow), transparent 50%);
+      pointer-events: none;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .flow-step {
+      text-align: center;
+      position: relative;
+    }
+
+    .flow-step-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin: 0 auto 12px;
+      border: 2px solid;
+      position: relative;
+    }
+
+    .flow-step.attack .flow-step-icon {
+      border-color: rgba(239, 68, 68, 0.3);
+      background: var(--red-glow);
+    }
+    .flow-step.observe .flow-step-icon {
+      border-color: rgba(245, 158, 11, 0.3);
+      background: rgba(245, 158, 11, 0.1);
+    }
+    .flow-step.defend .flow-step-icon {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: var(--emerald-glow);
+    }
+
+    .flow-step h4 {
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .flow-step p {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .flow-connector {
+      position: absolute;
+      top: 28px;
+      right: -8px;
+      width: 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ===== Defense ===== */
+    .defense-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .defense-card {
+      padding: 28px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-base);
+    }
+    .defense-card:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-2px);
+    }
+
+    .defense-card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+
+    .defense-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .defense-card p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ===== Tech Stack ===== */
+    .stack-items {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stack-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+    .stack-item:hover {
+      border-color: var(--border-accent);
+      color: var(--text-primary);
+    }
+    .stack-item svg { width: 20px; height: 20px; }
+
+    /* ===== FAQ ===== */
+    .faq-list {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: border-color var(--transition-fast);
+    }
+    .faq-item.open {
+      border-color: var(--border-accent);
+    }
+
+    .faq-question {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: var(--font-sans);
+    }
+    .faq-question:hover { color: var(--accent-primary); }
+
+    .faq-chevron {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      transition: transform var(--transition-base);
+      color: var(--text-muted);
+    }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+
+    .faq-answer {
+      padding: 0 24px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height var(--transition-slow), padding var(--transition-slow);
+    }
+    .faq-item.open .faq-answer {
+      max-height: 300px;
+      padding: 0 24px 20px;
+    }
+    .faq-answer p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ===== CTA ===== */
+    .cta-section {
+      background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, var(--accent-glow), transparent 60%);
+      pointer-events: none;
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-content h2 {
+      font-size: clamp(1.5rem, 3.5vw, 2.25rem);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .cta-content p {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ===== Footer ===== */
+    .footer {
+      padding: 64px 0 32px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-secondary);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer-brand p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-top: 12px;
+      max-width: 300px;
+    }
+
+    .footer-col h4 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-col a {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .footer-col a:hover { color: var(--text-primary); }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 32px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ===== Scroll Animations ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1024px) {
+      .scenarios-grid { grid-template-columns: repeat(3, 1fr); }
+      .arch-container { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .hero-visual { display: none; }
+      .flow-steps { grid-template-columns: repeat(3, 1fr); }
+      .flow-step:nth-child(4),
+      .flow-step:nth-child(5) { grid-column: span 1; }
+    }
+
+    @media (max-width: 768px) {
+      .section { padding: 72px 0; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .why-grid { grid-template-columns: 1fr; }
+      .scenarios-grid { grid-template-columns: repeat(2, 1fr); }
+      .how-grid { grid-template-columns: 1fr; }
+      .quickstart-steps { grid-template-columns: 1fr; }
+      .defense-grid { grid-template-columns: 1fr; }
+      .flow-steps { grid-template-columns: 1fr 1fr; }
+      .flow-connector { display: none; }
+      .hero-stats { gap: 32px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+      .conference-logos { gap: 24px; }
+    }
+
+    @media (max-width: 480px) {
+      .scenarios-grid { grid-template-columns: 1fr; }
+      .flow-steps { grid-template-columns: 1fr; }
+      .hero-actions { flex-direction: column; }
+      .hero-actions .btn { width: 100%; justify-content: center; }
+      .stack-items { gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Effects -->
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-3" aria-hidden="true"></div>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#" class="nav-brand" aria-label="Supply Chain Attack Simulator Home">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="2" y="2" width="28" height="28" rx="6" stroke="url(#nav-grad)" stroke-width="2"/>
+          <path d="M16 8v4l4 4-4 4v4" stroke="url(#nav-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 12l-4 4 4 4" stroke="url(#nav-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs><linearGradient id="nav-grad" x1="2" y1="2" x2="30" y2="30"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+        </svg>
+        <span>SCAS</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#why">Why SCAS</a></li>
+        <li><a href="#scenarios">Scenarios</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#quickstart">Quick Start</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+
+      <div class="nav-cta">
+        <a href="https://github.com/rajanagori/supply-chain-attack-simulator" class="nav-github" target="_blank" rel="noopener noreferrer" aria-label="View on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+      </div>
+
+      <button class="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Mobile navigation">
+    <a href="#why" onclick="closeMobileMenu()">Why SCAS</a>
+    <a href="#scenarios" onclick="closeMobileMenu()">Scenarios</a>
+    <a href="#how-it-works" onclick="closeMobileMenu()">How It Works</a>
+    <a href="#architecture" onclick="closeMobileMenu()">Architecture</a>
+    <a href="#quickstart" onclick="closeMobileMenu()">Quick Start</a>
+    <a href="#faq" onclick="closeMobileMenu()">FAQ</a>
+    <a href="https://github.com/rajanagori/supply-chain-attack-simulator" target="_blank" rel="noopener noreferrer">GitHub</a>
+  </div>
+
+  <!-- Hero -->
+  <header class="hero" id="hero">
+    <div class="container">
+      <div class="hero-content reveal">
+        <div class="hero-badge">
+          <span class="badge">Open Source &middot; MIT License</span>
+        </div>
+        <h1>
+          Master <span class="gradient-text">supply chain security</span> with real attack scenarios
+        </h1>
+        <p class="hero-description">
+          A hands-on cybersecurity training platform with 20 real-world attack scenarios. Understand, practice, and defend against software supply chain attacks in safe, isolated environments.
+        </p>
+        <div class="hero-actions">
+          <a href="https://github.com/rajanagori/supply-chain-attack-simulator" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+            Get Started
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#scenarios" class="btn btn-secondary">
+            Explore Scenarios
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-value">20</span>
+            <span class="hero-stat-label">Attack Scenarios</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">4</span>
+            <span class="hero-stat-label">Skill Levels</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">40+</span>
+            <span class="hero-stat-label">Hours of Content</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value">100%</span>
+            <span class="hero-stat-label">Free &amp; Open Source</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-ring hero-ring-1"><div class="hero-ring-dot"></div></div>
+      <div class="hero-ring hero-ring-2"><div class="hero-ring-dot"></div></div>
+      <div class="hero-ring hero-ring-3"><div class="hero-ring-dot"></div></div>
+    </div>
+  </header>
+
+  <!-- Conference Banner -->
+  <section class="conference-banner" aria-label="Conference recognition">
+    <div class="container">
+      <p class="section-label" style="text-align:center;margin-bottom:24px">Trusted by the security community</p>
+      <div class="conference-logos">
+        <div class="conference-item">
+          <span class="conference-item-name">BlackHat Arsenal</span>
+          <span class="conference-item-detail">EU London 2025</span>
+        </div>
+        <div class="conference-item">
+          <span class="conference-item-name">OWASP</span>
+          <span class="conference-item-detail">Open Source Project</span>
+        </div>
+        <div class="conference-item">
+          <span class="conference-item-name">Open Source</span>
+          <span class="conference-item-detail">MIT License</span>
+        </div>
+        <div class="conference-item">
+          <span class="conference-item-name">Community Driven</span>
+          <span class="conference-item-detail">GitHub</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Section -->
+  <section class="section" id="why">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Why SCAS</span>
+        <h2 class="section-title">Software supply chains are <span class="gradient-text">the new attack surface</span></h2>
+        <p class="section-subtitle">Attackers don't break your firewall first &mdash; they break your update path. This simulator gives defenders the tools to test assumptions with real attack patterns.</p>
+      </div>
+
+      <div class="why-grid">
+        <div class="why-card reveal reveal-delay-1">
+          <div class="why-card-icon" style="background: var(--red-glow); border-color: rgba(239,68,68,0.2);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <h3>Real-World Attack Patterns</h3>
+          <p>Based on actual incidents like SolarWinds, CodeCov, event-stream, and XZ Utils. Every scenario maps to documented attack vectors seen in the wild.</p>
+        </div>
+
+        <div class="why-card reveal reveal-delay-2">
+          <div class="why-card-icon" style="background: var(--emerald-glow); border-color: rgba(16,185,129,0.2);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <h3>Safe by Design</h3>
+          <p>All attacks run in isolated environments with TESTBENCH_MODE gating. Localhost-only operations, clear warning messages, and no real credential harvesting.</p>
+        </div>
+
+        <div class="why-card reveal reveal-delay-3">
+          <div class="why-card-icon" style="background: var(--cyan-glow); border-color: rgba(6,182,212,0.2);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          </div>
+          <h3>Structured Learning Paths</h3>
+          <p>From zero-to-hero guides for beginners to expert-level capstone projects. Teaching packs, module templates, and rubrics included for professional training delivery.</p>
+        </div>
+
+        <div class="why-card reveal reveal-delay-1">
+          <div class="why-card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          </div>
+          <h3>Full Kill-Chain Coverage</h3>
+          <p>From dependency resolution abuse to CI/CD compromise, container attacks, SBOM manipulation, and multi-stage chains. Attack, detect, and defend across the entire supply chain.</p>
+        </div>
+
+        <div class="why-card reveal reveal-delay-2">
+          <div class="why-card-icon" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+          </div>
+          <h3>Built-In Detection Tools</h3>
+          <p>Each scenario includes detection techniques, package scanners, network monitors, and mitigation strategies. Learn to build defenses that catch these attacks before damage.</p>
+        </div>
+
+        <div class="why-card reveal reveal-delay-3">
+          <div class="why-card-icon" style="background: rgba(168,85,247,0.1); border-color: rgba(168,85,247,0.2);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <h3>Team Training Ready</h3>
+          <p>Delivery packs for talks, workshops, and full courses. Designed for red/blue team exercises, SOC training, and DevSecOps skill development across organizations.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scenarios -->
+  <section class="section" id="scenarios" style="background: var(--bg-secondary); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Attack Scenarios</span>
+        <h2 class="section-title">20 hands-on <span class="gradient-text">attack labs</span></h2>
+        <p class="section-subtitle">From beginner typosquatting to expert-level self-replicating worms. Every scenario includes setup, attack, detection, and defense phases.</p>
+      </div>
+
+      <div class="scenarios-grid">
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-beginner">Beginner</span>
+          <span class="scenario-number">01</span>
+          <h4>Typosquatting Attack</h4>
+          <p>Package name confusion and basic exfiltration via typosquatted packages.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-intermediate">Intermediate</span>
+          <span class="scenario-number">02</span>
+          <h4>Dependency Confusion</h4>
+          <p>Exploit private vs public registry resolution to inject malicious code.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-intermediate">Intermediate</span>
+          <span class="scenario-number">03</span>
+          <h4>Compromised Package</h4>
+          <p>Simulate account takeover and malicious package update delivery.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-advanced">Advanced</span>
+          <span class="scenario-number">04</span>
+          <h4>Malicious Update</h4>
+          <p>Deploy a trojan update that appears legitimate with persistence techniques.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-advanced">Advanced</span>
+          <span class="scenario-number">05</span>
+          <h4>Build System Compromise</h4>
+          <p>Compromise CI/CD pipelines to inject backdoors into build artifacts.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-expert">Expert</span>
+          <span class="scenario-number">06</span>
+          <h4>Shai-Hulud Self-Replicating</h4>
+          <p>Credential harvesting, self-replication, and forensic incident response.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-intermediate">Intermediate</span>
+          <span class="scenario-number">07</span>
+          <h4>Transitive Dependency</h4>
+          <p>Attack through dependencies of dependencies. Based on event-stream (2018).</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-intermediate">Intermediate</span>
+          <span class="scenario-number">08</span>
+          <h4>Lock File Manipulation</h4>
+          <p>Manipulate package-lock.json to inject malicious packages silently.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-advanced">Advanced</span>
+          <span class="scenario-number">09</span>
+          <h4>Package Signing Bypass</h4>
+          <p>Compromise signing keys to bypass package verification. SolarWinds-style.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-intermediate">Intermediate</span>
+          <span class="scenario-number">10</span>
+          <h4>Git Submodule Attack</h4>
+          <p>Add malicious git submodules to execute code through repository trust.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-advanced">Advanced</span>
+          <span class="scenario-number">11</span>
+          <h4>Registry Mirror Poisoning</h4>
+          <p>Compromise internal registry mirrors to serve malicious enterprise packages.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-intermediate">Intermediate</span>
+          <span class="scenario-number">12</span>
+          <h4>Workspace Monorepo Attack</h4>
+          <p>Exploit npm workspaces and monorepo trust boundaries across packages.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-intermediate">Intermediate</span>
+          <span class="scenario-number">13</span>
+          <h4>Metadata Manipulation</h4>
+          <p>Spoof package metadata, tarball URLs, and integrity field mismatches.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-advanced">Advanced</span>
+          <span class="scenario-number">14</span>
+          <h4>Container Image Attack</h4>
+          <p>Malicious image layers and runtime exfiltration from container images.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-advanced">Advanced</span>
+          <span class="scenario-number">15</span>
+          <h4>Developer Tool Compromise</h4>
+          <p>Malicious IDE extensions and CLI tools that execute during development.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-intermediate">Intermediate</span>
+          <span class="scenario-number">16</span>
+          <h4>Package Cache Poisoning</h4>
+          <p>Poisoned local caches that persist across reinstalls and environment resets.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-advanced">Advanced</span>
+          <span class="scenario-number">17</span>
+          <h4>Multi-Stage Attack Chain</h4>
+          <p>Correlated multi-stage compromise across the software development lifecycle.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-advanced">Advanced</span>
+          <span class="scenario-number">18</span>
+          <h4>Plugin Attack</h4>
+          <p>Malicious package-manager plugin hooks that tamper with installs.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-advanced">Advanced</span>
+          <span class="scenario-number">19</span>
+          <h4>SBOM Manipulation</h4>
+          <p>Omitted or falsified dependency metadata in SBOM pipelines.</p>
+        </article>
+        <article class="scenario-card reveal">
+          <span class="scenario-level level-advanced">Advanced</span>
+          <span class="scenario-number">20</span>
+          <h4>Version Confusion</h4>
+          <p>Ambiguous version selection to install attacker-controlled releases.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Attack Flow -->
+  <section class="section flow-section" id="attack-flow">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Attack Lifecycle</span>
+        <h2 class="section-title">From <span class="gradient-text">recon to defense</span></h2>
+        <p class="section-subtitle">Every scenario follows the full attack lifecycle &mdash; simulating how attackers plan, execute, and how defenders detect and respond.</p>
+      </div>
+
+      <div class="flow-container reveal">
+        <div class="flow-steps">
+          <div class="flow-step attack">
+            <div class="flow-step-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <h4>Recon</h4>
+            <p>Map target stack and trust dependencies</p>
+            <span class="flow-connector" aria-hidden="true">&rarr;</span>
+          </div>
+          <div class="flow-step attack">
+            <div class="flow-step-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h4>Compromise</h4>
+            <p>Inject malicious code via chosen entry path</p>
+            <span class="flow-connector" aria-hidden="true">&rarr;</span>
+          </div>
+          <div class="flow-step attack">
+            <div class="flow-step-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <h4>Deliver</h4>
+            <p>Publish artifact consumed downstream</p>
+            <span class="flow-connector" aria-hidden="true">&rarr;</span>
+          </div>
+          <div class="flow-step observe">
+            <div class="flow-step-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <h4>Detect</h4>
+            <p>Observe telemetry and identify anomalies</p>
+            <span class="flow-connector" aria-hidden="true">&rarr;</span>
+          </div>
+          <div class="flow-step defend">
+            <div class="flow-step-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <h4>Defend</h4>
+            <p>Mitigate, patch, and validate controls</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section" id="how-it-works">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">How It Works</span>
+        <h2 class="section-title"><span class="gradient-text">Six steps</span> from setup to mastery</h2>
+        <p class="section-subtitle">A structured workflow to maximize learning and validate your organization's supply chain defenses.</p>
+      </div>
+
+      <div class="how-grid">
+        <div class="how-card reveal reveal-delay-1">
+          <div class="how-card-number">1</div>
+          <div>
+            <h3>Define Objective</h3>
+            <p>Choose what you want to validate &mdash; CI provenance checks, dependency resolution, or incident response readiness.</p>
+          </div>
+        </div>
+        <div class="how-card reveal reveal-delay-2">
+          <div class="how-card-number">2</div>
+          <div>
+            <h3>Select Scenario</h3>
+            <p>Pick from 20 scenarios across beginner to expert levels. Each maps to real-world attack patterns and defensive skills.</p>
+          </div>
+        </div>
+        <div class="how-card reveal reveal-delay-3">
+          <div class="how-card-number">3</div>
+          <div>
+            <h3>Run Simulation</h3>
+            <p>Execute the attack in an isolated lab environment with mock infrastructure. All operations are localhost and safety-gated.</p>
+          </div>
+        </div>
+        <div class="how-card reveal reveal-delay-4">
+          <div class="how-card-number">4</div>
+          <div>
+            <h3>Observe Telemetry</h3>
+            <p>Monitor captured data, network traffic, and alert quality. Understand how the attack manifests in logs and monitoring tools.</p>
+          </div>
+        </div>
+        <div class="how-card reveal reveal-delay-1">
+          <div class="how-card-number">5</div>
+          <div>
+            <h3>Measure Effectiveness</h3>
+            <p>Evaluate MTTD/MTTR and control effectiveness. Quantify gaps in your supply chain security posture with real data.</p>
+          </div>
+        </div>
+        <div class="how-card reveal reveal-delay-2">
+          <div class="how-card-number">6</div>
+          <div>
+            <h3>Patch &amp; Revalidate</h3>
+            <p>Fix process gaps identified during testing. Re-run scenarios to validate improvements and measure progress.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section class="section" id="architecture" style="background: var(--bg-secondary); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Architecture</span>
+        <h2 class="section-title">Modular, <span class="gradient-text">self-contained</span> labs</h2>
+        <p class="section-subtitle">Each scenario is an independent mini-lab with its own infrastructure, detection tools, and exercises.</p>
+      </div>
+
+      <div class="arch-container reveal">
+        <div class="arch-diagram">
+          <div class="arch-tree">
+            <div><span class="dir">supply-chain-attack-simulator/</span></div>
+            <div>&nbsp;&nbsp;<span class="dir">scenarios/</span> <span class="comment"># 20 attack labs</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">01-typosquatting/</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">setup.sh</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">README.md</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">infrastructure/</span> <span class="comment"># mock-server.js</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">victim-app/</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">detection-tools/</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">...</span> <span class="comment"># scenarios 02-20</span></div>
+            <div>&nbsp;&nbsp;<span class="dir">vulnerable-apps/</span> <span class="comment"># sample apps</span></div>
+            <div>&nbsp;&nbsp;<span class="dir">detection-tools/</span> <span class="comment"># shared scanners</span></div>
+            <div>&nbsp;&nbsp;<span class="dir">documentation/</span> <span class="comment"># guides &amp; modules</span></div>
+            <div>&nbsp;&nbsp;<span class="dir">scripts/</span> <span class="comment"># setup &amp; utilities</span></div>
+            <div>&nbsp;&nbsp;<span class="file">START_HERE.sh</span></div>
+          </div>
+        </div>
+
+        <div class="arch-features">
+          <div class="arch-feature">
+            <div class="arch-feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            </div>
+            <div>
+              <h4>Self-Contained Labs</h4>
+              <p>Each scenario has its own setup script, mock attacker server, victim app, and detection tools. No cross-contamination between labs.</p>
+            </div>
+          </div>
+          <div class="arch-feature">
+            <div class="arch-feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <div>
+              <h4>CLI-First Design</h4>
+              <p>No dashboard or web UI required. Everything runs from the terminal for maximum transparency and scriptability.</p>
+            </div>
+          </div>
+          <div class="arch-feature">
+            <div class="arch-feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+            </div>
+            <div>
+              <h4>Mock Infrastructure</h4>
+              <p>Node.js-based mock attacker servers capture exfiltrated data locally. Full observability into what the "attacker" receives.</p>
+            </div>
+          </div>
+          <div class="arch-feature">
+            <div class="arch-feature-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <h4>Safety Gated</h4>
+              <p>TESTBENCH_MODE=enabled required to activate payloads. Environment variable checks prevent accidental execution outside labs.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Start -->
+  <section class="section" id="quickstart">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Quick Start</span>
+        <h2 class="section-title">Get running in <span class="gradient-text">5 minutes</span></h2>
+        <p class="section-subtitle">Clone, setup, enable testbench mode, and run your first attack scenario.</p>
+      </div>
+
+      <div class="quickstart-steps">
+        <div class="qs-step reveal reveal-delay-1">
+          <div class="qs-step-num">1</div>
+          <h3>Prerequisites Check</h3>
+          <div class="qs-code">
+            <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard">Copy</button>
+            <div><span class="prompt">$ </span><span class="cmd">node --version</span>  <span class="comment"># v16+</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">npm --version</span>   <span class="comment"># v7+</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">git --version</span></div>
+          </div>
+        </div>
+
+        <div class="qs-step reveal reveal-delay-2">
+          <div class="qs-step-num">2</div>
+          <h3>Clone &amp; Setup</h3>
+          <div class="qs-code">
+            <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard">Copy</button>
+            <div><span class="prompt">$ </span><span class="cmd">git clone https://github.com/rajanagori/supply-chain-attack-simulator.git</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">cd supply-chain-attack-simulator</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">chmod +x scripts/setup.sh && ./scripts/setup.sh</span></div>
+          </div>
+        </div>
+
+        <div class="qs-step reveal reveal-delay-3">
+          <div class="qs-step-num">3</div>
+          <h3>Enable Testbench Mode</h3>
+          <div class="qs-code">
+            <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard">Copy</button>
+            <div><span class="prompt">$ </span><span class="cmd">export TESTBENCH_MODE=enabled</span></div>
+          </div>
+        </div>
+
+        <div class="qs-step reveal reveal-delay-4">
+          <div class="qs-step-num">4</div>
+          <h3>Run Your First Scenario</h3>
+          <div class="qs-code">
+            <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard">Copy</button>
+            <div><span class="prompt">$ </span><span class="cmd">cd scenarios/01-typosquatting</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">./setup.sh</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">node infrastructure/mock-server.js &</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">cd victim-app && npm install ../malicious-packages/request-lib</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">npm start</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">curl http://localhost:3000/captured-data</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Defense & Detection -->
+  <section class="section" id="defense" style="background: var(--bg-secondary); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Defense &amp; Detection</span>
+        <h2 class="section-title">Every scenario includes <span class="gradient-text">defensive tooling</span></h2>
+        <p class="section-subtitle">Attack is only half the equation. Each lab teaches detection techniques, mitigation strategies, and best practices.</p>
+      </div>
+
+      <div class="defense-grid">
+        <div class="defense-card reveal reveal-delay-1">
+          <div class="defense-card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <h3>Detection Techniques</h3>
+          <p>Package scanners, network monitors, behavioral analysis, integrity verification, and provenance checks built into every scenario.</p>
+        </div>
+        <div class="defense-card reveal reveal-delay-2">
+          <div class="defense-card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Mitigation Strategies</h3>
+          <p>Lockfile pinning, signature verification, SBOM validation, cache integrity checks, and CI/CD hardening guides for each attack vector.</p>
+        </div>
+        <div class="defense-card reveal reveal-delay-3">
+          <div class="defense-card-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          </div>
+          <h3>Real-World Case Studies</h3>
+          <p>SolarWinds, CodeCov, event-stream, UA-Parser-js, Colors.js, XZ Utils &mdash; mapped to scenarios for contextual learning.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section class="section" id="stack">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Stack</span>
+        <h2 class="section-title">Built with <span class="gradient-text">familiar tools</span></h2>
+        <p class="section-subtitle">Runs wherever Node.js and Git are available. No specialized infrastructure required.</p>
+      </div>
+
+      <div class="stack-items reveal">
+        <div class="stack-item">
+          <svg viewBox="0 0 24 24" fill="#68a063"><path d="M11.998 24c-.321 0-.641-.084-.922-.247l-2.936-1.737c-.438-.245-.224-.332-.08-.383.585-.203.703-.25 1.328-.604.065-.037.151-.023.218.017l2.256 1.339c.082.045.198.045.275 0l8.795-5.076c.082-.047.134-.141.134-.238V6.921c0-.1-.052-.19-.137-.242l-8.791-5.072c-.081-.047-.189-.047-.271 0L3.075 6.68c-.087.051-.139.147-.139.243v10.15c0 .095.052.188.134.236l2.409 1.392c1.307.653 2.108-.116 2.108-.891V7.787c0-.142.114-.253.256-.253h1.115c.139 0 .255.112.255.253v10.021c0 1.745-.95 2.745-2.604 2.745-.509 0-.909 0-2.026-.551l-2.308-1.331A1.827 1.827 0 011.4 17.07V6.921c0-.639.342-1.236.897-1.554L11.092.289c.535-.303 1.247-.303 1.778 0l8.795 5.078c.555.318.897.916.897 1.554v10.15c0 .638-.342 1.235-.897 1.554l-8.795 5.078c-.28.163-.6.247-.872.247z"/></svg>
+          Node.js
+        </div>
+        <div class="stack-item">
+          <svg viewBox="0 0 24 24" fill="#cb3837"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0h-2.666V8.667h2.666v5.331zm12 0H21.33v-4h-1.335v4h-1.335v-4h-1.335v4h-2.666V8.667h8.001v5.331zM10.666 10h-1.331v2.667h1.331V10z"/></svg>
+          npm
+        </div>
+        <div class="stack-item">
+          <svg viewBox="0 0 24 24" fill="#f1502f"><path d="M2.585 17.413a1.999 1.999 0 010-2.826L9.05 8.122c1.89-1.893 4.964-1.893 6.858 0a4.865 4.865 0 010 6.858l-5.829 5.829a.999.999 0 01-1.414 0 .999.999 0 010-1.414l5.829-5.828a2.862 2.862 0 000-4.031 2.862 2.862 0 00-4.031 0L3.998 16a.002.002 0 000 .001.999.999 0 01-1.413-.001z"/></svg>
+          Git
+        </div>
+        <div class="stack-item">
+          <svg viewBox="0 0 24 24" fill="#3776ab"><path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.35.12-.33.2-.3.28-.26.36-.23.45-.18.54-.14.64-.09.74-.06h7.73zm-5.1 17.22h.01l1.11.01h2.11l.71-.04.62-.12.54-.21.47-.32.41-.42.36-.53.29-.65.22-.77.16-.89.08-1.02v-4.01l.01-.49-.04-.43-.09-.36-.16-.31-.22-.26-.29-.21-.36-.16-.43-.13-.51-.08-.59-.05-.68-.02H7.48l-.64.04-.57.1-.51.18-.44.26-.38.33-.32.39-.26.46-.2.53-.15.59-.09.65-.04.7.01.75v1.03l.01.78-.02.77-.05.75-.09.73-.12.7-.16.67-.2.63-.24.58-.27.54z"/></svg>
+          Python
+        </div>
+        <div class="stack-item">
+          <svg viewBox="0 0 24 24" fill="#e8e8f0"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.6.11.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+          GitHub
+        </div>
+        <div class="stack-item">
+          <svg viewBox="0 0 24 24" fill="#2496ed"><path d="M4.82 17.09c-.37 0-.67-.04-.67-.04s-.28-.28-.28-.49c0-.21.19-.37.19-.37.69-.37.93-1.14.93-1.14C5.88 12.56 4.3 12 4.3 12c-1.31-.46-.09-.45-.09-.45 1.45.1 2.21 1.49 2.21 1.49 1.28 2.21 3.37 1.57 4.19 1.2.13-.93.5-1.57.91-1.93-3.19-.36-6.55-1.6-6.55-7.11 0-1.57.56-2.85 1.47-3.86-.15-.36-.64-1.83.14-3.81 0 0 1.2-.38 3.94 1.47a13.66 13.66 0 017.16 0c2.73-1.86 3.93-1.47 3.93-1.47.79 1.98.29 3.45.14 3.81.92 1.01 1.47 2.29 1.47 3.86 0 5.53-3.37 6.74-6.57 7.1.52.45.98 1.32.98 2.66v3.95c0 .27.16.59.67.49A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12S0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.09c-3.34.73-4.04-1.42-4.04-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.75.08-.73.08-.73 1.21.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.5 1 .11-.78.42-1.31.76-1.61z"/></svg>
+          Shell
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">FAQ</span>
+        <h2 class="section-title">Frequently asked <span class="gradient-text">questions</span></h2>
+      </div>
+
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            What is the Supply Chain Attack Simulator?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>It's a comprehensive, open-source cybersecurity learning platform with 20 hands-on scenarios for understanding, practicing, and defending against software supply chain attacks. Each scenario includes realistic mock infrastructure, detection tools, and defensive exercises mapped to real-world incidents like SolarWinds, CodeCov, and event-stream.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            Is it safe to use?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>Yes. All malicious packages are clearly labeled as educational, designed to work only in the test environment with TESTBENCH_MODE=enabled, and incapable of causing real harm when used as instructed. All operations are localhost-only with environment variable safety checks and clear warning messages.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            What are the prerequisites?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>You need Node.js 16+, Python 3.8+, Git, and a basic understanding of package managers (npm, pip). The platform runs on Linux, macOS, or Windows with WSL2. No Docker or specialized infrastructure is required for most scenarios.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            Is it free and open source?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>Yes, completely. The Supply Chain Attack Simulator is released under the MIT License and available on GitHub. Free to use, fork, and contribute to. No licensing costs or vendor lock-in.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            Can I use this for professional or team training?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>Absolutely. The platform includes teaching delivery packs (talk/workshop/course formats), module templates for each scenario, capstone rubrics, and structured learning paths. It's designed for red/blue team exercises, SOC training, DevSecOps skill development, and university-level curriculum.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            How does it differ from other security training platforms?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>Unlike CTF-style challenges or passive learning platforms, this simulator focuses exclusively on software supply chain attacks with full lifecycle coverage: reconnaissance, compromise, delivery, detection, and defense. Every scenario runs locally with real package managers and build tools, giving hands-on experience that directly maps to production security workflows.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            Which operating systems are supported?
+            <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="faq-answer">
+            <p>Linux, macOS, and Windows with WSL2 are all supported. The CLI-first design ensures consistent behavior across operating systems. Docker is optional and only required for Scenario 14 (Container Image Supply Chain Attack).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section cta-section">
+    <div class="container">
+      <div class="cta-content reveal">
+        <h2>Ready to secure your <span class="gradient-text">supply chain</span>?</h2>
+        <p>Join security professionals worldwide using the Supply Chain Attack Simulator to build measurable defenses against modern software supply chain threats.</p>
+        <div class="cta-actions">
+          <a href="https://github.com/rajanagori/supply-chain-attack-simulator" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+            Get Started on GitHub
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#quickstart" class="btn btn-secondary">
+            Read Quick Start
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="nav-brand" aria-label="Supply Chain Attack Simulator">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32" aria-hidden="true">
+              <rect x="2" y="2" width="28" height="28" rx="6" stroke="url(#footer-grad)" stroke-width="2"/>
+              <path d="M16 8v4l4 4-4 4v4" stroke="url(#footer-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 12l-4 4 4 4" stroke="url(#footer-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs><linearGradient id="footer-grad" x1="2" y1="2" x2="30" y2="30"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs>
+            </svg>
+            Supply Chain Attack Simulator
+          </a>
+          <p>A hands-on cybersecurity training platform for understanding, practicing, and defending against software supply chain attacks. Open source under MIT License.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/README.md" target="_blank" rel="noopener noreferrer">Documentation</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/QUICK_START.md" target="_blank" rel="noopener noreferrer">Quick Start Guide</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/SCENARIOS.md" target="_blank" rel="noopener noreferrer">Scenario Index</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Learning</h4>
+          <ul>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md" target="_blank" rel="noopener noreferrer">Zero to Hero</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/learning-path/SCENARIO_LEARNING_PATH.md" target="_blank" rel="noopener noreferrer">Learning Path</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/BEST_PRACTICES.md" target="_blank" rel="noopener noreferrer">Best Practices</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/RESOURCES.md" target="_blank" rel="noopener noreferrer">External Resources</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Community</h4>
+          <ul>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/issues" target="_blank" rel="noopener noreferrer">Report Issues</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/discussions" target="_blank" rel="noopener noreferrer">Discussions</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></li>
+            <li><a href="https://github.com/rajanagori" target="_blank" rel="noopener noreferrer">Raja Nagori</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>&copy; 2026 Supply Chain Attack Simulator. Built by <a href="https://github.com/rajanagori" target="_blank" rel="noopener noreferrer">Raja Nagori</a> for the security community.</span>
+        <span>Open Source &middot; MIT License</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Navigation scroll effect
+    const nav = document.querySelector('.nav');
+    let lastScrollY = 0;
+
+    function handleNavScroll() {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > 50) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+      lastScrollY = currentScrollY;
+    }
+
+    window.addEventListener('scroll', handleNavScroll, { passive: true });
+
+    // Mobile menu
+    const hamburger = document.querySelector('.nav-hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    hamburger.addEventListener('click', () => {
+      const isOpen = mobileMenu.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    });
+
+    function closeMobileMenu() {
+      mobileMenu.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+
+        document.querySelectorAll('.faq-item.open').forEach(openItem => {
+          openItem.classList.remove('open');
+          openItem.querySelector('.faq-question').setAttribute('aria-expanded', 'false');
+        });
+
+        if (!isOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+
+    // Scroll reveal (IntersectionObserver)
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // Copy code
+    function copyCode(btn) {
+      const codeBlock = btn.closest('.qs-code');
+      const lines = codeBlock.querySelectorAll('.cmd');
+      const text = Array.from(lines).map(l => l.textContent).join('\n');
+
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      }).catch(() => {
+        btn.textContent = 'Failed';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', (e) => {
+        const targetId = anchor.getAttribute('href');
+        if (targetId === '#') return;
+        const target = document.querySelector(targetId);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
