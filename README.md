@@ -2,6 +2,9 @@
 
 A comprehensive cybersecurity learning platform for understanding, practicing, and defending against supply chain attacks.
 
+![SCAS](./assets/supply-chain-attack-simulator-logo.png)
+
+
 ## 🎯 Overview
 
 This test bench provides hands-on practical scenarios to learn about supply chain attacks - one of the most critical and emerging threats in modern software development. Candidates will set up vulnerable environments, execute attacks, detect compromises, and implement defenses.
