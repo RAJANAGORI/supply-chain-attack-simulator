@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rajanagori.github.io/supply-chain-attack-simulator/sitemap.xml
+
+# Supply Chain Attack Simulator
+# https://github.com/rajanagori/supply-chain-attack-simulator
