@@ -403,12 +403,15 @@ code {
   position: relative;
   z-index: 2;
   max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .hero-logo {
   position: relative;
   margin-bottom: 32px;
-  display: inline-block;
+  display: flex;
+  justify-content: center;
 }
 
 .hero-logo-img {
@@ -459,6 +462,8 @@ code {
   line-height: 1.75;
   margin-bottom: 40px;
   max-width: 580px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .hero-actions {
@@ -466,12 +471,14 @@ code {
   gap: 16px;
   flex-wrap: wrap;
   margin-bottom: 56px;
+  justify-content: center;
 }
 
 .hero-stats {
   display: flex;
   gap: 48px;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .hero-stat {
