@@ -123,10 +123,10 @@ npm run build --verbose
 
 If you need more context than the commands above, these are the right deep links.
 
-- Full Guide: `docs/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_05.md`
+- Full Guide: `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_05.md`
 - Scenario README: `scenarios/05-build-compromise/README.md`
-- Setup Guide: `docs/SETUP.md`
-- Best Practices: `docs/BEST_PRACTICES.md`
+- Setup Guide: `documentation/SETUP.md`
+- Best Practices: `documentation/BEST_PRACTICES.md`
 
 ## 💡 Key Concepts
 

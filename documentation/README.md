@@ -19,11 +19,10 @@ This folder has grown a lot, so this page is the fastest way to find what you ne
 ## Scenario Guides
 
 - Scenario index: [SCENARIOS.md](./SCENARIOS.md)
-- Zero-to-hero scenario walkthroughs: `docs/scenario-guides/zero-to-hero/`
-- Quick-reference scenario sheets: `docs/scenario-guides/quick-reference/`
+- Zero-to-hero scenario walkthroughs: [scenario-guides/zero-to-hero/](scenario-guides/zero-to-hero/)
+- Quick-reference scenario sheets: [scenario-guides/quick-reference/](scenario-guides/quick-reference/)
 
 ## Teaching Modules
 
 - Reusable template: [MODULE_TEMPLATE.md](./modules/MODULE_TEMPLATE.md)
 - Module file index (01-20): [MODULE_INSTANCES_INDEX.md](./modules/MODULE_INSTANCES_INDEX.md)
-- Consolidated all-scenarios card: [MODULE_INSTANCES_ALL_SCENARIOS.md](./modules/MODULE_INSTANCES_ALL_SCENARIOS.md)

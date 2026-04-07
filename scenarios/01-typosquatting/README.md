@@ -193,9 +193,9 @@ You've completed this scenario when you can:
 
 ## 📚 Additional Resources
 
-- [Real typosquatting incidents](../docs/real-incidents.md)
-- [Package manager security best practices](../docs/best-practices.md)
-- [Detection tool comparison](../docs/detection-tools.md)
+- [Real-world incidents and further reading](../../documentation/RESOURCES.md)
+- [Package manager security best practices](../../documentation/BEST_PRACTICES.md)
+- [Example detection tooling](../../detection-tools/package-scanner.js) (see also [RESOURCES.md](../../documentation/RESOURCES.md))
 
 ## 🔗 Related Scenarios
 

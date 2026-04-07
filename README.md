@@ -46,7 +46,7 @@ This test bench provides hands-on practical scenarios to learn about supply chai
 ## 🏗️ Project Structure
 
 ```
-testbench/
+supply-chain-attack-simulator/
 ├── scenarios/                  # Attack scenario labs
 │   ├── 01-typosquatting/      # Lab 1: Typosquatting attack
 │   ├── 02-dependency-confusion/ # Lab 2: Dependency confusion
@@ -75,7 +75,8 @@ testbench/
 ├── malicious-packages/        # Example malicious packages (for learning)
 ├── detection-tools/          # Security scanning and detection tools
 ├── .github/ISSUE_TEMPLATE/   # GitHub issue forms
-├── docs/                     # Detailed documentation
+├── documentation/            # Markdown docs (canonical): guides, learning path, modules
+├── docs/                     # GitHub Pages site (index.html, assets) + symlinks → documentation/
 └── scripts/                  # Setup and utility scripts
 ```
 
@@ -91,8 +92,9 @@ testbench/
 
 2. **Or read the complete beginner's guide:**
    ```bash
-   cat docs/ZERO_TO_HERO.md
+   cat documentation/ZERO_TO_HERO.md
    ```
+   (`docs/ZERO_TO_HERO.md` is a symlink to the same file for browsing beside the published site.)
 
 This guide will take you from zero knowledge to completing your first scenario with detailed explanations of every step.
 
@@ -102,7 +104,7 @@ This guide will take you from zero knowledge to completing your first scenario w
 
 ```bash
 git clone <repository-url>
-cd testbench
+cd supply-chain-attack-simulator
 ```
 
 ### 2. Run Setup Script
@@ -281,21 +283,22 @@ This repository contains intentionally vulnerable code and malicious package exa
 
 ## 📖 Documentation
 
-- **[Docs Map](docs/README.md)** - Organized index of all documentation
-- **[Zero to Hero Guide](docs/ZERO_TO_HERO.md)** ⭐ **START HERE if you're new!**
-- **[Supply Chain Attacks: Zero to Hero](docs/learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md)** - Landing page with progression path
-- **[Scenario Learning Path](docs/learning-path/SCENARIO_LEARNING_PATH.md)** - Beginner/intermediate/advanced map with outcomes
-- **[Module Template](docs/modules/MODULE_TEMPLATE.md)** - Reusable format for teaching any scenario
-- **[Module Instances Index](docs/modules/MODULE_INSTANCES_INDEX.md)** - Quick links to scenario module files (01-20)
-- **[All Scenario Module Instances](docs/modules/MODULE_INSTANCES_ALL_SCENARIOS.md)** - Ready-to-teach cards for scenarios 01-20
-- **[Teaching Delivery Pack](docs/learning-path/TEACHING_DELIVERY_PACK.md)** - Talk/docs/course/simulator variants
-- **[Capstone Rubric](docs/learning-path/CAPSTONE_RUBRIC.md)** - Final exercise and scoring criteria
-- [Quick Reference Card](docs/QUICK_REFERENCE.md) - Essential commands cheat sheet
-- [Complete Setup Guide](docs/SETUP.md)
-- [Quick Start Guide](docs/QUICK_START.md)
-- [Best Practices](docs/BEST_PRACTICES.md)
-- [Scenario Walkthroughs](docs/SCENARIOS.md) - includes scenario-to-port mapping and port cleanup guidance
-- [Additional Resources](docs/RESOURCES.md) - External links, articles, tools, and references
+Authoritative markdown lives under **`documentation/`**. The **`docs/`** folder mirrors those files with **symlinks** (same paths as before) next to the GitHub Pages site.
+
+- **[Docs Map](documentation/README.md)** — Organized index of all documentation
+- **[Zero to Hero Guide](documentation/ZERO_TO_HERO.md)** — START HERE if you're new
+- **[Supply Chain Attacks: Zero to Hero](documentation/learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md)** — Landing page with progression path
+- **[Scenario Learning Path](documentation/learning-path/SCENARIO_LEARNING_PATH.md)** — Beginner/intermediate/advanced map with outcomes
+- **[Module Template](documentation/modules/MODULE_TEMPLATE.md)** — Reusable format for teaching any scenario
+- **[Module Instances Index](documentation/modules/MODULE_INSTANCES_INDEX.md)** — Links to per-scenario teaching cards (01-20)
+- **[Teaching Delivery Pack](documentation/learning-path/TEACHING_DELIVERY_PACK.md)** — Talk/docs/course/simulator variants
+- **[Capstone Rubric](documentation/learning-path/CAPSTONE_RUBRIC.md)** — Final exercise and scoring criteria
+- [Quick Reference Card](documentation/QUICK_REFERENCE.md) — Navigation and common commands
+- [Complete Setup Guide](documentation/SETUP.md)
+- [Quick Start Guide](documentation/QUICK_START.md)
+- [Best Practices](documentation/BEST_PRACTICES.md)
+- [Scenario Walkthroughs](documentation/SCENARIOS.md) — Scenario list and port cleanup guidance
+- [Additional Resources](documentation/RESOURCES.md) — External links, articles, tools, and references
 
 ## 🧾 Issue Templates
 
@@ -341,7 +344,7 @@ Based on real-world supply chain attacks including:
 For questions or issues:
 - Open an issue on GitHub
 - Check the troubleshooting guide
-- Review the FAQ in docs/
+- Review the FAQ in [documentation/README.md](documentation/README.md) and scenario READMEs
 
 ---
 

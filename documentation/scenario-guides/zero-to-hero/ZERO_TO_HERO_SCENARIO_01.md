@@ -554,7 +554,7 @@ After you're done experimenting:
    - Create your own detection rules
 
 3. **Read more:**
-   - Check out `docs/BEST_PRACTICES.md`
+   - Check out `documentation/BEST_PRACTICES.md`
    - Read about real-world attacks
    - Study the detection tools
 
@@ -612,9 +612,9 @@ npm install
 ## 📚 Additional Resources
 
 - **Main README**: `README.md`
-- **Complete Setup Guide**: `docs/SETUP.md`
-- **Quick Start**: `docs/QUICK_START.md`
-- **Best Practices**: `docs/BEST_PRACTICES.md`
+- **Complete Setup Guide**: `documentation/SETUP.md`
+- **Quick Start**: `documentation/QUICK_START.md`
+- **Best Practices**: `documentation/BEST_PRACTICES.md`
 
 ---
 
