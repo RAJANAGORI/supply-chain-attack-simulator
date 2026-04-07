@@ -37,7 +37,7 @@ export TESTBENCH_MODE=enabled
 - victim-app/ - app depending on `clean-utils`
 - infrastructure/ - mock attacker server and captured-data
 - detection-tools/ - metadata-validator and SBOM checks
-- docs/ - quick reference and zero-to-hero guides
+- `documentation/scenario-guides/` — quick reference and zero-to-hero guides (also reachable under `docs/scenario-guides/` via symlink)
 
 ## Safety
 

@@ -29,6 +29,8 @@ None.
 - Linux (Ubuntu 20.04+, Debian 11+, Fedora 35+)
 - Windows 10/11 with WSL2
 
+**Documentation paths:** The canonical markdown guides live in **`documentation/`**. The **`docs/`** directory contains **symlinks** to the same files (for browsing next to the GitHub Pages site). On Windows, if symlinks do not resolve correctly, clone with `git` symlink support enabled (e.g. `git config core.symlinks true` or Developer Mode) or open files under **`documentation/`** directly.
+
 ### Hardware Requirements
 
 - **RAM**: Minimum 4GB, recommended 8GB

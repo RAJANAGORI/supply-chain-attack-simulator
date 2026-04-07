@@ -402,8 +402,8 @@ gpg --verify dist/app.js.asc
 ## 📚 Additional Resources
 
 - **Main README**: `README.md`
-- **Other Scenarios**: See `docs/scenario-guides/zero-to-hero/` for the full series.
-- **Best Practices**: `docs/BEST_PRACTICES.md`
+- **Other Scenarios**: See `documentation/scenario-guides/zero-to-hero/` for the full series.
+- **Best Practices**: `documentation/BEST_PRACTICES.md`
 - **CI/CD Security**: Research CodeCov and SolarWinds incidents
 
 ---
