@@ -161,8 +161,11 @@ npm list utils-helper
 ### Step 2: Start Mock Attacker Server
 
 ```bash
+# Scenario root (parent of victim-app)
+cd ..
+
 # Start mock server (if not already running)
-node ../01-typosquatting/infrastructure/mock-server.js &
+node infrastructure/mock-server.js &
 ```
 
 **Verify it's running:**
@@ -173,6 +176,8 @@ curl http://localhost:3000/captured-data
 ### Step 3: Simulate Automatic Update
 
 ```bash
+cd victim-app
+
 # Clear and reinstall (simulates npm update)
 rm -rf node_modules package-lock.json
 npm install

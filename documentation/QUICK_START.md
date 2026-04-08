@@ -34,8 +34,13 @@ export TESTBENCH_MODE=enabled
 ### 4. Start Services
 
 ```bash
-# Start the mock server manually
+# Scenario 1: after `cd scenarios/01-typosquatting && ./setup.sh`, start this scenario's mock server:
 node scenarios/01-typosquatting/infrastructure/mock-server.js &
+
+# Scenarios 2, 4, and 5 each ship their own server under that scenario (after its ./setup.sh):
+# node scenarios/02-dependency-confusion/infrastructure/mock-server.js &
+# node scenarios/04-malicious-update/infrastructure/mock-server.js &
+# node scenarios/05-build-compromise/infrastructure/mock-server.js &
 ```
 
 ### 5. View Captured Data (CLI)
@@ -196,7 +201,7 @@ curl http://localhost:3000/captured-data > my-analysis.json
 # Check if running
 curl http://localhost:3000/captured-data
 
-# If not, start it
+# If not, start the mock server for the scenario you are running (after ./setup.sh in that folder), e.g.:
 node scenarios/01-typosquatting/infrastructure/mock-server.js &
 ```
 

@@ -137,17 +137,14 @@ Look for:
 - Unexpected dependencies
 - Post-install scripts
 
-2. **Automated Scanning**:
+2. **Automated Scanning** (from the **repository root**):
 ```bash
-cd ../../detection-tools
-npm install
-node package-scanner.js ../victim-app
+node detection-tools/package-scanner.js scenarios/01-typosquatting/victim-app
 ```
 
-3. **Behavioral Analysis**:
+3. **Behavioral Analysis** (from the **repository root**):
 ```bash
-# Monitor network traffic
-./monitor-network.sh
+./detection-tools/network-monitor.sh
 ```
 
 **Questions**:

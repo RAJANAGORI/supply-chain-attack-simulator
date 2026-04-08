@@ -18,8 +18,8 @@ export TESTBENCH_MODE=enabled
 ## 🎯 Attack Execution
 
 ```bash
-# 1. Start mock server (in a separate terminal)
-node ../01-typosquatting/infrastructure/mock-server.js &
+# 1. Start mock server (from scenario root — run ./setup.sh first)
+node infrastructure/mock-server.js &
 
 # 2. Install legitimate version
 cd victim-app
@@ -81,6 +81,7 @@ npm view utils-helper@2.1.1
 
 ```text
 scenarios/04-malicious-update/
+├── infrastructure/mock-server.js     # After ./setup.sh — exfil receiver
 ├── legitimate-package/utils-helper/  # Legitimate version 2.1.0
 ├── malicious-update/utils-helper/   # Malicious update 2.1.1
 ├── victim-app/                       # Victim application

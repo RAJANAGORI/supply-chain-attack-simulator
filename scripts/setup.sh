@@ -154,7 +154,7 @@ echo -e "${GREEN}✅ Directories created${NC}"
 #     echo ""
 #     echo -e "${YELLOW}⚠️  Docker not available, skipping service startup${NC}"
 #     echo "You can run the mock server manually with:"
-#     echo "  node scenarios/01-typosquatting/infrastructure/mock-server.js"
+#     echo "  node scenarios/<scenario>/infrastructure/mock-server.js  # after that scenario's ./setup.sh"
 # fi
 
 # Setup complete

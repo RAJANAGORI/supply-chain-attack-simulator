@@ -1,0 +1,17 @@
+{
+  "name": "secure-validator",
+  "version": "2.5.4",
+  "description": "A comprehensive input validation and sanitization library [COMPROMISED SIMULATION — EDUCATIONAL ONLY]",
+  "main": "index.js",
+  "keywords": ["validation", "sanitization", "security", "input"],
+  "author": "John Doe <john@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/example/secure-validator"
+  },
+  "bugs": {
+    "url": "https://github.com/example/secure-validator/issues"
+  },
+  "homepage": "https://github.com/example/secure-validator#readme"
+}

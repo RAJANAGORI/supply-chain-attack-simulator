@@ -18,8 +18,8 @@ export TESTBENCH_MODE=enabled
 ## 🎯 Attack Execution
 
 ```bash
-# 1. Start mock server (in a separate terminal)
-node ../01-typosquatting/infrastructure/mock-server.js &
+# 1. Start mock server (from scenario root — run ./setup.sh first)
+node infrastructure/mock-server.js &
 
 # 2. Run legitimate build
 cd legitimate-build
@@ -82,6 +82,7 @@ gpg --verify dist/app.js.asc
 
 ```text
 scenarios/05-build-compromise/
+├── infrastructure/mock-server.js  # After ./setup.sh — exfil receiver
 ├── legitimate-build/          # Legitimate build configuration
 │   ├── build.sh               # Clean build script
 │   └── dist/                  # Clean artifacts

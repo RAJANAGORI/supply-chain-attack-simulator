@@ -219,8 +219,8 @@ node replication-simulator.js
 # Check npm install logs
 cat ~/.npm/_logs/*-debug.log | grep postinstall
 
-# Monitor network traffic
-../../detection-tools/network-monitor.sh
+# Monitor network traffic (from repository root)
+./detection-tools/network-monitor.sh
 
 # Check for unexpected GitHub repository creation
 curl http://localhost:3002/repo-logs
@@ -292,9 +292,10 @@ Implement multiple detection layers:
 #### Detection 1: Post-Install Script Monitoring
 
 ```bash
-cd ../../detection-tools
+cd detection-tools
 node postinstall-monitor.js
 ```
+(From the `scenarios/06-sha-hulud` directory after `./setup.sh`.)
 
 Monitor for:
 - Unexpected `postinstall` scripts
@@ -304,8 +305,8 @@ Monitor for:
 #### Detection 2: Credential Scanning
 
 ```bash
-# Scan for exposed credentials
-node credential-scanner.js ../../victim-app
+# Scan for exposed credentials (from scenarios/06-sha-hulud/detection-tools)
+node credential-scanner.js ../victim-app
 ```
 
 Check for:
@@ -319,8 +320,8 @@ Check for:
 # Verify package checksums
 npm audit
 
-# Check for known malicious patterns
-node malware-signature-scanner.js data-processor
+# Check for known malicious patterns (manual: search node_modules for eval, https, child_process)
+grep -R "eval\\|https\\.get\\|child_process" ../victim-app/node_modules/data-processor 2>/dev/null || true
 ```
 
 #### Detection 4: Behavioral Analysis
@@ -355,7 +356,7 @@ echo "127.0.0.1 cdn.example.com" >> /etc/hosts
 
 ```bash
 # Find all affected projects
-node scripts/find-affected-projects.js data-processor
+npm ls data-processor --all 2>/dev/null || true
 
 # Check which versions are affected
 npm view data-processor versions

@@ -192,9 +192,9 @@ cat victim-app/logs/app.log
 #### Investigation Step 2: Package Analysis
 
 ```bash
-# Compare package versions
+# Compare local legitimate vs compromised trees
 cd forensics
-node compare-versions.js secure-validator 2.5.3 2.5.4
+node compare-versions.js ../legitimate-package/secure-validator ../compromised-package/secure-validator
 ```
 
 **What to Look For**:
@@ -243,11 +243,7 @@ npm owner ls secure-validator
 
 #### Investigation Step 5: Behavioral Analysis
 
-```bash
-# Run package in sandboxed environment
-cd ../../forensics
-node sandbox-runner.js secure-validator@2.5.4
-```
+Run the victim app with `TESTBENCH_MODE=enabled` while the mock server is up, then review `curl http://localhost:3000/captured-data`. For a full sandbox, use your org’s standard dynamic-analysis tooling.
 
 Monitor:
 - Network requests
@@ -262,23 +258,25 @@ Implement multiple detection layers:
 #### Detection 1: Automated Scanning
 
 ```bash
-cd ../detection-tools
+cd detection-tools
 
-# Run security scanner
-node package-security-scanner.js ../../victim-app
+# Run security scanner (included in this scenario)
+node package-security-scanner.js ../victim-app
 
-# Check for known malicious patterns
-node malware-signature-scanner.js secure-validator
+# Manual pattern hunt in the installed package
+grep -nE 'http|child_process|eval\\(' ../victim-app/node_modules/secure-validator/index.js || true
 ```
 
 #### Detection 2: Integrity Checking
 
 ```bash
-# Verify package integrity
+# Verify package integrity (npm advisory database)
 npm audit
 
-# Check package checksums
-node verify-integrity.js secure-validator@2.5.4
+# Inspect resolved version and lockfile (if present)
+cd ../victim-app
+npm list secure-validator
+cat package-lock.json 2>/dev/null | head -80 || true
 ```
 
 #### Detection 3: Behavior Monitoring
@@ -308,8 +306,8 @@ Module.prototype.require = function(id) {
 # Check if package-lock.json was modified
 git diff package-lock.json
 
-# Verify integrity hashes
-node validate-package-lock.js
+# Inspect integrity entries for secure-validator (if lockfile exists)
+grep -A3 '"secure-validator"' package-lock.json 2>/dev/null || true
 ```
 
 ### Part 5: Incident Response & Mitigation (30 minutes)
@@ -318,30 +316,31 @@ node validate-package-lock.js
 
 #### Response Step 1: Immediate Containment
 
-```bash
-# 1. Block the package at network level
-echo "registry.npmjs.org/secure-validator BLOCKED" >> /etc/hosts
+Illustrative commands (adapt to your environment; do not run destructive steps like editing `/etc/hosts` on a shared machine without approval):
 
-# 2. Remove from all systems
+```bash
+# 1. Block or hold the package at registry/proxy policy (org-specific)
+
+# 2. Remove from this lab app
+cd victim-app
 npm uninstall secure-validator
 
-# 3. Clear caches
+# 3. Clear local npm cache (testbench only)
 npm cache clean --force
 
-# 4. Alert development team
-./scripts/send-alert.sh "CRITICAL: secure-validator compromised"
+# 4. Alert your team via your real incident channel (Slack, PagerDuty, etc.)
 ```
 
 #### Response Step 2: Impact Assessment
 
 ```bash
-# Find all affected projects
-node scripts/find-affected-projects.js secure-validator
+# In this repo: search for other uses of the package (example)
+git grep -l secure-validator 2>/dev/null || true
 
-# Check which versions are affected
-npm view secure-validator versions
+# On a real registry: inspect published versions (requires network)
+# npm view secure-validator versions
 
-# Identify compromised versions: 2.5.4, 2.5.5, 2.5.6
+# In the lab, compromised versions are documented in this README (e.g. 2.5.4+)
 ```
 
 #### Response Step 3: Remediation
@@ -373,14 +372,13 @@ git checkout v2.5.3  # Safe version
 #### Response Step 4: System Cleanup
 
 ```bash
-# Check for persistence mechanisms
-node forensics/check-persistence.js
+# Review mock-server capture from this lab
+curl -s http://localhost:3000/captured-data | head -c 4000
 
-# Scan for exfiltrated data
-node forensics/check-data-exfiltration.js
+# Re-scan installed code for suspicious patterns
+grep -rE 'http|child_process|eval' victim-app/node_modules/secure-validator 2>/dev/null || true
 
-# Rotate compromised credentials
-./scripts/rotate-credentials.sh
+# In production: rotate any credentials that touched the compromised dependency
 ```
 
 #### Response Step 5: Prevention

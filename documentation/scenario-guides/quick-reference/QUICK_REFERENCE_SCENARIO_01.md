@@ -48,11 +48,10 @@ cat node_modules/request-lib/index.js
 # Check package metadata
 cat node_modules/request-lib/package.json
 
-# Run automated scanner
-cd detection-tools
-node package-scanner.js ../scenarios/01-typosquatting/victim-app
+# Run automated scanner (from repository root)
+node detection-tools/package-scanner.js scenarios/01-typosquatting/victim-app
 
-# Network monitoring
+# Network monitoring (from repository root)
 ./detection-tools/network-monitor.sh
 ```
 

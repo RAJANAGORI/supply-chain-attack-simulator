@@ -166,8 +166,11 @@ cat build.sh
 ### Step 2: Start Mock Attacker Server
 
 ```bash
+# Scenario root (parent of compromised-build)
+cd ..
+
 # Start mock server (if not already running)
-node ../01-typosquatting/infrastructure/mock-server.js &
+node infrastructure/mock-server.js &
 ```
 
 **Verify it's running:**

@@ -32,11 +32,12 @@ cat > package.json << 'EOF'
 }
 EOF
 
-# 3. Start mock server (in a separate terminal)
-node ../../01-typosquatting/infrastructure/mock-server.js &
+# 3. Start mock server (from scenario root — run ./setup.sh first)
+cd ../../..
+node infrastructure/mock-server.js &
 
 # 4. Install malicious package in corporate app
-cd ../../corporate-app
+cd corporate-app
 rm -rf node_modules package-lock.json
 npm install ../attacker-packages/@techcorp/auth-lib
 
@@ -90,6 +91,7 @@ npm list @techcorp/auth-lib
 
 ```text
 scenarios/02-dependency-confusion/
+├── infrastructure/mock-server.js     # After ./setup.sh — exfil receiver
 ├── internal-packages/@techcorp/     # Legitimate internal packages
 │   ├── auth-lib/                   # Authentication library
 │   ├── data-utils/                 # Data utilities
@@ -130,7 +132,7 @@ npm install
 | Wrong version installed | Check `.npmrc` configuration, verify registry settings |
 | Package not found | Verify path: `npm install ../attacker-packages/@techcorp/auth-lib` |
 | .npmrc not working | Ensure file is in project root, check npm config |
-| Mock server not running | `node ../01-typosquatting/infrastructure/mock-server.js &` |
+| Mock server not running | From `scenarios/02-dependency-confusion`: `node infrastructure/mock-server.js &` (after `./setup.sh`) |
 
 ## 📚 Documentation Links
 

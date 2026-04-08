@@ -1,5 +1,7 @@
 # Scenario 11: Registry Mirror Poisoning Attack 🎯
 
+> **Important:** This directory only contains `README.md`, `setup.sh`, and templates until you run **`./setup.sh`**. That script generates `corporate-app/`, `compromised-mirror/`, `legitimate-packages/`, `infrastructure/mock-server.js`, `detection-tools/`, and the rest of the lab. Run it once before following paths like `corporate-app/.npmrc` in the tasks below.
+
 ## 🎓 Learning Objectives
 
 By completing this scenario, you will learn:

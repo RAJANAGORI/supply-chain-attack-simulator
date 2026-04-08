@@ -12,7 +12,7 @@ console.log('📦 Loaded secure-validator package\n');
 
 // Simulate typical application usage
 async function runApplication() {
-  console.log('='  .repeat(60));
+  console.log('='.repeat(60));
   console.log('Testing Input Validation');
   console.log('='.repeat(60));
   console.log('');

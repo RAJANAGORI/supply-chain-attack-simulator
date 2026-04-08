@@ -7,7 +7,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "secure-validator": "^2.5.0"
+    "secure-validator": "file:../legitimate-package/secure-validator"
   },
   "author": "",
   "license": "MIT"

@@ -1,5 +1,7 @@
 # Scenario 12: Workspace/Monorepo Attack 🎯
 
+> **Important:** This directory only contains `README.md` and `setup.sh` (plus embedded templates) until you run **`./setup.sh`**. That script generates the workspace root `package.json`, `packages/`, `legitimate-packages/`, `compromised-package/`, `victim-app/`, `infrastructure/mock-server.js`, `detection-tools/`, and other lab files. Run it once before commands like `cat package.json` or `ls packages/` below.
+
 ## 🎓 Learning Objectives
 
 By completing this scenario, you will learn:

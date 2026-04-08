@@ -230,13 +230,13 @@ npm install
 
 ### Custom Mock Server Port
 
-Edit `scenarios/01-typosquatting/infrastructure/mock-server.js`:
+Each scenario’s mock server lives at `scenarios/<name>/infrastructure/mock-server.js` after you run that scenario’s `./setup.sh`. Edit the `PORT` constant in the file you are using, for example:
 
 ```javascript
 const PORT = 3001; // Change from 3000
 ```
 
-Update malicious package templates to use new port.
+Update malicious package templates or exfiltration code in that scenario to use the same port.
 
 ### Enable Debug Logging
 

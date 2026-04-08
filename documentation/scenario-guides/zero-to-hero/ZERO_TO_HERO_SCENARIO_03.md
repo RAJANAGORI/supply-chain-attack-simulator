@@ -224,7 +224,7 @@ cat ../../templates/compromised-package-template.js
 cd ../../
 
 # Start mock server (if not already running)
-node ../01-typosquatting/infrastructure/mock-server.js &
+node infrastructure/mock-server.js &
 ```
 
 **Verify it's running:**
@@ -601,7 +601,7 @@ echo $TESTBENCH_MODE
 curl http://localhost:3000/captured-data
 
 # Restart mock server if needed
-node ../01-typosquatting/infrastructure/mock-server.js &
+node infrastructure/mock-server.js &
 ```
 
 ### Problem: "Diff shows no differences"

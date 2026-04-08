@@ -178,7 +178,7 @@ npm start
 
 ```bash
 # Start mock server if not running
-node ../01-typosquatting/infrastructure/mock-server.js &
+node infrastructure/mock-server.js &
 
 # Check captured data
 curl http://localhost:3000/captured-data

@@ -229,11 +229,11 @@ cat index.js
 ### Step 4: Start the Mock Attacker Server
 
 ```bash
-# Go back to scenario root
-cd ../../
+# Go back to scenario root (from attacker-packages/@techcorp/auth-lib)
+cd ../../..
 
 # Start mock server (in a separate terminal, if not already running)
-node ../01-typosquatting/infrastructure/mock-server.js &
+node infrastructure/mock-server.js &
 ```
 
 **Verify it's running:**
