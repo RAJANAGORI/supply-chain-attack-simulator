@@ -1,6 +1,6 @@
 # Quick reference
 
-One-page navigation for the test bench. Authoritative copies of all guides live under **`documentation/`** (this folder). The **`docs/`** directory on GitHub also contains **symlinks** to these files for backward compatibility and for browsing next to the published site.
+One-page navigation for the test bench. Authoritative content lives under **`documentation/`** (this folder). The **`docs/`** directory (GitHub Pages) adds **`index.html`** and **symlinks** to this tree: top-level guides plus **`learning-path/`**, **`modules/`**, and **`scenario-guides/`**—see **`docs/README.md`**.
 
 ## Start here
 

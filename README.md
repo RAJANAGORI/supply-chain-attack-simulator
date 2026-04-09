@@ -76,7 +76,7 @@ supply-chain-attack-simulator/
 ├── detection-tools/          # Security scanning and detection tools
 ├── .github/ISSUE_TEMPLATE/   # GitHub issue forms
 ├── documentation/            # Markdown docs (canonical): guides, learning path, modules
-├── docs/                     # GitHub Pages site (index.html, assets) + symlinks → documentation/
+├── docs/                     # GitHub Pages (index.html, styles); symlinks → documentation/ for *.md + learning-path/, modules/, scenario-guides/
 └── scripts/                  # Setup and utility scripts
 ```
 
@@ -94,7 +94,7 @@ supply-chain-attack-simulator/
    ```bash
    cat documentation/ZERO_TO_HERO.md
    ```
-   (`docs/ZERO_TO_HERO.md` is a symlink to the same file for browsing beside the published site.)
+   (`docs/ZERO_TO_HERO.md` usually points at `documentation/ZERO_TO_HERO.md` for GitHub Pages.)
 
 This guide will take you from zero knowledge to completing your first scenario with detailed explanations of every step.
 
@@ -283,7 +283,7 @@ This repository contains intentionally vulnerable code and malicious package exa
 
 ## 📖 Documentation
 
-Authoritative markdown lives under **`documentation/`**. The **`docs/`** folder mirrors those files with **symlinks** (same paths as before) next to the GitHub Pages site.
+Authoritative markdown lives under **`documentation/`**. The **`docs/`** folder is the GitHub Pages site (`index.html`, styles); shared top-level guides are usually **symlinks** into `documentation/`—see **`docs/README.md`**.
 
 - **[Docs Map](documentation/README.md)** — Organized index of all documentation
 - **[Zero to Hero Guide](documentation/ZERO_TO_HERO.md)** — START HERE if you're new

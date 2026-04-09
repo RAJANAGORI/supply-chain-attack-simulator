@@ -2,6 +2,8 @@
 
 This folder has grown a lot, so this page is the fastest way to find what you need.
 
+**GitHub Pages:** The public site is built from [`docs/`](../docs/). Besides `index.html` and static assets, **`docs/`** exposes the same documentation tree via **symlinks**: top-level `*.md` plus whole directories **`learning-path/`**, **`modules/`**, and **`scenario-guides/`** → this folder. There is a single source of truth under **`documentation/`**; edit here and `docs/` stays aligned. See [`docs/README.md`](../docs/README.md) for the layout.
+
 ## Start Here
 
 - New to the project: [ZERO_TO_HERO.md](./ZERO_TO_HERO.md)

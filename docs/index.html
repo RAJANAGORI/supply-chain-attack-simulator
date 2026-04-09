@@ -40,8 +40,6 @@
   <meta name="twitter:description" content="20 real-world supply chain attack scenarios. Hands-on labs for typosquatting, dependency confusion, CI/CD compromise, container attacks & more.">
   <meta name="twitter:image" content="https://rajanagori.github.io/supply-chain-attack-simulator/og-image.png">
   <meta name="twitter:image:alt" content="Supply Chain Attack Simulator">
-  <meta name="twitter:creator" content="@yourhandle">
-
   <!-- Additional SEO -->
   <link rel="sitemap" type="application/xml" href="/supply-chain-attack-simulator/sitemap.xml">
   <link rel="icon" type="image/png" href="og-image.png">
@@ -354,8 +352,8 @@
           <div class="why-card-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
           </div>
-          <h3>Full Kill-Chain Coverage</h3>
-          <p>From dependency resolution abuse to CI/CD compromise, container attacks, SBOM manipulation, and multi-stage chains. Attack, detect, and defend across the entire supply chain.</p>
+          <h3>End-to-End Coverage</h3>
+          <p>From dependency resolution abuse to CI/CD compromise, container images, SBOM integrity, and multi-stage chains. Each lab covers attack mechanics, detection signals, and defensive controls.</p>
         </div>
 
         <div class="why-card reveal reveal-delay-2">
@@ -383,7 +381,7 @@
       <div class="section-header reveal">
         <span class="section-label">Attack Scenarios</span>
         <h2 class="section-title">20 hands-on <span class="gradient-text">attack labs</span></h2>
-        <p class="section-subtitle">From beginner typosquatting to expert-level self-replicating worms. Every scenario includes setup, attack, detection, and defense phases.</p>
+        <p class="section-subtitle">From beginner typosquatting to advanced self-propagating supply-chain scenarios. Every lab includes setup, simulated attack, detection practice, and defensive follow-through.</p>
       </div>
 
       <div class="scenarios-grid">
@@ -409,7 +407,7 @@
           <span class="scenario-level level-advanced">Advanced</span>
           <span class="scenario-number">04</span>
           <h4>Malicious Update</h4>
-          <p>Deploy a trojan update that appears legitimate with persistence techniques.</p>
+          <p>Malicious semver-compatible update that still appears trustworthy to developers and automation.</p>
         </article>
         <article class="scenario-card reveal">
           <span class="scenario-level level-advanced">Advanced</span>
@@ -645,8 +643,8 @@
             <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">...</span> <span class="comment"># scenarios 02-20</span></div>
             <div>&nbsp;&nbsp;<span class="dir">vulnerable-apps/</span> <span class="comment"># sample apps</span></div>
             <div>&nbsp;&nbsp;<span class="dir">detection-tools/</span> <span class="comment"># shared scanners</span></div>
-            <div>&nbsp;&nbsp;<span class="dir">documentation/</span> <span class="comment"># guides &amp; modules (canonical)</span></div>
-            <div>&nbsp;&nbsp;<span class="dir">docs/</span> <span class="comment"># GitHub Pages site + symlinks → documentation/</span></div>
+            <div>&nbsp;&nbsp;<span class="dir">documentation/</span> <span class="comment"># canonical Markdown (guides, learning-path, modules, scenario-guides)</span></div>
+            <div>&nbsp;&nbsp;<span class="dir">docs/</span> <span class="comment"># GitHub Pages: index.html + symlinks → documentation/ (md + those dirs)</span></div>
             <div>&nbsp;&nbsp;<span class="dir">scripts/</span> <span class="comment"># setup &amp; utilities</span></div>
             <div>&nbsp;&nbsp;<span class="file">START_HERE.sh</span></div>
           </div>
@@ -744,6 +742,7 @@
             <div><span class="prompt">$ </span><span class="cmd">./setup.sh</span></div>
             <div><span class="prompt">$ </span><span class="cmd">node infrastructure/mock-server.js &</span></div>
             <div><span class="prompt">$ </span><span class="cmd">cd victim-app && npm install ../malicious-packages/request-lib</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">export TESTBENCH_MODE=enabled</span>  <span class="comment"># required for lab payloads</span></div>
             <div><span class="prompt">$ </span><span class="cmd">npm start</span></div>
             <div><span class="prompt">$ </span><span class="cmd">curl http://localhost:3000/captured-data</span></div>
           </div>
@@ -911,8 +910,8 @@
   <section class="section cta-section">
     <div class="container">
       <div class="cta-content reveal">
-        <h2>Ready to secure your <span class="gradient-text">supply chain</span>?</h2>
-        <p>Join security professionals worldwide using the Supply Chain Attack Simulator to build measurable defenses against modern software supply chain threats.</p>
+        <h2>Ready to exercise <span class="gradient-text">supply chain</span> defenses?</h2>
+        <p>An open-source, local lab for teams and individuals who want hands-on practice with dependency, build, and distribution attacks—without production risk.</p>
         <div class="cta-actions">
           <a href="https://github.com/rajanagori/supply-chain-attack-simulator" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
             Get Started on GitHub
