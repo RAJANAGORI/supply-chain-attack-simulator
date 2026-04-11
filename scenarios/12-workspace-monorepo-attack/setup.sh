@@ -107,7 +107,7 @@ cat > legitimate-packages/api/package.json << 'EOF'
   "description": "API client for DevCorp [LEGITIMATE]",
   "main": "index.js",
   "dependencies": {
-    "@devcorp/utils": "workspace:*"
+    "@devcorp/utils": "file:../utils"
   },
   "author": "DevCorp",
   "license": "MIT"
@@ -146,7 +146,7 @@ cat > legitimate-packages/auth/package.json << 'EOF'
   "description": "Authentication library for DevCorp [LEGITIMATE]",
   "main": "index.js",
   "dependencies": {
-    "@devcorp/utils": "workspace:*"
+    "@devcorp/utils": "file:../utils"
   },
   "author": "DevCorp",
   "license": "MIT"
@@ -503,7 +503,10 @@ class WorkspaceScanner {
         
         if (pkgJson.dependencies) {
           const workspaceDeps = Object.keys(pkgJson.dependencies).filter(
-            dep => pkgJson.dependencies[dep].startsWith('workspace:')
+            dep => {
+              const spec = pkgJson.dependencies[dep];
+              return typeof spec === 'string' && (spec.startsWith('workspace:') || spec.startsWith('file:../'));
+            }
           );
           if (workspaceDeps.length > 0) {
             console.log(`     Workspace Dependencies: ${workspaceDeps.join(', ')}`);
@@ -634,8 +637,8 @@ cat > victim-app/package.json << 'EOF'
     "start": "node index.js"
   },
   "dependencies": {
-    "@devcorp/api": "workspace:*",
-    "@devcorp/auth": "workspace:*"
+    "@devcorp/api": "file:../packages/api",
+    "@devcorp/auth": "file:../packages/auth"
   }
 }
 EOF

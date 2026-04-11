@@ -1,0 +1,11 @@
+{
+  "name": "@devcorp/auth",
+  "version": "1.0.0",
+  "description": "Authentication library for DevCorp [LEGITIMATE]",
+  "main": "index.js",
+  "dependencies": {
+    "@devcorp/utils": "file:../utils"
+  },
+  "author": "DevCorp",
+  "license": "MIT"
+}

@@ -62,7 +62,7 @@ export TESTBENCH_MODE=enabled
 
 **Workspace Basics**:
 - npm workspaces allow multiple packages in one repository
-- Packages can depend on each other using workspace protocol
+- Packages can depend on each other using the workspace protocol or (in this lab) relative **`file:`** links between `packages/*` peers so installs work consistently on current npm (e.g. npm 11)
 - Workspace packages share the same `node_modules` (by default)
 - Postinstall scripts in workspace packages execute during workspace install
 

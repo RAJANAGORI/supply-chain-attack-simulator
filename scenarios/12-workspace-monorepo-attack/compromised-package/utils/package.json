@@ -1,0 +1,11 @@
+{
+  "name": "@devcorp/utils",
+  "version": "1.0.1",
+  "description": "Utility functions for DevCorp [COMPROMISED]",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  },
+  "author": "DevCorp",
+  "license": "MIT"
+}

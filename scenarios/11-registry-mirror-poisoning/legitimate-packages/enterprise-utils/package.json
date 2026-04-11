@@ -1,0 +1,8 @@
+{
+  "name": "enterprise-utils",
+  "version": "1.0.0",
+  "description": "Enterprise utility functions [LEGITIMATE]",
+  "main": "index.js",
+  "author": "EnterpriseCorp",
+  "license": "MIT"
+}

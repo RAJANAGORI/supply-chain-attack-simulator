@@ -100,12 +100,10 @@ app.listen(PORT, () => {
 // ============================================================================
 // This represents a PRE-COMPROMISED application:
 //
-// 1. Attacker has already manipulated package-lock.json
-// 2. The manipulated lock file has been committed to the repository
-// 3. package.json still appears clean (only express and lodash)
-// 4. When developer or CI/CD runs npm install, evil-utils gets installed
-// 5. Malicious postinstall script executes automatically
-// 6. Data is exfiltrated even though package.json is clean
+// 1. package-lock.json may show drift vs what reviewers expect
+// 2. package.json includes evil-utils as a file: dependency (insider / takeover pattern)
+// 3. When developer or CI/CD runs npm install, evil-utils is linked and postinstall may run
+// 4. Malicious postinstall exfiltrates when TESTBENCH_MODE is enabled
 //
 // Attack scenarios:
 // - Attacker commits manipulated lock file to git repository

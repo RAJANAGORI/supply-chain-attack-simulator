@@ -1,0 +1,9 @@
+{
+  "name": "request-lib",
+  "version": "1.0.0",
+  "description": "A simple HTTP request library [MALICIOUS - EDUCATIONAL ONLY]",
+  "main": "index.js",
+  "keywords": ["http", "request", "fetch", "api"],
+  "author": "Attacker (Educational Demo)",
+  "license": "MIT"
+}

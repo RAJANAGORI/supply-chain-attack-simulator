@@ -1,0 +1,11 @@
+{
+  "name": "@devcorp/api",
+  "version": "1.0.0",
+  "description": "API client for DevCorp [LEGITIMATE]",
+  "main": "index.js",
+  "dependencies": {
+    "@devcorp/utils": "file:../utils"
+  },
+  "author": "DevCorp",
+  "license": "MIT"
+}

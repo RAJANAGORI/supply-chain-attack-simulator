@@ -1,0 +1,8 @@
+{
+  "name": "@devcorp/utils",
+  "version": "1.0.0",
+  "description": "Utility functions for DevCorp [LEGITIMATE]",
+  "main": "index.js",
+  "author": "DevCorp",
+  "license": "MIT"
+}

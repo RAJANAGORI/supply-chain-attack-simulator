@@ -46,7 +46,7 @@ fi
 cd ..
 echo ""
 
-# Setup victim app (with manipulated lock file)
+# Setup victim app (evil-utils file: dependency + lockfile)
 echo "📦 Setting up victim application..."
 cd victim-app
 
@@ -57,17 +57,14 @@ if [ ! -f "package-lock.json" ]; then
     echo "✅ Initial package-lock.json generated"
 fi
 
-# Make manipulation script executable
 chmod +x ../templates/manipulate-lock-file.js
 
-# Manipulate the lock file to inject malicious package
-echo "🔧 Manipulating package-lock.json..."
-node ../templates/manipulate-lock-file.js . ../malicious-packages/evil-utils
-
-# Install dependencies (this will install the malicious package from lock file)
-echo "Installing dependencies from manipulated lock file..."
+# evil-utils is declared in package.json as file: (npm 7+ reconciles lockfile root with package.json;
+# pure lock-only injection is pruned on npm install). Students can still run templates/manipulate-lock-file.js
+# to practice tampering detection on a copy of the lockfile.
+echo "Installing dependencies (includes evil-utils postinstall when TESTBENCH_MODE is enabled)..."
 npm install
-echo "✅ Dependencies installed (including malicious package from lock file)"
+echo "✅ Dependencies installed"
 cd ..
 echo ""
 
@@ -82,11 +79,7 @@ if [ ! -f "package-lock.json" ]; then
     echo "✅ Initial package-lock.json generated"
 fi
 
-# Manipulate the lock file (simulating attacker's commit)
-echo "🔧 Pre-compromising package-lock.json (simulating attacker's manipulation)..."
-node ../templates/manipulate-lock-file.js . ../malicious-packages/evil-utils
-echo "✅ Compromised app ready (lock file pre-manipulated)"
-echo "   Note: Dependencies not installed yet - run npm install to trigger attack"
+echo "✅ Compromised app package.json includes evil-utils (file:); run npm install here to populate node_modules"
 cd ..
 echo ""
 
@@ -210,11 +203,11 @@ echo "   # Legitimate app (clean lock file)"
 echo "   cd legitimate-app"
 echo "   cat package-lock.json | grep -A 5 '\"dependencies\"'"
 echo ""
-echo "   # Victim app (manipulated lock file, packages installed)"
+echo "   # Victim app (evil-utils file: dep + lockfile)"
 echo "   cd ../victim-app"
 echo "   cat package-lock.json | grep -A 5 'evil-utils'"
 echo ""
-echo "   # Compromised app (pre-manipulated lock file, ready to demonstrate)"
+echo "   # Compromised app (same model; run npm install when demoing)"
 echo "   cd ../compromised-app"
 echo "   cat package-lock.json | grep -A 5 'evil-utils'"
 echo ""
@@ -229,15 +222,12 @@ echo "5. Run detection tools:"
 echo "   node detection-tools/lock-file-validator.js victim-app"
 echo ""
 echo "6. Compare package.json vs package-lock.json:"
-echo "   # Check package.json (should be clean)"
-echo "   cat package.json"
-echo "   # Check package-lock.json (contains evil-utils)"
+echo "   cat package.json   # includes evil-utils file: — flag unexpected local deps"
 echo "   cat package-lock.json | grep evil-utils"
 echo ""
-echo "7. Try the compromised app (pre-manipulated state):"
+echo "7. Try the compromised app:"
 echo "   cd compromised-app"
-echo "   # Lock file is already manipulated, but packages not installed yet"
-echo "   npm install  # This will install evil-utils from lock file"
+echo "   npm install  # links evil-utils from file:"
 echo "   export TESTBENCH_MODE=enabled"
 echo "   npm start"
 echo ""

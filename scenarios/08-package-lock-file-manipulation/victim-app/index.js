@@ -64,16 +64,15 @@ app.listen(PORT, () => {
 // ============================================================================
 // LEARNING NOTES:
 // ============================================================================
-// This demonstrates package-lock.json manipulation:
+// This demonstrates malicious local packages and lockfile review:
 //
-// 1. package.json is clean (only express and lodash)
-// 2. package-lock.json has been manipulated to include evil-utils
-// 3. When npm install or npm ci runs, it installs evil-utils
-// 4. Malicious postinstall script executes automatically
-// 5. Data is exfiltrated even though package.json is clean
+// 1. package.json includes a suspicious file: dependency (evil-utils)
+// 2. Lockfile records resolved paths and install scripts
+// 3. npm install runs postinstall on evil-utils when TESTBENCH_MODE is enabled
+// 4. Data is exfiltrated to the mock server on localhost
 //
 // Why this is dangerous:
-// - package.json appears legitimate
+// - file: and tarball dependencies are easy to miss in review
 // - Attack persists through CI/CD pipelines
 // - Developers may not notice the lock file was modified
 // - npm ci trusts the lock file completely

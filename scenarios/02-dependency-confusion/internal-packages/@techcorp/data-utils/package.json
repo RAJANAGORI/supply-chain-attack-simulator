@@ -1,0 +1,7 @@
+{
+  "name": "@techcorp/data-utils",
+  "version": "1.0.5",
+  "description": "TechCorp Data Utilities [LEGITIMATE INTERNAL]",
+  "main": "index.js",
+  "private": true
+}

@@ -9,6 +9,18 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
+function getDirectDepsFromLock(lock) {
+  const merged = {};
+  if (lock.dependencies) {
+    Object.assign(merged, lock.dependencies);
+  }
+  const root = lock.packages && lock.packages[''];
+  if (root && root.dependencies) {
+    Object.assign(merged, root.dependencies);
+  }
+  return merged;
+}
+
 class LockFileValidator {
   constructor(projectPath) {
     this.projectPath = projectPath;
@@ -29,6 +41,7 @@ class LockFileValidator {
       await this.loadFiles();
       await this.checkLockFileExists();
       await this.validatePackageConsistency();
+      await this.flagFileProtocolDependencies();
       await this.detectUnexpectedPackages();
       await this.checkIntegrity();
       await this.verifyChecksums();
@@ -92,31 +105,34 @@ class LockFileValidator {
       ...this.packageJson.devDependencies || {}
     };
 
-    const lockDeps = this.packageLockJson.dependencies || {};
+    const lockDeps = getDirectDepsFromLock(this.packageLockJson);
+    const lockPkgNames = new Set(Object.keys(lockDeps));
 
-    // Check for packages in lock file but not in package.json
-    Object.keys(lockDeps).forEach(pkg => {
+    // Check for packages in lock file root but not in package.json
+    lockPkgNames.forEach((pkg) => {
       if (!packageDeps[pkg] && !pkg.startsWith('@types/')) {
+        const ent = lockDeps[pkg];
+        const version = typeof ent === 'string' ? ent : ent && ent.version;
         this.findings.push({
           severity: 'CRITICAL',
           type: 'UNEXPECTED_PACKAGE',
           package: pkg,
-          version: lockDeps[pkg].version,
-          message: `Package "${pkg}" found in package-lock.json but NOT in package.json`,
-          recommendation: 'This may indicate lock file manipulation. Review and remove if not needed.'
+          version,
+          message: `Package "${pkg}" found in package-lock.json root but NOT in package.json`,
+          recommendation: 'This may indicate lock file manipulation. Review and remove if not needed.',
         });
       }
     });
 
-    // Check for packages in package.json but not in lock file
-    Object.keys(packageDeps).forEach(pkg => {
-      if (!lockDeps[pkg]) {
+    // Check for packages in package.json but not in lock file root
+    Object.keys(packageDeps).forEach((pkg) => {
+      if (!lockPkgNames.has(pkg)) {
         this.findings.push({
           severity: 'WARNING',
           type: 'MISSING_IN_LOCK',
           package: pkg,
-          message: `Package "${pkg}" in package.json but not in package-lock.json`,
-          recommendation: 'Run npm install to update lock file'
+          message: `Package "${pkg}" in package.json but not listed at lockfile root`,
+          recommendation: 'Run npm install to update lock file',
         });
       }
     });
@@ -125,6 +141,29 @@ class LockFileValidator {
       console.log('✅ Package consistency check passed');
     }
     console.log('');
+  }
+
+  /**
+   * Flag file:/directory tarball dependencies in package.json (high-risk in supply-chain reviews).
+   */
+  async flagFileProtocolDependencies() {
+    const deps = {
+      ...(this.packageJson.dependencies || {}),
+      ...(this.packageJson.devDependencies || {}),
+      ...(this.packageJson.optionalDependencies || {}),
+    };
+    Object.keys(deps).forEach((pkg) => {
+      const spec = deps[pkg];
+      if (typeof spec === 'string' && spec.startsWith('file:')) {
+        this.findings.push({
+          severity: 'WARNING',
+          type: 'FILE_PROTOCOL_DEPENDENCY',
+          package: pkg,
+          message: `Dependency "${pkg}" uses file: specifier (${spec})`,
+          recommendation: 'Verify the path is trusted and code-reviewed; file: deps bypass public registry checks.',
+        });
+      }
+    });
   }
 
   /**
@@ -142,7 +181,7 @@ class LockFileValidator {
 
     const lockDeps = this.packageLockJson.dependencies || {};
 
-    Object.keys(lockDeps).forEach(pkg => {
+    Object.keys(lockDeps).forEach((pkg) => {
       // Check for suspicious patterns
       suspiciousPatterns.forEach(({ pattern, name }) => {
         if (pattern.test(pkg)) {
@@ -172,32 +211,34 @@ class LockFileValidator {
       }
     });
 
-    // Check for packages with postinstall scripts
-    Object.keys(lockDeps).forEach(pkg => {
-      const pkgInfo = lockDeps[pkg];
-      if (pkgInfo && pkgInfo.extraneous === false) {
-        // Check if package has postinstall in its resolved location
-        const nodeModulesPath = path.join(this.projectPath, 'node_modules', pkg, 'package.json');
-        if (fs.existsSync(nodeModulesPath)) {
-          try {
-            const pkgJson = JSON.parse(fs.readFileSync(nodeModulesPath, 'utf8'));
-            if (pkgJson.scripts && (pkgJson.scripts.postinstall || pkgJson.scripts.install)) {
-              const isInPackageJson = this.packageJson.dependencies && 
-                                     this.packageJson.dependencies[pkg];
-              if (!isInPackageJson) {
-                this.findings.push({
-                  severity: 'CRITICAL',
-                  type: 'POSTINSTALL_IN_UNEXPECTED',
-                  package: pkg,
-                  message: `Package "${pkg}" has postinstall script but is not in package.json`,
-                  recommendation: 'This is highly suspicious - may indicate lock file manipulation'
-                });
-              }
-            }
-          } catch (e) {
-            // Skip if can't read
+    // Postinstall / install scripts on direct dependencies (lockfile v3 often has no top-level `dependencies`)
+    const allDirect = {
+      ...(this.packageJson.dependencies || {}),
+      ...(this.packageJson.devDependencies || {}),
+      ...(this.packageJson.optionalDependencies || {}),
+    };
+    Object.keys(allDirect).forEach((pkg) => {
+      const nodeModulesPath = path.join(this.projectPath, 'node_modules', pkg, 'package.json');
+      if (!fs.existsSync(nodeModulesPath)) {
+        return;
+      }
+      try {
+        const pkgJson = JSON.parse(fs.readFileSync(nodeModulesPath, 'utf8'));
+        if (pkgJson.scripts && (pkgJson.scripts.postinstall || pkgJson.scripts.install)) {
+          const spec = allDirect[pkg];
+          const isFileSpec = typeof spec === 'string' && spec.startsWith('file:');
+          if (isFileSpec) {
+            this.findings.push({
+              severity: 'WARNING',
+              type: 'POSTINSTALL_ON_FILE_DEP',
+              package: pkg,
+              message: `Package "${pkg}" has postinstall/install script and uses file: dependency`,
+              recommendation: 'Review install scripts for any file: or local tarball dependency.',
+            });
           }
         }
+      } catch {
+        // skip
       }
     });
   }
@@ -210,18 +251,22 @@ class LockFileValidator {
 
     console.log('🔍 Checking lock file integrity...\n');
 
-    // Check for required fields
-    const requiredFields = ['lockfileVersion', 'dependencies'];
-    requiredFields.forEach(field => {
-      if (!this.packageLockJson[field]) {
-        this.findings.push({
-          severity: 'ERROR',
-          type: 'INVALID_LOCK_FILE',
-          message: `Missing required field: ${field}`,
-          recommendation: 'Lock file may be corrupted or manipulated'
-        });
-      }
-    });
+    if (this.packageLockJson.lockfileVersion === undefined) {
+      this.findings.push({
+        severity: 'ERROR',
+        type: 'INVALID_LOCK_FILE',
+        message: 'Missing required field: lockfileVersion',
+        recommendation: 'Lock file may be corrupted or manipulated',
+      });
+    }
+    if (!this.packageLockJson.dependencies && !this.packageLockJson.packages) {
+      this.findings.push({
+        severity: 'ERROR',
+        type: 'INVALID_LOCK_FILE',
+        message: 'Lock file missing both dependencies and packages',
+        recommendation: 'Lock file may be corrupted or manipulated',
+      });
+    }
 
     // Check lockfileVersion
     if (this.packageLockJson.lockfileVersion) {

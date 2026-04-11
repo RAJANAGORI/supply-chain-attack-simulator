@@ -24,8 +24,8 @@ cat package.json
 cat package-lock.json | head -50
 
 cd ../victim-app
-cat package.json  # Still clean!
-cat package-lock.json | grep -A 10 "evil-utils"  # Contains malicious package!
+cat package.json  # Includes evil-utils as file: — review unexpected local deps
+cat package-lock.json | grep -A 10 "evil-utils"  # Resolved path + install metadata
 
 # 2. Start mock server
 cd ../infrastructure
@@ -34,8 +34,8 @@ node mock-server.js &
 # 3. Install from manipulated lock file
 cd ../victim-app
 rm -rf node_modules
-npm install  # Installs evil-utils even though it's not in package.json!
-# OR use npm ci (trusts lock file completely)
+npm install  # Links evil-utils from file: and runs postinstall when TESTBENCH_MODE=enabled
+# OR use npm ci for a clean-room install from the lockfile
 # npm ci
 
 # 4. Run victim application

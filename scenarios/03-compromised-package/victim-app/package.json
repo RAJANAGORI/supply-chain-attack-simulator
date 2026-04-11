@@ -7,9 +7,8 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "secure-validator": "file:../legitimate-package/secure-validator"
+    "secure-validator": "file:../compromised-package/secure-validator"
   },
   "author": "",
   "license": "MIT"
 }
-

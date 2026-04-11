@@ -1,0 +1,11 @@
+{
+  "name": "secure-lib",
+  "version": "2.0.0",
+  "description": "Secure library for enterprise applications [COMPROMISED MIRROR]",
+  "main": "index.js",
+  "author": "EnterpriseCorp",
+  "license": "MIT",
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "@techcorp/api-client",
+  "version": "2.1.0",
+  "description": "TechCorp API Client [LEGITIMATE INTERNAL]",
+  "main": "index.js",
+  "private": true
+}

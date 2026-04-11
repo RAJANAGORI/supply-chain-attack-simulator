@@ -37,9 +37,9 @@ export TESTBENCH_MODE=enabled
 
 ## 5) Attack Walkthrough
 
-1. Compare clean and manipulated lockfile.
-2. Install dependencies from manipulated state.
-3. Observe downstream behavior mismatch.
+1. Compare `legitimate-app` vs `victim-app` (`file:` `evil-utils` + lockfile v3 root).
+2. Install dependencies and observe `postinstall` when `TESTBENCH_MODE=enabled`.
+3. Run the lock validator and discuss `file:` / postinstall findings.
 
 ## 6) Detection Playbook
 

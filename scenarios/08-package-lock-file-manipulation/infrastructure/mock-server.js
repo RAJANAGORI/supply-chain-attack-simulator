@@ -83,5 +83,3 @@ server.listen(PORT, () => {
   console.log('─'.repeat(50));
   console.log('Waiting for data from lock file manipulation attacks...\n');
 });
-
-

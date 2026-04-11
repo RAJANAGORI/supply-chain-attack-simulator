@@ -8,7 +8,8 @@
   },
   "dependencies": {
     "express": "^4.18.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "evil-utils": "file:../malicious-packages/evil-utils"
   }
 }
 

@@ -1,8 +1,3 @@
-/**
- * Mock Attacker Server
- * Receives and logs exfiltrated data from submodule attacks
- */
-
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -17,35 +12,23 @@ if (!fs.existsSync(logFile)) {
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/collect') {
     let body = '';
-    
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-    
+    req.on('data', chunk => { body += chunk.toString(); });
     req.on('end', () => {
       try {
         const data = JSON.parse(body);
-        
         console.log('\n🎯 CAPTURED DATA FROM SUBMODULE ATTACK:');
         console.log(`Package: ${data.package}`);
-        console.log(`Attack Type: ${data.attackType}`);
         console.log(`Hostname: ${data.hostname}`);
-        console.log(`Username: ${data.username}`);
         console.log(JSON.stringify(data, null, 2));
         console.log('─'.repeat(50));
         
         const captures = JSON.parse(fs.readFileSync(logFile, 'utf8'));
-        captures.captures.push({
-          timestamp: new Date().toISOString(),
-          attackType: 'git-submodule',
-          data: data
-        });
+        captures.captures.push({ timestamp: new Date().toISOString(), attackType: 'git-submodule', data: data });
         fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
         
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'success', message: 'Data received' }));
+        res.end(JSON.stringify({ status: 'success' }));
       } catch (e) {
-        console.error('Error processing data:', e);
         res.writeHead(400);
         res.end('Bad Request');
       }
@@ -57,7 +40,7 @@ const server = http.createServer((req, res) => {
   } else if (req.method === 'DELETE' && req.url === '/captured-data') {
     fs.writeFileSync(logFile, JSON.stringify({ captures: [] }, null, 2));
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'success', message: 'Data cleared' }));
+    res.end(JSON.stringify({ status: 'success' }));
   } else {
     res.writeHead(404);
     res.end('Not Found');
@@ -66,14 +49,6 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   console.log('🎭 Mock Attacker Server Started');
-  console.log('─'.repeat(50));
   console.log(`Listening on http://localhost:${PORT}`);
-  console.log('');
-  console.log('Endpoints:');
-  console.log(`  POST   /collect        - Receive exfiltrated data`);
-  console.log(`  GET    /captured-data  - View captured data`);
-  console.log(`  DELETE /captured-data  - Clear captured data`);
-  console.log('─'.repeat(50));
-  console.log('Waiting for data from submodule attacks...\n');
+  console.log('Waiting for data...\n');
 });
-

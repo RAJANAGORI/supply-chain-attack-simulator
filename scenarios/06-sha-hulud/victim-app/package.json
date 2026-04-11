@@ -7,9 +7,8 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "data-processor": "^1.2.0"
+    "data-processor": "file:../compromised-package/data-processor"
   },
   "author": "",
   "license": "MIT"
 }
-

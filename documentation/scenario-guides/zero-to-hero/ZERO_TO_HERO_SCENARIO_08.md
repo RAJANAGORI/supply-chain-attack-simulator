@@ -74,7 +74,7 @@ npm ci  # Installs EXACT versions from package-lock.json
 
 ### What is Lock File Manipulation?
 
-**Lock File Manipulation** occurs when an attacker modifies `package-lock.json` to inject malicious packages. When developers or CI/CD systems run `npm install` or `npm ci`, they install packages based on the lock file, even if those packages aren't in `package.json`.
+**Lock File Manipulation** occurs when an attacker modifies `package-lock.json` (or pairs it with a sneaky manifest change) to steer installs toward malicious artifacts. On **npm 7+**, the lockfile root is reconciled with `package.json`, so “lock-only” injections without a matching dependency line are usually dropped on `npm install`. This lab uses an explicit **`file:`** `evil-utils` entry in `package.json` so installs are reproducible while you still practice **lock review**, integrity checks, and unexpected local-package detection.
 
 ### Attack Scenario
 
@@ -87,7 +87,7 @@ npm ci  # Installs EXACT versions from package-lock.json
 ### Why This Attack Works
 
 1. **Trust**: Package managers trust lock files completely
-2. **Hidden**: package.json appears clean
+2. **Easy to miss**: `file:` and tarball specifiers are easy to skim past in both `package.json` and the lockfile
 3. **CI/CD Vulnerability**: `npm ci` uses lock file exclusively
 4. **Persistent**: Changes persist through git commits
 5. **Review Bypass**: Security reviews focus on package.json, not lock files
@@ -139,7 +139,7 @@ export TESTBENCH_MODE=enabled
 **What this does:**
 - Creates directory structure
 - Sets up legitimate app (clean baseline)
-- Sets up victim app (manipulated lock file)
+- Sets up victim app (`evil-utils` file: dependency + lockfile)
 - Sets up compromised app (pre-manipulated state)
 - Creates malicious package (evil-utils)
 - Sets up detection tools
@@ -159,16 +159,12 @@ export TESTBENCH_MODE=enabled
 - Reference for comparison
 
 **2. victim-app/**: Active compromise
-- Clean package.json
-- Manipulated package-lock.json
-- Packages already installed
-- Attack in action
+- `package.json` includes `evil-utils` as `file:../malicious-packages/evil-utils`
+- Lockfile records the link and install scripts
+- After `./setup.sh`, dependencies are installed
 
-**3. compromised-app/**: Pre-compromised state
-- Clean package.json
-- Manipulated package-lock.json (already in place)
-- Packages not yet installed
-- Demonstrates attack trigger
+**3. compromised-app/**: Same dependency model for demos
+- Same `evil-utils` `file:` line; run `npm install` when you want a fresh `node_modules` for teaching
 
 ---
 
@@ -208,37 +204,29 @@ cd ../victim-app
 cat package.json
 ```
 
-**Notice**: package.json is IDENTICAL to legitimate-app! Still clean!
+**Notice**: `victim-app/package.json` lists **`evil-utils`** as a **`file:`** dependency (legitimate-app does not). That is the signal to investigate.
 
 ```bash
 cat package-lock.json | grep -A 10 "evil-utils"
 ```
 
-**What you'll see:**
-```json
-"evil-utils": {
-  "version": "1.0.0",
-  "resolved": "file:../malicious-packages/evil-utils",
-  "integrity": "",
-  "extraneous": false
-}
-```
+**What you'll see:** entries under the root `packages` tree linking `node_modules/evil-utils` to `../malicious-packages/evil-utils`.
 
-**Key Point**: `evil-utils` is in package-lock.json but NOT in package.json!
+**Key Point**: Compare **legitimate-app** vs **victim-app** `package.json` and lockfile together—unexpected `file:` deps and lock drift are the lesson.
 
 ### Step 3: Compare the Files
 
 ```bash
-# Compare package.json files (should be identical)
+# Compare package.json files (victim includes evil-utils file:)
 diff legitimate-app/package.json victim-app/package.json
 
-# Compare package-lock.json files (should be different)
+# Compare package-lock.json files (victim/evil-utils linkage)
 diff legitimate-app/package-lock.json victim-app/package-lock.json | head -50
 ```
 
 **Findings:**
-- package.json: ✅ Identical (both clean)
-- package-lock.json: ❌ Different (victim-app has evil-utils)
+- package.json: ❌ Different (victim-app declares `evil-utils`)
+- package-lock.json: ❌ Different (victim-app resolves and records `evil-utils`)
 
 ---
 
@@ -246,17 +234,15 @@ diff legitimate-app/package-lock.json victim-app/package-lock.json | head -50
 
 ### Step 1: Understand How the Manipulation Works
 
-The attacker has:
-1. Modified package-lock.json to include `evil-utils`
-2. Left package.json unchanged (still clean)
-3. Committed the manipulated lock file to the repository
+The attacker (or insider) has:
+1. Added a **`file:`** dependency on `evil-utils` in `package.json`
+2. Committed the updated lockfile that materializes that link
+3. Relied on reviewers skimming past `file:` lines or huge lock diffs
 
 **In real attack:**
-- Attacker commits manipulated lock file
-- Lock file change goes through code review (often overlooked)
-- Developer pulls changes
-- CI/CD runs `npm ci` (trusts lock file)
-- Malicious package gets installed
+- Attacker commits manifest + lock changes
+- Lockfile-only tweaks still happen in weaker pipelines, but npm 7+ usually requires a matching manifest line for the root dependency
+- CI/CD runs `npm ci` / `npm install` and postinstall hooks may run
 
 ### Step 2: Start the Mock Attacker Server
 
@@ -315,12 +301,11 @@ npm install
 ```
 
 **What happens:**
-1. npm reads package-lock.json
-2. Finds `evil-utils` entry in lock file
-3. Installs `evil-utils` (even though it's not in package.json!)
-4. Postinstall script executes automatically
-5. Data is collected and exfiltrated
-6. Check the mock server console for captured data!
+1. npm reads `package.json` and `package-lock.json`
+2. Links `evil-utils` from the declared `file:` path
+3. Runs `evil-utils` **postinstall** when `TESTBENCH_MODE=enabled`
+4. Data is collected and exfiltrated to the mock server
+5. Check the mock server console for captured data!
 
 ### Step 5: Observe the Attack
 
@@ -350,16 +335,15 @@ curl http://localhost:3000/captured-data | jq
 # Check installed packages
 npm list --depth=0
 
-# You should see evil-utils even though it's not in package.json!
+# You should see evil-utils@1.0.0 linked from file:
 ```
 
 ```bash
-# Verify package.json is still clean
+# Confirm the manifest declares the local package
 cat package.json | grep evil-utils
-# Should return nothing (package not in package.json)
 ```
 
-**Key Point**: Package is installed from lock file, not package.json!
+**Key Point**: The **`file:`** line in `package.json` is what npm 7+ needs to keep the root lock entry stable; the lockfile still deserves diff review.
 
 ### Step 7: Run the Victim Application
 
@@ -384,16 +368,11 @@ node lock-file-validator.js ../victim-app
 ```
 
 **What this does:**
-- Compares package.json with package-lock.json
-- Identifies packages in lock file but not in package.json
-- Checks for suspicious packages
-- Validates lock file integrity
+- Compares `package.json` with the lockfile root (including lockfile v3 `packages[""]`)
+- Flags suspicious package names and **`file:`** specifiers
+- Notes **postinstall** on **file:** dependencies
 
-**Expected Output:**
-```
-🚨 [CRITICAL] Package "evil-utils" found in package-lock.json but NOT in package.json
-   Recommendation: This may indicate lock file manipulation
-```
+**Expected Output:** warnings for `evil-utils` as a `file:` dependency and for postinstall on that local package (exact wording may vary by npm lock shape).
 
 ### Detection Method 2: Manual Comparison
 
@@ -448,12 +427,12 @@ npm list --depth=0
 # Verify package integrity
 npm audit
 
-# Check for packages not in package.json
+# Spot packages beyond the benign public deps you expect
 npm list --depth=0 | grep -v "express\|lodash"
 ```
 
 **Red Flags:**
-- Packages installed that aren't in package.json
+- Unexpected `file:` or tarball specifiers in `package.json`
 - Integrity check failures
 - Unexpected packages in node_modules
 
@@ -482,18 +461,16 @@ true
 ```bash
 cd victim-app
 
-# Extract all packages from lock file
-cat package-lock.json | jq '.dependencies | keys'
+# Lockfile v3: root dependency keys
+node -e "const l=require('./package-lock.json'); console.log(Object.keys((l.packages&&l.packages['']&&l.packages[''].dependencies)||{}));"
 
-# Check specific malicious package
-cat package-lock.json | jq '.dependencies["evil-utils"]'
+# Inspect the linked package entry
+cat package-lock.json | jq '.packages["node_modules/evil-utils"]'
 ```
 
 **Key Findings:**
 - Package name: evil-utils
-- Version: 1.0.0
-- Resolved path: file:../malicious-packages/evil-utils
-- Not marked as extraneous (looks legitimate to npm)
+- Linked from `../malicious-packages/evil-utils` in the lockfile `packages` tree
 
 ### Investigation Step 2: Package.json Comparison
 
@@ -503,14 +480,13 @@ echo "=== Expected (package.json) ==="
 cat package.json | jq '.dependencies'
 
 echo ""
-echo "=== Actual (package-lock.json) ==="
-cat package-lock.json | jq '.dependencies | keys'
+echo "=== Lockfile root dependency keys (v3 uses packages[\"\"]) ==="
+node -e "const l=require('./package-lock.json'); const r=(l.packages&&l.packages['']&&l.packages[''].dependencies)||{}; console.log(Object.keys(r));"
 ```
 
 **Findings:**
-- package.json: Only express and lodash
-- package-lock.json: Includes evil-utils
-- **Discrepancy**: Lock file has packages not in package.json
+- `package.json` lists `evil-utils` as `file:../malicious-packages/evil-utils`
+- Lockfile records the link under `packages["node_modules/evil-utils"]` (and related entries)
 
 ### Investigation Step 3: Git History Analysis
 
@@ -671,7 +647,7 @@ cat package-lock.json | grep evil-utils
 2. **Package Comparison**: Compare package.json with lock file
 3. **Git History Review**: Review lock file changes in commits
 4. **Integrity Checks**: Verify package integrity hashes
-5. **Unexpected Package Detection**: Alert on packages not in package.json
+5. **Unexpected Package Detection**: Alert on undeclared installs, suspicious names, and **`file:`** / tarball specifiers
 
 ### Response Strategies
 
@@ -689,7 +665,7 @@ cat package-lock.json | grep evil-utils
 
 1. **Complete Trust**: Package managers trust lock files completely
 2. **CI/CD Dependency**: `npm ci` uses lock file exclusively
-3. **Hidden Manipulation**: package.json appears clean
+3. **Easy to miss**: `file:` lines and huge lock diffs hide in review
 4. **Persistent Attack**: Changes persist through commits
 5. **Review Bypass**: Often overlooked in security reviews
 

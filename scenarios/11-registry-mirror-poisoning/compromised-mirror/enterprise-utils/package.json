@@ -1,0 +1,11 @@
+{
+  "name": "enterprise-utils",
+  "version": "1.0.0",
+  "description": "Enterprise utility functions [COMPROMISED MIRROR]",
+  "main": "index.js",
+  "author": "EnterpriseCorp",
+  "license": "MIT",
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  }
+}

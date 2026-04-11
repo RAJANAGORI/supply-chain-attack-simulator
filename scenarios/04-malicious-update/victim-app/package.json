@@ -7,9 +7,8 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "utils-helper": "^2.1.0"
+    "utils-helper": "file:../malicious-update/utils-helper"
   },
   "author": "",
   "license": "MIT"
 }
-

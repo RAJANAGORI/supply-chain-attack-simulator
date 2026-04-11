@@ -1,0 +1,8 @@
+{
+  "name": "techcorp-web-app",
+  "dependencies": {
+    "@techcorp/auth-lib": "^1.0.0",
+    "@techcorp/data-utils": "^1.0.0",
+    "@techcorp/api-client": "^1.0.0"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "victim-app",
+  "version": "1.0.0",
+  "description": "Application that uses workspace packages",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@devcorp/api": "file:../packages/api",
+    "@devcorp/auth": "file:../packages/auth"
+  }
+}

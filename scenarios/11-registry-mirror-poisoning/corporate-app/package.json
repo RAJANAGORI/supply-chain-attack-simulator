@@ -1,0 +1,10 @@
+{
+  "name": "enterprisecorp-web-app",
+  "version": "1.0.0",
+  "description": "EnterpriseCorp Web Application",
+  "main": "index.js",
+  "dependencies": {
+    "enterprise-utils": "file:../compromised-mirror/enterprise-utils",
+    "secure-lib": "file:../compromised-mirror/secure-lib"
+  }
+}

@@ -37,7 +37,7 @@ By completing this scenario, you will learn:
 
 ## 🎯 Scenario Description
 
-**Scenario**: You have a legitimate application with a clean `package.json` containing only `express` and `lodash`. However, an attacker has manipulated the `package-lock.json` to include a malicious package `evil-utils`. Your task is to:
+**Scenario**: You have a victim application whose `package.json` lists benign public packages plus a suspicious **`file:`** dependency `evil-utils` (a realistic insider or takeover pattern). On **npm 7+**, the lockfile’s root section is reconciled with `package.json`, so lock-only injection without a matching manifest line is pruned on `npm install`; this lab therefore uses an explicit `file:` dependency so installs and `postinstall` behave reliably while you still practice **lock diffing**, integrity checks, and spotting unexpected local packages. Your task is to:
 
 1. **Red Team**: Execute a lock file manipulation attack
 2. **Blue Team**: Detect the lock file tampering
@@ -136,7 +136,7 @@ cat package-lock.json | grep -A 10 "evil-utils"
    - Check the mock server console for captured data
 
 **What Happens**:
-- `package.json` is clean (only express and lodash)
+- `package.json` lists `express`, `lodash`, and `evil-utils` (file: — review whether that path is trusted)
 - `package-lock.json` contains `evil-utils` entry
 - `npm install` or `npm ci` installs `evil-utils` based on lock file
 - Malicious postinstall script executes
@@ -156,10 +156,10 @@ node detection-tools/lock-file-validator.js victim-app
 ```
 
 **What to Look For**:
-- Packages in lock file but not in package.json
-- Unexpected packages with postinstall scripts
-- Suspicious package names
-- Integrity hash mismatches
+- Unexpected **`file:`** / tarball specifiers in `package.json`
+- Root lock entries under `packages[""].dependencies` (lockfile v3) vs what you expect
+- Postinstall scripts on local / `file:` packages
+- Suspicious package names and integrity anomalies
 
 #### Detection Method 2: Manual Comparison
 
@@ -174,14 +174,17 @@ echo ""
 echo "=== package-lock.json packages ==="
 cat package-lock.json | grep -o '"[^"]*":\s*{' | head -20
 
-# Find packages in lock file but not in package.json
+# Lockfile v3: compare package.json deps to packages[\"\"].dependencies
 node -e "
 const pkg = require('./package.json');
 const lock = require('./package-lock.json');
-const pkgDeps = Object.keys({...pkg.dependencies, ...pkg.devDependencies});
-const lockDeps = Object.keys(lock.dependencies || {});
-const unexpected = lockDeps.filter(d => !pkgDeps.includes(d));
-console.log('Unexpected packages:', unexpected);
+const pkgDeps = new Set(Object.keys({...pkg.dependencies, ...pkg.devDependencies}));
+const root = (lock.packages && lock.packages[''] && lock.packages[''].dependencies) || {};
+const lockRoot = new Set(Object.keys(root));
+const unexpected = [...lockRoot].filter((d) => !pkgDeps.has(d));
+const missing = [...pkgDeps].filter((d) => !lockRoot.has(d));
+console.log('In lock root but not package.json:', unexpected);
+console.log('In package.json but not lock root:', missing);
 "
 ```
 
@@ -205,7 +208,7 @@ cd victim-app
 # Check installed packages
 npm list --depth=0
 
-# Check for packages not in package.json
+# Highlight installs beyond the benign public deps you expect
 npm list --depth=0 | grep -v "express\|lodash"
 
 # Verify package integrity
@@ -224,8 +227,8 @@ curl http://localhost:3000/captured-data
 ```
 
 **Detection Checklist**:
-- [ ] Compare package.json with package-lock.json
-- [ ] Identify packages in lock file but not in package.json
+- [ ] Compare package.json with package-lock.json (including lockfile v3 root)
+- [ ] Flag unexpected `file:` / tarball dependencies
 - [ ] Check for suspicious package names
 - [ ] Verify package integrity hashes
 - [ ] Review git history for lock file changes

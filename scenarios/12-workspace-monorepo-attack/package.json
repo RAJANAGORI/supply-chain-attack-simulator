@@ -1,0 +1,13 @@
+{
+  "name": "devcorp-workspace",
+  "version": "1.0.0",
+  "description": "DevCorp monorepo workspace [EDUCATIONAL]",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "test": "echo \"No tests specified\""
+  }
+}

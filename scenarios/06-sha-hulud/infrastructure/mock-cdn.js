@@ -40,4 +40,3 @@ server.listen(PORT, () => {
   console.log('─'.repeat(50));
   console.log('Waiting for requests...\n');
 });
-
