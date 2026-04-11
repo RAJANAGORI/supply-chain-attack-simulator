@@ -1,0 +1,7 @@
+litellm_like_pth_hook.py
+setup.py
+litellm_like/__init__.py
+litellm_like.egg-info/PKG-INFO
+litellm_like.egg-info/SOURCES.txt
+litellm_like.egg-info/dependency_links.txt
+litellm_like.egg-info/top_level.txt

@@ -1,0 +1,11 @@
+{
+  "name": "axios-like",
+  "version": "1.14.1",
+  "description": "Testbench stand-in: compromised patch adds unseen transitive dep (simulated)",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "plain-crypto-js-like": "file:../plain-crypto-js-like"
+  },
+  "bundledDependencies": ["plain-crypto-js-like"]
+}

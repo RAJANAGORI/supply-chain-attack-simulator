@@ -11,6 +11,8 @@ You can teach the same core material as a live session, written guide, course, o
 - Example module instances:
   - [MODULE_INSTANCE_SCENARIO_01.md](../modules/MODULE_INSTANCE_SCENARIO_01.md)
   - [MODULE_INSTANCE_SCENARIO_20.md](../modules/MODULE_INSTANCE_SCENARIO_20.md)
+  - [MODULE_INSTANCE_SCENARIO_21.md](../modules/MODULE_INSTANCE_SCENARIO_21.md)
+  - [MODULE_INSTANCE_SCENARIO_22.md](../modules/MODULE_INSTANCE_SCENARIO_22.md)
 
 ## 1) Live Talk / Workshop Variant
 

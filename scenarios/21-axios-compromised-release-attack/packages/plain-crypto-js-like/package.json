@@ -1,0 +1,10 @@
+{
+  "name": "plain-crypto-js-like",
+  "version": "4.2.1",
+  "description": "Testbench stand-in for unexpected transitive with postinstall",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  }
+}

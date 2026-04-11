@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: litellm_like
+Version: 1.82.7
+Summary: Testbench stand-in: import-time telemetry (simulated compromised release)
+Requires-Python: >=3.8
+Dynamic: requires-python
+Dynamic: summary

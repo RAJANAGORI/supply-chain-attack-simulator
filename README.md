@@ -31,6 +31,8 @@ This test bench provides hands-on practical scenarios to learn about supply chai
 - **Package Manager Plugin Attacks**: Malicious plugin hooks that tamper with installs
 - **SBOM Manipulation Attacks**: Omitted/falsified dependency metadata in SBOM pipelines
 - **Package Version Confusion**: Ambiguous version selection that installs attacker-controlled releases
+- **Axios-style npm compromise**: Maintainer-publish patch + unseen transitive `postinstall` + benign IOCs ([issue #3](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/3))
+- **LiteLLM-style PyPI compromise**: Import-time vs `.pth` startup execution patterns ([issue #4](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/4))
 - **Detection & Mitigation**: Practical tooling and defensive workflows across all scenarios
 
 ## 📋 Prerequisites
@@ -67,7 +69,9 @@ supply-chain-attack-simulator/
 │   ├── 17-multi-stage-attack-chain/ # Lab 17: Multi-stage attack chain
 │   ├── 18-package-manager-plugin-attack/ # Lab 18: Package manager plugin attack
 │   ├── 19-sbom-manipulation-attack/ # Lab 19: SBOM manipulation attack
-│   └── 20-package-version-confusion/ # Lab 20: Package version confusion
+│   ├── 20-package-version-confusion/ # Lab 20: Package version confusion
+│   ├── 21-axios-compromised-release-attack/ # Lab 21: Axios-style npm release compromise (simulation)
+│   └── 22-litellm-pypi-compromise/ # Lab 22: LiteLLM-style PyPI compromise (simulation)
 ├── vulnerable-apps/           # Sample vulnerable applications
 │   ├── nodejs-app/           # Vulnerable Node.js application
 │   ├── python-app/           # Vulnerable Python application
@@ -249,6 +253,18 @@ sudo ./scripts/kill-port.sh 3000
 **Objective**: Simulate version-selection ambiguity that installs an attacker’s high version.  
 **Skills**: Version-selection heuristics, registry trust validation, pinning/lockfile guidance  
 **Description**: Practice detecting suspicious version selection and enforcing deterministic installs.
+
+### Scenario 21: Axios-style compromised npm release (Advanced)
+**Duration**: 45-75 minutes  
+**Objective**: Model maintainer-publish takeover: poisoned patch semver, unseen transitive dependency, `postinstall` execution, and decoy manifest swap—using fictional packages and localhost beacons only.  
+**Skills**: Lockfile IOC review, `INIT_CWD` / lifecycle script awareness, bundled dependency materialization  
+**Description**: Based on [GitHub issue #3](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/3). Teaches detection of transitive `postinstall` chains without importing the malicious package.
+
+### Scenario 22: LiteLLM-style PyPI compromise (Advanced)
+**Duration**: 45-90 minutes  
+**Objective**: Contrast import-time payloads with `.pth` interpreter startup hooks in a Python venv; practice site-packages triage and recovery.  
+**Skills**: Python packaging, `.pth` auditing, environment rebuild and version pinning  
+**Description**: Based on [GitHub issue #4](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/4). Uses fictional `litellm_like` and `127.0.0.1:3022` mock collection only.
 
 ## 🛡️ Defense & Detection
 

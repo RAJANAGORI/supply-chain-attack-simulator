@@ -1,0 +1,7 @@
+{
+  "name": "axios-like",
+  "version": "1.14.0",
+  "description": "Testbench stand-in for a popular HTTP client (clean release)",
+  "main": "index.js",
+  "license": "MIT"
+}

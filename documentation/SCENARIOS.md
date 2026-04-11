@@ -84,6 +84,14 @@ This file provides a concise reference for each scenario included in the testben
     Path: `scenarios/20-package-version-confusion/`  
     Skills: version-selection heuristics, registry trust validation, pinning/lockfile guidance
 
+21. Scenario 21 — Axios-style compromised npm release (Advanced)  
+    Path: `scenarios/21-axios-compromised-release-attack/`  
+    Skills: transitive `postinstall`, lockfile IOCs, `INIT_CWD`, localhost beacon review (see [issue #3](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/3))
+
+22. Scenario 22 — LiteLLM-style PyPI compromise (Advanced)  
+    Path: `scenarios/22-litellm-pypi-compromise/`  
+    Skills: import-time vs `.pth` startup hooks, `site-packages` triage, venv rebuild (see [issue #4](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/4))
+
 ---
 
 Tip: Use `cat scenarios/NN-name/README.md` to open scenario instructions. Each scenario includes a `setup.sh`, mock infrastructure, detection tools, and recommended exercises. For a short walkthrough, see `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_NN.md`; for command cheat sheets, see `documentation/scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_NN.md` (replace `NN` with the scenario number).

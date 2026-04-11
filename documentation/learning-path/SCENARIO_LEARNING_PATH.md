@@ -115,11 +115,21 @@ Use these modules for deeper engineering teams who need production-grade detecti
 - **Path**: `scenarios/20-package-version-confusion/`
 - **Outcome**: detect resolver drift and enforce strict version-selection policy.
 
+### Scenario 21: Axios-style compromised npm release
+
+- **Path**: `scenarios/21-axios-compromised-release-attack/`
+- **Outcome**: detect transitive `postinstall` chains, lockfile IOCs, and lifecycle script forensics (`INIT_CWD`).
+
+### Scenario 22: LiteLLM-style PyPI compromise
+
+- **Path**: `scenarios/22-litellm-pypi-compromise/`
+- **Outcome**: contrast import-time vs `.pth` startup execution; triage `site-packages` and rebuild venvs safely.
+
 ## Suggested Progression
 
 1. Beginner: 01 -> 02 -> 03  
 2. Intermediate: 04 -> 07 -> 08 -> 10 -> 12 -> 13 -> 16  
-3. Advanced: 05 -> 06 -> 09 -> 11 -> 14 -> 15 -> 17 -> 18 -> 19 -> 20  
+3. Advanced: 05 -> 06 -> 09 -> 11 -> 14 -> 15 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22  
 
 ## Exit Criteria By Level
 

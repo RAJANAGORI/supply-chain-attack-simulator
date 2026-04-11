@@ -1,0 +1,7 @@
+{
+  "name": "plain-crypto-js-like",
+  "version": "4.2.1",
+  "description": "Decoy manifest (simulated anti-forensics swap after postinstall)",
+  "main": "index.js",
+  "license": "MIT"
+}
