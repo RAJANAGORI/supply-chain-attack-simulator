@@ -2,8 +2,14 @@
 
 # Main Setup Script for Supply Chain Attack Testbench
 # This script prepares the entire environment
+#
+# Safe to run from any cwd: paths are resolved from the repo root (parent of this script).
 
 set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+cd "${REPO_ROOT}"
 
 echo "========================================================="
 echo "🔐 Supply Chain Attack Testbench - Setup"
