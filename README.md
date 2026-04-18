@@ -4,121 +4,82 @@ A comprehensive cybersecurity learning platform for understanding, practicing, a
 
 ![SCAS](./assets/supply-chain-attack-simulator-logo.png)
 
+## Start here
 
-## 🎯 Overview
+Pick **one** path; everything else links out so you are not stuck in a long README.
 
-This test bench provides hands-on practical scenarios to learn about supply chain attacks - one of the most critical and emerging threats in modern software development. Candidates will set up vulnerable environments, execute attacks, detect compromises, and implement defenses.
+| You are… | Do this |
+|----------|---------|
+| **New to the project** | Run `./START_HERE.sh` (after `chmod +x START_HERE.sh`) or read [Zero to Hero](documentation/ZERO_TO_HERO.md) |
+| **Planning teaching or a curriculum** | Use the [Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md) (beginner → intermediate → advanced) |
+| **Comfortable with npm, shells, and isolated VMs** | [Quick Start](#quick-start-experienced-users) below, then open the README inside each scenario folder |
 
-## 🚀 What You'll Learn
+**Safety:** This repo is for **education in isolated environments only**. Read [Safety & ethics](#safety--ethics) before running anything.
 
-- **Typosquatting Attacks**: How attackers exploit package name confusion
-- **Dependency Confusion**: Private vs public package resolution vulnerabilities
-- **Compromised Packages**: How legitimate packages get hijacked
-- **Malicious Updates**: Trojan horse updates to trusted packages
-- **Build System Compromise**: CI/CD pipeline exploitation
-- **Shai-Hulud Attack**: Self-replicating supply chain attacks with credential harvesting
-- **Transitive Dependency Attacks**: Attacks through dependencies of dependencies
-- **Package Lock File Manipulation**: Attacks through manipulated lock files
-- **Package Signing Bypass**: Attacks through compromised signing keys
-- **Git Submodule Attacks**: Attacks through malicious git submodules
-- **Registry Mirror Poisoning**: Attacks through compromised internal mirrors (Enterprise-specific)
-- **Workspace/Monorepo Attack**: Attacks through compromised workspace packages (Common in modern development)
-- **Package Metadata Manipulation**: Spoofed metadata and tarball integrity mismatches
-- **Container Image Supply Chain Attack**: Malicious image layers or startup exfiltration
-- **Developer Tool Compromise**: Malicious IDE/CLI/dev-tool packages that execute during development
-- **Package Cache Poisoning**: Poisoned local caches that persist across reinstalls
-- **Multi-Stage Attack Chains**: Correlated, chained supply chain compromises across stages
-- **Package Manager Plugin Attacks**: Malicious plugin hooks that tamper with installs
-- **SBOM Manipulation Attacks**: Omitted/falsified dependency metadata in SBOM pipelines
-- **Package Version Confusion**: Ambiguous version selection that installs attacker-controlled releases
-- **Axios-style npm compromise**: Maintainer-publish patch + unseen transitive `postinstall` + benign IOCs ([issue #3](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/3))
-- **LiteLLM-style PyPI compromise**: Import-time vs `.pth` startup execution patterns ([issue #4](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/4))
-- **Detection & Mitigation**: Practical tooling and defensive workflows across all scenarios
+## Overview
 
-## 📋 Prerequisites
+This test bench provides hands-on scenarios for supply chain attacks—among the most critical risks in modern software development. Learners set up intentionally vulnerable environments, walk through attacks, practice detection, and implement defenses. The runtime is **CLI-only** (no web dashboard required).
 
-- **Operating System**: Linux, macOS, or Windows with WSL2
-- **Software Requirements**:
-  - Python 3.8+
-  - Node.js 16+
-  - Git
-- **Knowledge Level**: Basic understanding of package managers (npm, pip, etc.)
-- **Runtime model**: CLI-only (no dashboard/web UI required)
+**At a glance**
 
-## 🏗️ Project Structure
+- **22** self-contained labs under `scenarios/` (numbered folders `01-` … `22-`)
+- Each lab includes attack mechanics, detection ideas, mitigations, and references where relevant
+- Canonical guides and learning paths live in [`documentation/`](documentation/README.md)
+- Malicious samples are gated (for example `TESTBENCH_MODE=enabled`) and designed for localhost-style exercises—see [Security notice](#security-notice)
+
+## What you'll learn (themes)
+
+Instead of listing every technique here, the labs group into a few themes:
+
+- **Package and registry abuse** — typosquatting, dependency and version confusion, mirrors, metadata, lockfiles, caches, workspaces
+- **Compromise of trust** — hijacked or malicious updates, signing bypass, submodules, SBOM gaps
+- **Build, CI/CD, and delivery** — pipeline tampering, container images, multi-stage chains
+- **Developer toolchain** — plugins, “Shai-Hulud” / self-spreading patterns, IDE–CLI style risks ([scenario folder `06-sha-hulud/`](scenarios/06-sha-hulud/) uses the short name **sha-hulud** on disk)
+- **Realistic simulations** — Axios-style npm and LiteLLM-style PyPI patterns (fictional packages, localhost-only; see issues [#3](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/3) and [#4](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/4))
+- **Defense** — detection tooling, hardening patterns, and defensive workflows across scenarios
+
+For a **full numbered list** with paths and skills, see [Scenario walkthroughs](documentation/SCENARIOS.md).
+
+## Prerequisites
+
+- **Operating system**: Linux, macOS, or Windows with WSL2
+- **Software**: Python 3.8+, Node.js 16+, Git
+- **Knowledge**: Basic familiarity with package managers (npm, pip, and similar)
+- **Runtime model**: CLI-only (no dashboard or web UI required)
+
+## Project structure
 
 ```
 supply-chain-attack-simulator/
-├── scenarios/                  # Attack scenario labs
-│   ├── 01-typosquatting/      # Lab 1: Typosquatting attack
-│   ├── 02-dependency-confusion/ # Lab 2: Dependency confusion
-│   ├── 03-compromised-package/ # Lab 3: Package compromise
-│   ├── 04-malicious-update/   # Lab 4: Update attacks
-│   ├── 05-build-compromise/   # Lab 5: CI/CD compromise
-│   ├── 06-sha-hulud/          # Lab 6: Self-replicating attack
-│   ├── 07-transitive-dependency/ # Lab 7: Transitive dependency attack
-│   ├── 08-package-lock-file-manipulation/ # Lab 8: Lock file manipulation
-│   ├── 09-package-signing-bypass/ # Lab 9: Package signing bypass
-│   ├── 10-git-submodule-attack/ # Lab 10: Git submodule attack
-│   ├── 11-registry-mirror-poisoning/ # Lab 11: Registry mirror poisoning
-│   ├── 12-workspace-monorepo-attack/ # Lab 12: Workspace/monorepo attack
-│   ├── 13-package-metadata-manipulation/ # Lab 13: Package metadata manipulation
-│   ├── 14-container-image-supply-chain-attack/ # Lab 14: Container image supply chain attack
-│   ├── 15-developer-tool-compromise/ # Lab 15: Developer tool compromise
-│   ├── 16-package-cache-poisoning/ # Lab 16: Package cache poisoning
-│   ├── 17-multi-stage-attack-chain/ # Lab 17: Multi-stage attack chain
-│   ├── 18-package-manager-plugin-attack/ # Lab 18: Package manager plugin attack
-│   ├── 19-sbom-manipulation-attack/ # Lab 19: SBOM manipulation attack
-│   ├── 20-package-version-confusion/ # Lab 20: Package version confusion
-│   ├── 21-axios-compromised-release-attack/ # Lab 21: Axios-style npm release compromise (simulation)
-│   └── 22-litellm-pypi-compromise/ # Lab 22: LiteLLM-style PyPI compromise (simulation)
-├── vulnerable-apps/           # Sample vulnerable applications
-│   ├── nodejs-app/           # Vulnerable Node.js application
-│   ├── python-app/           # Vulnerable Python application
-│   └── build-pipeline/       # Vulnerable CI/CD setup
-├── malicious-packages/        # Example malicious packages (for learning)
-├── detection-tools/          # Security scanning and detection tools
-├── .github/ISSUE_TEMPLATE/   # GitHub issue forms
-├── documentation/            # Markdown docs (canonical): guides, learning path, modules
-├── docs/                     # GitHub Pages (index.html, styles); symlinks → documentation/ for *.md + learning-path/, modules/, scenario-guides/
-└── scripts/                  # Setup and utility scripts
+├── scenarios/                  # Attack scenario labs (01- … 22-)
+├── vulnerable-apps/             # Sample vulnerable applications (Node, Python, CI)
+├── malicious-packages/          # Example malicious packages (for learning)
+├── detection-tools/             # Security scanning and detection tools
+├── .github/ISSUE_TEMPLATE/      # GitHub issue forms
+├── documentation/               # Canonical Markdown: guides, learning path, modules
+├── docs/                        # GitHub Pages (HTML/styles); symlinks → documentation/
+└── scripts/                     # Setup and utility scripts
 ```
 
-## 🎓 New to This Project?
+## Quick Start (experienced users)
 
-**If you're completely new and want step-by-step guidance:**
-
-1. **Run the interactive starter script:**
-   ```bash
-   chmod +x START_HERE.sh
-   ./START_HERE.sh
-   ```
-
-2. **Or read the complete beginner's guide:**
-   ```bash
-   cat documentation/ZERO_TO_HERO.md
-   ```
-   (`docs/ZERO_TO_HERO.md` usually points at `documentation/ZERO_TO_HERO.md` for GitHub Pages.)
-
-This guide will take you from zero knowledge to completing your first scenario with detailed explanations of every step.
-
-## 🔧 Quick Start
-
-### 1. Clone the Repository
+### 1. Clone and enter the repo
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/RAJANAGORI/supply-chain-attack-simulator.git
 cd supply-chain-attack-simulator
 ```
 
-### 2. Run Setup Script
+Use your own fork or mirror URL if you did not clone from GitHub.
+
+### 2. Run the setup script
 
 ```bash
 chmod +x scripts/setup.sh
 ./scripts/setup.sh
 ```
 
-### 3. Run Scenario 1 (CLI)
+### 3. Run Scenario 1 (example CLI flow)
 
 ```bash
 cd scenarios/01-typosquatting
@@ -131,240 +92,146 @@ npm start
 curl http://localhost:3000/captured-data
 ```
 
-### 4. Clean up the Scenario Port
+You should see captured exercise data from the mock exfiltration endpoint (exact shape is described in `scenarios/01-typosquatting/README.md`).
+
+### 4. Clean up the scenario port
 
 ```bash
 sudo ./scripts/kill-port.sh 3000
 ```
 
-## 📚 Scenario Overview
+## Scenario index
 
-### Scenario 1: Typosquatting Attack (Beginner)
-**Duration**: 30-45 minutes  
-**Objective**: Create and exploit a typosquatted package to exfiltrate data  
-**Skills**: Package creation, social engineering, data exfiltration
+Open each folder’s **README** for objectives, duration, and step-by-step steps. Levels follow [documentation/SCENARIOS.md](documentation/SCENARIOS.md).
 
-### Scenario 2: Dependency Confusion (Intermediate)
-**Duration**: 45-60 minutes  
-**Objective**: Exploit private/public package resolution to inject malicious code  
-**Skills**: Package registry manipulation, scope confusion
+| # | Lab | Level |
+|---|-----|--------|
+| 01 | [Typosquatting](scenarios/01-typosquatting/) | Beginner |
+| 02 | [Dependency confusion](scenarios/02-dependency-confusion/) | Intermediate |
+| 03 | [Compromised package](scenarios/03-compromised-package/) | Intermediate |
+| 04 | [Malicious update](scenarios/04-malicious-update/) | Advanced |
+| 05 | [Build system compromise](scenarios/05-build-compromise/) | Advanced |
+| 06 | [Shai-Hulud (self-replicating)](scenarios/06-sha-hulud/) | Expert |
+| 07 | [Transitive dependency](scenarios/07-transitive-dependency/) | Intermediate |
+| 08 | [Package lock file manipulation](scenarios/08-package-lock-file-manipulation/) | Intermediate |
+| 09 | [Package signing bypass](scenarios/09-package-signing-bypass/) | Advanced |
+| 10 | [Git submodule attack](scenarios/10-git-submodule-attack/) | Intermediate |
+| 11 | [Registry mirror poisoning](scenarios/11-registry-mirror-poisoning/) | Advanced |
+| 12 | [Workspace / monorepo attack](scenarios/12-workspace-monorepo-attack/) | Intermediate |
+| 13 | [Package metadata manipulation](scenarios/13-package-metadata-manipulation/) | Intermediate |
+| 14 | [Container image supply chain](scenarios/14-container-image-supply-chain-attack/) | Advanced |
+| 15 | [Developer tool compromise](scenarios/15-developer-tool-compromise/) | Advanced |
+| 16 | [Package cache poisoning](scenarios/16-package-cache-poisoning/) | Intermediate |
+| 17 | [Multi-stage attack chain](scenarios/17-multi-stage-attack-chain/) | Advanced |
+| 18 | [Package manager plugin attack](scenarios/18-package-manager-plugin-attack/) | Advanced |
+| 19 | [SBOM manipulation](scenarios/19-sbom-manipulation-attack/) | Advanced |
+| 20 | [Package version confusion](scenarios/20-package-version-confusion/) | Advanced |
+| 21 | [Axios-style npm release (simulation)](scenarios/21-axios-compromised-release-attack/) | Advanced |
+| 22 | [LiteLLM-style PyPI compromise (simulation)](scenarios/22-litellm-pypi-compromise/) | Advanced |
 
-### Scenario 3: Compromised Package (Intermediate)
-**Duration**: 60 minutes  
-**Objective**: Simulate account takeover and malicious package update  
-**Skills**: Credential compromise, package hijacking
-
-### Scenario 4: Malicious Update (Advanced)
-**Duration**: 60-90 minutes  
-**Objective**: Deploy a trojan update that appears legitimate  
-**Skills**: Code obfuscation, persistence techniques
-
-### Scenario 5: Build System Compromise (Advanced)
-**Duration**: 90+ minutes  
-**Objective**: Compromise CI/CD pipeline to inject backdoors  
-**Skills**: Pipeline manipulation, artifact poisoning
-
-### Scenario 6: Shai-Hulud Self-Replicating Attack (Expert)
-**Duration**: 120+ minutes  
-**Objective**: Understand and defend against self-replicating supply chain attacks  
-**Skills**: Credential harvesting, post-install exploitation, forensic analysis, incident response  
-**Description**: Learn about one of the most sophisticated supply chain attacks that compromised hundreds of npm packages. This scenario covers credential theft, self-replication mechanisms, and comprehensive incident response.
-
-### Scenario 7: Transitive Dependency Attack (Intermediate)
-**Duration**: 60-90 minutes  
-**Objective**: Understand and defend against attacks through transitive dependencies  
-**Skills**: Dependency tree analysis, transitive dependency auditing, detection techniques  
-**Description**: Learn how attackers compromise packages that are dependencies of dependencies. This scenario demonstrates why transitive dependencies are hard to detect and how to audit entire dependency trees. Based on real-world attacks like event-stream → flatmap-stream (2018).
-
-### Scenario 8: Package Lock File Manipulation (Intermediate)
-**Duration**: 60-90 minutes  
-**Objective**: Understand and defend against lock file manipulation attacks  
-**Skills**: Lock file validation, integrity checking, CI/CD security  
-**Description**: Learn how attackers manipulate package-lock.json to inject malicious packages. This scenario demonstrates why lock files are trusted by package managers and how to detect and prevent lock file tampering. Critical for CI/CD pipeline security.
-
-### Scenario 9: Package Signing Bypass (Advanced)
-**Duration**: 90+ minutes  
-**Objective**: Understand and defend against signing bypass attacks through key compromise  
-**Skills**: Signature verification, key management, key rotation, behavioral analysis  
-**Description**: Learn how attackers compromise package signing keys to sign malicious packages. This scenario demonstrates why signature verification alone is insufficient and how to detect key compromise. Based on real-world attacks like SolarWinds (2020).
-
-### Scenario 10: Git Submodule Attack (Intermediate)
-**Duration**: 60-90 minutes  
-**Objective**: Understand and defend against attacks through malicious git submodules  
-**Skills**: Submodule validation, .gitmodules analysis, repository security  
-**Description**: Learn how attackers add malicious git submodules to legitimate repositories. This scenario demonstrates how submodules can execute code automatically and how to detect and prevent submodule attacks.
-
-### Scenario 11: Registry Mirror Poisoning (Advanced)
-**Duration**: 90+ minutes  
-**Objective**: Understand and defend against attacks through compromised registry mirrors  
-**Skills**: Mirror validation, upstream verification, registry security  
-**Description**: Learn how attackers compromise internal npm registry mirrors to serve malicious packages. This enterprise-specific scenario demonstrates why mirrors are single points of failure and how to validate mirror integrity. Critical for organizations using internal package registries.
-
-### Scenario 12: Workspace/Monorepo Attack (Intermediate)
-**Duration**: 60-90 minutes  
-**Objective**: Understand and defend against attacks through compromised workspace packages  
-**Skills**: Workspace security, monorepo auditing, postinstall monitoring  
-**Description**: Learn how attackers compromise packages within npm workspaces or monorepos. This scenario demonstrates why workspace packages are a critical attack vector and how one compromised package can affect all packages in the workspace. Common in modern development with monorepo tools like Lerna, Nx, and Turborepo.
-
-### Scenario 13: Package Metadata Manipulation (Intermediate)
-**Duration**: 45-75 minutes  
-**Objective**: Detect and defend against manipulated package metadata and tarball integrity mismatches  
-**Skills**: Metadata validation, SBOM checks, registry verification  
-**Description**: Attackers can spoof package metadata (repository, author, tarball URLs, integrity fields) to mislead consumers or redirect installs to malicious mirrors. This scenario shows how to detect inconsistencies and validate package provenance.
-
-### Scenario 14: Container Image Supply Chain Attack (Advanced)
-**Duration**: 60-120 minutes  
-**Objective**: Detect malicious image layers and runtime exfiltration from container images  
-**Skills**: Image layer inspection, image signing (cosign/notary), runtime monitoring  
-**Description**: Demonstrates how a compromised base image or registry can introduce malicious layers that exfiltrate data at container startup. Learn static and runtime detection and CI/CD mitigations.
-
-### Scenario 15: Developer Tool Compromise (Advanced)
-**Duration**: 45-75 minutes  
-**Objective**: Simulate compromised developer tools (IDE extensions/CLIs) that run malicious code during development.  
-**Skills**: Build-time code execution, tool pinning, postinstall/suspicious script detection  
-**Description**: Practice detecting “trusted tooling” compromise patterns and apply mitigations like isolation and signature/pinning checks.
-
-### Scenario 16: Package Cache Poisoning (Intermediate)
-**Duration**: 45-75 minutes  
-**Objective**: Simulate poisoned local caches that persist across reinstalls.  
-**Skills**: Cache integrity validation, persistence analysis, mitigation recommendations  
-**Description**: Learn how attackers exploit caching layers and how to detect/clear poisoned artifacts safely.
-
-### Scenario 17: Multi-Stage Attack Chain (Advanced)
-**Duration**: 60-90 minutes  
-**Objective**: Correlate evidence across a chained, multi-stage supply chain attack.  
-**Skills**: Kill-chain thinking, evidence correlation, multi-step detection  
-**Description**: Understand how early-stage compromises enable later-stage impact and why correlation is key.
-
-### Scenario 18: Package Manager Plugin Attack (Advanced)
-**Duration**: 45-75 minutes  
-**Objective**: Simulate malicious package-manager plugins that intercept installs and inject payloads.  
-**Skills**: Plugin hook auditing, build-tool isolation, injection marker detection  
-**Description**: Practice isolating untrusted plugins and detecting installation-time tampering patterns.
-
-### Scenario 19: SBOM Manipulation Attack (Advanced)
-**Duration**: 45-75 minutes  
-**Objective**: Simulate SBOM pipelines that omit malicious dependencies.  
-**Skills**: SBOM authenticity checks, cross-verification, mismatch detection  
-**Description**: Learn how to validate SBOM truth against dependency reality and detect omissions.
-
-### Scenario 20: Package Version Confusion (Advanced)
-**Duration**: 45-75 minutes  
-**Objective**: Simulate version-selection ambiguity that installs an attacker’s high version.  
-**Skills**: Version-selection heuristics, registry trust validation, pinning/lockfile guidance  
-**Description**: Practice detecting suspicious version selection and enforcing deterministic installs.
-
-### Scenario 21: Axios-style compromised npm release (Advanced)
-**Duration**: 45-75 minutes  
-**Objective**: Model maintainer-publish takeover: poisoned patch semver, unseen transitive dependency, `postinstall` execution, and decoy manifest swap—using fictional packages and localhost beacons only.  
-**Skills**: Lockfile IOC review, `INIT_CWD` / lifecycle script awareness, bundled dependency materialization  
-**Description**: Based on [GitHub issue #3](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/3). Teaches detection of transitive `postinstall` chains without importing the malicious package.
-
-### Scenario 22: LiteLLM-style PyPI compromise (Advanced)
-**Duration**: 45-90 minutes  
-**Objective**: Contrast import-time payloads with `.pth` interpreter startup hooks in a Python venv; practice site-packages triage and recovery.  
-**Skills**: Python packaging, `.pth` auditing, environment rebuild and version pinning  
-**Description**: Based on [GitHub issue #4](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/4). Uses fictional `litellm_like` and `127.0.0.1:3022` mock collection only.
-
-## 🛡️ Defense & Detection
+## Defense & detection
 
 Each scenario includes:
-- ✅ Detection techniques and tools
-- ✅ Mitigation strategies
-- ✅ Best practices for prevention
-- ✅ Real-world case studies
 
-## ⚠️ Safety & Ethics
+- Detection techniques and tools
+- Mitigation strategies
+- Prevention-oriented practices
+- Real-world case studies where relevant
+
+## Safety & ethics
 
 **IMPORTANT**: This test bench is for **educational purposes only**.
 
-- ✅ Use ONLY in isolated environments
-- ✅ Never deploy malicious code to public repositories
-- ✅ Do not test on systems you don't own
-- ✅ Follow responsible disclosure practices
+- Use **only** in isolated environments
+- Never deploy malicious code to public repositories
+- Do not test on systems you do not own
+- Follow responsible disclosure practices
 
-All malicious packages in this testbench are:
+All malicious packages in this test bench are:
+
 - Clearly labeled as educational
 - Designed to work only in the test environment
-- Incapable of causing real harm when used as instructed
+- Intended not to cause real harm when used as documented
 
-## 🔒 Security Notice
+## Security notice
 
-This repository contains intentionally vulnerable code and malicious package examples for educational purposes. All examples include safeguards to prevent accidental deployment:
+This repository contains intentionally vulnerable code and malicious package examples for educational purposes. Safeguards reduce accidental misuse:
 
-- Environment variable checks (requires `TESTBENCH_MODE=enabled`)
-- Localhost-only operations
+- Environment variable checks (for example `TESTBENCH_MODE=enabled`)
+- Localhost-oriented operations
 - Clear warning messages
-- No actual credential harvesting
+- No real credential harvesting
 
-## 📖 Documentation
+## Documentation
 
-Authoritative markdown lives under **`documentation/`**. The **`docs/`** folder is the GitHub Pages site (`index.html`, styles); shared top-level guides are usually **symlinks** into `documentation/`—see **`docs/README.md`**.
+Authoritative Markdown lives under **`documentation/`**. The **`docs/`** folder is the GitHub Pages site (`index.html`, styles); shared top-level guides are usually **symlinks** into `documentation/`—see **`docs/README.md`**.
 
-- **[Docs Map](documentation/README.md)** — Organized index of all documentation
-- **[Zero to Hero Guide](documentation/ZERO_TO_HERO.md)** — START HERE if you're new
-- **[Supply Chain Attacks: Zero to Hero](documentation/learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md)** — Landing page with progression path
-- **[Scenario Learning Path](documentation/learning-path/SCENARIO_LEARNING_PATH.md)** — Beginner/intermediate/advanced map with outcomes
-- **[Module Template](documentation/modules/MODULE_TEMPLATE.md)** — Reusable format for teaching any scenario
-- **[Module Instances Index](documentation/modules/MODULE_INSTANCES_INDEX.md)** — Links to per-scenario teaching cards (01-20)
-- **[Teaching Delivery Pack](documentation/learning-path/TEACHING_DELIVERY_PACK.md)** — Talk/docs/course/simulator variants
-- **[Capstone Rubric](documentation/learning-path/CAPSTONE_RUBRIC.md)** — Final exercise and scoring criteria
-- [Quick Reference Card](documentation/QUICK_REFERENCE.md) — Navigation and common commands
-- [Complete Setup Guide](documentation/SETUP.md)
-- [Quick Start Guide](documentation/QUICK_START.md)
-- [Best Practices](documentation/BEST_PRACTICES.md)
-- [Scenario Walkthroughs](documentation/SCENARIOS.md) — Scenario list and port cleanup guidance
-- [Additional Resources](documentation/RESOURCES.md) — External links, articles, tools, and references
+- **[Docs map](documentation/README.md)** — Index of all documentation
+- **[Zero to Hero](documentation/ZERO_TO_HERO.md)** — Guided start if you are new
+- **[Supply chain attacks: Zero to Hero](documentation/learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md)** — Progression landing page
+- **[Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md)** — Beginner / intermediate / advanced tracks with outcomes
+- **[Module template](documentation/modules/MODULE_TEMPLATE.md)** — Format for teaching a scenario
+- **[Module instances index](documentation/modules/MODULE_INSTANCES_INDEX.md)** — Per-scenario teaching cards (01–22)
+- **[Teaching delivery pack](documentation/learning-path/TEACHING_DELIVERY_PACK.md)** — Talk, docs, course, and simulator variants
+- **[Capstone rubric](documentation/learning-path/CAPSTONE_RUBRIC.md)** — Final exercise and scoring
+- [Quick reference](documentation/QUICK_REFERENCE.md) — Navigation and common commands
+- [Complete setup](documentation/SETUP.md)
+- [Quick start (detailed)](documentation/QUICK_START.md)
+- [Best practices](documentation/BEST_PRACTICES.md)
+- [Scenario walkthroughs](documentation/SCENARIOS.md) — List, skills, port cleanup
+- [Additional resources](documentation/RESOURCES.md)
 
-## 🧾 Issue Templates
+## Issue templates
 
-GitHub issue forms are preconfigured under `.github/ISSUE_TEMPLATE`:
+GitHub issue forms live under `.github/ISSUE_TEMPLATE`:
+
 - `bug_report.yaml`
 - `feature_request.yaml`
 - `scenario_issue.yaml`
 
-## 🎓 Learning Path
+## Learning path (how to order the labs)
 
-**Recommended Order**:
-1. Read background material on supply chain attacks
-2. Complete scenarios in order (1-6)
-3. Review detection tools and techniques
-4. Implement defenses in the vulnerable applications
-5. Create your own attack scenario (capstone)
+There is **no single mandatory order** for all 22 scenarios. Use this as a rule of thumb, then follow **[Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md)** for tracks and outcomes.
 
-**Note**: Scenario 6 (Shai-Hulud) is the most advanced and should be attempted after completing scenarios 1-5, as it combines multiple attack vectors and requires understanding of incident response procedures. Scenarios 7-8, 10, 12, 13 are intermediate level. Scenarios 9, 11, 14 are advanced - Scenario 9 requires understanding of cryptographic signing, Scenario 11 is enterprise-specific (internal registries), and Scenario 14 requires familiarity with container tooling and image provenance. Scenario 12 is common in modern development and requires understanding of npm workspaces and monorepo structure.
+1. **Foundation**: Complete **01 → 02 → 03** (typosquatting, dependency confusion, compromised package) before deep dives.
+2. **Before scenario 06**: Finish **01–05** first. **06 (Shai-Hulud)** is the heaviest “single scenario” lab and assumes you understand earlier mechanics and response concepts.
+3. **Everything else**: Choose by role—intermediate registry and repo labs (for example **07, 08, 10, 12, 13, 16**), advanced CI and signing labs (**05, 09, 11, 14, 15, 17–22**) as needed. Enterprise-focused notes apply especially to **11** (mirrors); container tooling to **14**.
 
-## 🤝 Contributing
+Capstone-style work is described in the **[Capstone rubric](documentation/learning-path/CAPSTONE_RUBRIC.md)**.
+
+## Contributing
 
 This is an educational project. Contributions are welcome:
+
 - New attack scenarios
 - Improved detection tools
 - Better documentation
 - Bug fixes and enhancements
 
-## 📜 License
+## License
 
-MIT License - See [LICENSE](LICENSE) file for details
+MIT License — see [LICENSE](LICENSE).
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-Based on real-world supply chain attacks including:
+Inspired by real-world supply chain incidents, including:
+
 - SolarWinds (2020)
 - CodeCov (2021)
 - Event-stream (2018)
 - UA-Parser-js (2021)
 - Colors.js & Faker.js (2022)
 
-## 📞 Support
+## Support
 
 For questions or issues:
+
 - Open an issue on GitHub
-- Check the troubleshooting guide
-- Review the FAQ in [documentation/README.md](documentation/README.md) and scenario READMEs
+- Check the troubleshooting material in the docs
+- Review the FAQ in [documentation/README.md](documentation/README.md) and each scenario’s README
 
 ---
 
 **Remember**: With great power comes great responsibility. Use these skills to defend, not to harm.
 
-🔐 Happy Learning!
-
+Happy learning.
