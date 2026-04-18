@@ -27,4 +27,4 @@ This folder has grown a lot, so this page is the fastest way to find what you ne
 ## Teaching Modules
 
 - Reusable template: [MODULE_TEMPLATE.md](./modules/MODULE_TEMPLATE.md)
-- Module file index (01-20): [MODULE_INSTANCES_INDEX.md](./modules/MODULE_INSTANCES_INDEX.md)
+- Module file index (01–22): [MODULE_INSTANCES_INDEX.md](./modules/MODULE_INSTANCES_INDEX.md)

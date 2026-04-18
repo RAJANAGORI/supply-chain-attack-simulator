@@ -57,6 +57,15 @@ npm start
 
 ### Scenario: Install Malicious Package
 
+The sample app listens on **port 8000**. The Scenario 3 malicious package sends exfiltration traffic to a **mock collector on port 3000**—start it from the compromised-package lab before you expect `curl` to show data:
+
+```bash
+# If your cwd is vulnerable-apps/nodejs-app:
+node ../../scenarios/03-compromised-package/infrastructure/mock-server.js
+# From repo root:
+# node scenarios/03-compromised-package/infrastructure/mock-server.js
+```
+
 1. **Install a compromised validation library**:
    ```bash
    npm install ../../scenarios/03-compromised-package/compromised-package/secure-validator
@@ -72,7 +81,7 @@ npm start
    });
    ```
 
-3. **Check exfiltrated data**:
+3. **Check exfiltrated data** (mock server on **3000** must be running):
    ```bash
    curl http://localhost:3000/captured-data
    ```
