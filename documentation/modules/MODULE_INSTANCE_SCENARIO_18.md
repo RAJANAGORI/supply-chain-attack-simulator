@@ -35,6 +35,21 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+Run flow for delivery:
+
+```bash
+# Terminal A
+node infrastructure/mock-server.js
+
+# Terminal B
+cd victim-app
+npm start
+
+# Detection (scenario root)
+node detection-tools/plugin-attack-detector.js victim-app
+curl -s http://127.0.0.1:3018/captured-data
+```
+
 ## 5) Attack Walkthrough
 
 1. Inspect plugin hook points and expected behavior.

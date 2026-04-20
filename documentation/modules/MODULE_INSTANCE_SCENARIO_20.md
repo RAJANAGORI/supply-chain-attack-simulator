@@ -43,6 +43,15 @@ cd victim-app
 npm start
 ```
 
+Detection and evidence:
+
+```bash
+# from scenario root
+node detection-tools/version-confusion-detector.js victim-app
+curl -s http://127.0.0.1:3020/captured-data
+cat victim-app/installed-version.json
+```
+
 ## 5) Attack Walkthrough
 
 1. Inspect available versions from local registry layout.

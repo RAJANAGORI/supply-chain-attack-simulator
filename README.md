@@ -2,6 +2,8 @@
 
 A comprehensive cybersecurity learning platform for understanding, practicing, and defending against supply chain attacks.
 
+[![Smoke](https://github.com/RAJANAGORI/supply-chain-attack-simulator/actions/workflows/smoke.yml/badge.svg)](https://github.com/RAJANAGORI/supply-chain-attack-simulator/actions/workflows/smoke.yml)
+
 ![SCAS](./assets/supply-chain-attack-simulator-logo.png)
 
 ## Start here
@@ -97,7 +99,13 @@ You should see captured exercise data from the mock exfiltration endpoint (exact
 ### 4. Clean up the scenario port
 
 ```bash
-sudo ./scripts/kill-port.sh 3000
+./scripts/kill-port.sh 3000
+```
+
+Or clean up all testbench processes and local scenario artifacts:
+
+```bash
+./scripts/teardown.sh
 ```
 
 ## Scenario index
@@ -137,6 +145,7 @@ Each scenario includes:
 - Mitigation strategies
 - Prevention-oriented practices
 - Real-world case studies where relevant
+- A blue-team runbook at `scenarios/<scenario>/DETECT.md` with IOCs, sample logs, Sigma-style rules, and YARA-like text matches
 
 ## Safety & ethics
 
@@ -207,6 +216,13 @@ This is an educational project. Contributions are welcome:
 - Improved detection tools
 - Better documentation
 - Bug fixes and enhancements
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution workflow and testing expectations.
+
+## Community standards
+
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security Policy](SECURITY.md)
 
 ## License
 

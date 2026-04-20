@@ -2,19 +2,40 @@
 
 /**
  * Package Security Scanner
- * Scans Node.js projects for potential supply chain vulnerabilities
+ * Scans Node.js projects for potential supply chain vulnerabilities.
+ * Supports text, JSON, and SARIF outputs for CI integration.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+
+const SCRIPT_KEYS = ['preinstall', 'install', 'postinstall', 'prepare'];
+const MAX_SINGLE_FILE_BYTES = 256 * 1024;
+const DEFAULT_MAX_SCAN_BYTES = 4 * 1024 * 1024;
+const DEFAULT_MAX_SCANNED_FILES = 2000;
+
+const MALICIOUS_PATTERNS = [
+  { pattern: /eval\s*\(/g, name: 'eval() usage', severity: 'WARNING', ruleId: 'js-eval-usage' },
+  { pattern: /Function\s*\(/g, name: 'Function constructor', severity: 'WARNING', ruleId: 'js-function-constructor' },
+  { pattern: /child_process/g, name: 'child_process access', severity: 'INFO', ruleId: 'js-child-process' },
+  { pattern: /\bexec(?:Sync)?\s*\(/g, name: 'exec usage', severity: 'WARNING', ruleId: 'js-exec-usage' },
+  { pattern: /(?:https?:\/\/|fetch\s*\(|XMLHttpRequest)/g, name: 'network access pattern', severity: 'INFO', ruleId: 'js-network-access' },
+  { pattern: /Buffer\.from\([^,]+,\s*['"]base64['"]\)/g, name: 'base64 decode', severity: 'INFO', ruleId: 'js-base64-decode' }
+];
 
 class PackageScanner {
-  constructor(projectPath) {
-    this.projectPath = projectPath;
+  constructor(projectPath, options = {}) {
+    this.projectPath = path.resolve(projectPath);
+    this.options = {
+      maxScanBytes: options.maxScanBytes || DEFAULT_MAX_SCAN_BYTES,
+      maxScannedFiles: options.maxScannedFiles || DEFAULT_MAX_SCANNED_FILES
+    };
     this.findings = [];
+    this.scannedBytes = 0;
+    this.scannedFiles = 0;
     this.stats = {
       totalPackages: 0,
+      scannedPackages: 0,
       suspiciousPackages: 0,
       criticalFindings: 0,
       warningFindings: 0,
@@ -22,147 +43,189 @@ class PackageScanner {
     };
   }
 
-  /**
-   * Run all scans
-   */
   async scan() {
-    console.log('🔍 Package Security Scanner');
-    console.log('='.repeat(60));
-    console.log(`Scanning: ${this.projectPath}\n`);
-
     try {
-      await this.scanPackageJson();
+      await this.scanRootPackageJson();
       await this.scanNodeModules();
       await this.checkForTyposquatting();
       await this.checkForDependencyConfusion();
-      await this.scanForMaliciousPatterns();
-      
-      this.generateReport();
-      
-      return this.findings.length > 0;
     } catch (error) {
-      console.error('❌ Scan failed:', error.message);
-      return false;
+      this.addFinding('ERROR', `Scan failed: ${error.message}`, 'SCANNER_ERROR');
     }
+    return this.buildResult();
   }
 
-  /**
-   * Scan package.json for suspicious patterns
-   */
-  async scanPackageJson() {
+  async scanRootPackageJson() {
     const packageJsonPath = path.join(this.projectPath, 'package.json');
-    
     if (!fs.existsSync(packageJsonPath)) {
-      this.addFinding('ERROR', 'No package.json found', 'FILE_NOT_FOUND');
+      this.addFinding('ERROR', 'No package.json found', 'FILE_NOT_FOUND', { file: packageJsonPath });
       return;
     }
 
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    const allDeps = {
-      ...packageJson.dependencies,
-      ...packageJson.devDependencies,
-      ...packageJson.optionalDependencies
-    };
+    const packageJson = this.readJson(packageJsonPath);
+    if (!packageJson) {
+      this.addFinding('ERROR', 'Unable to parse root package.json', 'PARSE_ERROR', { file: packageJsonPath });
+      return;
+    }
 
+    const allDeps = {
+      ...(packageJson.dependencies || {}),
+      ...(packageJson.devDependencies || {}),
+      ...(packageJson.optionalDependencies || {})
+    };
     this.stats.totalPackages = Object.keys(allDeps).length;
 
-    // Check for suspicious scripts
-    if (packageJson.scripts) {
-      for (const [name, script] of Object.entries(packageJson.scripts)) {
-        if (script.includes('curl') || script.includes('wget')) {
-          this.addFinding(
-            'WARNING',
-            `Script "${name}" contains network operations: ${script}`,
-            'SUSPICIOUS_SCRIPT'
-          );
-        }
-        
-        if (script.includes('rm -rf') || script.includes('del /f')) {
-          this.addFinding(
-            'WARNING',
-            `Script "${name}" contains destructive operations: ${script}`,
-            'DESTRUCTIVE_SCRIPT'
-          );
-        }
-      }
-    }
-
-    console.log(`✅ Scanned package.json (${this.stats.totalPackages} dependencies)`);
+    this.scanScriptsForRisk(packageJson.scripts || {}, {
+      packageName: packageJson.name || '(root)',
+      file: packageJsonPath,
+      source: 'root-package-json'
+    });
   }
 
-  /**
-   * Scan node_modules for suspicious packages
-   */
   async scanNodeModules() {
     const nodeModulesPath = path.join(this.projectPath, 'node_modules');
-    
-    if (!fs.existsSync(nodeModulesPath)) {
-      console.log('ℹ️  node_modules not found, skipping scan');
+    if (!fs.existsSync(nodeModulesPath)) return;
+
+    const packageDirs = this.getInstalledPackageDirs(nodeModulesPath);
+    this.stats.scannedPackages = packageDirs.length;
+
+    for (const pkgDir of packageDirs) {
+      const pkgJsonPath = path.join(pkgDir, 'package.json');
+      if (!fs.existsSync(pkgJsonPath)) continue;
+      const pkgJson = this.readJson(pkgJsonPath);
+      if (!pkgJson) continue;
+
+      const packageName = pkgJson.name || path.basename(pkgDir);
+      this.checkPackageVersionAnomaly(packageName, pkgJson.version, pkgJsonPath);
+      this.scanScriptsForRisk(pkgJson.scripts || {}, {
+        packageName,
+        file: pkgJsonPath,
+        source: 'installed-package-json'
+      });
+      this.scanJavaScriptFilesInPackage(pkgDir, packageName);
+    }
+  }
+
+  scanScriptsForRisk(scripts, context) {
+    for (const key of SCRIPT_KEYS) {
+      const scriptValue = scripts[key];
+      if (!scriptValue || typeof scriptValue !== 'string') continue;
+
+      this.addFinding(
+        'INFO',
+        `Package "${context.packageName}" defines ${key} script`,
+        'INSTALL_LIFECYCLE_SCRIPT',
+        { package: context.packageName, scriptKey: key, script: scriptValue, file: context.file }
+      );
+
+      if (/(curl|wget|Invoke-WebRequest|certutil)/i.test(scriptValue)) {
+        this.addFinding(
+          'WARNING',
+          `Script "${key}" in "${context.packageName}" contains network fetch behavior`,
+          'SUSPICIOUS_SCRIPT_NETWORK',
+          { package: context.packageName, scriptKey: key, script: scriptValue, file: context.file }
+        );
+      }
+
+      if (/(rm\s+-rf|del\s+\/f|powershell\s+-enc|chmod\s+\+x)/i.test(scriptValue)) {
+        this.addFinding(
+          'WARNING',
+          `Script "${key}" in "${context.packageName}" contains potentially destructive or stealth behavior`,
+          'SUSPICIOUS_SCRIPT_STEALTH',
+          { package: context.packageName, scriptKey: key, script: scriptValue, file: context.file }
+        );
+      }
+    }
+  }
+
+  checkPackageVersionAnomaly(packageName, version, pkgJsonPath) {
+    if (!version || typeof version !== 'string') return;
+    const major = Number.parseInt(version.split('.')[0], 10);
+    if (Number.isFinite(major) && major > 100) {
+      this.addFinding(
+        'CRITICAL',
+        `Package "${packageName}" has suspicious high major version: ${version}`,
+        'SUSPICIOUS_VERSION',
+        { package: packageName, version, file: pkgJsonPath }
+      );
+    }
+  }
+
+  scanJavaScriptFilesInPackage(pkgDir, packageName) {
+    const queue = [pkgDir];
+    while (queue.length > 0) {
+      if (this.scannedFiles >= this.options.maxScannedFiles) return;
+      if (this.scannedBytes >= this.options.maxScanBytes) return;
+
+      const currentDir = queue.pop();
+      let entries = [];
+      try {
+        entries = fs.readdirSync(currentDir, { withFileTypes: true });
+      } catch {
+        continue;
+      }
+
+      for (const entry of entries) {
+        const fullPath = path.join(currentDir, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+          queue.push(fullPath);
+          continue;
+        }
+        if (!entry.isFile()) continue;
+        if (!entry.name.endsWith('.js')) continue;
+
+        let stat;
+        try {
+          stat = fs.statSync(fullPath);
+        } catch {
+          continue;
+        }
+        if (stat.size > MAX_SINGLE_FILE_BYTES) continue;
+        if (this.scannedBytes + stat.size > this.options.maxScanBytes) return;
+
+        this.scannedFiles += 1;
+        this.scannedBytes += stat.size;
+        this.scanSingleJavaScriptFile(fullPath, packageName);
+      }
+    }
+  }
+
+  scanSingleJavaScriptFile(filePath, packageName) {
+    let content;
+    try {
+      content = fs.readFileSync(filePath, 'utf8');
+    } catch {
       return;
     }
 
-    const packages = fs.readdirSync(nodeModulesPath);
-    let scanned = 0;
-
-    for (const pkg of packages) {
-      if (pkg.startsWith('.') || pkg.startsWith('@')) continue;
-      
-      const pkgPath = path.join(nodeModulesPath, pkg);
-      const pkgJsonPath = path.join(pkgPath, 'package.json');
-      
-      if (!fs.existsSync(pkgJsonPath)) continue;
-      
-      try {
-        const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
-        
-        // Check for suspicious version numbers
-        if (pkgJson.version) {
-          const [major] = pkgJson.version.split('.');
-          if (parseInt(major) > 100) {
-            this.addFinding(
-              'CRITICAL',
-              `Package "${pkg}" has suspicious version: ${pkgJson.version}`,
-              'SUSPICIOUS_VERSION',
-              { package: pkg, version: pkgJson.version }
-            );
-          }
-        }
-
-        // Check for install scripts
-        if (pkgJson.scripts && (pkgJson.scripts.install || pkgJson.scripts.postinstall)) {
-          this.addFinding(
-            'INFO',
-            `Package "${pkg}" has install scripts`,
-            'INSTALL_SCRIPT',
-            { package: pkg, scripts: pkgJson.scripts }
-          );
-        }
-
-        scanned++;
-      } catch (e) {
-        // Skip malformed packages
-      }
+    for (const rule of MALICIOUS_PATTERNS) {
+      const matches = content.match(rule.pattern);
+      if (!matches || matches.length === 0) continue;
+      const threshold = rule.severity === 'WARNING' ? 3 : 5;
+      if (matches.length < threshold) continue;
+      this.addFinding(
+        rule.severity,
+        `Package "${packageName}" contains repeated ${rule.name} (${matches.length})`,
+        'MALICIOUS_PATTERN',
+        { package: packageName, file: filePath, pattern: rule.name, count: matches.length, ruleId: rule.ruleId }
+      );
     }
-
-    console.log(`✅ Scanned ${scanned} packages in node_modules`);
   }
 
-  /**
-   * Check for potential typosquatting
-   */
   async checkForTyposquatting() {
+    const packageJsonPath = path.join(this.projectPath, 'package.json');
+    if (!fs.existsSync(packageJsonPath)) return;
+    const packageJson = this.readJson(packageJsonPath);
+    if (!packageJson) return;
+
     const popularPackages = [
       'express', 'react', 'vue', 'angular', 'lodash', 'axios',
       'moment', 'jquery', 'webpack', 'babel', 'typescript'
     ];
-
-    const packageJsonPath = path.join(this.projectPath, 'package.json');
-    if (!fs.existsSync(packageJsonPath)) return;
-
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     const allDeps = Object.keys({
-      ...packageJson.dependencies,
-      ...packageJson.devDependencies
+      ...(packageJson.dependencies || {}),
+      ...(packageJson.devDependencies || {})
     });
 
     for (const dep of allDeps) {
@@ -171,188 +234,204 @@ class PackageScanner {
         if (distance > 0 && distance <= 2 && dep !== popular) {
           this.addFinding(
             'WARNING',
-            `Possible typosquatting: "${dep}" is similar to popular package "${popular}"`,
+            `Possible typosquatting: "${dep}" is similar to "${popular}"`,
             'TYPOSQUATTING',
             { package: dep, similar: popular, distance }
           );
         }
       }
     }
-
-    console.log('✅ Checked for typosquatting patterns');
   }
 
-  /**
-   * Check for dependency confusion vulnerabilities
-   */
   async checkForDependencyConfusion() {
     const packageJsonPath = path.join(this.projectPath, 'package.json');
     if (!fs.existsSync(packageJsonPath)) return;
+    const packageJson = this.readJson(packageJsonPath);
+    if (!packageJson) return;
 
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    const allDeps = {
-      ...packageJson.dependencies,
-      ...packageJson.devDependencies
-    };
-
-    // Check for scoped packages (potential private packages)
-    const scopedPackages = Object.keys(allDeps).filter(name => name.startsWith('@'));
-    
+    const allDeps = { ...(packageJson.dependencies || {}), ...(packageJson.devDependencies || {}) };
+    const scopedPackages = Object.keys(allDeps).filter((name) => name.startsWith('@'));
     for (const pkg of scopedPackages) {
-      const nodeModulesPath = path.join(this.projectPath, 'node_modules', pkg, 'package.json');
-      
-      if (fs.existsSync(nodeModulesPath)) {
-        const installedPkg = JSON.parse(fs.readFileSync(nodeModulesPath, 'utf8'));
-        
-        // Check for unusually high versions (dependency confusion indicator)
-        const [major] = installedPkg.version.split('.');
-        if (parseInt(major) > 100) {
-          this.addFinding(
-            'CRITICAL',
-            `Scoped package "${pkg}" may be victim of dependency confusion (version: ${installedPkg.version})`,
-            'DEPENDENCY_CONFUSION',
-            { package: pkg, version: installedPkg.version }
-          );
-        }
+      const installed = path.join(this.projectPath, 'node_modules', pkg, 'package.json');
+      if (!fs.existsSync(installed)) continue;
+      const installedPkg = this.readJson(installed);
+      if (!installedPkg || !installedPkg.version) continue;
+      const major = Number.parseInt(installedPkg.version.split('.')[0], 10);
+      if (Number.isFinite(major) && major > 100) {
+        this.addFinding(
+          'CRITICAL',
+          `Scoped package "${pkg}" may indicate dependency confusion (version ${installedPkg.version})`,
+          'DEPENDENCY_CONFUSION',
+          { package: pkg, version: installedPkg.version, file: installed }
+        );
       }
     }
 
-    // Check .npmrc configuration
     const npmrcPath = path.join(this.projectPath, '.npmrc');
     if (!fs.existsSync(npmrcPath) && scopedPackages.length > 0) {
       this.addFinding(
         'WARNING',
-        'No .npmrc found but scoped packages detected. Consider configuring registry scopes.',
+        'No .npmrc found while scoped packages are present. Consider explicit registry scope mapping.',
         'MISSING_NPMRC'
       );
     }
-
-    console.log('✅ Checked for dependency confusion');
   }
 
-  /**
-   * Scan for malicious code patterns
-   */
-  async scanForMaliciousPatterns() {
-    const nodeModulesPath = path.join(this.projectPath, 'node_modules');
-    if (!fs.existsSync(nodeModulesPath)) return;
+  getInstalledPackageDirs(nodeModulesPath) {
+    const packageDirs = [];
+    let entries = [];
+    try {
+      entries = fs.readdirSync(nodeModulesPath, { withFileTypes: true });
+    } catch {
+      return packageDirs;
+    }
 
-    const maliciousPatterns = [
-      { pattern: /eval\s*\(/g, name: 'eval() usage', severity: 'WARNING' },
-      { pattern: /Function\s*\(/g, name: 'Function constructor', severity: 'WARNING' },
-      { pattern: /child_process/g, name: 'child_process access', severity: 'INFO' },
-      { pattern: /\bexec\b/g, name: 'exec() usage', severity: 'WARNING' },
-      { pattern: /base64/gi, name: 'Base64 encoding', severity: 'INFO' },
-    ];
-
-    let scannedFiles = 0;
-    const packages = fs.readdirSync(nodeModulesPath);
-
-    for (const pkg of packages.slice(0, 20)) { // Limit to first 20 for performance
-      if (pkg.startsWith('.')) continue;
-      
-      const pkgPath = path.join(nodeModulesPath, pkg);
-      const indexPath = path.join(pkgPath, 'index.js');
-      
-      if (!fs.existsSync(indexPath)) continue;
-      
-      try {
-        const content = fs.readFileSync(indexPath, 'utf8');
-        
-        for (const { pattern, name, severity } of maliciousPatterns) {
-          const matches = content.match(pattern);
-          if (matches && matches.length > 3) {
-            this.addFinding(
-              severity,
-              `Package "${pkg}" contains multiple instances of ${name} (${matches.length} times)`,
-              'MALICIOUS_PATTERN',
-              { package: pkg, pattern: name, count: matches.length }
-            );
-          }
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      if (entry.name.startsWith('.')) continue;
+      const fullPath = path.join(nodeModulesPath, entry.name);
+      if (entry.name.startsWith('@')) {
+        let scopedEntries = [];
+        try {
+          scopedEntries = fs.readdirSync(fullPath, { withFileTypes: true });
+        } catch {
+          continue;
         }
-        
-        scannedFiles++;
-      } catch (e) {
-        // Skip files that can't be read
+        for (const scopedEntry of scopedEntries) {
+          if (!scopedEntry.isDirectory()) continue;
+          packageDirs.push(path.join(fullPath, scopedEntry.name));
+        }
+      } else {
+        packageDirs.push(fullPath);
       }
     }
-
-    console.log(`✅ Scanned ${scannedFiles} package files for malicious patterns`);
+    return packageDirs;
   }
 
-  /**
-   * Add a finding
-   */
+  readJson(filePath) {
+    try {
+      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    } catch {
+      return null;
+    }
+  }
+
   addFinding(severity, message, type, details = {}) {
-    this.findings.push({ severity, message, type, details, timestamp: new Date().toISOString() });
-    this.stats.suspiciousPackages++;
-    
-    if (severity === 'CRITICAL') this.stats.criticalFindings++;
-    else if (severity === 'WARNING') this.stats.warningFindings++;
-    else this.stats.infoFindings++;
+    this.findings.push({
+      severity,
+      message,
+      type,
+      details,
+      timestamp: new Date().toISOString()
+    });
+    this.stats.suspiciousPackages += 1;
+    if (severity === 'CRITICAL') this.stats.criticalFindings += 1;
+    else if (severity === 'WARNING') this.stats.warningFindings += 1;
+    else this.stats.infoFindings += 1;
   }
 
-  /**
-   * Generate scan report
-   */
-  generateReport() {
-    console.log('\n' + '='.repeat(60));
-    console.log('📊 Scan Results');
-    console.log('='.repeat(60));
-    console.log(`Total Packages: ${this.stats.totalPackages}`);
-    console.log(`Suspicious Packages: ${this.stats.suspiciousPackages}`);
-    console.log(`Critical Findings: ${this.stats.criticalFindings}`);
-    console.log(`Warning Findings: ${this.stats.warningFindings}`);
-    console.log(`Info Findings: ${this.stats.infoFindings}`);
-    console.log('='.repeat(60));
+  buildResult() {
+    const exitCode = this.stats.criticalFindings > 0 ? 2 : this.findings.length > 0 ? 1 : 0;
+    return {
+      projectPath: this.projectPath,
+      stats: {
+        ...this.stats,
+        scannedFiles: this.scannedFiles,
+        scannedBytes: this.scannedBytes
+      },
+      findings: this.findings,
+      exitCode
+    };
+  }
 
-    if (this.findings.length === 0) {
-      console.log('\n✅ No security issues found!');
-      return;
+  toSarif(result) {
+    const rules = new Map();
+    for (const finding of result.findings) {
+      const ruleId = finding.details.ruleId || finding.type;
+      if (rules.has(ruleId)) continue;
+      rules.set(ruleId, {
+        id: ruleId,
+        name: ruleId,
+        shortDescription: { text: finding.type },
+        fullDescription: { text: finding.message },
+        defaultConfiguration: { level: this.mapSarifLevel(finding.severity) }
+      });
     }
 
-    console.log('\n🔍 Findings:\n');
-    
-    for (const finding of this.findings) {
-      const icon = finding.severity === 'CRITICAL' ? '🚨' :
-                   finding.severity === 'WARNING' ? '⚠️' : 'ℹ️';
-      
-      console.log(`${icon} [${finding.severity}] ${finding.message}`);
-      if (Object.keys(finding.details).length > 0) {
-        console.log(`   Details: ${JSON.stringify(finding.details)}`);
+    const sarifResults = result.findings.map((finding) => ({
+      ruleId: finding.details.ruleId || finding.type,
+      level: this.mapSarifLevel(finding.severity),
+      message: { text: finding.message },
+      locations: finding.details.file
+        ? [{
+            physicalLocation: {
+              artifactLocation: { uri: path.relative(this.projectPath, finding.details.file) || finding.details.file }
+            }
+          }]
+        : undefined
+    }));
+
+    return {
+      version: '2.1.0',
+      $schema: 'https://json.schemastore.org/sarif-2.1.0.json',
+      runs: [{
+        tool: {
+          driver: {
+            name: 'package-scanner',
+            informationUri: 'https://github.com/RAJANAGORI/supply-chain-attack-simulator',
+            rules: Array.from(rules.values())
+          }
+        },
+        results: sarifResults
+      }]
+    };
+  }
+
+  mapSarifLevel(severity) {
+    if (severity === 'CRITICAL' || severity === 'ERROR') return 'error';
+    if (severity === 'WARNING') return 'warning';
+    return 'note';
+  }
+
+  renderTextReport(result) {
+    const lines = [];
+    lines.push('🔍 Package Security Scanner');
+    lines.push('='.repeat(60));
+    lines.push(`Scanning: ${result.projectPath}`);
+    lines.push('');
+    lines.push(`Total Packages: ${result.stats.totalPackages}`);
+    lines.push(`Scanned Packages: ${result.stats.scannedPackages}`);
+    lines.push(`Scanned JS Files: ${result.stats.scannedFiles}`);
+    lines.push(`Scanned Bytes: ${result.stats.scannedBytes}`);
+    lines.push(`Critical Findings: ${result.stats.criticalFindings}`);
+    lines.push(`Warning Findings: ${result.stats.warningFindings}`);
+    lines.push(`Info Findings: ${result.stats.infoFindings}`);
+    lines.push('='.repeat(60));
+    if (result.findings.length === 0) {
+      lines.push('✅ No security issues found.');
+      return lines.join('\n');
+    }
+
+    lines.push('Findings:');
+    for (const finding of result.findings) {
+      const icon = finding.severity === 'CRITICAL' ? '🚨' : finding.severity === 'WARNING' ? '⚠️' : 'ℹ️';
+      lines.push(`${icon} [${finding.severity}] ${finding.message}`);
+      if (Object.keys(finding.details || {}).length > 0) {
+        lines.push(`   Details: ${JSON.stringify(finding.details)}`);
       }
-      console.log('');
     }
-
-    console.log('='.repeat(60));
-    
-    if (this.stats.criticalFindings > 0) {
-      console.log('\n🚨 CRITICAL issues found! Immediate action required.');
-      process.exit(1);
-    } else if (this.stats.warningFindings > 0) {
-      console.log('\n⚠️  Warnings found. Review recommended.');
-    }
+    lines.push('='.repeat(60));
+    return lines.join('\n');
   }
 
-  /**
-   * Calculate Levenshtein distance between two strings
-   */
   levenshteinDistance(str1, str2) {
     const matrix = [];
-
-    for (let i = 0; i <= str2.length; i++) {
-      matrix[i] = [i];
-    }
-
-    for (let j = 0; j <= str1.length; j++) {
-      matrix[0][j] = j;
-    }
-
-    for (let i = 1; i <= str2.length; i++) {
-      for (let j = 1; j <= str1.length; j++) {
-        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-          matrix[i][j] = matrix[i - 1][j - 1];
-        } else {
+    for (let i = 0; i <= str2.length; i += 1) matrix[i] = [i];
+    for (let j = 0; j <= str1.length; j += 1) matrix[0][j] = j;
+    for (let i = 1; i <= str2.length; i += 1) {
+      for (let j = 1; j <= str1.length; j += 1) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1];
+        else {
           matrix[i][j] = Math.min(
             matrix[i - 1][j - 1] + 1,
             matrix[i][j - 1] + 1,
@@ -361,16 +440,46 @@ class PackageScanner {
         }
       }
     }
-
     return matrix[str2.length][str1.length];
   }
 }
 
-// CLI Interface
+function parseArgs(argv) {
+  const args = { projectPath: process.cwd(), format: 'text', outputPath: '' };
+  const positional = [];
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === '--json') args.format = 'json';
+    else if (arg === '--sarif') args.format = 'sarif';
+    else if (arg === '--format') args.format = argv[++i] || 'text';
+    else if (arg === '--output') args.outputPath = argv[++i] || '';
+    else positional.push(arg);
+  }
+  if (positional[0]) args.projectPath = positional[0];
+  return args;
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const scanner = new PackageScanner(args.projectPath);
+  const result = await scanner.scan();
+
+  let payload;
+  if (args.format === 'json') payload = JSON.stringify(result, null, 2);
+  else if (args.format === 'sarif') payload = JSON.stringify(scanner.toSarif(result), null, 2);
+  else payload = scanner.renderTextReport(result);
+
+  if (args.outputPath) fs.writeFileSync(path.resolve(args.outputPath), payload, 'utf8');
+  else process.stdout.write(`${payload}\n`);
+
+  process.exitCode = result.exitCode;
+}
+
 if (require.main === module) {
-  const projectPath = process.argv[2] || process.cwd();
-  const scanner = new PackageScanner(projectPath);
-  scanner.scan();
+  main().catch((error) => {
+    process.stderr.write(`package-scanner failed: ${error.message}\n`);
+    process.exitCode = 3;
+  });
 }
 
 module.exports = PackageScanner;

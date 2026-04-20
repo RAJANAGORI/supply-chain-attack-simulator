@@ -1,5 +1,9 @@
 # Scenario 17: Multi-Stage Attack Chain
 
+- **Level**: Advanced
+- **Estimated Time**: 60-90 minutes
+- **Primary Attack Surface**: Chained dependency compromise lifecycle
+
 ## Learning Objectives
 
 - Understand how supply chain attacks **chain** stages (access → abuse → spread).
@@ -9,6 +13,13 @@
 ## Background
 
 Single alerts are easy to dismiss. Real campaigns often include **initial access** (e.g. token or package foothold), **lateral or elevated abuse** (using stolen material), and **replication or persistence** (spreading configuration or artifacts). Security teams need tools that can relate events across time and components.
+
+## Threat Model Snapshot
+
+- **Asset at risk**: end-to-end software delivery trust and credentials
+- **Trust edge abused**: stage handoff assumptions between package/build/runtime events
+- **Attacker objective**: execute sequential compromise with low-noise indicators per stage
+- **Blast radius**: expands with each stage if uncorrelated detections are ignored
 
 ## Scenario Description
 
@@ -64,10 +75,43 @@ From the scenario root:
 node detection-tools/multi-stage-correlator.js .
 ```
 
+Key indicators to capture:
+
+- Ordered stage markers in capture payloads
+- Shared identifiers across stage events (host/run/time adjacency)
+- Correlator output tying stage1 -> stage2 -> stage3
+
+## Mitigation Playbook
+
+- Add correlation rules that require cross-stage context before closing alerts.
+- Segment credentials and permissions to block stage progression.
+- Trigger automated containment when stage transitions occur in short windows.
+- Preserve forensic artifacts per stage for post-incident timeline reconstruction.
+- Run attack-chain tabletop exercises against your CI/CD architecture.
+
 ## Expected Outcome
 
 - Captures show distinct stage markers over the run.
 - The correlator reports a multi-stage chain (e.g. stage1 → stage2 → stage3) when evidence is present.
+
+## Validation Checklist
+
+- [ ] I observed evidence for each stage in order.
+- [ ] I produced a coherent timeline from raw captures.
+- [ ] I ran the correlator and validated its chain output.
+- [ ] I proposed controls that interrupt stage progression early.
+
+## Hints
+
+- Start by identifying stage-specific markers before running correlation.
+- If events are missing, verify server on `3017` and rerun victim flow.
+- Use `../../scripts/kill-port.sh 3017` between attempts to reset cleanly.
+
+## Lab Report Prompts
+
+- Which stage offered the earliest reliable containment point?
+- What data sources should be correlated in a real SOC to replicate this view?
+- How would you tune detections to reduce alert fatigue while still catching chains?
 
 ## Safety
 

@@ -35,7 +35,23 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-Start mock server (separate terminal): `node infrastructure/mock-server.js` (port **3021**).
+Instructor run order (aligned with setup/README):
+
+```bash
+# Terminal A
+node infrastructure/mock-server.js
+
+# Terminal B
+export TESTBENCH_MODE=enabled
+cd victim-app
+npm install axios-like@file:../packages/axios-like-1.14.1.tgz
+npm start
+
+# Evidence + detection (scenario root)
+curl -s http://127.0.0.1:3021/captured-data
+cat victim-app/.testbench-axios-ioc.json
+node detection-tools/axios-compromise-detector.js victim-app
+```
 
 ## 5) Attack Walkthrough
 
@@ -66,6 +82,7 @@ node detection-tools/axios-compromise-detector.js victim-app
 - [ ] Malicious patch install reproduces beacon and marker when `TESTBENCH_MODE=enabled`.
 - [ ] Detector flags lockfile / marker / beacon log as expected.
 - [ ] Learner can articulate difference between **import-time** and **install-time** execution.
+- [ ] Learner can explain why bundled transitive dependency execution occurs in this simulation path.
 
 ## 9) Production Policy Snippet
 

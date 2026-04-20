@@ -1,5 +1,9 @@
 # Scenario 15: Developer Tool Compromise
 
+- **Level**: Advanced
+- **Estimated Time**: 45-60 minutes
+- **Primary Attack Surface**: Developer tooling and install lifecycle hooks
+
 ## Learning Objectives
 
 - Understand how compromised developer tools (CLI helpers, build plugins, local `npm` packages) can run arbitrary code during install or dev workflows.
@@ -9,6 +13,13 @@
 ## Background
 
 Developer tools are often installed from the same registries as application dependencies. If an attacker publishes or compromises a tool (or tricks a developer into installing a malicious fork), **lifecycle scripts** can run as soon as someone runs `npm install`. That code executes with the developer’s privileges and can steal tokens, environment variables, or source code. Real incidents often combine social engineering with script execution during install or build.
+
+## Threat Model Snapshot
+
+- **Asset at risk**: developer workstation credentials, local source code, CI bootstrap trust
+- **Trust edge abused**: unverified install-time script execution in dev tooling packages
+- **Attacker objective**: code execution during install and stealthy data beaconing
+- **Blast radius**: all developers or CI agents installing the compromised tool
 
 ## Scenario Description
 
@@ -59,10 +70,43 @@ From the scenario directory:
 node detection-tools/dev-tool-compromise-detector.js victim-app
 ```
 
+Key indicators to capture:
+
+- `postinstall` script presence and obfuscated child-process/network calls
+- Unexpected outbound request attempts during install
+- Artifact creation in `infrastructure/captured-data.json`
+
+## Mitigation Playbook
+
+- Enforce `--ignore-scripts` for untrusted tool installs by default.
+- Pin dev tooling versions and source from an approved internal registry.
+- Require review/allowlist for new lifecycle scripts in dependency diffs.
+- Isolate tool installation to sandboxed CI runners with egress controls.
+- Rotate credentials after any install-time compromise simulation.
+
 ## Expected Outcome
 
 - Entries appear in `infrastructure/captured-data.json` (and/or the mock `/captured-data` endpoint) after install/run with `TESTBENCH_MODE=enabled`.
 - The detector flags suspicious install-time behavior (e.g. `postinstall` / exfil-related patterns).
+
+## Validation Checklist
+
+- [ ] I reproduced install-time execution safely in testbench mode.
+- [ ] I captured at least two distinct indicators (script + behavior).
+- [ ] I ran the detector and interpreted the key findings.
+- [ ] I documented at least three production-ready mitigation controls.
+
+## Hints
+
+- Start from `victim-app/package.json` and installed `node_modules` lifecycle fields.
+- If captures are empty, verify mock server is running on `3015` and `TESTBENCH_MODE=enabled`.
+- Reset quickly with `../../scripts/kill-port.sh 3015`.
+
+## Lab Report Prompts
+
+- Which signal would detect this fastest in CI: script diff, egress alert, or integrity mismatch?
+- What policy should gate developer-tool installs in high-trust repos?
+- How do you balance developer experience with `ignore-scripts` hardening?
 
 ## Safety
 

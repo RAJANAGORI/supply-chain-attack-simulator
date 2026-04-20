@@ -35,6 +35,22 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+Run flow for delivery:
+
+```bash
+# Terminal A
+node infrastructure/mock-server.js
+
+# Terminal B
+cd victim-app
+npm install ../packages/stage1-access-lib ../packages/stage2-compromised-lib
+npm start
+
+# Detection (scenario root)
+node detection-tools/multi-stage-correlator.js .
+curl -s http://127.0.0.1:3017/captured-data
+```
+
 ## 5) Attack Walkthrough
 
 1. Identify stage boundaries and expected transitions.

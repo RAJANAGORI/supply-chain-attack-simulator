@@ -34,7 +34,29 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-Start mock server: `python3 infrastructure/mock_server.py` (port **3022**).
+Instructor run order (aligned with setup/README):
+
+```bash
+# Terminal A
+python3 infrastructure/mock_server.py
+
+# Terminal B - import-trigger path
+cd victim-app
+source .venv/bin/activate
+pip install -U ../python-packages/v1_82_7
+export TESTBENCH_MODE=enabled
+python run_victim.py
+
+# Terminal B - .pth startup path
+pip uninstall -y litellm_like
+export TESTBENCH_MODE=enabled
+pip install ../python-packages/v1_82_8
+python -c "print('any script triggers .pth')"
+
+# Evidence + detection (scenario root)
+curl -s http://127.0.0.1:3022/captured-data
+python detection-tools/litellm_pth_scanner.py
+```
 
 ## 5) Attack Walkthrough
 
@@ -64,6 +86,7 @@ python detection-tools/litellm_pth_scanner.py
 - [ ] Import-trigger path produces evidence when `TESTBENCH_MODE=enabled`.
 - [ ] `.pth` path fires on generic `python -c` without importing `litellm_like`.
 - [ ] Scanner reports suspicious `.pth` when present.
+- [ ] Learner can distinguish import-time vs interpreter-startup execution risk.
 
 ## 9) Production Policy Snippet
 

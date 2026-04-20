@@ -35,6 +35,22 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+Run flow for delivery:
+
+```bash
+# Terminal A
+node infrastructure/mock-server.js
+
+# Terminal B
+cd victim-app
+npm install
+npm start
+
+# Detection (scenario root)
+node detection-tools/sbom-manipulation-validator.js victim-app
+curl -s http://127.0.0.1:3019/captured-data
+```
+
 ## 5) Attack Walkthrough
 
 1. Generate baseline SBOM and dependency graph.

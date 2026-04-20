@@ -4,6 +4,8 @@
 # This script guides you through the setup process step by step
 
 set -e
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TESTBENCH_ENV_FILE="${ROOT_DIR}/.testbench.env"
 
 # Colors
 RED='\033[0;31m'
@@ -45,14 +47,15 @@ else
     MISSING=1
 fi
 
-# # Check Docker (optional)
-# if command -v docker &> /dev/null; then
-#     echo -e "${GREEN}✅ Docker: $(docker --version)${NC}"
-#     DOCKER_AVAILABLE=1
-# else
-#     echo -e "${YELLOW}⚠️  Docker not found (optional, but recommended)${NC}"
-#     DOCKER_AVAILABLE=0
-# fi
+# Check Python 3
+if command -v python3 &> /dev/null; then
+    PYTHON_VERSION=$(python3 --version | awk '{print $2}')
+    echo -e "${GREEN}✅ Python3: ${PYTHON_VERSION}${NC}"
+else
+    echo -e "${RED}❌ Python 3 not found${NC}"
+    echo "   Please install Python 3.8+"
+    MISSING=1
+fi
 
 echo ""
 
@@ -63,22 +66,17 @@ fi
 
 # Step 2: Enable TESTBENCH_MODE
 echo -e "${BLUE}Step 2: Setting up TESTBENCH_MODE...${NC}"
-if [ "$TESTBENCH_MODE" != "enabled" ]; then
+if [ "${TESTBENCH_MODE:-}" != "enabled" ]; then
     export TESTBENCH_MODE=enabled
     echo -e "${GREEN}✅ TESTBENCH_MODE enabled for this session${NC}"
-    
-    # Add to shell config
-    if [ -f ~/.zshrc ]; then
-        if ! grep -q "TESTBENCH_MODE" ~/.zshrc; then
-            echo 'export TESTBENCH_MODE=enabled' >> ~/.zshrc
-            echo -e "${GREEN}✅ Added to ~/.zshrc for future sessions${NC}"
-        fi
-    elif [ -f ~/.bashrc ]; then
-        if ! grep -q "TESTBENCH_MODE" ~/.bashrc; then
-            echo 'export TESTBENCH_MODE=enabled' >> ~/.bashrc
-            echo -e "${GREEN}✅ Added to ~/.bashrc for future sessions${NC}"
-        fi
+    if [ ! -f "${TESTBENCH_ENV_FILE}" ] || ! grep -q '^export TESTBENCH_MODE=enabled$' "${TESTBENCH_ENV_FILE}"; then
+        cat > "${TESTBENCH_ENV_FILE}" << 'EOF'
+export TESTBENCH_MODE=enabled
+EOF
     fi
+    echo -e "${GREEN}✅ Saved persistent env file: ${TESTBENCH_ENV_FILE}${NC}"
+    echo "   Add this once to your shell profile:"
+    echo "   [ -f \"${TESTBENCH_ENV_FILE}\" ] && source \"${TESTBENCH_ENV_FILE}\""
 else
     echo -e "${GREEN}✅ TESTBENCH_MODE already enabled${NC}"
 fi
@@ -98,32 +96,6 @@ chmod +x scripts/setup.sh
 ./scripts/setup.sh
 
 echo ""
-
-# # Step 4: Start Docker services (if available)
-# if [ $DOCKER_AVAILABLE -eq 1 ]; then
-#     echo -e "${BLUE}Step 4: Starting Docker services...${NC}"
-#     echo ""
-#     read -p "Start Docker services? (y/N): " -n 1 -r
-#     echo ""
-#     if [[ $REPLY =~ ^[Yy]$ ]]; then
-#         cd docker
-#         if docker compose version &> /dev/null; then
-#             docker compose up -d
-#         elif command -v docker-compose &> /dev/null; then
-#             docker-compose up -d
-#         fi
-#         cd ..
-#         echo -e "${GREEN}✅ Docker services started${NC}"
-#         echo ""
-#         echo "Services available at:"
-#         echo "  - Mock Server: http://localhost:3000"
-#     fi
-# else
-#     echo -e "${YELLOW}Step 4: Skipping Docker (not available)${NC}"
-#     echo "You can start the mock server manually later."
-# fi
-
-# echo ""
 
 # Step 5: Setup Scenario 1
 echo -e "${BLUE}Step 5: Setting up Scenario 1 (Typosquatting)...${NC}"
@@ -165,6 +137,10 @@ echo -e "${YELLOW}📚 Documentation:${NC}"
 echo "   - Zero to Hero Guide: ${CYAN}documentation/ZERO_TO_HERO.md${NC}"
 echo "   - Quick Reference: ${CYAN}documentation/QUICK_REFERENCE.md${NC}"
 echo "   - Setup Guide: ${CYAN}documentation/SETUP.md${NC}"
+echo "   - Teardown script: ${CYAN}./scripts/teardown.sh${NC}"
+echo ""
+echo "Cleanup command for current shell:"
+echo "   ${CYAN}unset TESTBENCH_MODE${NC}"
 echo ""
 echo -e "${RED}⚠️  REMEMBER: This is for EDUCATIONAL purposes only!${NC}"
 echo ""

@@ -1,31 +1,35 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${ROOT_DIR}"
 
 echo "================================================"
 echo "🔧 Scenario 16: Package Cache Poisoning"
 echo "================================================"
 echo ""
 
-if [ "$TESTBENCH_MODE" != "enabled" ]; then
-  echo "⚠️  WARNING: TESTBENCH_MODE is not enabled"
+if [[ "${TESTBENCH_MODE:-}" != "enabled" ]]; then
+  echo "⚠️  TESTBENCH_MODE is not enabled."
   echo "Run: export TESTBENCH_MODE=enabled"
   echo ""
-  read -p "Continue anyway? (y/N): " -n 1 -r
-  echo ""
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+  read -r -p "Continue anyway? (y/N): " REPLY
+  if [[ ! "${REPLY}" =~ ^[Yy]$ ]]; then
     exit 1
   fi
 fi
 
-echo "📝 Preparing poisoned cache steps..."
-echo ""
+mkdir -p infrastructure victim-app
+echo "[]" > infrastructure/captured-data.json
+rm -rf victim-app/node_modules
 
 cat <<'EOF'
 ================================================
 🎯 Next Steps:
-1) Prepare poisoned cache behavior (already part of this scenario setup)
+1) Start mock server (Terminal A):
+   node infrastructure/mock-server.js
 
-2) Install victim app dependencies to trigger poisoned-cache install-from-cache:
+2) Install victim app dependencies (Terminal B):
    cd victim-app
    rm -rf node_modules package-lock.json
    npm install
@@ -37,8 +41,13 @@ cat <<'EOF'
 4) Run victim app:
    npm start
 
-5) Detection:
-   node detection-tools/cache-poisoning-detector.js .
+5) Detection (from scenario root):
+   node detection-tools/cache-poisoning-detector.js victim-app
+
+6) Review evidence:
+   curl -s http://127.0.0.1:3016/captured-data
+
+7) Cleanup:
+   ../../scripts/kill-port.sh 3016
 ================================================
 EOF
-

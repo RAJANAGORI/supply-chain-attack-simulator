@@ -35,6 +35,18 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+Run flow for delivery:
+
+```bash
+# Terminal A
+node infrastructure/mock-server.js
+
+# Terminal B (static + runtime simulation)
+node detection-tools/image-scanner.js images/compromised-image
+TESTBENCH_MODE=enabled node images/compromised-image/malicious-start.js
+curl -s http://127.0.0.1:3002/captured-data
+```
+
 ## 5) Attack Walkthrough
 
 1. Review baseline image history and layers.

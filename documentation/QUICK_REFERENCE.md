@@ -5,7 +5,7 @@ One-page navigation for the test bench. Authoritative content lives under **`doc
 ## Start here
 
 | Doc | Purpose |
-|-----|---------|
+| --- | --- |
 | [README.md](./README.md) | Docs map and index |
 | [ZERO_TO_HERO.md](./ZERO_TO_HERO.md) | Full beginner walkthrough |
 | [QUICK_START.md](./QUICK_START.md) | Fast setup |
@@ -21,15 +21,32 @@ One-page navigation for the test bench. Authoritative content lives under **`doc
 ## Common commands
 
 ```bash
-export TESTBENCH_MODE=enabled
+source .testbench.env   # created by scripts/setup.sh
 cd scenarios/01-typosquatting && ./setup.sh
-sudo ./scripts/kill-port.sh 3000   # free port after a scenario
+./scripts/kill-port.sh 3000        # free one known scenario port
+./scripts/kill-port.sh --all       # free all known scenario ports
+./scripts/teardown.sh              # stop processes + clean local lab artifacts
 ```
+
+## Blue-team quick start
+
+Use scenario runbooks directly:
+
+- Example: `scenarios/01-typosquatting/DETECT.md`
+- Pattern for all labs: `scenarios/<scenario-folder>/DETECT.md`
+- Runbook contents: IOCs, sample log lines, Sigma-style rule, YARA-like text rule, and EDR/SIEM expectations
+
+## Port allow-list
+
+Scenario and smoke-test ports are centralized in `scripts/ports.env`.
+
+- Smoke tests (`scripts/smoke-all-scenarios.sh`) and cleanup (`scripts/kill-port.sh`) both read this file.
+- Keep `documentation/QUICK_REFERENCE.md` and `documentation/SCENARIOS.md` aligned when ports are updated.
 
 ## Learning path
 
 | Doc | Purpose |
-|-----|---------|
+| --- | --- |
 | [learning-path/SCENARIO_LEARNING_PATH.md](./learning-path/SCENARIO_LEARNING_PATH.md) | Beginner → advanced order |
 | [learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md](./learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md) | Curriculum landing |
 | [learning-path/CAPSTONE_RUBRIC.md](./learning-path/CAPSTONE_RUBRIC.md) | Capstone scoring |

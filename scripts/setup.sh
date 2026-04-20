@@ -10,6 +10,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${REPO_ROOT}"
+TESTBENCH_ENV_FILE="${REPO_ROOT}/.testbench.env"
 
 echo "========================================================="
 echo "🔐 Supply Chain Attack Testbench - Setup"
@@ -63,20 +64,14 @@ else
     echo -e "${GREEN}✅ npm: ${NPM_VERSION}${NC}"
 fi
 
-# # Check Docker (optional)
-# if ! command -v docker &> /dev/null; then
-#     echo -e "${YELLOW}⚠️  Docker not found (optional)${NC}"
-# else
-#     DOCKER_VERSION=$(docker --version)
-#     echo -e "${GREEN}✅ Docker: ${DOCKER_VERSION}${NC}"
-# fi
-
-# # Check Docker Compose (optional)
-# if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-#     echo -e "${YELLOW}⚠️  Docker Compose not found (optional)${NC}"
-# else
-#     echo -e "${GREEN}✅ Docker Compose available${NC}"
-# fi
+# Check Python 3
+if ! command -v python3 &> /dev/null; then
+    echo -e "${RED}❌ Python 3 not found${NC}"
+    MISSING_DEPS+=("Python 3.8+")
+else
+    PYTHON_VERSION=$(python3 --version | awk '{print $2}')
+    echo -e "${GREEN}✅ Python3: ${PYTHON_VERSION}${NC}"
+fi
 
 echo ""
 
@@ -113,9 +108,16 @@ fi
 echo ""
 echo "🔧 Configuring environment..."
 export TESTBENCH_MODE=enabled
-echo "export TESTBENCH_MODE=enabled" >> ~/.bashrc 2>/dev/null || true
-echo "export TESTBENCH_MODE=enabled" >> ~/.zshrc 2>/dev/null || true
-echo -e "${GREEN}✅ TESTBENCH_MODE enabled${NC}"
+if [ ! -f "${TESTBENCH_ENV_FILE}" ] || ! grep -q '^export TESTBENCH_MODE=enabled$' "${TESTBENCH_ENV_FILE}"; then
+    cat > "${TESTBENCH_ENV_FILE}" << 'EOF'
+export TESTBENCH_MODE=enabled
+EOF
+fi
+echo -e "${GREEN}✅ TESTBENCH_MODE enabled for current shell${NC}"
+echo -e "${GREEN}✅ Persistent env file: ${TESTBENCH_ENV_FILE}${NC}"
+echo ""
+echo "Add this once to your shell profile for future sessions:"
+echo "  [ -f \"${TESTBENCH_ENV_FILE}\" ] && source \"${TESTBENCH_ENV_FILE}\""
 
 # Make all setup scripts executable
 echo ""
@@ -130,38 +132,6 @@ mkdir -p logs
 mkdir -p detection-tools
 mkdir -p docs
 echo -e "${GREEN}✅ Directories created${NC}"
-
-# # Start Docker services if available
-# if command -v docker &> /dev/null; then
-#     echo ""
-#     echo "🐳 Starting Docker services..."
-#     cd docker
-    
-#     if docker compose version &> /dev/null; then
-#         docker compose up -d
-#     elif command -v docker-compose &> /dev/null; then
-#         docker-compose up -d
-#     fi
-    
-#     if [ $? -eq 0 ]; then
-#         echo -e "${GREEN}✅ Docker services started${NC}"
-#         echo ""
-#         echo "Services available at:"
-#         echo "  - Mock Server: http://localhost:3000"
-#         echo "  - Private Registry: http://localhost:4873"
-#         echo "  - Public Registry: http://localhost:4874"
-#     else
-#         echo -e "${YELLOW}⚠️  Docker services failed to start${NC}"
-#         echo "You can start them manually later with: cd docker && docker-compose up -d"
-#     fi
-    
-#     cd ..
-# else
-#     echo ""
-#     echo -e "${YELLOW}⚠️  Docker not available, skipping service startup${NC}"
-#     echo "You can run the mock server manually with:"
-#     echo "  node scenarios/<scenario>/infrastructure/mock-server.js  # after that scenario's ./setup.sh"
-# fi
 
 # Setup complete
 echo ""
@@ -180,7 +150,13 @@ echo "2. Read the documentation:"
 echo "   cat documentation/SETUP.md"
 echo ""
 echo "4. Export testbench mode for this session:"
-echo "   export TESTBENCH_MODE=enabled"
+echo "   source .testbench.env"
+echo ""
+echo "5. Clean up after a lab run:"
+echo "   ./scripts/teardown.sh"
+echo ""
+echo "Cleanup command to disable the mode in your current shell:"
+echo "   unset TESTBENCH_MODE"
 echo ""
 echo "⚠️  IMPORTANT REMINDERS:"
 echo "   - This is for EDUCATIONAL purposes only"

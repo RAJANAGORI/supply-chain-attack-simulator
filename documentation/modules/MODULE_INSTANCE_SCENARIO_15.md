@@ -35,6 +35,22 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+Run flow for delivery:
+
+```bash
+# Terminal A
+node infrastructure/mock-server.js
+
+# Terminal B
+cd victim-app
+npm install ../dev-tools/malicious-dev-tool
+npm start
+
+# Detection (scenario root)
+node detection-tools/dev-tool-compromise-detector.js victim-app
+curl -s http://127.0.0.1:3015/captured-data
+```
+
 ## 5) Attack Walkthrough
 
 1. Inspect tool package baseline and scripts.

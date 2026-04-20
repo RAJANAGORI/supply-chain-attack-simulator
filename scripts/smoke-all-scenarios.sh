@@ -4,6 +4,7 @@
 set +m
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+PORTS_FILE="${ROOT}/scripts/ports.env"
 export TESTBENCH_MODE=enabled
 
 kill_on() {
@@ -16,7 +17,9 @@ kill_on() {
 }
 
 free_common_ports() {
-  for p in 3000 3001 3002 3003 3015 3016 3017 3018 3019 3020 3021 3022; do
+  # shellcheck source=/dev/null
+  source "${PORTS_FILE}"
+  for p in "${TESTBENCH_PORTS[@]}"; do
     kill_on "$p"
   done
 }

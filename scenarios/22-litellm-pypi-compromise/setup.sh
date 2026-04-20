@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Scenario 22: LiteLLM-style PyPI compromise (safe simulation)
-set -e
+set -euo pipefail
 
 echo "================================================"
 echo "🔧 Scenario 22: LiteLLM-style PyPI compromise"
@@ -11,8 +11,7 @@ if [ "${TESTBENCH_MODE:-}" != "enabled" ]; then
   echo "⚠️  TESTBENCH_MODE is not enabled"
   echo "   export TESTBENCH_MODE=enabled"
   echo ""
-  read -p "Continue anyway? (y/N): " -n 1 -r
-  echo ""
+  read -r -p "Continue anyway? (y/N): " REPLY
   if [[ ! ${REPLY:-} =~ ^[Yy]$ ]]; then
     exit 1
   fi
@@ -20,6 +19,8 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
+echo "[]" > infrastructure/captured-data.json
+rm -f victim-app/.testbench-litellm-*.json
 
 command -v python3 >/dev/null 2>&1 || { echo "❌ python3 required"; exit 1; }
 

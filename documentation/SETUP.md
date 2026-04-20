@@ -6,7 +6,7 @@ This guide will walk you through setting up the Supply Chain Attack Testbench on
 
 1. [System Requirements](#system-requirements)
 2. [Installation](#installation)
-3. [Configuration](#configuration)
+3. [Environment Configuration](#environment-configuration)
 4. [Starting Services](#starting-services)
 5. [Verifying Installation](#verifying-installation)
 6. [Troubleshooting](#troubleshooting)
@@ -15,8 +15,9 @@ This guide will walk you through setting up the Supply Chain Attack Testbench on
 
 ### Required Software
 
-- **Node.js**: Version 16 or higher
+- **Node.js**: Version 16 or higher (project default: Node 20 via `.nvmrc`)
 - **npm**: Version 7 or higher (comes with Node.js)
+- **Python**: Version 3.8 or higher (project default: Python 3.11 via `.python-version`)
 - **Git**: For cloning the repository
 
 ### Optional Software
@@ -86,29 +87,42 @@ chmod +x scripts/setup.sh
 ```
 
 The setup script will:
+
 - Check system requirements
 - Install dependencies
-- Configure environment variables
+- Create `.testbench.env` with `TESTBENCH_MODE=enabled`
 - Create necessary directories
 
-## Configuration
+## Environment Configuration
 
 ### Environment Variables
 
-Add the following to your shell configuration (`~/.bashrc`, `~/.zshrc`, etc.):
+The setup process writes a repo-local environment file:
 
 ```bash
-# Enable testbench mode
-export TESTBENCH_MODE=enabled
+cat .testbench.env
+# export TESTBENCH_MODE=enabled
 ```
 
-Apply changes:
+Use it in your current shell:
 
 ```bash
-source ~/.bashrc  # or ~/.zshrc
+source .testbench.env
 ```
 
-### NPM Configuration
+Optional (for future sessions), add once to your shell profile:
+
+```bash
+[ -f "/path/to/supply-chain-attack-simulator/.testbench.env" ] && source "/path/to/supply-chain-attack-simulator/.testbench.env"
+```
+
+To disable in the current shell:
+
+```bash
+unset TESTBENCH_MODE
+```
+
+### Optional npm configuration
 
 For dependency confusion scenarios, configure npm registry scopes.
 
@@ -137,7 +151,7 @@ node mock-server.js &
 
 ### Check Services
 
-1. **Mock Server**: http://localhost:3000/captured-data
+1. **Mock Server**: `http://localhost:3000/captured-data`
    - Should return: `{"captures": []}`
 
 ### Run Test Scenario
@@ -163,26 +177,38 @@ If you see captured data, the installation is successful!
 ### Issue: "TESTBENCH_MODE not enabled"
 
 **Solution**:
+
 ```bash
 export TESTBENCH_MODE=enabled
 ```
 
-Add to shell config for persistence.
+Or from project root:
+
+```bash
+source .testbench.env
+```
 
 ### Issue: "Port already in use"
 
 **Solution**:
-```bash
-# Find process using the port
-lsof -i :3000
 
-# Kill the process
-kill -9 <PID>
+Use the built-in script with the testbench allow-list:
+
+```bash
+./scripts/kill-port.sh 3000
+./scripts/kill-port.sh --all
+```
+
+For a full cleanup:
+
+```bash
+./scripts/teardown.sh
 ```
 
 ### Issue: "npm install fails"
 
 **Solution**:
+
 ```bash
 # Clear npm cache
 npm cache clean --force
@@ -197,6 +223,7 @@ npm install
 ### Issue: "Permission denied" on scripts
 
 **Solution**:
+
 ```bash
 # Make scripts executable
 chmod +x scripts/*.sh
@@ -204,9 +231,24 @@ chmod +x scenarios/*/setup.sh
 chmod +x detection-tools/*.sh
 ```
 
+### Issue: "Need to reset the workspace between labs"
+
+Use teardown:
+
+```bash
+./scripts/teardown.sh
+```
+
+This will:
+
+- Free known testbench ports from `scripts/ports.env`
+- Remove captured files (`captured-data.json`, `captured-credentials.json`)
+- Remove scenario/sample-app `node_modules`
+
 ### Issue: "Mock server not receiving data"
 
 **Solution**:
+
 1. Verify mock server is running: `curl http://localhost:3000/captured-data`
 2. Check TESTBENCH_MODE is enabled: `echo $TESTBENCH_MODE`
 3. Review application logs for network errors
@@ -215,6 +257,7 @@ chmod +x detection-tools/*.sh
 ### Issue: "Cannot find module"
 
 **Solution**:
+
 ```bash
 # Install dependencies in each scenario
 cd scenarios/01-typosquatting/victim-app
@@ -273,4 +316,3 @@ After successful installation:
 ---
 
 **Happy Learning!** 🔐
-

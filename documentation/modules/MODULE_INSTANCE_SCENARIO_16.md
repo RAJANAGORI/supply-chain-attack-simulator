@@ -35,6 +35,23 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+Run flow for delivery:
+
+```bash
+# Terminal A
+node infrastructure/mock-server.js
+
+# Terminal B
+cd victim-app
+npm install
+rm -rf node_modules package-lock.json && npm install
+npm start
+
+# Detection (scenario root)
+node detection-tools/cache-poisoning-detector.js victim-app
+curl -s http://127.0.0.1:3016/captured-data
+```
+
 ## 5) Attack Walkthrough
 
 1. Populate baseline cache with expected artifacts.
