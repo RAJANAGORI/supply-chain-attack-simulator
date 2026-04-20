@@ -247,6 +247,11 @@
         <div class="hero-badge">
           <span class="badge">Open Source &middot; MIT License</span>
         </div>
+        <div class="hero-badge" style="margin-top: 0.75rem;">
+          <a href="https://github.com/rajanagori/supply-chain-attack-simulator/actions/workflows/smoke.yml" target="_blank" rel="noopener noreferrer" aria-label="Smoke workflow status">
+            <img src="https://github.com/rajanagori/supply-chain-attack-simulator/actions/workflows/smoke.yml/badge.svg" alt="Smoke workflow status badge">
+          </a>
+        </div>
         <h1>
           Master <span class="gradient-text">supply chain security</span> with real attack scenarios
         </h1>
@@ -279,6 +284,13 @@
             <span class="hero-stat-value">100%</span>
             <span class="hero-stat-label">Free &amp; Open Source</span>
           </div>
+        </div>
+        <div class="why-card reveal" style="margin-top: 1.5rem;">
+          <h3 style="margin-bottom: 0.75rem;">What&apos;s New</h3>
+          <p style="margin-bottom: 0.4rem;">CI smoke checks now run on pull requests.</p>
+          <p style="margin-bottom: 0.4rem;">All 22 scenarios include `DETECT.md` blue-team runbooks.</p>
+          <p style="margin-bottom: 0.4rem;">Package scanner supports JSON/SARIF output and automated tests.</p>
+          <p>Setup is idempotent with `.testbench.env`, centralized ports, and `teardown.sh` cleanup.</p>
         </div>
       </div>
     </div>
@@ -649,6 +661,7 @@
             <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">01-typosquatting/</span></div>
             <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">setup.sh</span></div>
             <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">README.md</span></div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="file">DETECT.md</span></div>
             <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">infrastructure/</span> <span class="comment"># mock-server.js</span></div>
             <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">victim-app/</span></div>
             <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="dir">detection-tools/</span></div>
@@ -741,7 +754,7 @@
           <h3>Enable Testbench Mode</h3>
           <div class="qs-code">
             <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard">Copy</button>
-            <div><span class="prompt">$ </span><span class="cmd">export TESTBENCH_MODE=enabled</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">source .testbench.env</span>  <span class="comment"># created by setup</span></div>
           </div>
         </div>
 
@@ -754,9 +767,10 @@
             <div><span class="prompt">$ </span><span class="cmd">./setup.sh</span></div>
             <div><span class="prompt">$ </span><span class="cmd">node infrastructure/mock-server.js &</span></div>
             <div><span class="prompt">$ </span><span class="cmd">cd victim-app && npm install ../malicious-packages/request-lib</span></div>
-            <div><span class="prompt">$ </span><span class="cmd">export TESTBENCH_MODE=enabled</span>  <span class="comment"># required for lab payloads</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">source ../../.testbench.env</span>  <span class="comment"># required for lab payloads</span></div>
             <div><span class="prompt">$ </span><span class="cmd">npm start</span></div>
             <div><span class="prompt">$ </span><span class="cmd">curl http://localhost:3000/captured-data</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">cd ../.. && ./scripts/teardown.sh</span>  <span class="comment"># cleanup</span></div>
           </div>
         </div>
       </div>
@@ -778,7 +792,7 @@
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           </div>
           <h3>Detection Techniques</h3>
-          <p>Package scanners, network monitors, behavioral analysis, integrity verification, and provenance checks built into every scenario.</p>
+          <p>Package scanners, network monitors, behavioral analysis, integrity verification, and provenance checks built into every scenario. All labs now ship with `DETECT.md` runbooks.</p>
         </div>
         <div class="defense-card reveal reveal-delay-2">
           <div class="defense-card-icon">
@@ -791,9 +805,12 @@
           <div class="defense-card-icon">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
           </div>
-          <h3>Real-World Case Studies</h3>
-          <p>SolarWinds, CodeCov, event-stream, UA-Parser-js, Colors.js, XZ Utils &mdash; mapped to scenarios for contextual learning.</p>
+          <h3>CI-Friendly Scanner Outputs</h3>
+          <p>Shared package scanner now supports text, JSON, and SARIF output to plug directly into CI dashboards and code-scanning workflows.</p>
         </div>
+      </div>
+      <div class="hero-actions" style="margin-top: 1.25rem;">
+        <a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/scenarios/01-typosquatting/DETECT.md" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Open Blue-Team Runbook</a>
       </div>
     </div>
   </section>
@@ -974,6 +991,9 @@
           <ul>
             <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/issues" target="_blank" rel="noopener noreferrer">Report Issues</a></li>
             <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/discussions" target="_blank" rel="noopener noreferrer">Discussions</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing Guide</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer">Security Policy</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/CODE_OF_CONDUCT.md" target="_blank" rel="noopener noreferrer">Code of Conduct</a></li>
             <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></li>
             <li><a href="https://github.com/rajanagori" target="_blank" rel="noopener noreferrer">Raja Nagori</a></li>
           </ul>
