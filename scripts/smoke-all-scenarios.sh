@@ -255,7 +255,11 @@ free_common_ports
   cp -r legitimate-packages/* packages/
   npm install >/tmp/tb12-npm1.log 2>&1
   cp -r compromised-package/utils packages/utils
+  # Reinstall from scratch so install lifecycle (postinstall) runs; incremental install can skip it
+  rm -rf node_modules
   TESTBENCH_MODE=enabled npm install >/tmp/tb12-npm2.log 2>&1
+  # postinstall is async HTTP; wait so CI curl sees the write before the mock is queried
+  sleep 1
   C="$(curl -s http://127.0.0.1:3000/captured-data)"
   if has_capture_payload "$C"; then ok "12"; else bad "12"; fi
   kill "$(cat /tmp/tb12-mock.pid)" 2>/dev/null || true
@@ -407,6 +411,15 @@ free_common_ports
   node infrastructure/mock-server.js >/tmp/tb21-mock.log 2>&1 &
   echo $! >/tmp/tb21-mock.pid
   sleep 1
+  # Tarball is not in git (*.tgz in .gitignore); build it like scenarios/21-.../setup.sh
+  (
+    cd packages/axios-like-1.14.1
+    rm -rf node_modules
+    rm -f ../axios-like-*.tgz
+    npm install --ignore-scripts >/tmp/tb21-pack-npm.log 2>&1
+    npm pack . >/tmp/tb21-pack.log 2>&1
+    mv -f axios-like-*.tgz ..
+  )
   cd victim-app
   rm -rf node_modules package-lock.json
   TESTBENCH_MODE=enabled npm install axios-like@file:../packages/axios-like-1.14.1.tgz >/tmp/tb21-npm.log 2>&1

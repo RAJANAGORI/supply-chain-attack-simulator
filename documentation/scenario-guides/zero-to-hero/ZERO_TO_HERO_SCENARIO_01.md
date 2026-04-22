@@ -107,12 +107,12 @@ You're already in the project! But let's make sure we're in the right place:
 pwd
 
 # You should see something like:
-# /Users/rajanagori/Documents/vault/Projects/testbench
+# /path/to/testbench
 ```
 
 If you're not in the testbench directory, navigate there:
 ```bash
-cd /Users/rajanagori/Documents/vault/Projects/testbench
+cd /path/to/testbench
 ```
 
 ### Step 2: Enable Testbench Mode (Safety Feature)
