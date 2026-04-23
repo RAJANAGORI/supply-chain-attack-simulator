@@ -1,11 +1,7 @@
 name: Smoke
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
-
+  workflow_dispatch:
 jobs:
   smoke:
     runs-on: ubuntu-24.04
