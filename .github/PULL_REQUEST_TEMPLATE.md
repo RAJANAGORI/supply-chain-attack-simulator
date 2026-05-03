@@ -20,6 +20,10 @@
 - [ ] I updated scenario documentation and relevant files under `documentation/`.
 - [ ] I added learner-facing instructions if behavior or setup changed.
 
+## Licensing (contributions)
+
+- [ ] Each commit includes `Signed-off-by` (for example `git commit -s`), per [CONTRIBUTING.md](../CONTRIBUTING.md) and the [Developer Certificate of Origin](https://developercertificate.org/).
+
 ## Notes for reviewers
 
 - Call out any trade-offs, follow-ups, or known limitations.

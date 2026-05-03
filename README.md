@@ -226,7 +226,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution workflow and testing exp
 
 ## License
 
-MIT License — see [LICENSE](LICENSE).
+MIT License — see [LICENSE](LICENSE). Copyright and third-party context: [NOTICE](NOTICE). Contributing and the DCO: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Acknowledgments
 

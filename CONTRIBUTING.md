@@ -2,6 +2,32 @@
 
 Thanks for helping improve the Supply Chain Attack Test Bench.
 
+## Copyright and licensing
+
+The maintainers’ original work in this repository is **copyright Raja Nagori**
+(see [LICENSE](LICENSE) and [NOTICE](NOTICE)). The MIT License grants everyone
+certain permissions; it does not transfer ownership of the project’s copyright.
+
+### Developer Certificate of Origin (DCO)
+
+By submitting a pull request or otherwise contributing code you did not write
+as a maintainer, you certify that your contribution meets the
+[Developer Certificate of Origin version 1.1](https://developercertificate.org/),
+and you license that contribution under the **same terms as this repository**
+(the MIT License).
+
+Sign your commits so this certification is recorded in git history:
+
+```bash
+git commit -s
+```
+
+That adds a `Signed-off-by` trailer. Pull requests without a sign-off may be
+declined.
+
+If you are unsure whether you have the right to contribute something (for
+example code from your employer), resolve that **before** opening a PR.
+
 ## Before you start
 
 - Use isolated test environments only (VM/container/local sandbox).
