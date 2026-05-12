@@ -56,7 +56,55 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+`./setup.sh` generates the workspace root `package.json`, `packages/`, `legitimate-packages/`, `compromised-package/`, `victim-app/`, `infrastructure/mock-server.js`, templates, and detection tools (see the note at the top of this README). When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals (or background the mock server). Paths are relative to `scenarios/12-workspace-monorepo-attack` unless noted.
+
+### Terminal A — mock attacker server
+
+```bash
+node infrastructure/mock-server.js
+```
+
+### Terminal B — bootstrap workspace, swap compromised package, capture, victim app
+
+Workspace root (scenario directory):
+
+```bash
+cat legitimate-packages/utils/index.js
+cat legitimate-packages/api/index.js
+cat compromised-package/utils/postinstall.js
+cp -r legitimate-packages/* packages/
+npm install
+cp -r compromised-package/utils packages/utils
+export TESTBENCH_MODE=enabled
+npm install
+curl -s http://localhost:3000/captured-data
+cd victim-app
+npm install
+export TESTBENCH_MODE=enabled
+npm start
+```
+
+### Verify capture
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+### Blue team (optional)
+
+From the workspace root (scenario directory):
+
+```bash
+node detection-tools/workspace-scanner.js .
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: Understanding Workspaces (20 minutes)
 

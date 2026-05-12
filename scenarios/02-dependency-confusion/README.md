@@ -38,7 +38,7 @@ When a higher version exists on the public registry, it may take precedence!
 
 ### Prerequisites
 - Node.js 16+ and npm installed
-- Verdaccio (local npm registry)
+- Repository root setup completed once (`./scripts/setup.sh` from the repo root; see [SETUP.md](../../documentation/SETUP.md))
 
 ### Environment Setup
 
@@ -48,7 +48,55 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+`./setup.sh` creates `leaked-data/` (recon package list), `internal-packages/@techcorp/*`, `attacker-packages/@techcorp/auth-lib` stubs, `corporate-app/`, `infrastructure/mock-server.js`, `detection-tools/dependency-confusion-scanner.js`, capture storage, and wires the victim app. When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals. All paths are relative to `scenarios/02-dependency-confusion`.
+
+### Terminal A — mock attacker server
+
+```bash
+node infrastructure/mock-server.js
+```
+
+Leave this running. The malicious package posts to `http://localhost:3000/collect` when you run the victim with `TESTBENCH_MODE=enabled`.
+
+### Terminal B — recon, malicious package, corporate install, victim
+
+```bash
+cat leaked-data/package.json
+ls -la internal-packages/@techcorp/
+cp templates/dependency-confusion-template.js attacker-packages/@techcorp/auth-lib/index.js
+cd attacker-packages/@techcorp/auth-lib
+cat package.json
+cd ../../..
+cd corporate-app
+npm install
+npm install ../attacker-packages/@techcorp/auth-lib
+export TESTBENCH_MODE=enabled
+npm start
+```
+
+### Verify capture
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+Clear captured data between runs: `curl -X DELETE http://localhost:3000/captured-data`.
+
+### Blue team (optional)
+
+From the scenario root (this directory):
+
+```bash
+node detection-tools/dependency-confusion-scanner.js corporate-app
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: Understanding the Environment (15 minutes)
 

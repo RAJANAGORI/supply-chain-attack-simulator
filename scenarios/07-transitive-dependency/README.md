@@ -62,7 +62,50 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+`./setup.sh` ensures `victim-app/` dependencies, creates `infrastructure/mock-server.js`, initializes `infrastructure/captured-data.json`, `legitimate-packages/`, `compromised-packages/data-processor/` (with malicious `postinstall`), and `detection-tools/dependency-tree-scanner.js`. When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals (or background the mock server). All paths are relative to `scenarios/07-transitive-dependency`.
+
+### Terminal A — mock attacker server
+
+```bash
+node infrastructure/mock-server.js
+```
+
+### Terminal B — swap in compromised transitive and run victim
+
+```bash
+cat legitimate-packages/web-utils/index.js
+cat legitimate-packages/data-processor/index.js
+cat compromised-packages/data-processor/postinstall.js
+cd victim-app
+rm -rf node_modules package-lock.json
+export TESTBENCH_MODE=enabled
+npm install
+cp -r ../compromised-packages/data-processor node_modules/data-processor
+npm install
+npm start
+```
+
+### Verify capture
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+### Blue team (optional)
+
+From the scenario root:
+
+```bash
+node detection-tools/dependency-tree-scanner.js victim-app
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: Understanding the Dependency Tree (15 minutes)
 

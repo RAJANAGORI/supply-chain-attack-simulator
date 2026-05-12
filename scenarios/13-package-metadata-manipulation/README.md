@@ -41,11 +41,50 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-Start mock server in another terminal:
+`./setup.sh` creates `legitimate-packages/clean-utils`, `compromised-packages/clean-utils`, `victim-app/`, `infrastructure/mock-server.js` (port `3001`), `detection-tools/`, and capture storage. When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals. All paths are relative to `scenarios/13-package-metadata-manipulation`.
+
+### Terminal A — mock attacker server
 
 ```bash
 node infrastructure/mock-server.js
 ```
+
+### Terminal B — install compromised package and run victim
+
+```bash
+cd victim-app
+export TESTBENCH_MODE=enabled
+npm install ../compromised-packages/clean-utils
+node index.js
+```
+
+### Detection (metadata)
+
+From the scenario root:
+
+```bash
+node detection-tools/metadata-validator.js victim-app/node_modules/clean-utils
+```
+
+### Verify capture
+
+```bash
+curl -s http://127.0.0.1:3001/captured-data
+```
+
+### Cleanup (optional)
+
+```bash
+../../scripts/kill-port.sh 3001
+```
+
+## 📝 Lab Tasks
+
+Follow **Run the lab** above first. The sections below expand the exercise with reference layout, walkthrough guidance, and playbooks.
 
 ## Structure
 

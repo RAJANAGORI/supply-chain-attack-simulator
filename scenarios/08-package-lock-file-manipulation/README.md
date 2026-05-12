@@ -57,7 +57,72 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+`./setup.sh` prepares `legitimate-app/`, `victim-app/`, `compromised-app/` (with `evil-utils` `file:` dependency and lockfiles), `infrastructure/mock-server.js`, capture storage, and `detection-tools/lock-file-validator.js`. When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals (or background the mock server). All paths are relative to `scenarios/08-package-lock-file-manipulation`.
+
+### Terminal A — mock attacker server
+
+```bash
+node infrastructure/mock-server.js
+```
+
+### Terminal B — inspect lockfiles, install (exfil), run victim app
+
+`evil-utils` **`postinstall`** posts to `http://localhost:3000/collect` when `TESTBENCH_MODE=enabled`. The victim **Express app also listens on port 3000**, so **`npm install` with the mock server running, then curl, before starting the victim.**
+
+```bash
+cd legitimate-app
+cat package-lock.json | grep -A 5 '"dependencies"'
+cd ../victim-app
+cat package-lock.json | grep -A 5 'evil-utils'
+export TESTBENCH_MODE=enabled
+npm install
+curl -s http://localhost:3000/captured-data
+```
+
+Stop the mock server on Terminal A (port `3000` is shared), then:
+
+```bash
+npm start
+```
+
+Optional — **compromised-app** (same port `3000` constraint: keep the mock server on Terminal A during `npm install`, `curl`, then stop the mock server before `npm start`):
+
+```bash
+cd ../compromised-app
+export TESTBENCH_MODE=enabled
+npm install
+curl -s http://localhost:3000/captured-data
+npm start
+```
+
+### Verify capture
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+### Blue team (optional)
+
+From the scenario root:
+
+```bash
+node detection-tools/lock-file-validator.js victim-app
+```
+
+Lock vs manifest spot-check (from `victim-app/`):
+
+```bash
+cat package.json
+cat package-lock.json | grep evil-utils
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: Understanding Lock Files (15 minutes)
 

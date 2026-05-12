@@ -41,13 +41,46 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-Start the mock server if needed:
+`./setup.sh` prepares `infrastructure/` (mock server on port **3018**), capture storage, clears `victim-app/node_modules`, and prints the same numbered steps as **Run the lab** below.
+
+## Run the lab
+
+### Terminal A — mock attacker server
 
 ```bash
-node infrastructure/mock-server.js &
+node infrastructure/mock-server.js
 ```
 
-From `victim-app/`, run `npm start` (per setup; cleans `node_modules` as directed).
+### Terminal B — run victim (triggers plugin hook)
+
+```bash
+cd victim-app
+rm -rf node_modules
+export TESTBENCH_MODE=enabled
+npm start
+```
+
+### Detection (from scenario root)
+
+```bash
+node detection-tools/plugin-attack-detector.js victim-app
+```
+
+### Verify capture
+
+```bash
+curl -s http://127.0.0.1:3018/captured-data
+```
+
+### Cleanup (optional)
+
+```bash
+../../scripts/kill-port.sh 3018
+```
+
+## 📝 Lab Tasks
+
+Follow **Run the lab** above first. The sections below provide reference layout, evidence locations, detection notes, and reporting prompts.
 
 ## Structure
 

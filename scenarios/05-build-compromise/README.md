@@ -62,7 +62,59 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+`./setup.sh` creates `legitimate-build/`, `compromised-build/`, `victim-app/`, `infrastructure/mock-server.js`, `detection-tools/secret-monitor.js`, and capture storage. When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals (or background the mock server). All paths are relative to `scenarios/05-build-compromise`.
+
+### Terminal A — mock attacker server
+
+```bash
+node infrastructure/mock-server.js
+```
+
+### Terminal B — compare builds and exercise compromise
+
+```bash
+cat legitimate-build/build.sh
+cat compromised-build/build.sh
+cd legitimate-build
+npm run build
+cd ../compromised-build
+export TESTBENCH_MODE=enabled
+export AWS_ACCESS_KEY_ID=test-key-12345
+export AWS_SECRET_ACCESS_KEY=test-secret-67890
+export DATABASE_PASSWORD=super-secret-password
+npm run build
+```
+
+### Verify capture
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+### Optional — load compromised artifacts into victim app
+
+```bash
+cp compromised-build/dist/* victim-app/dist/
+cd victim-app
+export TESTBENCH_MODE=enabled
+npm start
+```
+
+### Blue team (optional)
+
+From the scenario root:
+
+```bash
+node detection-tools/secret-monitor.js compromised-build
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: Understanding the Build System (15 minutes)
 

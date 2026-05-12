@@ -54,7 +54,40 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+`./setup.sh` generates `corporate-app/`, `compromised-mirror/`, `legitimate-packages/`, `infrastructure/mock-server.js`, `detection-tools/mirror-validator.js`, templates, and capture storage (see the note at the top of this README). When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals (or background the mock server). All paths are relative to `scenarios/11-registry-mirror-poisoning`.
+
+### Terminal A — mock attacker server
+
+```bash
+node infrastructure/mock-server.js
+```
+
+### Terminal B — diff mirrors, install from compromised mirror, run corporate app
+
+```bash
+diff -r legitimate-packages/ compromised-mirror/
+cd corporate-app
+export TESTBENCH_MODE=enabled
+npm install
+cd ..
+node detection-tools/mirror-validator.js
+cd corporate-app
+npm start
+```
+
+### Verify capture
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: Understanding Registry Mirrors (20 minutes)
 

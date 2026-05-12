@@ -51,7 +51,38 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+`./setup.sh` creates `infrastructure/mock-server.js`, capture storage, `detection-tools/submodule-validator.js`, and the `legitimate-repo/`, `compromised-repo/`, and `malicious-submodule/` trees used in the lab. When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals (or background the mock server). All paths are relative to `scenarios/10-git-submodule-attack`.
+
+### Terminal A — mock attacker server
+
+```bash
+node infrastructure/mock-server.js
+```
+
+### Terminal B — compare repos, run malicious submodule script, scan
+
+```bash
+cat legitimate-repo/.gitmodules
+cat compromised-repo/.gitmodules
+cat malicious-submodule/postinstall.sh
+export TESTBENCH_MODE=enabled
+bash malicious-submodule/postinstall.sh
+node detection-tools/submodule-validator.js compromised-repo
+```
+
+### Verify capture
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: Understanding Git Submodules (15 minutes)
 

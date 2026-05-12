@@ -59,7 +59,47 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+`./setup.sh` creates or refreshes `legitimate-package/data-processor`, `compromised-package/data-processor`, `victim-app/`, `infrastructure/` (mock CDN, credential harvester on port `3001`, GitHub Actions simulator), and related lab files. When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals. All paths are relative to `scenarios/06-sha-hulud`.
+
+### Terminal A — infrastructure listeners
+
+```bash
+cd infrastructure
+node mock-cdn.js &
+node credential-harvester.js &
+node github-actions-simulator.js &
+cd ..
+```
+
+Keep this terminal open while the lab runs.
+
+### Terminal B — review, install compromised package, run victim
+
+```bash
+cat legitimate-package/data-processor/index.js
+cat compromised-package/data-processor/package.json
+cd victim-app
+export TESTBENCH_MODE=enabled
+npm install ../compromised-package/data-processor
+curl -s http://localhost:3001/captured-credentials
+npm start
+```
+
+### Verify capture
+
+Credential harvester (per setup output):
+
+```bash
+curl -s http://localhost:3001/captured-credentials
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: The Legitimate Package (15 minutes)
 

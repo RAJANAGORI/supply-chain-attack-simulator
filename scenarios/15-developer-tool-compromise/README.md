@@ -41,13 +41,47 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-Start the mock listener (if not already running, e.g. in a separate terminal):
+`./setup.sh` prepares `infrastructure/` (mock collector on port **3015**), `infrastructure/captured-data.json`, clears `victim-app/node_modules` for a clean install demo, and prints the same numbered steps as **Run the lab** below.
+
+## Run the lab
+
+### Terminal A — mock attacker server
 
 ```bash
-node infrastructure/mock-server.js &
+node infrastructure/mock-server.js
 ```
 
-Then follow the printed steps: install the malicious dev tool into `victim-app`, run the app, and run detection from the scenario root.
+### Terminal B — install malicious dev tool and run victim
+
+```bash
+cd victim-app
+rm -rf node_modules package-lock.json
+export TESTBENCH_MODE=enabled
+npm install ../dev-tools/malicious-dev-tool
+npm start
+```
+
+### Detection (from scenario root)
+
+```bash
+node detection-tools/dev-tool-compromise-detector.js victim-app
+```
+
+### Verify capture
+
+```bash
+curl -s http://127.0.0.1:3015/captured-data
+```
+
+### Cleanup (optional)
+
+```bash
+../../scripts/kill-port.sh 3015
+```
+
+## 📝 Lab Tasks
+
+Follow **Run the lab** above first. The sections below provide reference layout, evidence locations, detection notes, and reporting prompts.
 
 ## Structure
 

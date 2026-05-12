@@ -62,7 +62,48 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+`./setup.sh` creates `legitimate-package/` and `malicious-update/` trees, `victim-app/`, `infrastructure/mock-server.js`, `detection-tools/update-scanner.js`, and capture storage. When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals (or run the mock server in the background). All paths are relative to `scenarios/04-malicious-update`.
+
+### Terminal A — mock attacker server
+
+```bash
+node infrastructure/mock-server.js
+```
+
+### Terminal B — install flow and victim
+
+```bash
+cat legitimate-package/utils-helper/index.js
+cat malicious-update/utils-helper/index.js
+cd victim-app
+npm install ../legitimate-package/utils-helper
+rm -rf node_modules package-lock.json
+npm install
+export TESTBENCH_MODE=enabled
+npm start
+```
+
+### Verify capture
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+### Blue team (optional)
+
+From `victim-app`:
+
+```bash
+node ../detection-tools/update-scanner.js .
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: Understanding the Legitimate Package (15 minutes)
 

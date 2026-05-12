@@ -37,10 +37,38 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-In another terminal:
+`./setup.sh` creates `images/legitimate-image`, `images/compromised-image`, `victim-app/`, `infrastructure/` with mock listener data on port `3002`, and `detection-tools/`. When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals. All paths are relative to `scenarios/14-container-image-supply-chain-attack`.
+
+### Terminal A — mock attacker server
 
 ```bash
 node infrastructure/mock-server.js
+```
+
+### Terminal B — static scan, runtime simulation, optional Docker
+
+```bash
+node detection-tools/image-scanner.js images/compromised-image
+TESTBENCH_MODE=enabled node images/compromised-image/malicious-start.js
+curl -s http://127.0.0.1:3002/captured-data
+```
+
+Optional Docker comparison (when Docker is available):
+
+```bash
+docker build -t scas-legit images/legitimate-image
+docker build -t scas-compromised images/compromised-image
+docker run --rm -e TESTBENCH_MODE=enabled scas-compromised
+```
+
+### Cleanup (optional)
+
+```bash
+../../scripts/kill-port.sh 3002
 ```
 
 ## Attack Walkthrough
@@ -51,6 +79,8 @@ node infrastructure/mock-server.js
 4. **Observe impact**: confirm mock capture on port `3002`.
 
 ## Lab Tasks
+
+Follow **Run the lab** above before the task walkthrough. The tasks below repeat key steps with expected outcomes.
 
 ### Task 1: Static detection
 

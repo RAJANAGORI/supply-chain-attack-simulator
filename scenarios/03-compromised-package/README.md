@@ -61,7 +61,53 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+`./setup.sh` syncs `compromised-package/secure-validator/` from the template, reinstalls `victim-app` against the **legitimate** dependency, creates `infrastructure/mock-server.js`, initializes capture data, and prepares detection/forensics helpers. When setup finishes, it prints the same steps as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals. All paths are relative to `scenarios/03-compromised-package`.
+
+### Terminal A — mock attacker server
+
+```bash
+node infrastructure/mock-server.js
+```
+
+### Terminal B — review packages, run victim, install compromised path
+
+```bash
+cat legitimate-package/secure-validator/index.js
+cat compromised-package/secure-validator/index.js
+cd victim-app
+export TESTBENCH_MODE=enabled
+npm start
+```
+
+Stop the app (Ctrl+C), then simulate the malicious patch install and run again:
+
+```bash
+npm install ../compromised-package/secure-validator
+export TESTBENCH_MODE=enabled
+npm start
+```
+
+### Verify capture
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+### Optional forensics
+
+From the scenario root:
+
+```bash
+node forensics/compare-versions.js legitimate-package/secure-validator compromised-package/secure-validator
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: The Legitimate Package (15 minutes)
 

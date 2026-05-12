@@ -41,13 +41,47 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-Start the mock server if needed:
+`./setup.sh` prepares `infrastructure/` (mock server on port **3019**), capture storage, and prints the same numbered steps as **Run the lab** below.
+
+## Run the lab
+
+### Terminal A — mock attacker server
 
 ```bash
-node infrastructure/mock-server.js &
+node infrastructure/mock-server.js
 ```
 
-From `victim-app/`, run `npm start` to generate the SBOM (and optional exfiltration).
+### Terminal B — install dependencies and generate SBOM
+
+```bash
+cd victim-app
+rm -rf node_modules package-lock.json
+npm install
+export TESTBENCH_MODE=enabled
+npm start
+```
+
+### Detection (from scenario root)
+
+```bash
+node detection-tools/sbom-manipulation-validator.js victim-app
+```
+
+### Verify capture
+
+```bash
+curl -s http://127.0.0.1:3019/captured-data
+```
+
+### Cleanup (optional)
+
+```bash
+../../scripts/kill-port.sh 3019
+```
+
+## 📝 Lab Tasks
+
+Follow **Run the lab** above first. The sections below provide reference layout, evidence locations, detection notes, and reporting prompts.
 
 ## Structure
 

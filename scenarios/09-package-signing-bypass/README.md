@@ -51,7 +51,39 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
+`./setup.sh` installs `victim-app/` dependencies, writes `infrastructure/mock-server.js`, initializes capture data, and prepares `detection-tools/signature-validator.js` plus legitimate and compromised `secure-utils/` packages. When setup finishes, it prints the same numbered flow as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals (or background the mock server). All paths are relative to `scenarios/09-package-signing-bypass`.
+
+### Terminal A — mock attacker server
+
+```bash
+node infrastructure/mock-server.js
+```
+
+### Terminal B — compare packages, install, scan, run victim
+
+```bash
+cat legitimate-package/secure-utils/SIGNATURE.md
+cat compromised-package/secure-utils/SIGNATURE.md
+cd victim-app
+export TESTBENCH_MODE=enabled
+npm install
+node ../detection-tools/signature-validator.js node_modules/secure-utils
+npm start
+```
+
+### Verify capture
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: Understanding Package Signing (20 minutes)
 

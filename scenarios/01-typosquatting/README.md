@@ -29,23 +29,63 @@ You work for a security research team. Your task is to:
 
 ### Prerequisites
 - Node.js 16+ and npm installed
-- Python 3.8+ and pip installed
-- Docker (optional, for isolated environment)
+- Repository root setup completed once (`./scripts/setup.sh` from the repo root; see [SETUP.md](../../documentation/SETUP.md))
 
 ### Environment Setup
 
 ```bash
-# Navigate to this scenario directory
 cd scenarios/01-typosquatting
-
-# Enable test bench mode (safety feature)
 export TESTBENCH_MODE=enabled
-
-# Run setup
 ./setup.sh
 ```
 
+`./setup.sh` creates directories, seeds `malicious-packages/request-lib/` from the template, installs victim app dependencies, and writes `infrastructure/mock-server.js`. When setup finishes, it prints the same commands as **Run the lab** below.
+
+## Run the lab
+
+Use two terminals. All paths are relative to `scenarios/01-typosquatting`.
+
+### Terminal A — mock attacker server
+
+```bash
+node infrastructure/mock-server.js
+```
+
+Leave this running. Exfiltration only runs when `TESTBENCH_MODE=enabled` and posts to `http://localhost:3000/collect`.
+
+### Terminal B — review, install typo, run victim
+
+```bash
+export TESTBENCH_MODE=enabled
+
+cat legitimate/requests-lib/index.js
+cat templates/malicious-package-template.js
+
+cd victim-app
+npm install ../malicious-packages/request-lib
+npm start
+```
+
+### Verify capture
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+Clear captured data between runs: `curl -X DELETE http://localhost:3000/captured-data`.
+
+### Blue team (optional)
+
+From the repository root:
+
+```bash
+node detection-tools/package-scanner.js scenarios/01-typosquatting/victim-app
+./detection-tools/network-monitor.sh
+```
+
 ## 📝 Lab Tasks
+
+The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
 
 ### Part 1: Understanding the Target (15 minutes)
 
@@ -72,12 +112,7 @@ The legitimate package we'll target is called `requests-lib` (a fictional popula
 
 **Implementation Steps**:
 
-1. Create the malicious package structure:
-```bash
-cd malicious-packages/
-mkdir request-lib
-cd request-lib
-```
+1. If `./setup.sh` already created `malicious-packages/request-lib/`, edit that tree. Otherwise create it and copy from `./templates/malicious-package-template.js`.
 
 2. Follow the template in `./templates/malicious-package-template.js`
 
@@ -93,30 +128,9 @@ cd request-lib
 
 ### Part 3: Deploy and Test (15 minutes)
 
-1. **Start the Mock Attacker Server**:
-```bash
-node infrastructure/mock-server.js &
-curl http://localhost:3000/captured-data
-```
+Follow **Run the lab** above for the executable path. This lab simulates a typo with a local path install (`npm install ../malicious-packages/request-lib`), not a public registry publish.
 
-2. **Publish to Local Registry**:
-```bash
-cd ../malicious-packages/request-lib
-npm publish --registry http://localhost:4873
-```
-
-3. **Victim Scenario** - Install the typosquatted package:
-```bash
-cd ../../victim-app
-npm install request-lib  # Oops, typo!
-node index.js
-```
-
-4. **Observe the Attack**:
-```bash
-# Check what data was exfiltrated
-curl http://localhost:3000/captured-data
-```
+After `npm start`, confirm exfiltration with `curl -s http://localhost:3000/captured-data`.
 
 ### Part 4: Detection (20 minutes)
 
