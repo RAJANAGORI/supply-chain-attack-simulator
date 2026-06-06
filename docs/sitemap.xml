@@ -5,13 +5,31 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
     <loc>https://rajanagori.github.io/supply-chain-attack-simulator/</loc>
-    <lastmod>2026-04-11</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://rajanagori.github.io/supply-chain-attack-simulator/guide.html</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://rajanagori.github.io/supply-chain-attack-simulator/guide.html?p=DOCUMENTATION_INDEX.md</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://rajanagori.github.io/supply-chain-attack-simulator/guide.html?p=scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md</loc>
+    <lastmod>2026-06-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://rajanagori.github.io/supply-chain-attack-simulator/404.html</loc>
-    <lastmod>2026-04-11</lastmod>
+    <lastmod>2026-06-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.1</priority>
   </url>

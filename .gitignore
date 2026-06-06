@@ -34,6 +34,12 @@ temp/
 
 # Docker volumes
 verdaccio-storage/
+observability/.env
+observability/elasticsearch/seed/
+
+# detection-tools dependencies (install via npm in detection-tools/)
+detection-tools/node_modules/
+detection-tools/package-lock.json
 
 # Captured data (from mock server). .gitignore only applies to untracked files; if
 # you still see changes, run: git rm --cached <path> once, then commit.
@@ -90,3 +96,5 @@ blackhat_EU.md
 BlackHat_Arsenal_SupplyChain.pptx
 foss_submission.md
 step.md
+scripts/setup-github-project-board.sh
+documentation/ROADMAP.md

@@ -1,0 +1,36 @@
+{
+  "index_patterns": ["scas-detections"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": { "type": "date" },
+        "scenario_id": { "type": "keyword" },
+        "event_type": { "type": "keyword" },
+        "severity": { "type": "keyword" },
+        "message": { "type": "text" },
+        "rule": {
+          "properties": {
+            "id": { "type": "keyword" }
+          }
+        },
+        "source": { "type": "keyword" },
+        "destination": { "type": "keyword" },
+        "package": {
+          "properties": {
+            "name": { "type": "keyword" },
+            "version": { "type": "keyword" }
+          }
+        },
+        "detail": { "type": "flattened" }
+      }
+    }
+  },
+  "priority": 100,
+  "_meta": {
+    "description": "Runtime detection events from scanners, mock servers, and shippers"
+  }
+}

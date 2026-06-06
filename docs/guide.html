@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="color-scheme" content="dark">
+  <meta name="docs-base" content="/supply-chain-attack-simulator/">
+  <title>Documentation · Supply Chain Attack Simulator</title>
+  <meta name="description" content="Complete SCAS documentation — sequential Zero to Hero walkthroughs for all 22 supply chain attack scenarios, plus setup, detection, and operations guides.">
+  <link rel="canonical" href="https://rajanagori.github.io/supply-chain-attack-simulator/guide.html">
+  <link rel="icon" type="image/png" href="og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/docs.css">
+  <script>
+    (function () {
+      var meta = document.querySelector('meta[name="docs-base"]');
+      if (!meta) return;
+      if (window.location.pathname.indexOf('/supply-chain-attack-simulator') !== -1) {
+        meta.content = '/supply-chain-attack-simulator/';
+      } else {
+        meta.content = './';
+      }
+    })();
+  </script>
+</head>
+<body class="docs-page">
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-1" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-2" aria-hidden="true"></div>
+
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand" aria-label="Supply Chain Attack Simulator Home">
+        <img src="og-image.png" alt="" class="nav-brand-logo" width="120" height="63" aria-hidden="true">
+        <span>SCAS</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="guide.html" aria-current="page">Documentation</a></li>
+        <li><a href="guide.html?p=scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md">Start lab 01</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="https://github.com/rajanagori/supply-chain-attack-simulator" class="nav-github" target="_blank" rel="noopener noreferrer" aria-label="View on GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" width="18" height="18"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="docs-sidebar-backdrop" id="docs-sidebar-backdrop"></div>
+
+  <div class="docs-shell">
+    <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation navigation">
+      <div class="docs-sidebar-header">
+        <h1>Documentation</h1>
+        <p>Zero to Hero guides 01→22 · synced from <code>documentation/</code></p>
+      </div>
+      <div class="docs-search">
+        <input type="search" id="docs-search" placeholder="Search guides…" aria-label="Search documentation">
+      </div>
+      <nav class="docs-nav" id="docs-nav" aria-label="Documentation sections"></nav>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-toolbar">
+        <div style="display:flex;align-items:center;gap:0.75rem;min-width:0;">
+          <button type="button" class="docs-sidebar-toggle" id="docs-sidebar-toggle" aria-label="Toggle sidebar">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            Menu
+          </button>
+          <div class="docs-breadcrumb" id="docs-breadcrumb">Loading…</div>
+        </div>
+        <div class="docs-toolbar-actions">
+          <span class="docs-progress" id="docs-progress"></span>
+          <a href="guide.html?p=DOCUMENTATION_INDEX.md" class="btn btn-secondary" style="padding:0.4rem 0.75rem;font-size:0.8rem;">Index</a>
+        </div>
+      </div>
+
+      <div class="docs-content-wrap">
+        <article class="docs-content" id="docs-content">
+          <div class="docs-loading">Loading documentation…</div>
+        </article>
+        <nav class="docs-pager" id="docs-pager" aria-label="Sequential navigation"></nav>
+      </div>
+    </main>
+  </div>
+
+  <footer class="docs-footer" role="contentinfo">
+    <p>&copy; 2024&ndash;2026 <a href="https://github.com/rajanagori" target="_blank" rel="noopener noreferrer">Raja Nagori</a> · Supply Chain Attack Simulator</p>
+    <p>Documentation © Raja Nagori · <a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/LICENSE-DOCUMENTATION.md" target="_blank" rel="noopener noreferrer">CC BY-NC-ND 4.0</a> · <a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/ATTRIBUTION.md" target="_blank" rel="noopener noreferrer">Attribution</a> · <a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/COPYRIGHT.md" target="_blank" rel="noopener noreferrer">Copyright</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      securityLevel: 'strict',
+      fontFamily: 'Inter, sans-serif',
+    });
+  </script>
+  <script src="assets/js/docs-app.js"></script>
+</body>
+</html>

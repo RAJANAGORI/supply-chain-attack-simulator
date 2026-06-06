@@ -22,11 +22,15 @@ const server = http.createServer((req, res) => {
       try {
         const data = JSON.parse(body || '{}');
         const captures = JSON.parse(fs.readFileSync(logFile, 'utf8'));
-        captures.captures.push({
+        const captureEntry = {
           timestamp: new Date().toISOString(),
           data
-        });
+        };
+                captures.captures.push(captureEntry);
         fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
+        require('../../../detection-tools/es/forward-capture')
+          .forwardCaptureIfEnabled(__dirname, captureEntry)
+          .catch(() => {});
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'success', message: 'Data received' }));
       } catch (e) {

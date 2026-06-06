@@ -186,7 +186,7 @@
   }
   </script>
 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
   <!-- Background Effects -->
@@ -206,8 +206,8 @@
       <ul class="nav-links">
         <li><a href="#why">Why SCAS</a></li>
         <li><a href="#scenarios">Scenarios</a></li>
+        <li><a href="guide.html">Documentation</a></li>
         <li><a href="#how-it-works">How It Works</a></li>
-        <li><a href="#architecture">Architecture</a></li>
         <li><a href="#quickstart">Quick Start</a></li>
         <li><a href="#faq">FAQ</a></li>
       </ul>
@@ -229,8 +229,8 @@
   <div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Mobile navigation">
     <a href="#why" onclick="closeMobileMenu()">Why SCAS</a>
     <a href="#scenarios" onclick="closeMobileMenu()">Scenarios</a>
+    <a href="guide.html" onclick="closeMobileMenu()">Documentation</a>
     <a href="#how-it-works" onclick="closeMobileMenu()">How It Works</a>
-    <a href="#architecture" onclick="closeMobileMenu()">Architecture</a>
     <a href="#quickstart" onclick="closeMobileMenu()">Quick Start</a>
     <a href="#faq" onclick="closeMobileMenu()">FAQ</a>
     <a href="https://github.com/rajanagori/supply-chain-attack-simulator" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -245,7 +245,7 @@
           <img src="og-image.png" alt="Supply Chain Attack Simulator" class="hero-logo-img" width="420" height="220">
         </div>
         <div class="hero-badge">
-          <span class="badge">Open Source &middot; MIT License</span>
+          <span class="badge">Open Source &middot; Software MIT &middot; Docs CC BY-NC-ND</span>
         </div>
         <h1>
           Master <span class="gradient-text">supply chain security</span> with real attack scenarios
@@ -254,8 +254,8 @@
           A hands-on cybersecurity training platform with 22 real-world attack scenarios. Understand, practice, and defend against software supply chain attacks in safe, isolated environments.
         </p>
         <div class="hero-actions">
-          <a href="https://github.com/rajanagori/supply-chain-attack-simulator" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-            Get Started
+          <a href="guide.html" class="btn btn-primary">
+            Read Documentation
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
           <a href="#scenarios" class="btn btn-secondary">
@@ -303,7 +303,7 @@
       <div class="conference-logos">
         <div class="conference-item">
           <span class="conference-item-name">Open Source</span>
-          <span class="conference-item-detail">MIT License</span>
+          <span class="conference-item-detail">Software MIT</span>
         </div>
         <div class="conference-item">
           <span class="conference-item-name">22 Scenarios</span>
@@ -389,6 +389,11 @@
         <span class="section-label">Attack Scenarios</span>
         <h2 class="section-title">22 hands-on <span class="gradient-text">attack labs</span></h2>
         <p class="section-subtitle">From beginner typosquatting to advanced self-propagating supply-chain scenarios. Every lab includes setup, simulated attack, detection practice, and defensive follow-through.</p>
+        <p class="section-subtitle" style="margin-top: 1rem;">
+          <a href="guide.html?p=scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md" class="btn btn-secondary" style="display: inline-flex; margin-top: 0.5rem;">
+            Start sequential Zero to Hero guides →
+          </a>
+        </p>
       </div>
 
       <div class="scenarios-grid">
@@ -957,27 +962,31 @@
           <a href="#" class="nav-brand footer-brand-link" aria-label="Supply Chain Attack Simulator">
             <img src="og-image.png" alt="" class="footer-brand-logo" width="160" height="84" aria-hidden="true">
           </a>
-          <p>A hands-on cybersecurity training platform for understanding, practicing, and defending against software supply chain attacks. Open source under MIT License.</p>
+          <p>A hands-on cybersecurity training platform for understanding, practicing, and defending against software supply chain attacks. Created by Raja Nagori. Software: MIT · Documentation: CC BY-NC-ND 4.0.</p>
         </div>
 
         <div class="footer-col">
           <h4>Resources</h4>
           <ul>
             <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator" target="_blank" rel="noopener noreferrer">GitHub Repository</a></li>
-            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/README.md" target="_blank" rel="noopener noreferrer">Documentation</a></li>
-            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/QUICK_START.md" target="_blank" rel="noopener noreferrer">Quick Start Guide</a></li>
-            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/SCENARIOS.md" target="_blank" rel="noopener noreferrer">Scenario Index</a></li>
-            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/QUICK_REFERENCE.md" target="_blank" rel="noopener noreferrer">Quick Reference</a></li>
+            <li><a href="guide.html">Documentation hub</a></li>
+            <li><a href="guide.html?p=scenario-guides/CATALOG.md">Scenario catalog</a></li>
+            <li><a href="guide.html?p=scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md">Zero to Hero · Lab 01</a></li>
+            <li><a href="guide.html?p=FAQ.md">FAQ</a></li>
+            <li><a href="guide.html?p=QUICK_REFERENCE.md">Quick reference</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
           <h4>Learning</h4>
           <ul>
-            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md" target="_blank" rel="noopener noreferrer">Zero to Hero</a></li>
-            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/learning-path/SCENARIO_LEARNING_PATH.md" target="_blank" rel="noopener noreferrer">Learning Path</a></li>
-            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/BEST_PRACTICES.md" target="_blank" rel="noopener noreferrer">Best Practices</a></li>
-            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/documentation/RESOURCES.md" target="_blank" rel="noopener noreferrer">External Resources</a></li>
+            <li><a href="guide.html?p=ZERO_TO_HERO.md">Zero to Hero</a></li>
+            <li><a href="guide.html?p=learning-path/SCENARIO_LEARNING_PATH.md">Learning path</a></li>
+            <li><a href="guide.html?p=ARCHITECTURE.md">Architecture</a></li>
+            <li><a href="guide.html?p=OPERATIONS.md">Operations</a></li>
+            <li><a href="guide.html?p=DETECTION_AND_OBSERVABILITY.md">Detection &amp; observability</a></li>
+            <li><a href="guide.html?p=BEST_PRACTICES.md">Best practices</a></li>
+            <li><a href="guide.html?p=RESOURCES.md">External resources</a></li>
           </ul>
         </div>
 
@@ -989,15 +998,18 @@
             <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing Guide</a></li>
             <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer">Security Policy</a></li>
             <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/CODE_OF_CONDUCT.md" target="_blank" rel="noopener noreferrer">Code of Conduct</a></li>
-            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/COPYRIGHT.md" target="_blank" rel="noopener noreferrer">Copyright</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/ATTRIBUTION.md" target="_blank" rel="noopener noreferrer">Attribution</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License (software)</a></li>
+            <li><a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/LICENSE-DOCUMENTATION.md" target="_blank" rel="noopener noreferrer">CC BY-NC-ND (docs)</a></li>
             <li><a href="https://github.com/rajanagori" target="_blank" rel="noopener noreferrer">Raja Nagori</a></li>
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <span>&copy; 2026 Supply Chain Attack Simulator. Built by <a href="https://github.com/rajanagori" target="_blank" rel="noopener noreferrer">Raja Nagori</a> for the security community.</span>
-        <span>Open Source &middot; MIT License</span>
+        <span>&copy; 2024&ndash;2026 Raja Nagori · <a href="https://github.com/rajanagori/supply-chain-attack-simulator" target="_blank" rel="noopener noreferrer">Supply Chain Attack Simulator</a>. Original documentation and curriculum. <a href="https://github.com/rajanagori/supply-chain-attack-simulator/blob/main/ATTRIBUTION.md" target="_blank" rel="noopener noreferrer">Attribution required</a>.</span>
+        <span>Software MIT · Docs CC BY-NC-ND 4.0</span>
       </div>
     </div>
   </footer>

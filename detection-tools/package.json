@@ -1,0 +1,21 @@
+{
+  "name": "@scas/detection-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Detection tooling and Elasticsearch shippers for the Supply Chain Attack Simulator",
+  "scripts": {
+    "es:apply-templates": "node es/apply-templates.js",
+    "es:load-runbooks": "node es/load-runbooks.js",
+    "es:ship-findings": "node es/ship-findings.js",
+    "es:ship-captures": "node es/ship-captures.js",
+    "es:setup-kibana": "node es/setup-kibana-data-views.js",
+    "es:patch-guides": "node es/generate-observability-section.js",
+    "docs:observability-diagrams": "node es/generate-observability-section.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@elastic/elasticsearch": "^8.15.0"
+  }
+}

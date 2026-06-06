@@ -57,9 +57,10 @@ supply-chain-attack-simulator/
 ├── vulnerable-apps/             # Sample vulnerable applications (Node, Python, CI)
 ├── malicious-packages/          # Example malicious packages (for learning)
 ├── detection-tools/             # Security scanning and detection tools
+├── observability/               # Optional Elasticsearch + Kibana stack (issue #22)
 ├── .github/ISSUE_TEMPLATE/      # GitHub issue forms
 ├── documentation/               # Canonical Markdown: guides, learning path, modules
-├── docs/                        # GitHub Pages (HTML/styles); symlinks → documentation/
+├── docs/                        # GitHub Pages (HTML + assets/); symlinks → documentation/
 └── scripts/                     # Setup and utility scripts
 ```
 
@@ -147,6 +148,17 @@ Each scenario includes:
 - Real-world case studies where relevant
 - A blue-team runbook at `scenarios/<scenario>/DETECT.md` with IOCs, sample logs, Sigma-style rules, and YARA-like text matches
 
+### Optional Elasticsearch + Kibana track
+
+For workshops, you can index all detection runbooks and runtime events into a local Docker stack (roadmap issue [#22](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/22)):
+
+```bash
+./scripts/elasticsearch-up.sh
+export SCAS_ES_URL=http://localhost:9200   # opt-in live capture forwarding
+```
+
+See [observability/README.md](observability/README.md) for Kibana data views, shippers, and smoke checks.
+
 ## Safety & ethics
 
 **IMPORTANT**: This test bench is for **educational purposes only**.
@@ -173,22 +185,29 @@ This repository contains intentionally vulnerable code and malicious package exa
 
 ## Documentation
 
-Authoritative Markdown lives under **`documentation/`**. The **`docs/`** folder is the GitHub Pages site (`index.html`, styles); shared top-level guides are usually **symlinks** into `documentation/`—see **`docs/README.md`**.
+Authoritative Markdown lives under **`documentation/`** — start at the **[documentation index](documentation/README.md)** (master source of truth).
 
-- **[Docs map](documentation/README.md)** — Index of all documentation
-- **[Zero to Hero](documentation/ZERO_TO_HERO.md)** — Guided start if you are new
-- **[Supply chain attacks: Zero to Hero](documentation/learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md)** — Progression landing page
-- **[Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md)** — Beginner / intermediate / advanced tracks with outcomes
-- **[Module template](documentation/modules/MODULE_TEMPLATE.md)** — Format for teaching a scenario
-- **[Module instances index](documentation/modules/MODULE_INSTANCES_INDEX.md)** — Per-scenario teaching cards (01–22)
-- **[Teaching delivery pack](documentation/learning-path/TEACHING_DELIVERY_PACK.md)** — Talk, docs, course, and simulator variants
-- **[Capstone rubric](documentation/learning-path/CAPSTONE_RUBRIC.md)** — Final exercise and scoring
-- [Quick reference](documentation/QUICK_REFERENCE.md) — Navigation and common commands
-- [Complete setup](documentation/SETUP.md)
-- [Quick start (detailed)](documentation/QUICK_START.md)
-- [Best practices](documentation/BEST_PRACTICES.md)
-- [Scenario walkthroughs](documentation/SCENARIOS.md) — List, skills, port cleanup
-- [Additional resources](documentation/RESOURCES.md)
+**Browse on the web:** [Documentation hub](docs/guide.html) — sequential Zero to Hero guides (01→22), setup, detection, and FAQ rendered from the same Markdown files.
+
+| Doc | Purpose |
+|-----|---------|
+| [Documentation index](documentation/README.md) | Master index — all links |
+| [Scenario catalog](documentation/scenario-guides/CATALOG.md) | All 22 labs — README, DETECT, guides, modules |
+| [Docs map (legacy)](documentation/README.md) | Same as index |
+| [FAQ](documentation/FAQ.md) | Troubleshooting |
+| [Architecture](documentation/ARCHITECTURE.md) | Platform design |
+| [Operations](documentation/OPERATIONS.md) | Scripts and ports |
+| [Detection & observability](documentation/DETECTION_AND_OBSERVABILITY.md) | Blue team + Elasticsearch |
+| [Zero to Hero](documentation/ZERO_TO_HERO.md) | Guided start if you are new |
+| [Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md) | Beginner / intermediate / advanced tracks |
+| [Quick reference](documentation/QUICK_REFERENCE.md) | One-page commands |
+| [Complete setup](documentation/SETUP.md) |
+| [Best practices](documentation/BEST_PRACTICES.md) |
+| [Scenario walkthroughs](documentation/SCENARIOS.md) |
+| [Additional resources](documentation/RESOURCES.md) |
+| [Observability stack](observability/README.md) | Optional Elasticsearch + Kibana |
+
+The **`docs/`** folder is the GitHub Pages site (`index.html`, `guide.html`, `assets/`); shared guides are **symlinks** into `documentation/` — see **`docs/README.md`**.
 
 ## Issue templates
 
@@ -224,9 +243,24 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution workflow and testing exp
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](SECURITY.md)
 
-## License
+## License and copyright
 
-MIT License — see [LICENSE](LICENSE). Copyright and third-party context: [NOTICE](NOTICE). Contributing and the DCO: [CONTRIBUTING.md](CONTRIBUTING.md).
+**Creator:** [Raja Nagori](https://github.com/rajanagori) · Copyright © 2024–2026
+
+This project uses **dual licensing**:
+
+| Material | License |
+|----------|---------|
+| **Software** — scenarios, scripts, detection tools, observability | [MIT License](LICENSE) |
+| **Documentation** — guides, modules, learning paths, curriculum | [CC BY-NC-ND 4.0](LICENSE-DOCUMENTATION.md) |
+
+- **[COPYRIGHT.md](COPYRIGHT.md)** — ownership and what others may not do  
+- **[ATTRIBUTION.md](ATTRIBUTION.md)** — how to credit SCAS when sharing or teaching  
+- **[AUTHORS.md](AUTHORS.md)** — creator and contributors  
+- **[NOTICE](NOTICE)** — summary for distributions  
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — DCO and contribution terms  
+
+You may fork and use the **software** under MIT (keep copyright notice). **Documentation** may be shared with attribution but not commercially republished as modified derivatives without permission. Do not remove copyright or claim you authored SCAS.
 
 ## Acknowledgments
 
@@ -242,9 +276,9 @@ Inspired by real-world supply chain incidents, including:
 
 For questions or issues:
 
+- Read the [FAQ](documentation/FAQ.md) and [documentation index](documentation/README.md)
+- Check [OPERATIONS.md](documentation/OPERATIONS.md) for ports and teardown
 - Open an issue on GitHub
-- Check the troubleshooting material in the docs
-- Review the FAQ in [documentation/README.md](documentation/README.md) and each scenario’s README
 
 ---
 
