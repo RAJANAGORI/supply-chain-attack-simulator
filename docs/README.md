@@ -33,4 +33,14 @@ You will see **`learning-path/`**, **`modules/`**, **`scenario-guides/`**, and t
 
 **Web docs:** Open [`guide.html`](./guide.html) for the full sequential documentation experience (Zero to Hero 01→22 and all platform guides), rendered from symlinked Markdown in `documentation/`.
 
-On **Windows**, if symlinks do not resolve, enable git symlink support or Developer Mode, or work only under **`documentation/`**.
+### Deploying to GitHub Pages / custom domain
+
+Markdown under `docs/` is mostly **symlinked** to `../documentation/` for a single source of truth in git. **GitHub Pages does not publish symlinks that point outside `docs/`**, so `guide.html` would 404 on `.md` files unless you:
+
+1. **Recommended:** Enable GitHub Actions deploy (`.github/workflows/pages.yml`) — runs `scripts/materialize-docs-for-pages.sh` before upload, or  
+2. **Manual:** Run `./scripts/materialize-docs-for-pages.sh` before pushing (replaces symlinks with real copies in `docs/`), or  
+3. **Fallback:** `docs/assets/js/docs-app.js` loads from `raw.githubusercontent.com` when local `.md` returns 404 (works after JS deploy; requires network).
+
+Also present: **`docs/.nojekyll`** disables Jekyll so static HTML/JSON assets are served as-is.
+
+On **Windows**, if symlinks do not resolve locally, enable git symlink support or Developer Mode, or work only under **`documentation/`**.

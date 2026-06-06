@@ -3,6 +3,7 @@
 
   const REPO = 'https://github.com/rajanagori/supply-chain-attack-simulator';
   const REPO_BLOB = REPO + '/blob/main';
+  const REPO_RAW = 'https://raw.githubusercontent.com/rajanagori/supply-chain-attack-simulator/main';
 
   /** @type {{ version: number, defaultDoc: string, repoUrl: string, sections: Array }} */
   let manifest = null;
@@ -83,8 +84,15 @@
     'CONTRIBUTING.md',
   ]);
 
+  const DOC_PATH_ALIASES = {
+    'DOCUMENTATION_INDEX.md': 'documentation/README.md',
+  };
+
   /** Map resolved doc-relative paths to GitHub blob paths. */
   function repoPathForResolved(resolved) {
+    if (DOC_PATH_ALIASES[resolved]) {
+      return DOC_PATH_ALIASES[resolved];
+    }
     if (ROOT_REPO_DOCS.has(resolved)) {
       return resolved;
     }
@@ -99,6 +107,35 @@
       return resolved;
     }
     return 'documentation/' + resolved;
+  }
+
+  function rawRepoUrl(path) {
+    return REPO_RAW + '/' + repoPathForResolved(path);
+  }
+
+  async function fetchMarkdown(path) {
+    const localUrl = basePath() + path;
+    const urls = [localUrl, rawRepoUrl(path)];
+
+    let lastError = null;
+    for (let i = 0; i < urls.length; i++) {
+      try {
+        const res = await fetch(urls[i]);
+        if (!res.ok) {
+          lastError = new Error('HTTP ' + res.status);
+          continue;
+        }
+        const text = await res.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+          lastError = new Error('unexpected HTML response');
+          continue;
+        }
+        return { text: text, source: i === 0 ? 'local' : 'github' };
+      } catch (err) {
+        lastError = err;
+      }
+    }
+    throw lastError || new Error('fetch failed');
   }
 
   function rewriteHref(fromPath, href) {
@@ -333,14 +370,14 @@
 
     document.title = (meta ? meta.title + ' · ' : '') + 'SCAS Documentation';
 
-    const url = basePath() + path;
     let text;
+    let loadedFromGithub = false;
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      text = await res.text();
+      const result = await fetchMarkdown(path);
+      text = result.text;
+      loadedFromGithub = result.source === 'github';
     } catch (err) {
-      showError('Could not load ' + path + '. ' + err.message);
+      showError('Could not load ' + path + '. ' + err.message + ' (static host may not publish symlinked docs — redeploy after running scripts/materialize-docs-for-pages.sh)');
       return;
     }
 
@@ -348,7 +385,9 @@
     els.content.innerHTML = marked.parse(text);
 
     els.content.insertAdjacentHTML('beforeend',
-      '<div class="docs-source-note">Source: <a href="' + repoBlobUrl(repoPathForResolved(path)) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(repoPathForResolved(path)) + '</a> — © Raja Nagori. Documentation under CC BY-NC-ND 4.0 unless noted.</div>'
+      '<div class="docs-source-note">Source: <a href="' + repoBlobUrl(repoPathForResolved(path)) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(repoPathForResolved(path)) + '</a> — © Raja Nagori. Documentation under CC BY-NC-ND 4.0 unless noted.' +
+      (loadedFromGithub ? ' <em>(loaded from GitHub — run <code>scripts/materialize-docs-for-pages.sh</code> before deploy for offline hosting)</em>' : '') +
+      '</div>'
     );
 
     bindInternalLinks();
