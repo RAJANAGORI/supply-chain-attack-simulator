@@ -625,6 +625,8 @@ node detection-tools/workspace-scanner.js .
 
 ---
 
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **12 — Workspace / Monorepo Attack** is indexed in Elasticsearch when the observability stack is running.

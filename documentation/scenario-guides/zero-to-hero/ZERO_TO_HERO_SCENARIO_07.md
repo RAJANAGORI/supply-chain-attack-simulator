@@ -613,6 +613,8 @@ git commit -m "Update package-lock.json with safe dependencies"
 
 ---
 
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **07 — Transitive Dependency** is indexed in Elasticsearch when the observability stack is running.

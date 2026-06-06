@@ -295,6 +295,8 @@ npm cache clean --force
 
 ---
 
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **09 — Package Signing Bypass** is indexed in Elasticsearch when the observability stack is running.

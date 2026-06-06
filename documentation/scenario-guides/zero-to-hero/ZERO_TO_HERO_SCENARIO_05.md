@@ -379,6 +379,8 @@ gpg --verify dist/app.js.asc
 
 ---
 
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **05 — Build System Compromise** is indexed in Elasticsearch when the observability stack is running.

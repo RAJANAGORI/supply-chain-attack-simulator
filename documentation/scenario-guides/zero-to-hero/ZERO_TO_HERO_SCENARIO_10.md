@@ -314,6 +314,8 @@ git commit -m "Remove malicious submodule"
 
 ---
 
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **10 — Git Submodule Attack** is indexed in Elasticsearch when the observability stack is running.

@@ -523,6 +523,8 @@ For internal packages:
 
 ---
 
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **01 — Typosquatting** is indexed in Elasticsearch when the observability stack is running.

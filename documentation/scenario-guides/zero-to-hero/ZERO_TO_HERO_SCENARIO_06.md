@@ -588,6 +588,8 @@ Implement preventive measures:
 
 ---
 
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **06 — Shai-Hulud (Self-Replicating)** is indexed in Elasticsearch when the observability stack is running.

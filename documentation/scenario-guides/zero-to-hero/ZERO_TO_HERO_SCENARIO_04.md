@@ -367,6 +367,8 @@ Always review changelogs before updating:
 
 ---
 
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **04 — Malicious Update** is indexed in Elasticsearch when the observability stack is running.

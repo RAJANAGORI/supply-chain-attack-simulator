@@ -662,6 +662,8 @@ cat package-lock.json | grep evil-utils
 
 ---
 
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **08 — Package Lock File Manipulation** is indexed in Elasticsearch when the observability stack is running.

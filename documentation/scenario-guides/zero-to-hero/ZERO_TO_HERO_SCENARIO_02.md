@@ -535,6 +535,8 @@ npm uses semantic versioning (semver) to resolve versions:
 
 ---
 
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **02 — Dependency Confusion** is indexed in Elasticsearch when the observability stack is running.

@@ -555,6 +555,8 @@ Implement preventive measures:
 
 ---
 
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **03 — Compromised Package** is indexed in Elasticsearch when the observability stack is running.
