@@ -1,0 +1,82 @@
+---
+description: SCAS repo map — canonical paths, repeated scenario layout, safety gates, and observability hooks. Read this instead of re-exploring the tree.
+alwaysApply: true
+---
+
+# SCAS project patterns
+
+Educational supply-chain attack labs. **22 scenarios** (`01-` … `22-`), CLI-only, **localhost-only** malicious behavior. Canonical docs live in `documentation/`; `docs/` is GitHub Pages (symlinks).
+
+## Canonical references (read one, not all)
+
+| Task | Start here | Do not read all 22 copies |
+|------|------------|---------------------------|
+| Mock exfil server | `scenarios/01-typosquatting/infrastructure/mock-server.js` | Same file in other scenarios unless port/endpoints differ |
+| Setup flow | `scenarios/01-typosquatting/setup.sh` | Each scenario has its own `setup.sh` with same `TESTBENCH_MODE` gate |
+| Detection runbook | `scenarios/01-typosquatting/DETECT.md` | Sections: IOCs, Sample Log Lines, Sigma, YARA, EDR/SIEM |
+| Malicious package | `scenarios/01-typosquatting/templates/malicious-package-template.js` | Per-scenario `templates/` or `malicious-packages/` |
+| Learner walkthrough | `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md` | `ZERO_TO_HERO_SCENARIO_XX.md` mirrors scenario number |
+| Quick ref | `documentation/scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_01.md` | One per scenario |
+| Shared scanner | `detection-tools/package-scanner.js` | Scenario-specific scanners under `scenarios/XX-*/detection-tools/` |
+| ES forwarding | `detection-tools/es/forward-capture.js` | Called from mock servers after writing capture JSON |
+| Observability stack | `observability/README.md` | ES `:9200`, Kibana `:5601`; indices `scas-rules`, `scas-detections` |
+
+## Scenario folder layout (typical)
+
+```
+scenarios/NN-slug/
+├── README.md              # Scenario overview
+├── DETECT.md              # Runbook → loaded into scas-rules by load-runbooks.js
+├── setup.sh               # TESTBENCH_MODE check, deps, instructions
+├── infrastructure/        # Mock attacker / harvester servers
+│   ├── mock-server.js     # Most scenarios (Node http, PORT, captured-data.json)
+│   └── captured-data.json # Runtime artifact (gitignored in some scenarios)
+├── victim-app/            # or corporate-app/, compromised-app/, etc.
+├── malicious-packages/    # or compromised-package/, registry/, packages/
+├── templates/             # Copy-paste attack templates
+└── detection-tools/       # Scenario-local detectors (optional)
+```
+
+**Exceptions (check these instead of assuming mock-server.js):**
+- **06-sha-hulud** — `infrastructure/credential-harvester.js` (port 3001), `mock-cdn.js`, `replication-simulator.js`, `github-actions-simulator.js`
+- **21-axios** / **22-litellm** — realistic npm/PyPI simulations; **22** uses `infrastructure/mock_server.py` and `detection-tools/litellm_pth_scanner.py`
+
+## Mock server contract (Node majority)
+
+- `POST /collect` — receive exfil JSON; append to `{ captures: [...] }` file
+- `GET|DELETE /captured-data` — view or clear captures
+- After each capture: `require('../../../detection-tools/es/forward-capture').forwardCaptureIfEnabled(__dirname, captureEntry).catch(() => {})`
+- Ports: see `scripts/ports.env` (`TESTBENCH_PORTS`); scenario 01 uses **3000**, 06 harvester **3001**
+
+## Safety gates (never weaken)
+
+- Shell: `setup.sh` warns when `TESTBENCH_MODE != enabled`
+- Node/Python payloads: guard with `process.env.TESTBENCH_MODE === 'enabled'` (or equivalent) before malicious paths
+- Network: exfil targets **127.0.0.1 / localhost** only — no real external C2
+- Malicious samples are for isolated lab VMs only
+
+## Observability (opt-in)
+
+- Enable forwarding: `export SCAS_ES_URL=http://localhost:9200` (see `observability/README.md`)
+- `detection-tools/es/load-runbooks.js` — parses all `scenarios/*/DETECT.md` → `scas-rules`
+- `detection-tools/es/ship-findings.js` — scanner output → `scas-detections`
+- `detection-tools/es/scenario-observability.json` — metadata for doc generation / Kibana
+- Stack scripts: `scripts/elasticsearch-up.sh`, `elasticsearch-down.sh`, `setup-kibana-data-views.sh`, `smoke-observability.sh`
+
+## Multi-scenario edits
+
+When changing a **shared pattern** (mock server, forward-capture hook, DETECT section shape, zero-to-hero observability block):
+
+1. Implement in scenario **01** (or the listed exception)
+2. `grep` for the old pattern across `scenarios/` and `documentation/scenario-guides/`
+3. Apply the same diff shape to matches — do not open every folder to “learn” it again
+
+## Documentation sync
+
+If runtime behavior changes, update in lockstep:
+
+- `scenarios/NN-*/README.md` and `DETECT.md`
+- `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_NN.md` (and quick-reference if IOCs/commands change)
+- `detection-tools/es/scenario-diagram-steps.js` when the lab flow or observability path changes
+- Re-run `node detection-tools/es/generate-observability-section.js` after diagram metadata edits
+- Re-run ES runbook load if `DETECT.md` structure changes materially

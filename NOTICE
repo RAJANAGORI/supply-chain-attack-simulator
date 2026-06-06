@@ -2,7 +2,18 @@ Supply Chain Attack Simulator (Supply Chain Attack Test Bench)
 
 Copyright (c) 2024-2026 Raja Nagori
 
-This project is licensed under the MIT License — see the LICENSE file.
+LICENSING
+---------
+Software (scenarios/, scripts/, detection-tools/, observability/, etc.):
+  MIT License — see LICENSE
+
+Documentation (documentation/, guides, modules, learning paths, web docs):
+  CC BY-NC-ND 4.0 — see LICENSE-DOCUMENTATION.md
+
+ATTRIBUTION
+-----------
+See ATTRIBUTION.md and COPYRIGHT.md. Do not remove copyright notices or claim
+authorship of this project or its documentation.
 
 Third-party materials (for example npm or PyPI dependencies inside scenario
 trees) remain under their respective licenses. This notice does not override

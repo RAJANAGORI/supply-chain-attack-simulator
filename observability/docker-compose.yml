@@ -1,0 +1,67 @@
+# Supply Chain Attack Simulator — optional local observability stack.
+# Education / localhost only. Do not expose these ports outside an isolated lab VM.
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ES_VERSION:-8.15.3}
+    container_name: scas-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - cluster.name=scas-local
+      - node.name=scas-es-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - scas-es-data:/usr/share/elasticsearch/data
+    ports:
+      - "${ES_PORT:-9200}:9200"
+    networks:
+      - scas-observability
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${ES_VERSION:-8.15.3}
+    container_name: scas-kibana
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - SERVER_NAME=scas-kibana
+      - XPACK_SECURITY_ENABLED=false
+    ports:
+      - "${KIBANA_PORT:-5601}:5601"
+    networks:
+      - scas-observability
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:5601/api/status || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 45s
+    deploy:
+      resources:
+        limits:
+          memory: 768m
+
+networks:
+  scas-observability:
+    name: scas-observability
+
+volumes:
+  scas-es-data:
+    name: scas-es-data

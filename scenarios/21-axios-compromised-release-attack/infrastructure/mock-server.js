@@ -32,8 +32,12 @@ const server = http.createServer((req, res) => {
         console.log(JSON.stringify(parsed, null, 2));
         console.log('─'.repeat(50));
         const log = JSON.parse(fs.readFileSync(logFile, 'utf8'));
-        log.beacons.push({ received_at: new Date().toISOString(), payload: parsed });
+        const captureEntry = { received_at: new Date().toISOString(), payload: parsed };
+        log.beacons.push(captureEntry);
         fs.writeFileSync(logFile, JSON.stringify(log, null, 2));
+        require('../../../detection-tools/es/forward-capture')
+          .forwardCaptureIfEnabled(__dirname, captureEntry)
+          .catch(() => {});
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));
       } catch (e) {

@@ -1,56 +1,63 @@
 # Quick reference
 
-One-page navigation for the test bench. Authoritative content lives under **`documentation/`** (this folder). The **`docs/`** directory (GitHub Pages) adds **`index.html`** and **symlinks** to this tree: top-level guides plus **`learning-path/`**, **`modules/`**, and **`scenario-guides/`**—see **`docs/README.md`**.
+One-page navigation for the test bench. **Master index:** [README.md](./README.md) · **Full scenario link matrix:** [scenario-guides/CATALOG.md](./scenario-guides/CATALOG.md)
+
+Authoritative content lives under **`documentation/`**. The **`docs/`** directory (GitHub Pages) adds **`index.html`** and **symlinks** to this tree.
 
 ## Start here
 
 | Doc | Purpose |
 | --- | --- |
-| [README.md](./README.md) | Docs map and index |
-| [ZERO_TO_HERO.md](./ZERO_TO_HERO.md) | Full beginner walkthrough |
+| [README.md](./README.md) | **Master documentation index** |
+| [FAQ.md](./FAQ.md) | Troubleshooting and common questions |
+| [ZERO_TO_HERO.md](./ZERO_TO_HERO.md) | First lab for beginners |
 | [QUICK_START.md](./QUICK_START.md) | Fast setup |
 | [SETUP.md](./SETUP.md) | Detailed setup |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Platform design |
+| [OPERATIONS.md](./OPERATIONS.md) | Scripts, ports, teardown |
+| [DETECTION_AND_OBSERVABILITY.md](./DETECTION_AND_OBSERVABILITY.md) | Blue team + Elasticsearch/Kibana |
 | [BEST_PRACTICES.md](./BEST_PRACTICES.md) | Defensive patterns |
-| [SCENARIOS.md](./SCENARIOS.md) | Scenario list and port cleanup |
+| [SCENARIOS.md](./SCENARIOS.md) | Scenario summaries |
 
 ## Scenario guides
 
-- **Deep dives**: [scenario-guides/zero-to-hero/](scenario-guides/zero-to-hero/) — `ZERO_TO_HERO_SCENARIO_NN.md`
-- **Cheat sheets**: [scenario-guides/quick-reference/](scenario-guides/quick-reference/) — `QUICK_REFERENCE_SCENARIO_NN.md`
+| Type | Index |
+| --- | --- |
+| **Full catalog (22 scenarios)** | [scenario-guides/CATALOG.md](./scenario-guides/CATALOG.md) |
+| Zero-to-hero walkthroughs | [scenario-guides/zero-to-hero/README.md](./scenario-guides/zero-to-hero/README.md) |
+| Quick reference cards | [scenario-guides/quick-reference/README.md](./scenario-guides/quick-reference/README.md) |
 
 ## Common commands
 
 ```bash
 source .testbench.env   # created by scripts/setup.sh
+export TESTBENCH_MODE=enabled
 cd scenarios/01-typosquatting && ./setup.sh
-./scripts/kill-port.sh 3000        # free one known scenario port
-./scripts/kill-port.sh --all       # free all known scenario ports
-./scripts/teardown.sh              # stop processes + clean local lab artifacts
+./scripts/kill-port.sh 3000
+./scripts/kill-port.sh --all
+./scripts/teardown.sh
+./scripts/elasticsearch-up.sh              # optional observability
+./scripts/setup-kibana-data-views.sh
 ```
 
 ## Blue-team quick start
 
-Use scenario runbooks directly:
-
-- Example: `scenarios/01-typosquatting/DETECT.md`
-- Pattern for all labs: `scenarios/<scenario-folder>/DETECT.md`
-- Runbook contents: IOCs, sample log lines, Sigma-style rule, YARA-like text rule, and EDR/SIEM expectations
+- Runbook pattern: `scenarios/<scenario-folder>/DETECT.md`
+- Example: [scenarios/01-typosquatting/DETECT.md](../scenarios/01-typosquatting/DETECT.md)
+- Observability: [DETECTION_AND_OBSERVABILITY.md](./DETECTION_AND_OBSERVABILITY.md)
 
 ## Port allow-list
 
-Scenario and smoke-test ports are centralized in `scripts/ports.env`.
-
-- Smoke tests (`scripts/smoke-all-scenarios.sh`) and cleanup (`scripts/kill-port.sh`) both read this file.
-- Keep `documentation/QUICK_REFERENCE.md` and `documentation/SCENARIOS.md` aligned when ports are updated.
+Centralized in [`scripts/ports.env`](../scripts/ports.env). See [OPERATIONS.md](./OPERATIONS.md).
 
 ## Learning path
 
 | Doc | Purpose |
 | --- | --- |
 | [learning-path/SCENARIO_LEARNING_PATH.md](./learning-path/SCENARIO_LEARNING_PATH.md) | Beginner → advanced order |
-| [learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md](./learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md) | Curriculum landing |
+| [learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md](./learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md) | Full curriculum |
 | [learning-path/CAPSTONE_RUBRIC.md](./learning-path/CAPSTONE_RUBRIC.md) | Capstone scoring |
 
 ## External references
 
-See [RESOURCES.md](./RESOURCES.md) for tools, articles, and incident writeups.
+[RESOURCES.md](./RESOURCES.md) · [ROADMAP.md](./ROADMAP.md)

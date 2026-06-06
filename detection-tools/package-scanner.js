@@ -287,9 +287,10 @@ class PackageScanner {
     }
 
     for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
       if (entry.name.startsWith('.')) continue;
       const fullPath = path.join(nodeModulesPath, entry.name);
+      if (!this.isInstallablePackageDir(entry, fullPath)) continue;
+
       if (entry.name.startsWith('@')) {
         let scopedEntries = [];
         try {
@@ -298,14 +299,26 @@ class PackageScanner {
           continue;
         }
         for (const scopedEntry of scopedEntries) {
-          if (!scopedEntry.isDirectory()) continue;
-          packageDirs.push(path.join(fullPath, scopedEntry.name));
+          if (scopedEntry.name.startsWith('.')) continue;
+          const scopedPath = path.join(fullPath, scopedEntry.name);
+          if (!this.isInstallablePackageDir(scopedEntry, scopedPath)) continue;
+          packageDirs.push(scopedPath);
         }
       } else {
         packageDirs.push(fullPath);
       }
     }
     return packageDirs;
+  }
+
+  isInstallablePackageDir(entry, fullPath) {
+    if (entry.isDirectory()) return true;
+    if (!entry.isSymbolicLink()) return false;
+    try {
+      return fs.statSync(fullPath).isDirectory();
+    } catch {
+      return false;
+    }
   }
 
   readJson(filePath) {

@@ -5,8 +5,16 @@ Thanks for helping improve the Supply Chain Attack Test Bench.
 ## Copyright and licensing
 
 The maintainers’ original work in this repository is **copyright Raja Nagori**
-(see [LICENSE](LICENSE) and [NOTICE](NOTICE)). The MIT License grants everyone
-certain permissions; it does not transfer ownership of the project’s copyright.
+(see [LICENSE](LICENSE), [LICENSE-DOCUMENTATION.md](LICENSE-DOCUMENTATION.md),
+[COPYRIGHT.md](COPYRIGHT.md), and [NOTICE](NOTICE)).
+
+- **Software** contributions are licensed under the **MIT License**.
+- **Documentation** contributions (`documentation/`, guides, modules, learning
+  paths) are licensed under **CC BY-NC-ND 4.0** (see LICENSE-DOCUMENTATION.md).
+
+The MIT License grants certain permissions for software; CC BY-NC-ND governs
+documentation. Neither transfers ownership of the project’s copyright to
+contributors or users.
 
 ### Developer Certificate of Origin (DCO)
 
@@ -14,7 +22,7 @@ By submitting a pull request or otherwise contributing code you did not write
 as a maintainer, you certify that your contribution meets the
 [Developer Certificate of Origin version 1.1](https://developercertificate.org/),
 and you license that contribution under the **same terms as this repository**
-(the MIT License).
+(MIT for software; CC BY-NC-ND 4.0 for documentation under `documentation/`).
 
 Sign your commits so this certification is recorded in git history:
 
