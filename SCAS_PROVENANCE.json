@@ -1,0 +1,12 @@
+{
+  "project": "supply-chain-attack-simulator",
+  "name": "Supply Chain Attack Simulator",
+  "shortName": "SCAS",
+  "creator": "Raja Nagori",
+  "creatorUrl": "https://github.com/rajanagori",
+  "repository": "https://github.com/rajanagori/supply-chain-attack-simulator",
+  "website": "https://simulator.rajanagori.in",
+  "copyright": "2024-2026 Raja Nagori",
+  "fingerprint": "SCAS-FP-RN-8d4f2c9a1e7b3065",
+  "purpose": "Canonical authorship record for the SCAS platform. If you find this fingerprint in a fork or copy, it identifies the original work by Raja Nagori."
+}

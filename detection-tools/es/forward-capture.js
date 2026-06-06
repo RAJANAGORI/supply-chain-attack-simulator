@@ -1,5 +1,6 @@
 const path = require('path');
 const { captureRecordToDetection, inferScenarioIdFromPath } = require('./ship-captures');
+const { SCAS_PROVENANCE } = require('../scas-provenance');
 
 function inferScenarioId(infrastructureDir) {
   const scenarioFolder = path.basename(path.dirname(infrastructureDir));
@@ -35,5 +36,6 @@ async function forwardCaptureIfEnabled(infrastructureDir, record) {
 module.exports = {
   forwardCaptureIfEnabled,
   inferScenarioId,
-  indexDetectionDoc
+  indexDetectionDoc,
+  SCAS_PROVENANCE
 };

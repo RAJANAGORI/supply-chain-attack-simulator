@@ -2,6 +2,11 @@
   "version": 1,
   "defaultDoc": "DOCUMENTATION_INDEX.md",
   "repoUrl": "https://github.com/rajanagori/supply-chain-attack-simulator",
+  "provenance": {
+    "creator": "Raja Nagori",
+    "repository": "https://github.com/rajanagori/supply-chain-attack-simulator",
+    "fingerprint": "SCAS-FP-RN-8d4f2c9a1e7b3065"
+  },
   "sections": [
     {
       "id": "start",

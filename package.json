@@ -1,0 +1,17 @@
+{
+  "name": "supply-chain-attack-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hands-on cybersecurity training platform for software supply chain attacks",
+  "author": "Raja Nagori <https://github.com/rajanagori>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rajanagori/supply-chain-attack-simulator.git"
+  },
+  "homepage": "https://simulator.rajanagori.in",
+  "scas": {
+    "provenance": "SCAS-FP-RN-8d4f2c9a1e7b3065",
+    "provenanceFile": "SCAS_PROVENANCE.json"
+  }
+}

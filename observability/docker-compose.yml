@@ -1,8 +1,16 @@
 # Supply Chain Attack Simulator — optional local observability stack.
+# SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
 # Education / localhost only. Do not expose these ports outside an isolated lab VM.
+
+x-scas-provenance: &scas-provenance
+  com.scas.creator: Raja Nagori
+  com.scas.fingerprint: SCAS-FP-RN-8d4f2c9a1e7b3065
+  com.scas.repository: https://github.com/rajanagori/supply-chain-attack-simulator
 
 services:
   elasticsearch:
+    labels:
+      <<: *scas-provenance
     image: docker.elastic.co/elasticsearch/elasticsearch:${ES_VERSION:-8.15.3}
     container_name: scas-elasticsearch
     environment:
@@ -34,6 +42,8 @@ services:
           memory: 1g
 
   kibana:
+    labels:
+      <<: *scas-provenance
     image: docker.elastic.co/kibana/kibana:${ES_VERSION:-8.15.3}
     container_name: scas-kibana
     depends_on:

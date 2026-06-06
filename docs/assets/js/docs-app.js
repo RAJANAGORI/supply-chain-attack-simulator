@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  /* SCAS-FP-RN-8d4f2c9a1e7b3065 — Supply Chain Attack Simulator © Raja Nagori */
 
   const REPO = 'https://github.com/rajanagori/supply-chain-attack-simulator';
   const REPO_BLOB = REPO + '/blob/main';
@@ -483,6 +484,9 @@
     try {
       const res = await fetch(basePath() + 'docs-manifest.json');
       manifest = await res.json();
+      if (manifest.provenance && manifest.provenance.fingerprint) {
+        document.documentElement.setAttribute('data-scas-fp', manifest.provenance.fingerprint);
+      }
       buildIndex(manifest);
       renderSidebar('');
       navigate(getInitialPath());

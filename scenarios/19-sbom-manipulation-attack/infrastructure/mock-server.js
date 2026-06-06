@@ -1,8 +1,10 @@
 /**
+ * SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori — Supply Chain Attack Simulator
  * Mock Attacker Server (Scenario 19)
  * Receives and logs exfiltrated data from SBOM manipulation attacks.
  */
 
+require('../../_shared/scenario-provenance');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');

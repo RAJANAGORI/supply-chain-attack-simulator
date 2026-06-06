@@ -1,4 +1,5 @@
 /**
+ * SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori — Supply Chain Attack Simulator
  * EDUCATIONAL EXAMPLE: Transitive Dependency Attack Template
  * 
  * This template demonstrates how to create a malicious transitive dependency

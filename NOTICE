@@ -15,6 +15,8 @@ ATTRIBUTION
 See ATTRIBUTION.md and COPYRIGHT.md. Do not remove copyright notices or claim
 authorship of this project or its documentation.
 
+Provenance fingerprint: SCAS-FP-RN-8d4f2c9a1e7b3065 (see SCAS_PROVENANCE.json).
+
 Third-party materials (for example npm or PyPI dependencies inside scenario
 trees) remain under their respective licenses. This notice does not override
 those terms.

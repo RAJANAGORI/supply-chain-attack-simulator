@@ -1,4 +1,5 @@
 /**
+ * SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori — Supply Chain Attack Simulator
  * MALICIOUS BUNDLE.JS - Shai-Hulud Attack Payload
  * This is a simplified version for educational purposes
  * In TESTBENCH_MODE, it only targets localhost

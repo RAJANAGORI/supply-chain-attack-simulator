@@ -1,4 +1,5 @@
 /**
+ * SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori — Supply Chain Attack Simulator
  * Mock CDN Server
  * Serves the malicious bundle.js file
  */

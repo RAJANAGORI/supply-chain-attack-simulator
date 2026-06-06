@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
 """
 Scenario 22 mock collector — localhost only, stdlib HTTP.
 POST /collect — append JSON event to captured-data.json

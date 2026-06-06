@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# SCAS-FP-RN-8d4f2c9a1e7b3065 — Supply Chain Attack Simulator © Raja Nagori
 # Main Setup Script for Supply Chain Attack Testbench
 # This script prepares the entire environment
 #

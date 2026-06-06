@@ -1,9 +1,11 @@
 /**
+ * SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori — Supply Chain Attack Simulator
  * Scenario 21: Axios-style compromised release — mock collector
  * POST /beacon — benign lab telemetry (localhost only)
  * GET /captured-data — JSON log for blue-team review
  */
 
+require('../../_shared/scenario-provenance');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');

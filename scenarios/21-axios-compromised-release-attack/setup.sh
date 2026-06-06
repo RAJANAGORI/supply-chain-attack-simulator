@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
 # Scenario 21: Axios-style compromised npm release (safe simulation)
 set -euo pipefail
 

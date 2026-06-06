@@ -1,3 +1,5 @@
+/** SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori */
+
 // Template: show how metadata fields can be manipulated in registry metadata
 module.exports = {
   name: 'clean-utils',

@@ -1,4 +1,5 @@
 #!/bin/bash
+# SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
 
 # Scenario 12: Workspace/Monorepo Attack - Setup Script
 # This script prepares the environment for the workspace/monorepo attack lab

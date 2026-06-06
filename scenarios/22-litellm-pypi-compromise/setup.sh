@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
 # Scenario 22: LiteLLM-style PyPI compromise (safe simulation)
 set -euo pipefail
 

@@ -46,6 +46,20 @@ If someone violates these terms (especially stripping attribution), you may use 
 
 Contributors retain copyright in their own commits but license contributions under the same repository terms. See [AUTHORS.md](AUTHORS.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Provenance fingerprints
+
+This repository includes a canonical authorship record in [`SCAS_PROVENANCE.json`](SCAS_PROVENANCE.json) and a stable fingerprint token (`SCAS-FP-RN-8d4f2c9a1e7b3065`) embedded in platform files (HTML comments, manifests, Docker labels, setup scripts, and detection tooling).
+
+To check a checkout:
+
+```bash
+./scripts/verify-provenance.sh
+```
+
+Scenario labs inherit the same fingerprint via `scenarios/_shared/scenario-provenance.js` (loaded by mock servers) and `./scripts/embed-scenario-provenance.sh` (re-applies markers to all scenario `setup.sh`, templates, and infrastructure files).
+
+If someone removes visible copyright notices but leaves these markers (or vice versa), the mismatch supports a claim that the copy originated here. **Git commit history on the canonical repository remains the strongest technical evidence**; fingerprints supplement LICENSE and DMCA processes—they do not replace them.
+
 ## Trademark
 
 “Supply Chain Attack Simulator” and **SCAS** refer to this project and its author’s educational work. Third-party use of the name to imply an official product or endorsement is discouraged; trademark registration may be pursued separately.

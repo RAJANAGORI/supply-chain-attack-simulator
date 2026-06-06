@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
