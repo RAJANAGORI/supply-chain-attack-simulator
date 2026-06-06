@@ -15,7 +15,8 @@ docs/
 │   │   ├── styles.css      Landing page styles
 │   │   └── docs.css        Documentation hub styles
 │   └── js/
-│       └── docs-app.js     Documentation hub app
+│       ├── docs-app.js     Documentation hub app
+│       └── theme.js        Dark / light theme toggle
 ├── 404.html · sitemap.xml · robots.txt · og-image.png · _config.yml
 └── *.md + symlinks         → ../documentation/ (canonical content)
 ```

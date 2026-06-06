@@ -14,7 +14,7 @@ body.docs-page {
 }
 
 body.docs-page .nav {
-  background: rgba(10, 10, 15, 0.92);
+  background: var(--nav-bg);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--border-subtle);
@@ -247,7 +247,7 @@ body.docs-page .nav-inner {
   min-height: var(--docs-toolbar-height);
   padding: 0.65rem clamp(1rem, 3vw, 2rem);
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(10, 10, 15, 0.95);
+  background: var(--toolbar-bg);
   backdrop-filter: blur(12px);
 }
 

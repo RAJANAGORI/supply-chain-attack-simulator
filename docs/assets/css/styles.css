@@ -1,5 +1,8 @@
 /* ===== CSS Custom Properties ===== */
-:root {
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+
   --bg-primary: #0a0a0f;
   --bg-secondary: #0f0f17;
   --bg-tertiary: #14141f;
@@ -29,6 +32,12 @@
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-accent: rgba(99, 102, 241, 0.2);
 
+  --nav-bg: rgba(10, 10, 15, 0.85);
+  --nav-bg-solid: rgba(10, 10, 15, 0.97);
+  --toolbar-bg: rgba(10, 10, 15, 0.95);
+  --grid-line: rgba(99, 102, 241, 0.03);
+  --glow-opacity: 0.4;
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -46,6 +55,49 @@
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-primary: #f8f9fc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #eef0f6;
+  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-card-hover: rgba(238, 240, 248, 0.98);
+  --bg-glass: rgba(255, 255, 255, 0.82);
+
+  --text-primary: #12131a;
+  --text-secondary: #45465a;
+  --text-muted: #6b6c7e;
+
+  --accent-primary: #4f46e5;
+  --accent-secondary: #7c3aed;
+  --accent-tertiary: #9333ea;
+  --accent-glow: rgba(79, 70, 229, 0.1);
+  --accent-glow-strong: rgba(79, 70, 229, 0.18);
+
+  --red: #dc2626;
+  --red-glow: rgba(220, 38, 38, 0.1);
+  --orange: #ea580c;
+  --amber: #d97706;
+  --emerald: #059669;
+  --emerald-glow: rgba(5, 150, 105, 0.1);
+  --cyan: #0891b2;
+  --cyan-glow: rgba(8, 145, 178, 0.1);
+
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-accent: rgba(79, 70, 229, 0.22);
+
+  --nav-bg: rgba(248, 249, 252, 0.88);
+  --nav-bg-solid: rgba(248, 249, 252, 0.98);
+  --toolbar-bg: rgba(255, 255, 255, 0.92);
+  --grid-line: rgba(79, 70, 229, 0.06);
+  --glow-opacity: 0.22;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 8px 32px rgba(15, 23, 42, 0.1);
 }
 
 /* ===== Reset & Base ===== */
@@ -69,6 +121,7 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-base), color var(--transition-base);
 }
 
 a {
@@ -210,8 +263,8 @@ code {
   inset: 0;
   z-index: -2;
   background-image:
-    linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 64px 64px;
 }
 
@@ -222,7 +275,7 @@ code {
   height: 600px;
   border-radius: 50%;
   filter: blur(120px);
-  opacity: 0.4;
+  opacity: var(--glow-opacity);
   pointer-events: none;
 }
 .bg-glow-1 {
@@ -253,7 +306,7 @@ code {
 }
 
 .nav.scrolled {
-  background: rgba(10, 10, 15, 0.85);
+  background: var(--nav-bg);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--border-subtle);
@@ -331,6 +384,36 @@ code {
   gap: 12px;
 }
 
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  color: var(--text-primary);
+  border-color: var(--border-accent);
+  background: var(--accent-glow);
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.theme-toggle .icon-moon { display: none; }
+[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+
 .nav-github {
   display: flex;
   align-items: center;
@@ -374,7 +457,7 @@ code {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(10, 10, 15, 0.97);
+  background: var(--nav-bg-solid);
   backdrop-filter: blur(20px);
   z-index: 999;
   padding: 40px 24px;

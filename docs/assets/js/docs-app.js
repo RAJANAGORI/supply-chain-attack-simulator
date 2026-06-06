@@ -475,6 +475,11 @@
       if (e.state && e.state.path) navigate(e.state.path);
     });
 
+    window.addEventListener('scas-theme-change', function () {
+      if (!currentPath || !allowedPaths.has(currentPath)) return;
+      loadDoc(currentPath);
+    });
+
     try {
       const res = await fetch(basePath() + 'docs-manifest.json');
       manifest = await res.json();
