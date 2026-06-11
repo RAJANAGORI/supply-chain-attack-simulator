@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "defaultDoc": "DOCUMENTATION_INDEX.md",
+  "defaultDoc": "index.md",
   "repoUrl": "https://github.com/rajanagori/supply-chain-attack-simulator",
   "provenance": {
     "creator": "Raja Nagori",
@@ -14,10 +14,10 @@
       "description": "Orientation and environment setup",
       "sequential": true,
       "items": [
-        { "path": "DOCUMENTATION_INDEX.md", "title": "Documentation index" },
-        { "path": "ZERO_TO_HERO.md", "title": "Zero to Hero overview" },
-        { "path": "QUICK_START.md", "title": "Quick start" },
-        { "path": "SETUP.md", "title": "Complete setup" }
+        { "path": "index.md", "title": "Documentation index" },
+        { "path": "getting-started/ZERO_TO_HERO.md", "title": "Zero to Hero overview" },
+        { "path": "getting-started/QUICK_START.md", "title": "Quick start" },
+        { "path": "getting-started/SETUP.md", "title": "Complete setup" }
       ]
     },
     {
@@ -54,12 +54,12 @@
       "id": "platform",
       "title": "Platform & operations",
       "items": [
-        { "path": "ARCHITECTURE.md", "title": "Architecture" },
-        { "path": "OPERATIONS.md", "title": "Operations" },
-        { "path": "DETECTION_AND_OBSERVABILITY.md", "title": "Detection & observability" },
-        { "path": "BEST_PRACTICES.md", "title": "Best practices" },
-        { "path": "FAQ.md", "title": "FAQ" },
-        { "path": "QUICK_REFERENCE.md", "title": "Quick reference" }
+        { "path": "platform/ARCHITECTURE.md", "title": "Architecture" },
+        { "path": "platform/OPERATIONS.md", "title": "Operations" },
+        { "path": "platform/DETECTION_AND_OBSERVABILITY.md", "title": "Detection & observability" },
+        { "path": "platform/BEST_PRACTICES.md", "title": "Best practices" },
+        { "path": "platform/FAQ.md", "title": "FAQ" },
+        { "path": "platform/QUICK_REFERENCE.md", "title": "Quick reference" }
       ]
     },
     {
@@ -67,9 +67,8 @@
       "title": "Scenario catalog",
       "items": [
         { "path": "scenario-guides/CATALOG.md", "title": "Full catalog (01–22)" },
-        { "path": "SCENARIOS.md", "title": "Scenario summaries" },
-        { "path": "scenario-guides/zero-to-hero/README.md", "title": "Zero-to-hero index" },
-        { "path": "scenario-guides/quick-reference/README.md", "title": "Quick reference index" }
+        { "path": "scenario-guides/zero-to-hero/index.md", "title": "Zero-to-hero index" },
+        { "path": "scenario-guides/quick-reference/index.md", "title": "Quick reference index" }
       ]
     },
     {
@@ -102,6 +101,17 @@
       ]
     },
     {
+      "id": "reference",
+      "title": "Reference",
+      "description": "Catalogs, external resources, and project planning",
+      "items": [
+        { "path": "reference/index.md", "title": "Reference index" },
+        { "path": "reference/SCENARIOS.md", "title": "Scenario summaries" },
+        { "path": "reference/RESOURCES.md", "title": "External resources" },
+        { "path": "reference/ROADMAP.md", "title": "2026 roadmap" }
+      ]
+    },
+    {
       "id": "governance",
       "title": "Copyright & licensing",
       "items": [
@@ -120,8 +130,7 @@
         { "path": "learning-path/TEACHING_DELIVERY_PACK.md", "title": "Teaching delivery pack" },
         { "path": "learning-path/CAPSTONE_RUBRIC.md", "title": "Capstone rubric" },
         { "path": "modules/MODULE_INSTANCES_INDEX.md", "title": "Teaching modules index" },
-        { "path": "modules/MODULE_TEMPLATE.md", "title": "Module template" },
-        { "path": "RESOURCES.md", "title": "External resources" }
+        { "path": "modules/MODULE_TEMPLATE.md", "title": "Module template" }
       ]
     },
     {

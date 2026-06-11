@@ -72,7 +72,7 @@ Use the same teaching rhythm in every module:
 
 ## Start Here
 
-- New learners: [ZERO_TO_HERO.md](../ZERO_TO_HERO.md)
+- New learners: [ZERO_TO_HERO.md](../getting-started/ZERO_TO_HERO.md)
 - Scenario map: [SCENARIO_LEARNING_PATH.md](./SCENARIO_LEARNING_PATH.md)
 - Reusable module format: [MODULE_TEMPLATE.md](../modules/MODULE_TEMPLATE.md)
 - Per-scenario teaching files: [MODULE_INSTANCES_INDEX.md](../modules/MODULE_INSTANCES_INDEX.md)

@@ -86,8 +86,42 @@
   ]);
 
   const DOC_PATH_ALIASES = {
-    'DOCUMENTATION_INDEX.md': 'documentation/README.md',
+    'DOCUMENTATION_INDEX.md': 'documentation/index.md',
+    'index.md': 'documentation/index.md',
+    'ZERO_TO_HERO.md': 'documentation/getting-started/ZERO_TO_HERO.md',
+    'QUICK_START.md': 'documentation/getting-started/QUICK_START.md',
+    'SETUP.md': 'documentation/getting-started/SETUP.md',
+    'ARCHITECTURE.md': 'documentation/platform/ARCHITECTURE.md',
+    'OPERATIONS.md': 'documentation/platform/OPERATIONS.md',
+    'DETECTION_AND_OBSERVABILITY.md': 'documentation/platform/DETECTION_AND_OBSERVABILITY.md',
+    'BEST_PRACTICES.md': 'documentation/platform/BEST_PRACTICES.md',
+    'FAQ.md': 'documentation/platform/FAQ.md',
+    'QUICK_REFERENCE.md': 'documentation/platform/QUICK_REFERENCE.md',
+    'SCENARIOS.md': 'documentation/reference/SCENARIOS.md',
+    'RESOURCES.md': 'documentation/reference/RESOURCES.md',
+    'ROADMAP.md': 'documentation/reference/ROADMAP.md',
   };
+
+  /** Legacy flat paths → new layout under docs/ (local fetch). */
+  const LOCAL_DOC_ALIASES = {
+    'DOCUMENTATION_INDEX.md': 'index.md',
+    'ZERO_TO_HERO.md': 'getting-started/ZERO_TO_HERO.md',
+    'QUICK_START.md': 'getting-started/QUICK_START.md',
+    'SETUP.md': 'getting-started/SETUP.md',
+    'ARCHITECTURE.md': 'platform/ARCHITECTURE.md',
+    'OPERATIONS.md': 'platform/OPERATIONS.md',
+    'DETECTION_AND_OBSERVABILITY.md': 'platform/DETECTION_AND_OBSERVABILITY.md',
+    'BEST_PRACTICES.md': 'platform/BEST_PRACTICES.md',
+    'FAQ.md': 'platform/FAQ.md',
+    'QUICK_REFERENCE.md': 'platform/QUICK_REFERENCE.md',
+    'SCENARIOS.md': 'reference/SCENARIOS.md',
+    'RESOURCES.md': 'reference/RESOURCES.md',
+    'ROADMAP.md': 'reference/ROADMAP.md',
+  };
+
+  function localDocPath(resolved) {
+    return LOCAL_DOC_ALIASES[resolved] || resolved;
+  }
 
   /** Map resolved doc-relative paths to GitHub blob paths. */
   function repoPathForResolved(resolved) {
@@ -115,7 +149,7 @@
   }
 
   async function fetchMarkdown(path) {
-    const localUrl = basePath() + path;
+    const localUrl = basePath() + localDocPath(path);
     const urls = [localUrl, rawRepoUrl(path)];
 
     let lastError = null;

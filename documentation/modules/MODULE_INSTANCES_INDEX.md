@@ -2,7 +2,7 @@
 
 Direct links to per-scenario module teaching files.
 
-**Related:** [Scenario catalog](../scenario-guides/CATALOG.md) (all README, DETECT, zero-to-hero, quick-ref links) · [Zero-to-hero guides](../scenario-guides/zero-to-hero/README.md) · [Quick reference cards](../scenario-guides/quick-reference/README.md) · [Master documentation index](../README.md)
+**Related:** [Scenario catalog](../scenario-guides/CATALOG.md) (all README, DETECT, zero-to-hero, quick-ref links) · [Zero-to-hero guides](../scenario-guides/zero-to-hero/index.md) · [Quick reference cards](../scenario-guides/quick-reference/index.md) · [Master documentation index](../index.md)
 
 ## Beginner
 

@@ -29,7 +29,7 @@ You work for a security research team. Your task is to:
 
 ### Prerequisites
 - Node.js 16+ and npm installed
-- Repository root setup completed once (`./scripts/setup.sh` from the repo root; see [SETUP.md](../../documentation/SETUP.md))
+- Repository root setup completed once (`./scripts/setup.sh` from the repo root; see [SETUP.md](../../documentation/getting-started/SETUP.md))
 
 ### Environment Setup
 
@@ -204,9 +204,9 @@ You've completed this scenario when you can:
 
 ## 📚 Additional Resources
 
-- [Real-world incidents and further reading](../../documentation/RESOURCES.md)
-- [Package manager security best practices](../../documentation/BEST_PRACTICES.md)
-- [Example detection tooling](../../detection-tools/package-scanner.js) (see also [RESOURCES.md](../../documentation/RESOURCES.md))
+- [Real-world incidents and further reading](../../documentation/reference/RESOURCES.md)
+- [Package manager security best practices](../../documentation/platform/BEST_PRACTICES.md)
+- [Example detection tooling](../../detection-tools/package-scanner.js) (see also [RESOURCES.md](../../documentation/reference/RESOURCES.md))
 
 ## 🔗 Related Scenarios
 

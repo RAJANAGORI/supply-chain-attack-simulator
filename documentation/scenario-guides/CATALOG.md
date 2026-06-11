@@ -47,4 +47,4 @@ See [SCENARIO_LEARNING_PATH.md](../learning-path/SCENARIO_LEARNING_PATH.md). Min
 ./scripts/teardown.sh
 ```
 
-Full port list: [OPERATIONS.md](../OPERATIONS.md) · source of truth: [`scripts/ports.env`](../../scripts/ports.env)
+Full port list: [OPERATIONS.md](../platform/OPERATIONS.md) · source of truth: [`scripts/ports.env`](../../scripts/ports.env)

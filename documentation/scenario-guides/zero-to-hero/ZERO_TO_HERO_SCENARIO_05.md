@@ -542,7 +542,7 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 - **Main README**: `README.md`
 - **Other Scenarios**: See `documentation/scenario-guides/zero-to-hero/` for the full series.
-- **Best Practices**: `documentation/BEST_PRACTICES.md`
+- **Best Practices**: `documentation/platform/BEST_PRACTICES.md`
 - **CI/CD Security**: Research CodeCov and SolarWinds incidents
 
 ---

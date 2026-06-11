@@ -97,5 +97,6 @@ BlackHat_Arsenal_SupplyChain.pptx
 foss_submission.md
 step.md
 scripts/setup-github-project-board.sh
-documentation/ROADMAP.md
+documentation/reference/ROADMAP.md
 scripts/generate-substack-posts.js
+scripts/substack-scenario-copy.js

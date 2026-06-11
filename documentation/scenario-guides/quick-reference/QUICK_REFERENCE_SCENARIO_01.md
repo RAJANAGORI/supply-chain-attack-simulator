@@ -96,7 +96,7 @@ scenarios/01-typosquatting/
 If you need more context than the commands above, these are the right deep links.
 
 - Full Guide: `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md`
-- Setup Guide: `documentation/SETUP.md`
-- Quick Start: `documentation/QUICK_START.md`
-- Best Practices: `documentation/BEST_PRACTICES.md`
+- Setup Guide: `documentation/getting-started/SETUP.md`
+- Quick Start: `documentation/getting-started/QUICK_START.md`
+- Best Practices: `documentation/platform/BEST_PRACTICES.md`
 

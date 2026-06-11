@@ -26,7 +26,11 @@ for entry in "$DOCS"/*; do
   [[ -L "$entry" ]] && materialize_entry "$(basename "$entry")"
 done
 
-for entry in learning-path modules scenario-guides; do
+for entry in getting-started platform reference learning-path modules scenario-guides; do
+  [[ -L "$DOCS/$entry" ]] && materialize_entry "$entry"
+done
+
+for entry in index.md DOCUMENTATION_INDEX.md; do
   [[ -L "$DOCS/$entry" ]] && materialize_entry "$entry"
 done
 

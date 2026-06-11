@@ -12,7 +12,7 @@ Pick **one** path; everything else links out so you are not stuck in a long READ
 
 | You are… | Do this |
 |----------|---------|
-| **New to the project** | Run `./START_HERE.sh` (after `chmod +x START_HERE.sh`) or read [Zero to Hero](documentation/ZERO_TO_HERO.md) |
+| **New to the project** | Run `./START_HERE.sh` (after `chmod +x START_HERE.sh`) or read [Zero to Hero](documentation/getting-started/ZERO_TO_HERO.md) |
 | **Planning teaching or a curriculum** | Use the [Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md) (beginner → intermediate → advanced) |
 | **Comfortable with npm, shells, and isolated VMs** | [Quick Start](#quick-start-experienced-users) below, then open the README inside each scenario folder |
 
@@ -40,7 +40,7 @@ Instead of listing every technique here, the labs group into a few themes:
 - **Realistic simulations** — Axios-style npm and LiteLLM-style PyPI patterns (fictional packages, localhost-only; see issues [#3](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/3) and [#4](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/4))
 - **Defense** — detection tooling, hardening patterns, and defensive workflows across scenarios
 
-For a **full numbered list** with paths and skills, see [Scenario walkthroughs](documentation/SCENARIOS.md).
+For a **full numbered list** with paths and skills, see [Scenario walkthroughs](documentation/reference/SCENARIOS.md).
 
 ## Prerequisites
 
@@ -111,7 +111,7 @@ Or clean up all testbench processes and local scenario artifacts:
 
 ## Scenario index
 
-Open each folder’s **README** for objectives, duration, and step-by-step steps. Levels follow [documentation/SCENARIOS.md](documentation/SCENARIOS.md).
+Open each folder’s **README** for objectives, duration, and step-by-step steps. Levels follow [documentation/reference/SCENARIOS.md](documentation/reference/SCENARIOS.md).
 
 | # | Lab | Level |
 |---|-----|--------|
@@ -194,17 +194,17 @@ Authoritative Markdown lives under **`documentation/`** — start at the **[docu
 | [Documentation index](documentation/README.md) | Master index — all links |
 | [Scenario catalog](documentation/scenario-guides/CATALOG.md) | All 22 labs — README, DETECT, guides, modules |
 | [Docs map (legacy)](documentation/README.md) | Same as index |
-| [FAQ](documentation/FAQ.md) | Troubleshooting |
-| [Architecture](documentation/ARCHITECTURE.md) | Platform design |
-| [Operations](documentation/OPERATIONS.md) | Scripts and ports |
-| [Detection & observability](documentation/DETECTION_AND_OBSERVABILITY.md) | Blue team + Elasticsearch |
-| [Zero to Hero](documentation/ZERO_TO_HERO.md) | Guided start if you are new |
+| [FAQ](documentation/platform/FAQ.md) | Troubleshooting |
+| [Architecture](documentation/platform/ARCHITECTURE.md) | Platform design |
+| [Operations](documentation/platform/OPERATIONS.md) | Scripts and ports |
+| [Detection & observability](documentation/platform/DETECTION_AND_OBSERVABILITY.md) | Blue team + Elasticsearch |
+| [Zero to Hero](documentation/getting-started/ZERO_TO_HERO.md) | Guided start if you are new |
 | [Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md) | Beginner / intermediate / advanced tracks |
-| [Quick reference](documentation/QUICK_REFERENCE.md) | One-page commands |
-| [Complete setup](documentation/SETUP.md) |
-| [Best practices](documentation/BEST_PRACTICES.md) |
-| [Scenario walkthroughs](documentation/SCENARIOS.md) |
-| [Additional resources](documentation/RESOURCES.md) |
+| [Quick reference](documentation/platform/QUICK_REFERENCE.md) | One-page commands |
+| [Complete setup](documentation/getting-started/SETUP.md) |
+| [Best practices](documentation/platform/BEST_PRACTICES.md) |
+| [Scenario walkthroughs](documentation/reference/SCENARIOS.md) |
+| [Additional resources](documentation/reference/RESOURCES.md) |
 | [Observability stack](observability/README.md) | Optional Elasticsearch + Kibana |
 
 The **`docs/`** folder is the GitHub Pages site (`index.html`, `guide.html`, `assets/`); shared guides are **symlinks** into `documentation/` — see **`docs/README.md`**.
@@ -276,8 +276,8 @@ Inspired by real-world supply chain incidents, including:
 
 For questions or issues:
 
-- Read the [FAQ](documentation/FAQ.md) and [documentation index](documentation/README.md)
-- Check [OPERATIONS.md](documentation/OPERATIONS.md) for ports and teardown
+- Read the [FAQ](documentation/platform/FAQ.md) and [documentation index](documentation/README.md)
+- Check [OPERATIONS.md](documentation/platform/OPERATIONS.md) for ports and teardown
 - Open an issue on GitHub
 
 ---

@@ -140,8 +140,8 @@ If you need more context than the commands above, these are the right deep links
 
 - Full Guide: `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_02.md`
 - Scenario README: `scenarios/02-dependency-confusion/README.md`
-- Setup Guide: `documentation/SETUP.md`
-- Best Practices: `documentation/BEST_PRACTICES.md`
+- Setup Guide: `documentation/getting-started/SETUP.md`
+- Best Practices: `documentation/platform/BEST_PRACTICES.md`
 
 ## 💡 Key Concepts
 
