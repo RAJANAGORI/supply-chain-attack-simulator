@@ -1117,6 +1117,114 @@
         }
       });
     });
+
+    // ===== Fine-grained motion layer =====
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+
+    // Scroll progress bar
+    const progressBar = document.createElement('div');
+    progressBar.className = 'scroll-progress';
+    progressBar.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(progressBar);
+
+    let progressTicking = false;
+    window.addEventListener('scroll', () => {
+      if (progressTicking) return;
+      progressTicking = true;
+      requestAnimationFrame(() => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        progressBar.style.transform = 'scaleX(' + (max > 0 ? window.scrollY / max : 0) + ')';
+        progressTicking = false;
+      });
+    }, { passive: true });
+
+    if (!prefersReducedMotion && hasFinePointer) {
+      // Cursor aura that drifts behind content
+      const aura = document.createElement('div');
+      aura.className = 'cursor-aura';
+      aura.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(aura);
+
+      let auraX = innerWidth / 2, auraY = innerHeight / 2;
+      let targetX = auraX, targetY = auraY;
+
+      window.addEventListener('mousemove', (e) => {
+        targetX = e.clientX;
+        targetY = e.clientY;
+        aura.style.opacity = '1';
+      }, { passive: true });
+
+      (function auraLoop() {
+        auraX += (targetX - auraX) * 0.07;
+        auraY += (targetY - auraY) * 0.07;
+        aura.style.left = auraX + 'px';
+        aura.style.top = auraY + 'px';
+        requestAnimationFrame(auraLoop);
+      })();
+
+      // Spotlight position tracking on cards
+      const spotlightCards = document.querySelectorAll('.why-card, .defense-card, .how-card, .scenario-card, .qs-step');
+      spotlightCards.forEach(card => {
+        card.addEventListener('pointermove', (e) => {
+          const rect = card.getBoundingClientRect();
+          card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+          card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+        }, { passive: true });
+      });
+
+      // Subtle 3D tilt on scenario cards
+      document.querySelectorAll('.scenario-card').forEach(card => {
+        card.addEventListener('pointermove', (e) => {
+          const rect = card.getBoundingClientRect();
+          const rx = ((e.clientY - rect.top) / rect.height - 0.5) * -6;
+          const ry = ((e.clientX - rect.left) / rect.width - 0.5) * 6;
+          card.style.transform = 'perspective(700px) rotateX(' + rx + 'deg) rotateY(' + ry + 'deg) translateY(-6px)';
+        }, { passive: true });
+        card.addEventListener('pointerleave', () => {
+          card.style.transform = '';
+        });
+      });
+
+      // Magnetic buttons
+      document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('pointermove', (e) => {
+          const rect = btn.getBoundingClientRect();
+          const dx = (e.clientX - rect.left - rect.width / 2) * 0.18;
+          const dy = (e.clientY - rect.top - rect.height / 2) * 0.3;
+          btn.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+        }, { passive: true });
+        btn.addEventListener('pointerleave', () => {
+          btn.style.transform = '';
+        });
+      });
+    }
+
+    // Animated stat counters (22, 4, 40+, 100%)
+    if (!prefersReducedMotion) {
+      const statObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          statObserver.unobserve(entry.target);
+          const el = entry.target;
+          const raw = el.textContent.trim();
+          const match = raw.match(/^(\d+)(.*)$/);
+          if (!match) return;
+          const end = parseInt(match[1], 10);
+          const suffix = match[2] || '';
+          const duration = 1400;
+          const start = performance.now();
+          (function tick(now) {
+            const t = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - t, 4);
+            el.textContent = Math.round(end * eased) + suffix;
+            if (t < 1) requestAnimationFrame(tick);
+          })(start);
+        });
+      }, { threshold: 0.6 });
+
+      document.querySelectorAll('.hero-stat-value').forEach(el => statObserver.observe(el));
+    }
   </script>
 </body>
 </html>
