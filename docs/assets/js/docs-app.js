@@ -366,7 +366,12 @@
     renderer.code = function (code, infostring) {
       const lang = (infostring || '').trim().toLowerCase();
       if (lang === 'mermaid') {
-        return '<div class="mermaid">' + code + '</div>';
+        return (
+          '<div class="mermaid-wrap" role="button" tabindex="0" aria-label="Expand diagram">' +
+          '<span class="mermaid-hint">Click to expand</span>' +
+          '<div class="mermaid">' + code + '</div>' +
+          '</div>'
+        );
       }
       const escaped = escapeHtml(code);
       return '<pre><code class="language-' + escapeHtml(lang) + '">' + escaped + '</code></pre>';
@@ -438,6 +443,8 @@
       }
     }
 
+    bindMermaidLightbox();
+
     history.replaceState({ path: path }, '', guideUrl(path));
   }
 
@@ -470,6 +477,94 @@
   function scrollActiveNavIntoView() {
     const active = els.nav.querySelector('.docs-nav-link.active');
     if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+
+  function getOrCreateMermaidLightbox() {
+    let lb = document.getElementById('mermaid-lightbox');
+    if (lb) return lb;
+
+    lb = document.createElement('div');
+    lb.id = 'mermaid-lightbox';
+    lb.className = 'mermaid-lightbox';
+    lb.innerHTML =
+      '<div class="mermaid-lightbox-backdrop" aria-hidden="true"></div>' +
+      '<div class="mermaid-lightbox-panel" role="dialog" aria-modal="true" aria-label="Expanded diagram">' +
+      '<button type="button" class="mermaid-lightbox-close" aria-label="Close diagram">&times;</button>' +
+      '<p class="mermaid-lightbox-caption">Diagram expanded — press Esc to close</p>' +
+      '<div class="mermaid-lightbox-stage"></div>' +
+      '</div>';
+
+    document.body.appendChild(lb);
+
+    lb.querySelector('.mermaid-lightbox-backdrop').addEventListener('click', closeMermaidLightbox);
+    lb.querySelector('.mermaid-lightbox-close').addEventListener('click', closeMermaidLightbox);
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && lb.classList.contains('open')) closeMermaidLightbox();
+    });
+
+    return lb;
+  }
+
+  function closeMermaidLightbox() {
+    const lb = document.getElementById('mermaid-lightbox');
+    if (!lb || !lb.classList.contains('open')) return;
+    lb.classList.remove('open');
+    lb.querySelector('.mermaid-lightbox-stage').innerHTML = '';
+    document.body.classList.remove('mermaid-lightbox-open');
+  }
+
+  function openMermaidLightbox(wrap) {
+    const src = wrap.querySelector('.mermaid svg');
+    if (!src) return;
+
+    const lb = getOrCreateMermaidLightbox();
+    const stage = lb.querySelector('.mermaid-lightbox-stage');
+    stage.innerHTML = '';
+
+    const clone = src.cloneNode(true);
+    clone.removeAttribute('width');
+    clone.removeAttribute('height');
+    clone.style.removeProperty('max-width');
+    stage.appendChild(clone);
+
+    // Scale diagrams up to fill the lightbox viewport
+    requestAnimationFrame(function () {
+      const bbox = clone.getBoundingClientRect();
+      const maxW = window.innerWidth * 0.9;
+      const maxH = window.innerHeight * 0.72;
+      const naturalW = parseFloat(clone.getAttribute('width')) || bbox.width;
+      const naturalH = parseFloat(clone.getAttribute('height')) || bbox.height;
+      if (naturalW > 0 && naturalH > 0) {
+        const scale = Math.min(maxW / naturalW, maxH / naturalH, 4);
+        if (scale > 1.05) {
+          clone.setAttribute('width', String(Math.round(naturalW * scale)));
+          clone.setAttribute('height', String(Math.round(naturalH * scale)));
+        }
+      }
+    });
+
+    lb.classList.add('open');
+    document.body.classList.add('mermaid-lightbox-open');
+    lb.querySelector('.mermaid-lightbox-close').focus();
+  }
+
+  function bindMermaidLightbox() {
+    els.content.querySelectorAll('.mermaid-wrap').forEach(function (wrap) {
+      if (wrap.dataset.lightboxBound) return;
+      wrap.dataset.lightboxBound = '1';
+
+      wrap.addEventListener('click', function () {
+        openMermaidLightbox(wrap);
+      });
+
+      wrap.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openMermaidLightbox(wrap);
+        }
+      });
+    });
   }
 
   function closeSidebar() {
