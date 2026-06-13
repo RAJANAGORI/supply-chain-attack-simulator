@@ -79,7 +79,7 @@
     'COPYRIGHT.md',
     'ATTRIBUTION.md',
     'AUTHORS.md',
-    'LICENSE-DOCUMENTATION.md',
+    'DOCUMENTATION-CC-BY-NC-ND.md',
     'LICENSE.md',
     'NOTICE.md',
     'CONTRIBUTING.md',

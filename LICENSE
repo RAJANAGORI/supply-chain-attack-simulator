@@ -22,19 +22,8 @@ SOFTWARE.
 
 ---
 
-DUAL LICENSING — DOCUMENTATION
-
-The MIT License above applies to **software** in this repository: source code under
-`scenarios/`, `scripts/`, `detection-tools/`, `observability/`, and related
-programmatic assets.
-
-**Documentation** (the `documentation/` tree, published guides, learning paths,
-teaching modules, and web documentation content) is **not** licensed under MIT.
-It is licensed under **Creative Commons Attribution-NonCommercial-NoDerivatives
-4.0 International (CC BY-NC-ND 4.0)**. See LICENSE-DOCUMENTATION.md.
-
-You may not remove copyright notices, misrepresent authorship, or republish
-modified documentation commercially without permission from the copyright holder.
+Documentation in this repository is licensed separately under CC BY-NC-ND 4.0.
+See COPYRIGHT.md and DOCUMENTATION-CC-BY-NC-ND.md.
 
 ---
 

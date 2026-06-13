@@ -16,7 +16,7 @@ Creating and publishing this project establishes copyright in the original scena
 | Material | License | File |
 |----------|---------|------|
 | **Software** — `scenarios/`, `scripts/`, `detection-tools/`, `observability/`, mock servers, CI, site app code | [MIT License](LICENSE) | `LICENSE` |
-| **Documentation** — `documentation/`, guides, modules, learning paths, web docs content | [CC BY-NC-ND 4.0](LICENSE-DOCUMENTATION.md) | `LICENSE-DOCUMENTATION.md` |
+| **Documentation** — `documentation/`, guides, modules, learning paths, web docs content | [CC BY-NC-ND 4.0](DOCUMENTATION-CC-BY-NC-ND.md) | `DOCUMENTATION-CC-BY-NC-ND.md` |
 
 See also [NOTICE](NOTICE) and [ATTRIBUTION.md](ATTRIBUTION.md).
 

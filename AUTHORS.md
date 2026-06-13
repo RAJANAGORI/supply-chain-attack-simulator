@@ -8,7 +8,7 @@
 - Authored the core documentation, zero-to-hero guides, teaching modules, and learning paths
 - Maintains the open-source repository and project website
 
-Copyright (c) 2024–2026 Raja Nagori. See [COPYRIGHT.md](COPYRIGHT.md), [LICENSE](LICENSE), and [LICENSE-DOCUMENTATION.md](LICENSE-DOCUMENTATION.md).
+Copyright (c) 2024–2026 Raja Nagori. See [COPYRIGHT.md](COPYRIGHT.md), [LICENSE](LICENSE), and [DOCUMENTATION-CC-BY-NC-ND.md](DOCUMENTATION-CC-BY-NC-ND.md).
 
 ## Contributors
 

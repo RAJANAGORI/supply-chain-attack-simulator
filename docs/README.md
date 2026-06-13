@@ -11,7 +11,7 @@ docs/
 ├── docs-manifest.json      Navigation catalog for guide.html
 ├── index.md                → ../documentation/index.md (navigation hub)
 ├── DOCUMENTATION_INDEX.md  → ../documentation/index.md (alias for guide.html)
-├── COPYRIGHT.md · ATTRIBUTION.md · AUTHORS.md · LICENSE-DOCUMENTATION.md  → repo root
+├── COPYRIGHT.md · ATTRIBUTION.md · AUTHORS.md · DOCUMENTATION-CC-BY-NC-ND.md  → repo root
 ├── assets/
 │   ├── css/                Landing + documentation hub styles
 │   └── js/                 docs-app.js, theme.js

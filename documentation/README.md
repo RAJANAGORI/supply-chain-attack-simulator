@@ -8,7 +8,7 @@ All Markdown in this folder is canonical. The [`docs/`](../docs/) directory publ
 
 **Web documentation hub:** [guide.html](../docs/guide.html) — renders this folder sequentially in the browser (Zero to Hero 01→22, setup, detection, FAQ).
 
-**Copyright:** Documentation © 2024–2026 **Raja Nagori**, licensed under [CC BY-NC-ND 4.0](../LICENSE-DOCUMENTATION.md). See [COPYRIGHT.md](../COPYRIGHT.md) and [ATTRIBUTION.md](../ATTRIBUTION.md). Software is [MIT](../LICENSE).
+**Copyright:** Documentation © 2024–2026 **Raja Nagori**, licensed under [CC BY-NC-ND 4.0](../DOCUMENTATION-CC-BY-NC-ND.md). See [COPYRIGHT.md](../COPYRIGHT.md) and [ATTRIBUTION.md](../ATTRIBUTION.md). Software is [MIT](../LICENSE).
 
 ---
 

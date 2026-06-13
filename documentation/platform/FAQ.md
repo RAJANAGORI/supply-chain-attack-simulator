@@ -149,7 +149,7 @@ Scenario 01's package may produce **zero scanner findings** (subtle payload). Th
 | Material | License |
 |----------|---------|
 | Software (`scenarios/`, `scripts/`, tools) | [MIT](../../LICENSE) |
-| Documentation (`documentation/`, guides, modules) | [CC BY-NC-ND 4.0](../../LICENSE-DOCUMENTATION.md) |
+| Documentation (`documentation/`, guides, modules) | [CC BY-NC-ND 4.0](../../DOCUMENTATION-CC-BY-NC-ND.md) |
 
 You may fork and use **software** under MIT with attribution. **Documentation** may be shared with credit but not commercially republished as modified derivatives without permission.
 

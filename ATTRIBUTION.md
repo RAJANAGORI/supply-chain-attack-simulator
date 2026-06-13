@@ -32,7 +32,7 @@ by [Raja Nagori](https://github.com/rajanagori) — software (MIT), documentatio
 
 - Keep the [LICENSE](LICENSE) and copyright notice
 - Clearly state your fork is based on SCAS by Raja Nagori
-- Documentation you copy remains under [CC BY-NC-ND](LICENSE-DOCUMENTATION.md) — attribute and do not publish modified doc derivatives commercially
+- Documentation you copy remains under [CC BY-NC-ND](DOCUMENTATION-CC-BY-NC-ND.md) — attribute and do not publish modified doc derivatives commercially
 
 ## Commercial use
 

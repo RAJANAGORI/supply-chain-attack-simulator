@@ -5,12 +5,12 @@ Thanks for helping improve the Supply Chain Attack Test Bench.
 ## Copyright and licensing
 
 The maintainers’ original work in this repository is **copyright Raja Nagori**
-(see [LICENSE](LICENSE), [LICENSE-DOCUMENTATION.md](LICENSE-DOCUMENTATION.md),
+(see [LICENSE](LICENSE), [DOCUMENTATION-CC-BY-NC-ND.md](DOCUMENTATION-CC-BY-NC-ND.md),
 [COPYRIGHT.md](COPYRIGHT.md), and [NOTICE](NOTICE)).
 
 - **Software** contributions are licensed under the **MIT License**.
 - **Documentation** contributions (`documentation/`, guides, modules, learning
-  paths) are licensed under **CC BY-NC-ND 4.0** (see LICENSE-DOCUMENTATION.md).
+  paths) are licensed under **CC BY-NC-ND 4.0** (see DOCUMENTATION-CC-BY-NC-ND.md).
 
 The MIT License grants certain permissions for software; CC BY-NC-ND governs
 documentation. Neither transfers ownership of the project’s copyright to

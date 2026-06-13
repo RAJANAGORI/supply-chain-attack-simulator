@@ -118,7 +118,7 @@
         { "path": "COPYRIGHT.md", "title": "Copyright & ownership" },
         { "path": "ATTRIBUTION.md", "title": "How to attribute SCAS" },
         { "path": "AUTHORS.md", "title": "Authors" },
-        { "path": "LICENSE-DOCUMENTATION.md", "title": "Documentation license (CC BY-NC-ND)" }
+        { "path": "DOCUMENTATION-CC-BY-NC-ND.md", "title": "Documentation license (CC BY-NC-ND)" }
       ]
     },
     {
