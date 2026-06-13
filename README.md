@@ -254,7 +254,7 @@ This project uses **dual licensing**:
 | **Software** — scenarios, scripts, detection tools, observability | [MIT License](LICENSE) |
 | **Documentation** — guides, modules, learning paths, curriculum | [CC BY-NC-ND 4.0](DOCUMENTATION-CC-BY-NC-ND.md) |
 
-- **[COPYRIGHT.md](COPYRIGHT.md)** — ownership and what others may not do  
+- **[LEGAL.md](LEGAL.md)** — ownership and what others may not do  
 - **[ATTRIBUTION.md](ATTRIBUTION.md)** — how to credit SCAS when sharing or teaching  
 - **[AUTHORS.md](AUTHORS.md)** — creator and contributors  
 - **[NOTICE](NOTICE)** — summary for distributions  

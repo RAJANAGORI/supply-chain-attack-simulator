@@ -19,34 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Documentation in this repository is licensed separately under CC BY-NC-ND 4.0.
-See COPYRIGHT.md and DOCUMENTATION-CC-BY-NC-ND.md.
-
----
-
-EDUCATIONAL USE NOTICE:
-
-This software contains intentionally vulnerable code and malicious package
-examples designed for educational purposes only.
-
-Users of this software agree to:
-
-1. Use this software ONLY in isolated, controlled environments
-2. NEVER deploy any of the intentionally vulnerable or malicious code to
-   production systems
-3. NEVER publish the malicious package examples to public package registries
-4. Take responsibility for any misuse of the techniques demonstrated
-5. Follow all applicable laws and regulations
-6. Use this software only for legitimate security research and education
-
-The authors and contributors are not responsible for any misuse of this
-educational software or any damages resulting from its use.
-
-BY USING THIS SOFTWARE, YOU ACKNOWLEDGE THAT:
-- This is for EDUCATIONAL PURPOSES ONLY
-- You understand the ethical implications
-- You will use this responsibly
-- You will not use this for malicious purposes

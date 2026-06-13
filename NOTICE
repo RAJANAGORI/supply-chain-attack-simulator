@@ -10,9 +10,11 @@ Software (scenarios/, scripts/, detection-tools/, observability/, etc.):
 Documentation (documentation/, guides, modules, learning paths, web docs):
   CC BY-NC-ND 4.0 — see DOCUMENTATION-CC-BY-NC-ND.md
 
+Overview of copyright, authorship, and reuse rules: LEGAL.md
+
 ATTRIBUTION
 -----------
-See ATTRIBUTION.md and COPYRIGHT.md. Do not remove copyright notices or claim
+See ATTRIBUTION.md and LEGAL.md. Do not remove copyright notices or claim
 authorship of this project or its documentation.
 
 Provenance fingerprint: SCAS-FP-RN-8d4f2c9a1e7b3065 (see SCAS_PROVENANCE.json).
@@ -21,4 +23,18 @@ Third-party materials (for example npm or PyPI dependencies inside scenario
 trees) remain under their respective licenses. This notice does not override
 those terms.
 
-Educational-use and safety expectations in LICENSE apply to this repository.
+EDUCATIONAL USE
+---------------
+This software contains intentionally vulnerable code and malicious package
+examples designed for educational purposes only.
+
+Users agree to:
+1. Use this software ONLY in isolated, controlled environments
+2. NEVER deploy vulnerable or malicious code to production systems
+3. NEVER publish malicious package examples to public package registries
+4. Take responsibility for any misuse of the techniques demonstrated
+5. Follow all applicable laws and regulations
+6. Use this software only for legitimate security research and education
+
+The authors and contributors are not responsible for misuse of this educational
+software or any damages resulting from its use.

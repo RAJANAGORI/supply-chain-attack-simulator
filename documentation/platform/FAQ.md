@@ -138,7 +138,7 @@ Scenario 01's package may produce **zero scanner findings** (subtle payload). Th
 
 ### Who owns Supply Chain Attack Simulator?
 
-**Raja Nagori** holds copyright (© 2024–2026) in the original scenarios, documentation, curriculum, and related materials. See [AUTHORS.md](../../AUTHORS.md) and [COPYRIGHT.md](../../COPYRIGHT.md).
+**Raja Nagori** holds copyright (© 2024–2026) in the original scenarios, documentation, curriculum, and related materials. See [AUTHORS.md](../../AUTHORS.md) and [LEGAL.md](../../LEGAL.md).
 
 ### Can someone copy this and claim they created it?
 

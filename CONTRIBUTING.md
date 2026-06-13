@@ -6,7 +6,7 @@ Thanks for helping improve the Supply Chain Attack Test Bench.
 
 The maintainers’ original work in this repository is **copyright Raja Nagori**
 (see [LICENSE](LICENSE), [DOCUMENTATION-CC-BY-NC-ND.md](DOCUMENTATION-CC-BY-NC-ND.md),
-[COPYRIGHT.md](COPYRIGHT.md), and [NOTICE](NOTICE)).
+[LEGAL.md](LEGAL.md), and [NOTICE](NOTICE)).
 
 - **Software** contributions are licensed under the **MIT License**.
 - **Documentation** contributions (`documentation/`, guides, modules, learning

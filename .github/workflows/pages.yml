@@ -6,7 +6,7 @@ on:
     paths:
       - 'docs/**'
       - 'documentation/**'
-      - 'COPYRIGHT.md'
+      - 'LEGAL.md'
       - 'ATTRIBUTION.md'
       - 'AUTHORS.md'
       - 'DOCUMENTATION-CC-BY-NC-ND.md'

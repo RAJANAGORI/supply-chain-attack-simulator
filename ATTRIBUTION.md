@@ -36,8 +36,8 @@ by [Raja Nagori](https://github.com/rajanagori) — software (MIT), documentatio
 
 ## Commercial use
 
-Commercial training products, paid courses built from SCAS documentation, or re-branded curriculum require **separate permission**. See [COPYRIGHT.md](COPYRIGHT.md).
+Commercial training products, paid courses built from SCAS documentation, or re-branded curriculum require **separate permission**. See [LEGAL.md](LEGAL.md).
 
 ## Reporting misattribution
 
-If someone removes credit or claims authorship, see [COPYRIGHT.md](COPYRIGHT.md) or file a report via GitHub.
+If someone removes credit or claims authorship, see [LEGAL.md](LEGAL.md) or file a report via GitHub.

@@ -76,7 +76,7 @@
   }
 
   const ROOT_REPO_DOCS = new Set([
-    'COPYRIGHT.md',
+    'LEGAL.md',
     'ATTRIBUTION.md',
     'AUTHORS.md',
     'DOCUMENTATION-CC-BY-NC-ND.md',

@@ -11,7 +11,7 @@ docs/
 ├── docs-manifest.json      Navigation catalog for guide.html
 ├── index.md                → ../documentation/index.md (navigation hub)
 ├── DOCUMENTATION_INDEX.md  → ../documentation/index.md (alias for guide.html)
-├── COPYRIGHT.md · ATTRIBUTION.md · AUTHORS.md · DOCUMENTATION-CC-BY-NC-ND.md  → repo root
+Governance Markdown (LEGAL.md, ATTRIBUTION.md, AUTHORS.md, DOCUMENTATION-CC-BY-NC-ND.md) is copied from repo root at Pages deploy — not symlinked under docs/ (avoids duplicate GitHub License tabs).
 ├── assets/
 │   ├── css/                Landing + documentation hub styles
 │   └── js/                 docs-app.js, theme.js

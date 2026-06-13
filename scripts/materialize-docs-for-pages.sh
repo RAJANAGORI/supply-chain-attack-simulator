@@ -34,4 +34,10 @@ for entry in index.md DOCUMENTATION_INDEX.md; do
   [[ -L "$DOCS/$entry" ]] && materialize_entry "$entry"
 done
 
+# Governance docs live at repo root (not as docs/ symlinks — avoids duplicate GitHub License tabs).
+for name in LEGAL.md ATTRIBUTION.md AUTHORS.md DOCUMENTATION-CC-BY-NC-ND.md; do
+  cp "$ROOT/$name" "$DOCS/$name"
+  echo "materialized: docs/$name (from repo root)"
+done
+
 echo "Done. docs/ markdown is ready for GitHub Pages / static hosting."

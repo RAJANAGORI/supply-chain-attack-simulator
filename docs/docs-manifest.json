@@ -115,7 +115,7 @@
       "id": "governance",
       "title": "Copyright & licensing",
       "items": [
-        { "path": "COPYRIGHT.md", "title": "Copyright & ownership" },
+        { "path": "LEGAL.md", "title": "Copyright & ownership" },
         { "path": "ATTRIBUTION.md", "title": "How to attribute SCAS" },
         { "path": "AUTHORS.md", "title": "Authors" },
         { "path": "DOCUMENTATION-CC-BY-NC-ND.md", "title": "Documentation license (CC BY-NC-ND)" }
