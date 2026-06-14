@@ -29,15 +29,24 @@ echo "⏳ Waiting for health (${SCAS_FLOCI_ENDPOINT}/_floci/health)..."
 TRIES=60
 while [ "$TRIES" -gt 0 ]; do
   if scas_floci_health; then
-    echo "✅ Floci is ready on port ${FLOCI_PORT:-4566}"
-    echo "   Container: scas-floci"
-    echo "   Enable labs: source ${REPO_ROOT}/.floci.env"
-    exit 0
+    break
   fi
   TRIES=$((TRIES - 1))
   sleep 2
 done
 
-echo "❌ Floci did not become healthy in time."
-echo "   Logs: docker logs scas-floci"
+if ! scas_floci_health; then
+  echo "❌ Floci did not become healthy in time."
+  echo "   Logs: docker logs scas-floci"
+  exit 1
+fi
+
+echo "⏳ Waiting for Floci init (S3 and services ready)..."
+if scas_floci_wait_init 90; then
+  echo "✅ Floci is ready on port ${FLOCI_PORT:-4566}"
+  echo "   Container: scas-floci"
+  echo "   Enable labs: source ${REPO_ROOT}/.floci.env"
+  exit 0
+fi
+
 exit 1

@@ -71,16 +71,32 @@ Unset `SCAS_FLOCI_ENABLED`. The lab behaves exactly as before (smoke tests uncha
 
 ### `PutObject` 500 / `upload failed` on `seed.sh`
 
-1. **Floci running?** From repo root: `./scripts/floci-status.sh`
-2. **Use emulator credentials for S3** (not lab leaked keys):
+**Full reset (most reliable fix):**
+
+```bash
+cd ~/supply-chain-attack-simulator
+./scripts/floci-down.sh
+rm -rf infrastructure/floci/data/*
+# Use memory storage (avoid hybrid 500 on Linux/aarch64)
+grep -q FLOCI_STORAGE_MODE infrastructure/floci/.env \
+  && sed -i 's/^FLOCI_STORAGE_MODE=.*/FLOCI_STORAGE_MODE=memory/' infrastructure/floci/.env \
+  || echo 'FLOCI_STORAGE_MODE=memory' >> infrastructure/floci/.env
+./scripts/floci-up.sh
+source .floci.env
+./scripts/floci-status.sh    # Init must show "ready"
+cd scenarios/05-build-compromise
+./infrastructure/floci/seed.sh
+```
+
+1. **Floci init ready?** `./scripts/floci-status.sh` — must show `Init: ✅ ready`
+2. **Use emulator credentials:** `source .floci.env` from repo root (do not rely on host `~/.aws/credentials`)
+3. **Inspect logs:** `docker logs scas-floci --tail 80`
+4. **Manual upload test** (inside container):
    ```bash
-   source .floci.env
-   SCAS_FLOCI_AWS_ACCESS_KEY_ID=test SCAS_FLOCI_AWS_SECRET_ACCESS_KEY=test \
-     ./scenarios/05-build-compromise/infrastructure/floci/seed.sh
+   docker exec scas-floci aws --endpoint-url http://127.0.0.1:4566 s3 mb s3://scas-sc05-artifacts
+   docker cp scenarios/05-build-compromise/legitimate-build/dist/manifest.json scas-floci:/tmp/m.json
+   docker exec scas-floci aws --endpoint-url http://127.0.0.1:4566 s3 cp /tmp/m.json s3://scas-sc05-artifacts/releases/legitimate/manifest.json
    ```
-3. **Inspect Floci logs:** `docker logs scas-floci --tail 50`
-4. **Reset storage** (repo root): `./scripts/floci-down.sh`, `rm -rf infrastructure/floci/data/*`, `./scripts/floci-up.sh`
-5. **Hybrid storage needs Docker socket** — ensure the user running Floci can access `/var/run/docker.sock`.
 
 ### Build completes but nothing in S3 or mock server
 

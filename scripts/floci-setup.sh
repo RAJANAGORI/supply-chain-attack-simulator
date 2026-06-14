@@ -45,6 +45,15 @@ mkdir -p "${FLOCI_DIR}/data" "${FLOCI_DIR}/init/ready.d"
 if [ ! -f "${FLOCI_DIR}/.env" ]; then
   cp "${FLOCI_DIR}/.env.example" "${FLOCI_DIR}/.env"
   echo "✅ Created ${FLOCI_DIR}/.env"
+else
+  # Ensure memory storage (hybrid can 500 on some Linux/aarch64 hosts)
+  if grep -q '^FLOCI_STORAGE_MODE=' "${FLOCI_DIR}/.env"; then
+    sed -i.bak 's/^FLOCI_STORAGE_MODE=.*/FLOCI_STORAGE_MODE=memory/' "${FLOCI_DIR}/.env" 2>/dev/null \
+      || sed -i '' 's/^FLOCI_STORAGE_MODE=.*/FLOCI_STORAGE_MODE=memory/' "${FLOCI_DIR}/.env"
+    rm -f "${FLOCI_DIR}/.env.bak"
+  else
+    echo 'FLOCI_STORAGE_MODE=memory' >> "${FLOCI_DIR}/.env"
+  fi
 fi
 
 if [ "$USE_IMAGE" = "1" ]; then

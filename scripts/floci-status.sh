@@ -20,6 +20,11 @@ if scas_floci_health; then
   echo "  Health: ✅ reachable"
   curl -fsS "${SCAS_FLOCI_ENDPOINT}/_floci/health" | head -c 200
   echo ""
+  if scas_floci_init_ready; then
+    echo "  Init:   ✅ ready (S3/services)"
+  else
+    echo "  Init:   ⏳ not ready yet — wait or check: docker logs scas-floci --tail 50"
+  fi
 else
   echo "  Health: ❌ unreachable"
   echo "  Start: ./scripts/floci-up.sh"

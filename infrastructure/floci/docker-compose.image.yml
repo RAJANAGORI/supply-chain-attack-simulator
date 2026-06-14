@@ -16,7 +16,7 @@ services:
       - ./init/ready.d:/etc/floci/init/ready.d:ro
     environment:
       FLOCI_DEFAULT_REGION: ${FLOCI_DEFAULT_REGION:-us-east-1}
-      FLOCI_STORAGE_MODE: ${FLOCI_STORAGE_MODE:-hybrid}
+      FLOCI_STORAGE_MODE: ${FLOCI_STORAGE_MODE:-memory}
       FLOCI_STORAGE_PERSISTENT_PATH: /app/data
       FLOCI_SERVICES_DOCKER_NETWORK: scas_floci_default
       AWS_DEFAULT_REGION: ${FLOCI_DEFAULT_REGION:-us-east-1}

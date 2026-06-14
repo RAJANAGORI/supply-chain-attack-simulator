@@ -26,15 +26,35 @@ scas_floci_health() {
   curl -fsS "${SCAS_FLOCI_ENDPOINT}/_floci/health" >/dev/null 2>&1
 }
 
-scas_floci_require() {
-  if scas_floci_health; then
-    return 0
-  fi
-  echo "❌ Floci is not reachable at ${SCAS_FLOCI_ENDPOINT}" >&2
-  echo "   One-time setup:  ./scripts/floci-setup.sh" >&2
-  echo "   Start emulator:  ./scripts/floci-up.sh" >&2
-  echo "   Load lab env:    source .floci.env" >&2
+scas_floci_init_ready() {
+  local body
+  body="$(curl -fsS "${SCAS_FLOCI_ENDPOINT}/_floci/init" 2>/dev/null)" || return 1
+  python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if d.get("completed",{}).get("ready") else 1)' <<<"$body" 2>/dev/null
+}
+
+scas_floci_wait_init() {
+  local tries="${1:-90}"
+  while [ "$tries" -gt 0 ]; do
+    if scas_floci_init_ready; then
+      return 0
+    fi
+    tries=$((tries - 1))
+    sleep 1
+  done
+  echo "❌ Floci health OK but init not ready (/_floci/init)." >&2
+  echo "   Logs: docker logs scas-floci --tail 80" >&2
   return 1
+}
+
+scas_floci_require() {
+  if ! scas_floci_health; then
+    echo "❌ Floci is not reachable at ${SCAS_FLOCI_ENDPOINT}" >&2
+    echo "   One-time setup:  ./scripts/floci-setup.sh" >&2
+    echo "   Start emulator:  ./scripts/floci-up.sh" >&2
+    echo "   Load lab env:    source .floci.env" >&2
+    return 1
+  fi
+  scas_floci_wait_init
 }
 
 scas_floci_container() {
@@ -47,29 +67,43 @@ scas_floci_container() {
   fi
 }
 
-# Run aws CLI against Floci: awslocal → aws → docker exec floci aws
-scas_floci_aws() {
+# Prefer aws inside the Floci container — avoids host CLI profile / path-style quirks.
+scas_floci_aws_in_container() {
+  local ctr="$1"
+  shift
+  docker exec \
+    -e AWS_ENDPOINT_URL=http://127.0.0.1:4566 \
+    -e AWS_ACCESS_KEY_ID="$SCAS_FLOCI_ACCESS_KEY" \
+    -e AWS_SECRET_ACCESS_KEY="$SCAS_FLOCI_SECRET_KEY" \
+    -e AWS_DEFAULT_REGION="$SCAS_FLOCI_REGION" \
+    "$ctr" aws --region "$SCAS_FLOCI_REGION" "$@"
+}
+
+scas_floci_aws_on_host() {
   scas_floci_env
   if command -v awslocal >/dev/null 2>&1; then
-    awslocal "$@"
+    env AWS_PROFILE= AWS_DEFAULT_PROFILE= AWS_EC2_METADATA_DISABLED=true \
+      awslocal --region "$SCAS_FLOCI_REGION" "$@"
     return $?
   fi
   if command -v aws >/dev/null 2>&1; then
-    aws --endpoint-url "$SCAS_FLOCI_ENDPOINT" "$@"
+    env AWS_PROFILE= AWS_DEFAULT_PROFILE= AWS_EC2_METADATA_DISABLED=true \
+      AWS_S3_FORCE_PATH_STYLE=true \
+      aws --endpoint-url "$SCAS_FLOCI_ENDPOINT" --region "$SCAS_FLOCI_REGION" "$@"
     return $?
   fi
+  return 127
+}
+
+# Run aws CLI against Floci: container aws → host awslocal/aws
+scas_floci_aws() {
   local ctr
   ctr="$(scas_floci_container)"
   if [ -n "$ctr" ]; then
-    docker exec -e AWS_ENDPOINT_URL=http://localhost:4566 \
-      -e AWS_ACCESS_KEY_ID="$SCAS_FLOCI_ACCESS_KEY" \
-      -e AWS_SECRET_ACCESS_KEY="$SCAS_FLOCI_SECRET_KEY" \
-      -e AWS_DEFAULT_REGION="$SCAS_FLOCI_REGION" \
-      "$ctr" aws "$@"
+    scas_floci_aws_in_container "$ctr" "$@"
     return $?
   fi
-  echo "❌ No aws/awslocal CLI and no running 'floci' container." >&2
-  return 1
+  scas_floci_aws_on_host "$@"
 }
 
 scas_floci_bucket_for_scenario() {
@@ -82,7 +116,9 @@ scas_floci_seed_scenario() {
   local bucket
   bucket="$(scas_floci_bucket_for_scenario "$id")"
   scas_floci_require
-  scas_floci_aws s3 mb "s3://${bucket}" >/dev/null 2>&1 || true
+  if ! scas_floci_aws s3 ls "s3://${bucket}" >/dev/null 2>&1; then
+    scas_floci_aws s3 mb "s3://${bucket}"
+  fi
   echo "$bucket"
 }
 
@@ -90,26 +126,31 @@ scas_floci_s3_put() {
   local bucket="${1:?bucket}"
   local key="${2:?key}"
   local file="${3:?file}"
-  local abs
+  local abs ctr tmp_in_ctr
   abs="$(cd "$(dirname "$file")" && pwd)/$(basename "$file")"
   [ -f "$abs" ] || { echo "❌ missing file: $abs" >&2; return 1; }
-  if command -v awslocal >/dev/null 2>&1 || command -v aws >/dev/null 2>&1; then
-    scas_floci_aws s3 cp "$abs" "s3://${bucket}/${key}"
-    return $?
-  fi
-  local ctr
+
+  scas_floci_require
+
   ctr="$(scas_floci_container)"
   if [ -n "$ctr" ]; then
-    scas_floci_env
-    docker exec -i \
-      -e AWS_ENDPOINT_URL=http://localhost:4566 \
-      -e AWS_ACCESS_KEY_ID="$SCAS_FLOCI_ACCESS_KEY" \
-      -e AWS_SECRET_ACCESS_KEY="$SCAS_FLOCI_SECRET_KEY" \
-      -e AWS_DEFAULT_REGION="$SCAS_FLOCI_REGION" \
-      "$ctr" aws s3 cp - "s3://${bucket}/${key}" <"$abs"
-    return $?
+    tmp_in_ctr="/tmp/scas-upload-$$"
+    docker cp "$abs" "${ctr}:${tmp_in_ctr}"
+    if scas_floci_aws_in_container "$ctr" s3 cp "$tmp_in_ctr" "s3://${bucket}/${key}"; then
+      docker exec "$ctr" rm -f "$tmp_in_ctr" >/dev/null 2>&1 || true
+      return 0
+    fi
+    docker exec "$ctr" rm -f "$tmp_in_ctr" >/dev/null 2>&1 || true
+    echo "❌ Floci S3 upload failed (container aws)." >&2
+    echo "   Try: ./scripts/floci-down.sh && rm -rf infrastructure/floci/data/* && ./scripts/floci-up.sh" >&2
+    echo "   Logs: docker logs scas-floci --tail 80" >&2
+    return 1
   fi
-  echo "❌ Cannot upload $abs — no host aws CLI and no floci container." >&2
+
+  if scas_floci_aws_on_host s3 cp "$abs" "s3://${bucket}/${key}"; then
+    return 0
+  fi
+  echo "❌ Cannot upload $abs — start Floci (./scripts/floci-up.sh) or install aws CLI." >&2
   return 1
 }
 
