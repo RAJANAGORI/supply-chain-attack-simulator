@@ -66,3 +66,33 @@ scas_floci_aws s3 ls s3://scas-sc05-artifacts/releases/ --recursive
 ## Without Floci
 
 Unset `SCAS_FLOCI_ENABLED`. The lab behaves exactly as before (smoke tests unchanged).
+
+## Troubleshooting
+
+### `PutObject` 500 / `upload failed` on `seed.sh`
+
+1. **Floci running?** From repo root: `./scripts/floci-status.sh`
+2. **Use emulator credentials for S3** (not lab leaked keys):
+   ```bash
+   source .floci.env
+   SCAS_FLOCI_AWS_ACCESS_KEY_ID=test SCAS_FLOCI_AWS_SECRET_ACCESS_KEY=test \
+     ./scenarios/05-build-compromise/infrastructure/floci/seed.sh
+   ```
+3. **Inspect Floci logs:** `docker logs scas-floci --tail 50`
+4. **Reset storage** (repo root): `./scripts/floci-down.sh`, `rm -rf infrastructure/floci/data/*`, `./scripts/floci-up.sh`
+5. **Hybrid storage needs Docker socket** — ensure the user running Floci can access `/var/run/docker.sock`.
+
+### Build completes but nothing in S3 or mock server
+
+You must see `[TESTBENCH] Simulating build-time data exfiltration...` during `npm run build`.
+
+```bash
+source /path/to/supply-chain-attack-simulator/.testbench.env
+source /path/to/supply-chain-attack-simulator/.floci.env
+export AWS_ACCESS_KEY_ID=ci-key-leaked      # fake leaked CI creds (JSON payload only)
+export AWS_SECRET_ACCESS_KEY=ci-secret-leaked
+export DATABASE_PASSWORD=super-secret-password
+npm run build
+```
+
+Start `node infrastructure/mock-server.js` **before** `npm run build`.

@@ -11,8 +11,9 @@ set -euo pipefail
 
 SCAS_FLOCI_ENDPOINT="${SCAS_FLOCI_ENDPOINT:-${AWS_ENDPOINT_URL:-http://127.0.0.1:4566}}"
 SCAS_FLOCI_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
-SCAS_FLOCI_ACCESS_KEY="${AWS_ACCESS_KEY_ID:-test}"
-SCAS_FLOCI_SECRET_KEY="${AWS_SECRET_ACCESS_KEY:-test}"
+# Emulator auth only — never reuse lab "leaked" AWS_* from compromised-build exports.
+SCAS_FLOCI_ACCESS_KEY="${SCAS_FLOCI_AWS_ACCESS_KEY_ID:-test}"
+SCAS_FLOCI_SECRET_KEY="${SCAS_FLOCI_AWS_SECRET_ACCESS_KEY:-test}"
 
 scas_floci_env() {
   export AWS_ENDPOINT_URL="$SCAS_FLOCI_ENDPOINT"
