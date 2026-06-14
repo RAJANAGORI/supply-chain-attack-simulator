@@ -79,6 +79,17 @@ scas_floci_aws_in_container() {
     "$ctr" aws --region "$SCAS_FLOCI_REGION" "$@"
 }
 
+scas_floci_aws_in_container_stdin() {
+  local ctr="$1"
+  local dest="$2"
+  docker exec -i \
+    -e AWS_ENDPOINT_URL=http://127.0.0.1:4566 \
+    -e AWS_ACCESS_KEY_ID="$SCAS_FLOCI_ACCESS_KEY" \
+    -e AWS_SECRET_ACCESS_KEY="$SCAS_FLOCI_SECRET_KEY" \
+    -e AWS_DEFAULT_REGION="$SCAS_FLOCI_REGION" \
+    "$ctr" aws --region "$SCAS_FLOCI_REGION" s3 cp - "$dest"
+}
+
 scas_floci_aws_on_host() {
   scas_floci_env
   if command -v awslocal >/dev/null 2>&1; then
@@ -135,7 +146,12 @@ scas_floci_s3_put() {
   ctr="$(scas_floci_container)"
   if [ -n "$ctr" ]; then
     tmp_in_ctr="/tmp/scas-upload-$$"
+    # Prefer stdin — avoids docker cp permission issues (aws user cannot read root-only files).
+    if scas_floci_aws_in_container_stdin "$ctr" "s3://${bucket}/${key}" <"$abs"; then
+      return 0
+    fi
     docker cp "$abs" "${ctr}:${tmp_in_ctr}"
+    docker exec "$ctr" chmod a+r "$tmp_in_ctr" 2>/dev/null || true
     if scas_floci_aws_in_container "$ctr" s3 cp "$tmp_in_ctr" "s3://${bucket}/${key}"; then
       docker exec "$ctr" rm -f "$tmp_in_ctr" >/dev/null 2>&1 || true
       return 0
