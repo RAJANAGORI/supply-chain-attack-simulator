@@ -41,7 +41,7 @@ Next steps:
 4) Optional Docker compare (if Docker is installed)
    docker build -t scas-legit images/legitimate-image
    docker build -t scas-compromised images/compromised-image
-   docker run --rm -e TESTBENCH_MODE=enabled scas-compromised
+   docker run --rm -e TESTBENCH_MODE=enabled --add-host=host.docker.internal:host-gateway scas-compromised
 
 5) Cleanup
    ../../scripts/kill-port.sh 3002
