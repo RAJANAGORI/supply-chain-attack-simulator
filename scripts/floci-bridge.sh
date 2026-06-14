@@ -117,7 +117,7 @@ scas_floci_seed_scenario() {
   bucket="$(scas_floci_bucket_for_scenario "$id")"
   scas_floci_require
   if ! scas_floci_aws s3 ls "s3://${bucket}" >/dev/null 2>&1; then
-    scas_floci_aws s3 mb "s3://${bucket}"
+    scas_floci_aws s3 mb "s3://${bucket}" >/dev/null 2>&1
   fi
   echo "$bucket"
 }
