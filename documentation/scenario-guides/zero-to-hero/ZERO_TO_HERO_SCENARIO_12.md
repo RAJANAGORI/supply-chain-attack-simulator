@@ -12,8 +12,33 @@ By the end of this guide, you will:
 - Perform detection and forensic investigation
 - Implement defense strategies for workspaces
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Workspaces and Monorepos (15 minutes)](#part-1-understanding-workspaces-and-monorepos-15-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 12 (15 minutes)](#part-3-setting-up-scenario-12-15-minutes)
+- [Part 4: Understanding the Workspace Structure (20 minutes)](#part-4-understanding-the-workspace-structure-20-minutes)
+- [Part 5: The Attack - Compromised Workspace Package (30 minutes)](#part-5-the-attack---compromised-workspace-package-30-minutes)
+- [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
+- [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
+- [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 9: Key Takeaways](#part-9-key-takeaways)
+- [Part 10: Advanced Exercises](#part-10-advanced-exercises)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Safety & Ethics](#⚠️-safety--ethics)
+
+</div>
+
+---
 ## Part 1: Understanding Workspaces and Monorepos (15 minutes)
 
 ### What is a Workspace?

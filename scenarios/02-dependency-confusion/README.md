@@ -1,5 +1,31 @@
 # Scenario 2: Dependency Confusion Attack 🎯
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [🎓 Learning Objectives](#🎓-learning-objectives)
+- [📖 Background](#📖-background)
+- [🎯 Scenario Description](#🎯-scenario-description)
+- [🔧 Setup](#🔧-setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [Mitigation Playbook](#mitigation-playbook)
+- [✅ Success Criteria](#✅-success-criteria)
+- [🎁 Bonus Challenges](#🎁-bonus-challenges)
+- [📊 Attack Comparison](#📊-attack-comparison)
+- [🔍 Real-World Lessons](#🔍-real-world-lessons)
+- [📚 Additional Resources](#📚-additional-resources)
+- [🔗 Related Scenarios](#🔗-related-scenarios)
+- [💡 Key Takeaways](#💡-key-takeaways)
+- [🆘 Hints](#🆘-hints)
+
+</div>
+
+---
 ## 🎓 Learning Objectives
 
 By completing this scenario, you will learn:
@@ -350,6 +376,16 @@ Create a pre-install hook:
   }
 }
 ```
+
+## Mitigation Playbook
+
+- Configure scope-specific registry routing in `.npmrc` (e.g. `@org:registry=...`).
+- Enforce package lock files and use `npm ci --audit` in CI/CD.
+- Isolate private registry traffic from public npm at the network layer.
+- Reserve internal namespaces on public registries where applicable.
+- Pin dependencies to exact versions for critical packages.
+- Verify package integrity hashes on install.
+- Add build-time validation to reject unexpected registry sources.
 
 ## ✅ Success Criteria
 

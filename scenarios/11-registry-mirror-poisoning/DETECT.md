@@ -36,3 +36,11 @@ rule Registry_Mirror_Poisoning_IOC {
 - Registry endpoint usage differs from approved sources.
 - Hash/integrity mismatch between mirror and trusted origin.
 - Local capture output in scenario infrastructure.
+
+## Mitigation
+
+- Secure mirror access — limit who can publish or modify mirror storage.
+- Audit mirror configuration and cached packages on a schedule.
+- Verify mirror packages match upstream registry digests.
+- Implement strict access controls and MFA on mirror admin paths.
+- Monitor mirror behavior and alert on unexpected package mutations.

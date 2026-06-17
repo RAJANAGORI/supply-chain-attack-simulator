@@ -14,8 +14,33 @@ By the end of this guide, you will:
 - Scan `site-packages` for rogue `.pth` files
 - Implement containment, eradication, and recovery for Python supply-chain incidents
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding PyPI Compromise Patterns (15 minutes)](#part-1-understanding-pypi-compromise-patterns-15-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 22 (15 minutes)](#part-3-setting-up-scenario-22-15-minutes)
+- [Part 4: Understanding the Package Structure (20 minutes)](#part-4-understanding-the-package-structure-20-minutes)
+- [Part 5: The Attack - Two Compromise Paths (40 minutes)](#part-5-the-attack---two-compromise-paths-40-minutes)
+- [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
+- [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
+- [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 9: Key Takeaways](#part-9-key-takeaways)
+- [Part 10: Advanced Exercises](#part-10-advanced-exercises)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Safety & Ethics](#⚠️-safety--ethics)
+
+</div>
+
+---
 ## Part 1: Understanding PyPI Compromise Patterns (15 minutes)
 
 ### Two Execution Models

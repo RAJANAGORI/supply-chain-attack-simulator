@@ -36,3 +36,11 @@ rule Workspace_Attack_IOC {
 - File path replacement under monorepo package directories.
 - Unexpected script/network behavior from workspace-local package.
 - Evidence in mock capture JSON.
+
+## Mitigation
+
+- Limit who can modify workspace and monorepo internal packages.
+- Audit all workspace packages regularly for lifecycle scripts and drift.
+- Monitor postinstall execution across workspace packages.
+- Review workspace dependency changes with the same rigor as external deps.
+- Track workspace package changes in version control with mandatory review.

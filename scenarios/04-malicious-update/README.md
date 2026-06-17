@@ -1,5 +1,30 @@
 # Scenario 4: Malicious Update Attack 🎯
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [🎓 Learning Objectives](#🎓-learning-objectives)
+- [📖 Background](#📖-background)
+- [🎯 Scenario Description](#🎯-scenario-description)
+- [🔧 Setup](#🔧-setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [Mitigation Playbook](#mitigation-playbook)
+- [✅ Success Criteria](#✅-success-criteria)
+- [🎁 Bonus Challenges](#🎁-bonus-challenges)
+- [📊 Attack Comparison](#📊-attack-comparison)
+- [🔍 Real-World Lessons](#🔍-real-world-lessons)
+- [💡 Key Takeaways](#💡-key-takeaways)
+- [📚 Additional Resources](#📚-additional-resources)
+- [🔗 Related Scenarios](#🔗-related-scenarios)
+
+</div>
+
+---
 ## 🎓 Learning Objectives
 
 By completing this scenario, you will learn:
@@ -340,6 +365,15 @@ Always review changelogs before updating:
 - Check what changed
 - Verify changes match the version bump
 - Look for suspicious additions
+
+## Mitigation Playbook
+
+- Pin exact versions in `package.json` — avoid carets on sensitive dependencies.
+- Commit lockfiles and use `npm ci` in CI/CD pipelines.
+- Verify updates before install (changelog review, integrity checks, code diff).
+- Scan dependency updates automatically in CI before merge.
+- Use staged rollouts — test updates in staging before production.
+- Require human review of changelogs for patch and minor bumps on critical packages.
 
 ## ✅ Success Criteria
 

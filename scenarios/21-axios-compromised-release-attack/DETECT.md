@@ -37,3 +37,11 @@ rule Axios_Compromise_IOC {
 - Install-time process/network activity without direct app import of transitive package.
 - Lockfile/package tree IOC for unexpected bundled dependency.
 - Evidence in mock server capture and marker file.
+
+## Mitigation
+
+- Contain: stop CI runners and isolate hosts that installed the bad version.
+- Eradicate: remove `node_modules`, regenerate lockfiles, rotate npm tokens and CI secrets.
+- Recover: pin to a known-good exact version; enforce lockfile-only installs in CI.
+- Hunt: search org lockfiles for unexpected transitive packages from advisories.
+- Enable trusted publishing / provenance checks and lifecycle script monitoring.

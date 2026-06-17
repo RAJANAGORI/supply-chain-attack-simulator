@@ -1,5 +1,29 @@
 # Scenario 6: Shai-Hulud Self-Replicating Supply Chain Attack 🎯
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [🎓 Learning Objectives](#🎓-learning-objectives)
+- [📖 Background](#📖-background)
+- [🎯 Scenario Description](#🎯-scenario-description)
+- [🔧 Setup](#🔧-setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [Mitigation Playbook](#mitigation-playbook)
+- [✅ Success Criteria](#✅-success-criteria)
+- [🎁 Bonus Challenges](#🎁-bonus-challenges)
+- [📊 Attack Comparison](#📊-attack-comparison)
+- [🔍 Real-World Case Study: Shai-Hulud](#🔍-real-world-case-study-shai-hulud)
+- [💡 Key Takeaways](#💡-key-takeaways)
+- [📚 Additional Resources](#📚-additional-resources)
+
+</div>
+
+---
 ## 🎓 Learning Objectives
 
 By completing this scenario, you will learn:
@@ -485,6 +509,15 @@ Implement preventive measures:
    # Use npm ci instead of npm install
    npm ci --audit
    ```
+
+## Mitigation Playbook
+
+- Require 2FA on all package maintainer and publishing accounts.
+- Restrict or monitor `postinstall` and other lifecycle scripts.
+- Run automated security scanning in CI on every dependency change.
+- Use secret management tools; never commit tokens or keys to repositories.
+- Enforce lockfiles with `npm ci --audit` in CI pipelines.
+- Rotate credentials immediately after suspected compromise.
 
 ## ✅ Success Criteria
 

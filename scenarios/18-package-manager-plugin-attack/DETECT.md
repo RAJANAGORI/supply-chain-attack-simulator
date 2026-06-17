@@ -37,3 +37,11 @@ rule Plugin_Attack_IOC {
 - Install-time changes outside normal package manager behavior.
 - Plugin execution preceding dependency tampering.
 - Detector evidence from `plugin-attack-detector.js`.
+
+## Mitigation
+
+- Enforce plugin allowlists with signed/approved plugin sources.
+- Block arbitrary plugin execution in CI and controlled developer images.
+- Run integrity checks on `node_modules` and generated lockfile state.
+- Review plugin code changes with the same rigor as build scripts.
+- Alert on hook-driven modifications outside expected paths.

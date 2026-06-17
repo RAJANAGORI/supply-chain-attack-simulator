@@ -72,9 +72,24 @@ For teaching consistency, use `documentation/modules/MODULE_TEMPLATE.md` when wr
 
 1. Create or update the scenario directory under `scenarios/`.
 2. Include a complete `README.md` with objectives, setup, attack flow, detection, and mitigations.
-3. Ensure all simulated malicious behavior is testbench-gated and local-only.
-4. Add or update any scenario-specific detection scripts.
-5. Validate your scenario end-to-end locally.
+3. Add a `## Mitigation Playbook` section to the scenario `README.md` and a `## Mitigation` section to `DETECT.md` (see **Documentation maintenance** below).
+4. Ensure all simulated malicious behavior is testbench-gated and local-only.
+5. Add or update any scenario-specific detection scripts.
+6. Validate your scenario end-to-end locally.
+
+## Documentation maintenance
+
+Scenario docs use shared tooling under `scripts/`. After changing headings or mitigation content, regenerate affected sections:
+
+| Script | When to run |
+|--------|-------------|
+| `node scripts/sync-mitigation-gaps.js` | Update `DETECT.md` mitigation bullets or README playbooks for scenarios 01–06 from the canonical playbook data |
+| `node scripts/inject-markdown-toc.js all` | Regenerate **Table of Contents** in zero-to-hero guides, scenario READMEs, and quick-reference cards after adding/renaming `##` headings |
+| `node scripts/inject-zero-to-hero-mitigation-playbooks.js` | Insert `## Mitigation Playbook` into a new zero-to-hero guide (skips files that already have it) |
+
+Canonical mitigation bullets live in `scripts/lib/mitigation-playbooks.js` — edit that file first, then run `sync-mitigation-gaps.js` and `inject-markdown-toc.js readme` (or `all`) so README, `DETECT.md`, and TOCs stay aligned.
+
+Learner docs (`documentation/scenario-guides/zero-to-hero/`) should include both a **Mitigation Playbook** section and a **Table of Contents** with jump links. Blue-team `DETECT.md` runbooks include detection content plus a short **Mitigation** section for incident responders.
 
 ## Code style and scripts
 

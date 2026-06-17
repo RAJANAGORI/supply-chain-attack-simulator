@@ -37,3 +37,11 @@ rule Cache_Poisoning_IOC {
 - Same malicious behavior after fresh `node_modules` removal.
 - Evidence of cache artifact reuse.
 - Detector findings from `cache-poisoning-detector.js`.
+
+## Mitigation
+
+- Clear/rotate package cache during incident response and critical pipeline runs.
+- Enforce lockfile + integrity verification against trusted metadata.
+- Use deterministic installs in CI (`npm ci`) and immutable artifact mirrors.
+- Monitor for suspicious cache path mutations and postinstall behavior.
+- Separate developer cache trust from production build trust boundaries.

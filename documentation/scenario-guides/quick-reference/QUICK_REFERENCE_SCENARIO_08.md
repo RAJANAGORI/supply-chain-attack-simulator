@@ -2,6 +2,28 @@
 
 Use this as your runbook for Scenario 8 when you are teaching live or practicing quickly.
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [📋 Initial Setup](#📋-initial-setup)
+- [🎯 Attack Execution](#🎯-attack-execution)
+- [🔍 Detection Commands](#🔍-detection-commands)
+- [🛡️ Forensic Investigation](#🛡️-forensic-investigation)
+- [🚨 Incident Response](#🚨-incident-response)
+- [📁 Important File Locations](#📁-important-file-locations)
+- [🛠️ Useful Commands](#🛠️-useful-commands)
+- [🆘 Quick Troubleshooting](#🆘-quick-troubleshooting)
+- [📚 Documentation Links](#📚-documentation-links)
+- [💡 Key Concepts](#💡-key-concepts)
+- [🔑 Key Commands Cheat Sheet](#🔑-key-commands-cheat-sheet)
+- [🎯 Three App States Explained](#🎯-three-app-states-explained)
+
+</div>
+
+---
 ## 📋 Initial Setup
 
 ```bash

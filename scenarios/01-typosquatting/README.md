@@ -1,5 +1,30 @@
 # Scenario 1: Typosquatting Attack 🎯
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [🎓 Learning Objectives](#🎓-learning-objectives)
+- [📖 Background](#📖-background)
+- [🎯 Scenario Description](#🎯-scenario-description)
+- [🔧 Setup](#🔧-setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [Mitigation Playbook](#mitigation-playbook)
+- [✅ Success Criteria](#✅-success-criteria)
+- [🎁 Bonus Challenges](#🎁-bonus-challenges)
+- [📚 Additional Resources](#📚-additional-resources)
+- [🔗 Related Scenarios](#🔗-related-scenarios)
+- [💡 Key Takeaways](#💡-key-takeaways)
+- [🆘 Hints](#🆘-hints)
+- [📊 Lab Report Template](#📊-lab-report-template)
+
+</div>
+
+---
 ## 🎓 Learning Objectives
 
 By completing this scenario, you will learn:
@@ -184,6 +209,14 @@ Implement defenses:
 
 4. **Code Review Checklist**:
    - Create a checklist for reviewing new dependencies
+
+## Mitigation Playbook
+
+- Commit `package-lock.json` and use `npm ci` in production pipelines.
+- Configure registry scope restrictions and verify package signatures where supported.
+- Run automated dependency scanning (e.g. `npm audit`, Snyk, Socket.dev).
+- Require a code-review checklist for every new dependency (name, maintainer, reputation).
+- Prefer private registries and scope-based routing for internal package names.
 
 ## ✅ Success Criteria
 

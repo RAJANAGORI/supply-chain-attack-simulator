@@ -1,6 +1,6 @@
 # Quick reference cards
 
-Command cheat sheets for live teaching and fast practice. Pair with scenario READMEs and zero-to-hero guides.
+Command cheat sheets for live teaching and fast practice. Each card includes a **table of contents** for quick jumps. Pair with scenario READMEs and zero-to-hero guides.
 
 | # | Scenario | Quick reference |
 |---|----------|-----------------|

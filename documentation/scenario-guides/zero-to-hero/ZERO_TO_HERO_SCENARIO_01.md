@@ -10,10 +10,36 @@ By the end of this guide, you will:
 - Execute a typosquatting attack (safely in a test environment)
 - See how data exfiltration works
 - Learn how to detect malicious packages
-- Apply the mitigation playbook controls for typosquatting prevention
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding the Basics (5 minutes)](#part-1-understanding-the-basics-5-minutes)
+- [Part 2: Prerequisites Check (10 minutes)](#part-2-prerequisites-check-10-minutes)
+- [Part 3: Setting Up the Project (15 minutes)](#part-3-setting-up-the-project-15-minutes)
+- [Part 4: Understanding the First Scenario (10 minutes)](#part-4-understanding-the-first-scenario-10-minutes)
+- [Part 5: Setting Up Scenario 1 (10 minutes)](#part-5-setting-up-scenario-1-10-minutes)
+- [Part 6: Understanding the Packages (15 minutes)](#part-6-understanding-the-packages-15-minutes)
+- [Part 7: Executing the Attack (20 minutes)](#part-7-executing-the-attack-20-minutes)
+- [Part 8: Detecting the Attack (15 minutes)](#part-8-detecting-the-attack-15-minutes)
+- [Part 9: Prevention and Best Practices (10 minutes)](#part-9-prevention-and-best-practices-10-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 10: Clean Up and Next Steps (5 minutes)](#part-10-clean-up-and-next-steps-5-minutes)
+- [🆘 Troubleshooting](#🆘-troubleshooting)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Important Reminders](#⚠️-important-reminders)
+- [🎉 Congratulations!](#🎉-congratulations)
+
+</div>
+
+---
 ## Part 1: Understanding the Basics (5 minutes)
 
 ### What is a Supply Chain Attack?

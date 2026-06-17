@@ -4,6 +4,33 @@
 - **Estimated Time**: 45-60 minutes
 - **Primary Attack Surface**: Version resolution and registry precedence
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Learning Objectives](#learning-objectives)
+- [Background](#background)
+- [Threat Model Snapshot](#threat-model-snapshot)
+- [Scenario Description](#scenario-description)
+- [Setup](#setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [Structure](#structure)
+- [Evidence](#evidence)
+- [Detection](#detection)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Expected Outcome](#expected-outcome)
+- [Validation Checklist](#validation-checklist)
+- [Hints](#hints)
+- [Lab Report Prompts](#lab-report-prompts)
+- [Safety](#safety)
+
+</div>
+
+---
 ## Learning Objectives
 
 - Understand **version confusion**: risky resolution rules that pick an attacker-controlled **high** version (or wrong registry) over an intended release.

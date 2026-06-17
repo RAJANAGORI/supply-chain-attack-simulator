@@ -37,3 +37,12 @@ rule Compromised_Package_Runtime_IOC {
 - Known package executing unexpected network-related code paths.
 - Version drift aligned with behavior change.
 - Mock server JSON evidence under `infrastructure/captured-data.json`.
+
+## Mitigation
+
+- Enforce lockfiles in CI (`npm ci --audit`) instead of open-ended `npm install`.
+- Pin exact versions for packages with high trust or wide blast radius.
+- Run automated security scanning on dependency updates (`npm audit`, custom scanners).
+- Verify package integrity and signatures when the registry supports them.
+- Monitor runtime behavior and log package installation events in production.
+- Maintain maintainer-transfer and dependency-addition review policies.

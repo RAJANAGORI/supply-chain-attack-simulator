@@ -4,6 +4,32 @@
 - **Estimated Time**: 45-60 minutes
 - **Primary Attack Surface**: Package metadata trust
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Learning Objectives](#learning-objectives)
+- [Background](#background)
+- [Threat Model Snapshot](#threat-model-snapshot)
+- [Scenario Description](#scenario-description)
+- [Lab Setup](#lab-setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [Structure](#structure)
+- [Attack Walkthrough](#attack-walkthrough)
+- [Detection Playbook](#detection-playbook)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Validation Checklist](#validation-checklist)
+- [Hints](#hints)
+- [Lab Report Prompts](#lab-report-prompts)
+- [Safety](#safety)
+
+</div>
+
+---
 ## Learning Objectives
 
 - Understand how package metadata can be manipulated to mislead consumers.

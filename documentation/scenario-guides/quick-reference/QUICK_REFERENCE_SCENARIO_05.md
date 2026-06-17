@@ -2,6 +2,25 @@
 
 Use this as your runbook for Scenario 5 when you are teaching live or practicing quickly.
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [📋 Initial Setup](#📋-initial-setup)
+- [🎯 Attack Execution](#🎯-attack-execution)
+- [🔍 Detection Commands](#🔍-detection-commands)
+- [🛡️ Prevention Commands](#🛡️-prevention-commands)
+- [📁 Important File Locations](#📁-important-file-locations)
+- [🛠️ Useful Commands](#🛠️-useful-commands)
+- [🆘 Quick Troubleshooting](#🆘-quick-troubleshooting)
+- [📚 Documentation Links](#📚-documentation-links)
+- [💡 Key Concepts](#💡-key-concepts)
+
+</div>
+
+---
 ## 📋 Initial Setup
 
 ```bash

@@ -11,8 +11,35 @@ By the end of this guide, you will:
 - Detect and prevent dependency confusion vulnerabilities
 - Configure proper registry scoping
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Dependency Confusion (10 minutes)](#part-1-understanding-dependency-confusion-10-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 2 (15 minutes)](#part-3-setting-up-scenario-2-15-minutes)
+- [Part 4: Understanding the Attack Flow (15 minutes)](#part-4-understanding-the-attack-flow-15-minutes)
+- [Part 5: Executing the Attack (30 minutes)](#part-5-executing-the-attack-30-minutes)
+- [Part 6: Understanding What Happened (10 minutes)](#part-6-understanding-what-happened-10-minutes)
+- [Part 7: Detecting the Attack (25 minutes)](#part-7-detecting-the-attack-25-minutes)
+- [Part 8: Prevention and Mitigation (30 minutes)](#part-8-prevention-and-mitigation-30-minutes)
+- [Part 9: Advanced Topics (20 minutes)](#part-9-advanced-topics-20-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 10: Clean Up and Next Steps (5 minutes)](#part-10-clean-up-and-next-steps-5-minutes)
+- [🆘 Troubleshooting](#🆘-troubleshooting)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Important Reminders](#⚠️-important-reminders)
+- [🎉 Congratulations!](#🎉-congratulations)
+
+</div>
+
+---
 ## Part 1: Understanding Dependency Confusion (10 minutes)
 
 ### What is Dependency Confusion?

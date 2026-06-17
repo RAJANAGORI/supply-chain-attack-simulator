@@ -37,3 +37,11 @@ rule Version_Confusion_IOC {
 - Dependency resolution telemetry showing unusual version jumps.
 - Detector findings from `version-confusion-detector.js`.
 - Capture artifacts in scenario infrastructure.
+
+## Mitigation
+
+- Pin exact versions for critical dependencies and enforce lockfile usage.
+- Scope private packages explicitly to internal registry endpoints.
+- Alert on unusual semver jumps and first-seen maintainers.
+- Require human review for dependency version changes above policy thresholds.
+- Prefer deterministic `npm ci` workflows in CI.

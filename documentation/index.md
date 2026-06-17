@@ -12,7 +12,7 @@ Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) direct
 |----------|------------|
 | **Brand-new to SCAS** | [ZERO_TO_HERO.md](./getting-started/ZERO_TO_HERO.md) → [Scenario 01](./scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md) |
 | **Experienced developer** | [QUICK_START.md](./getting-started/QUICK_START.md) → [Scenario catalog](./scenario-guides/CATALOG.md) |
-| **Blue-team / detection focus** | [DETECTION_AND_OBSERVABILITY.md](./platform/DETECTION_AND_OBSERVABILITY.md) → `scenarios/*/DETECT.md` |
+| **Blue-team / detection focus** | [DETECTION_AND_OBSERVABILITY.md](./platform/DETECTION_AND_OBSERVABILITY.md) → `scenarios/*/DETECT.md` (IOCs + mitigation) |
 | **Instructor / workshop lead** | [TEACHING_DELIVERY_PACK.md](./learning-path/TEACHING_DELIVERY_PACK.md) → [Module instances](./modules/MODULE_INSTANCES_INDEX.md) |
 | **Workshop with Elasticsearch** | [observability/README.md](../observability/README.md) → [OPERATIONS.md](./platform/OPERATIONS.md) |
 | **Need one-page commands** | [QUICK_REFERENCE.md](./platform/QUICK_REFERENCE.md) |
@@ -28,7 +28,7 @@ Interactive onboarding: [`START_HERE.sh`](../START_HERE.sh) from the repo root.
 | Getting started | [getting-started/index.md](./getting-started/index.md) | First lab, quick start, full setup |
 | Platform & operations | [platform/index.md](./platform/index.md) | Architecture, operations, detection, FAQ |
 | Reference | [reference/index.md](./reference/index.md) | Scenario summaries, external resources, roadmap |
-| Scenario guides | [scenario-guides/index.md](./scenario-guides/index.md) | Catalog, zero-to-hero, quick-reference |
+| Scenario guides | [scenario-guides/index.md](./scenario-guides/index.md) | Catalog, zero-to-hero (TOC + mitigation), quick-reference (TOC) |
 | Learning path | [learning-path/index.md](./learning-path/index.md) | Curriculum and teaching delivery |
 | Teaching modules | [modules/index.md](./modules/index.md) | Instructor cards for all 22 scenarios |
 
@@ -47,8 +47,8 @@ documentation/
 ├── modules/                  Teaching cards (24 files)
 └── scenario-guides/
     ├── CATALOG.md            All 22 scenarios — full link matrix
-    ├── zero-to-hero/         22 learner walkthroughs
-    └── quick-reference/      22 command cheat sheets
+    ├── zero-to-hero/         22 learner walkthroughs (TOC + Mitigation Playbook)
+    └── quick-reference/      22 command cheat sheets (TOC)
 ```
 
 ---

@@ -40,3 +40,11 @@ rule Multi_Stage_Attack_IOC {
 - Individual low-signal alerts combine into high-confidence chain.
 - Correlator output from `multi-stage-correlator.js`.
 - Timeline evidence in `infrastructure/captured-data.json`.
+
+## Mitigation
+
+- Add correlation rules that require cross-stage context before closing alerts.
+- Segment credentials and permissions to block stage progression.
+- Trigger automated containment when stage transitions occur in short windows.
+- Preserve forensic artifacts per stage for post-incident timeline reconstruction.
+- Run attack-chain tabletop exercises against your CI/CD architecture.

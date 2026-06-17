@@ -36,3 +36,13 @@ rule Dependency_Confusion_Indicator {
 - Resolver behavior inconsistent with scoped registry policy.
 - Install/run-time network events after package resolution.
 - Missing or weak `.npmrc` scope mapping in project context.
+
+## Mitigation
+
+- Configure scope-specific registry routing in `.npmrc` (e.g. `@org:registry=...`).
+- Enforce package lock files and use `npm ci --audit` in CI/CD.
+- Isolate private registry traffic from public npm at the network layer.
+- Reserve internal namespaces on public registries where applicable.
+- Pin dependencies to exact versions for critical packages.
+- Verify package integrity hashes on install.
+- Add build-time validation to reject unexpected registry sources.

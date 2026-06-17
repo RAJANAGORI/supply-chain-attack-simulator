@@ -37,3 +37,11 @@ rule SBOM_Manipulation_IOC {
 - Inventory mismatch alerts between generated SBOM and install graph.
 - Validator findings from `sbom-manipulation-validator.js`.
 - Evidence in mock capture and generated SBOM artifacts.
+
+## Mitigation
+
+- Regenerate SBOM from lockfile/build artifacts in trusted CI only.
+- Require SBOM signing and provenance attestation.
+- Enforce fail-closed CI policy for SBOM-lockfile mismatches.
+- Keep truth-source and SBOM generation isolated from app code tampering.
+- Periodically diff production SBOM against runtime inventory scans.

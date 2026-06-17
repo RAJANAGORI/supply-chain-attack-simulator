@@ -37,3 +37,11 @@ rule Dev_Tool_Compromise_IOC {
 - Network/process events tied to dependency installation phase.
 - Unexpected executable behavior from developer tooling package.
 - Capture evidence in scenario infrastructure.
+
+## Mitigation
+
+- Enforce `--ignore-scripts` for untrusted tool installs by default.
+- Pin dev tooling versions and source from an approved internal registry.
+- Require review/allowlist for new lifecycle scripts in dependency diffs.
+- Isolate tool installation to sandboxed CI runners with egress controls.
+- Rotate credentials after any install-time compromise.

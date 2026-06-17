@@ -2,6 +2,27 @@
 
 > **Important:** This directory only contains `README.md`, `setup.sh`, and templates until you run **`./setup.sh`**. That script generates `corporate-app/`, `compromised-mirror/`, `legitimate-packages/`, `infrastructure/mock-server.js`, `detection-tools/`, and the rest of the lab. Run it once before following paths like `corporate-app/.npmrc` in the tasks below.
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [🎓 Learning Objectives](#🎓-learning-objectives)
+- [📖 Background](#📖-background)
+- [🎯 Scenario Description](#🎯-scenario-description)
+- [🔧 Setup](#🔧-setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [🛡️ Defense Strategies](#🛡️-defense-strategies)
+- [📊 Key Takeaways](#📊-key-takeaways)
+- [🔍 Real-World Impact](#🔍-real-world-impact)
+- [⚠️ Safety & Ethics](#⚠️-safety--ethics)
+
+</div>
+
+---
 ## 🎓 Learning Objectives
 
 By completing this scenario, you will learn:

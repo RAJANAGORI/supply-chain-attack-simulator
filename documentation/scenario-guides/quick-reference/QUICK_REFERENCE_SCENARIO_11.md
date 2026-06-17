@@ -2,6 +2,20 @@
 
 > Run `./setup.sh` first — it generates `corporate-app/`, `compromised-mirror/`, and infrastructure.
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Setup](#setup)
+- [Attack flow](#attack-flow)
+- [Detection](#detection)
+- [Docs](#docs)
+
+</div>
+
+---
 ## Setup
 
 ```bash

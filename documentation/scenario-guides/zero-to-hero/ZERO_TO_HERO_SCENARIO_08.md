@@ -12,8 +12,34 @@ By the end of this guide, you will:
 - Perform detection and incident response
 - Implement defense strategies for CI/CD security
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Package Lock Files (15 minutes)](#part-1-understanding-package-lock-files-15-minutes)
+- [Part 2: Understanding Lock File Manipulation (15 minutes)](#part-2-understanding-lock-file-manipulation-15-minutes)
+- [Part 3: Prerequisites Check (5 minutes)](#part-3-prerequisites-check-5-minutes)
+- [Part 4: Setting Up Scenario 8 (15 minutes)](#part-4-setting-up-scenario-8-15-minutes)
+- [Part 5: Understanding the Attack Structure (20 minutes)](#part-5-understanding-the-attack-structure-20-minutes)
+- [Part 6: The Attack - Lock File Manipulation (30 minutes)](#part-6-the-attack---lock-file-manipulation-30-minutes)
+- [Part 7: Detection Methods (40 minutes)](#part-7-detection-methods-40-minutes)
+- [Part 8: Forensic Investigation (30 minutes)](#part-8-forensic-investigation-30-minutes)
+- [Part 9: Incident Response (30 minutes)](#part-9-incident-response-30-minutes)
+- [Part 10: Defense Strategies (20 minutes)](#part-10-defense-strategies-20-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 11: Key Takeaways (10 minutes)](#part-11-key-takeaways-10-minutes)
+- [🎓 Congratulations!](#🎓-congratulations)
+- [📚 Additional Resources](#📚-additional-resources)
+
+</div>
+
+---
 ## Part 1: Understanding Package Lock Files (15 minutes)
 
 ### What is a Package Lock File?

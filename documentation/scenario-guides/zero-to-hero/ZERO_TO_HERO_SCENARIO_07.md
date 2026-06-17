@@ -12,8 +12,33 @@ By the end of this guide, you will:
 - Perform detection and forensic investigation
 - Implement defense strategies
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Transitive Dependencies (15 minutes)](#part-1-understanding-transitive-dependencies-15-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 7 (15 minutes)](#part-3-setting-up-scenario-7-15-minutes)
+- [Part 4: Understanding the Dependency Structure (20 minutes)](#part-4-understanding-the-dependency-structure-20-minutes)
+- [Part 5: The Attack - Compromised Transitive Dependency (30 minutes)](#part-5-the-attack---compromised-transitive-dependency-30-minutes)
+- [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
+- [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
+- [Part 8: Incident Response (25 minutes)](#part-8-incident-response-25-minutes)
+- [Part 9: Defense Strategies (20 minutes)](#part-9-defense-strategies-20-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 10: Key Takeaways (10 minutes)](#part-10-key-takeaways-10-minutes)
+- [🎓 Congratulations!](#🎓-congratulations)
+- [📚 Additional Resources](#📚-additional-resources)
+
+</div>
+
+---
 ## Part 1: Understanding Transitive Dependencies (15 minutes)
 
 ### What is a Transitive Dependency?

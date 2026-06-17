@@ -4,6 +4,33 @@
 - **Estimated Time**: 60-90 minutes
 - **Primary Attack Surface**: Chained dependency compromise lifecycle
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Learning Objectives](#learning-objectives)
+- [Background](#background)
+- [Threat Model Snapshot](#threat-model-snapshot)
+- [Scenario Description](#scenario-description)
+- [Setup](#setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [Structure](#structure)
+- [Evidence](#evidence)
+- [Detection](#detection)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Expected Outcome](#expected-outcome)
+- [Validation Checklist](#validation-checklist)
+- [Hints](#hints)
+- [Lab Report Prompts](#lab-report-prompts)
+- [Safety](#safety)
+
+</div>
+
+---
 ## Learning Objectives
 
 - Understand how supply chain attacks **chain** stages (access → abuse → spread).

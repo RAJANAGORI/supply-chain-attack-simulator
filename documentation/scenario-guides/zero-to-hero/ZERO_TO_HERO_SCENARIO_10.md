@@ -12,8 +12,33 @@ By the end of this guide, you will:
 - Perform incident response
 - Implement defense strategies
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Git Submodules (15 minutes)](#part-1-understanding-git-submodules-15-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 10 (15 minutes)](#part-3-setting-up-scenario-10-15-minutes)
+- [Part 4: Understanding the Legitimate Repository (20 minutes)](#part-4-understanding-the-legitimate-repository-20-minutes)
+- [Part 5: The Attack - Malicious Submodule (30 minutes)](#part-5-the-attack---malicious-submodule-30-minutes)
+- [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
+- [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
+- [Part 8: Incident Response (30 minutes)](#part-8-incident-response-30-minutes)
+- [Part 9: Defense Strategies (20 minutes)](#part-9-defense-strategies-20-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 10: Key Takeaways (10 minutes)](#part-10-key-takeaways-10-minutes)
+- [🎓 Congratulations!](#🎓-congratulations)
+- [📚 Additional Resources](#📚-additional-resources)
+
+</div>
+
+---
 ## Part 1: Understanding Git Submodules (15 minutes)
 
 ### What are Git Submodules?

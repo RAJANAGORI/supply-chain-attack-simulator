@@ -12,8 +12,34 @@ By the end of this guide, you will:
 - Perform detection and forensic investigation with the multi-stage correlator
 - Implement defense-in-depth strategies that interrupt stage progression
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Multi-Stage Attack Chains (15 minutes)](#part-1-understanding-multi-stage-attack-chains-15-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 17 (15 minutes)](#part-3-setting-up-scenario-17-15-minutes)
+- [Part 4: Understanding the Stage Package Structure (20 minutes)](#part-4-understanding-the-stage-package-structure-20-minutes)
+- [Part 5: The Attack - Multi-Stage Chain Execution (30 minutes)](#part-5-the-attack---multi-stage-chain-execution-30-minutes)
+- [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
+- [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
+- [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 9: Key Takeaways](#part-9-key-takeaways)
+- [Part 10: Advanced Exercises](#part-10-advanced-exercises)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Safety & Ethics](#⚠️-safety--ethics)
+- [🎉 Congratulations!](#🎉-congratulations)
+
+</div>
+
+---
 ## Part 1: Understanding Multi-Stage Attack Chains (15 minutes)
 
 ### What Is a Multi-Stage Supply Chain Attack?
