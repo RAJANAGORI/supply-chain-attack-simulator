@@ -266,6 +266,8 @@ You may fork and use the **software** under MIT (keep copyright notice). **Docum
 
 ## Acknowledgments
 
+**[Floci](https://floci.io/)** — local cloud emulator ([floci-io/floci](https://github.com/floci-io/floci)), maintained by **[Hector Ventura](https://github.com/hectorvent)**.
+
 Inspired by real-world supply chain incidents, including:
 
 - SolarWinds (2020)
