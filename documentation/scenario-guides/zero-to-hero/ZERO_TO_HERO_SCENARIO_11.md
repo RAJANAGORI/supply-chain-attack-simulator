@@ -14,8 +14,34 @@ By the end of this guide, you will:
 - Run mirror validation and forensic investigation
 - Implement defense strategies for registry mirror security
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Registry Mirrors (15 minutes)](#part-1-understanding-registry-mirrors-15-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 11 (15 minutes)](#part-3-setting-up-scenario-11-15-minutes)
+- [Part 4: Understanding the Mirror Structure (20 minutes)](#part-4-understanding-the-mirror-structure-20-minutes)
+- [Part 5: The Attack - Registry Mirror Poisoning (30 minutes)](#part-5-the-attack---registry-mirror-poisoning-30-minutes)
+- [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
+- [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
+- [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 9: Key Takeaways](#part-9-key-takeaways)
+- [Part 10: Advanced Exercises](#part-10-advanced-exercises)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Safety & Ethics](#⚠️-safety--ethics)
+- [🎉 Congratulations!](#🎉-congratulations)
+
+</div>
+
+---
 ## Part 1: Understanding Registry Mirrors (15 minutes)
 
 ### What Is a Registry Mirror?
@@ -618,6 +644,18 @@ node detection-tools/mirror-validator.js compromised-mirror legitimate-packages
 ---
 
 ---
+
+---
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/11-registry-mirror-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Secure mirror access — limit who can publish or modify mirror storage.
+- Audit mirror configuration and cached packages on a schedule.
+- Verify mirror packages match upstream registry digests.
+- Implement strict access controls and MFA on mirror admin paths.
+- Monitor mirror behavior and alert on unexpected package mutations.
 
 ---
 

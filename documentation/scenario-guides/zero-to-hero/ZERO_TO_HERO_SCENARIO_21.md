@@ -14,8 +14,33 @@ By the end of this guide, you will:
 - Perform forensic investigation including anti-forensics manifest swap
 - Implement pinning, lockfile-only CI, and lifecycle script defenses
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Compromised npm Releases (15 minutes)](#part-1-understanding-compromised-npm-releases-15-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 21 (15 minutes)](#part-3-setting-up-scenario-21-15-minutes)
+- [Part 4: Understanding the Package Structure (20 minutes)](#part-4-understanding-the-package-structure-20-minutes)
+- [Part 5: The Attack - Compromised Patch Install (30 minutes)](#part-5-the-attack---compromised-patch-install-30-minutes)
+- [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
+- [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
+- [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 9: Key Takeaways](#part-9-key-takeaways)
+- [Part 10: Advanced Exercises](#part-10-advanced-exercises)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Safety & Ethics](#⚠️-safety--ethics)
+
+</div>
+
+---
 ## Part 1: Understanding Compromised npm Releases (15 minutes)
 
 ### What Happened in Real Incidents (Pattern Overview)
@@ -550,6 +575,18 @@ node detection-tools/axios-compromise-detector.js victim-app
 ---
 
 ---
+
+---
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/21-axios-compromised-release-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Contain: stop CI runners and isolate hosts that installed the bad version.
+- Eradicate: remove `node_modules`, regenerate lockfiles, rotate npm tokens and CI secrets.
+- Recover: pin to a known-good exact version; enforce lockfile-only installs in CI.
+- Hunt: search org lockfiles for unexpected transitive packages from advisories.
+- Enable trusted publishing / provenance checks and lifecycle script monitoring.
 
 ---
 

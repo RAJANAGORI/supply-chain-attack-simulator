@@ -36,3 +36,11 @@ rule Typosquat_Install_Script {
 - Child process/network activity immediately after `npm install`.
 - New dependency not present in approved baseline.
 - Mock capture evidence at `infrastructure/captured-data.json`.
+
+## Mitigation
+
+- Commit `package-lock.json` and use `npm ci` in production pipelines.
+- Configure registry scope restrictions and verify package signatures where supported.
+- Run automated dependency scanning (e.g. `npm audit`, Snyk, Socket.dev).
+- Require a code-review checklist for every new dependency (name, maintainer, reputation).
+- Prefer private registries and scope-based routing for internal package names.

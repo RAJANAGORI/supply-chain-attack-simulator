@@ -12,8 +12,34 @@ By the end of this guide, you will:
 - Perform detection and incident response
 - Implement defense strategies for CI/CD security
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Package Lock Files (15 minutes)](#part-1-understanding-package-lock-files-15-minutes)
+- [Part 2: Understanding Lock File Manipulation (15 minutes)](#part-2-understanding-lock-file-manipulation-15-minutes)
+- [Part 3: Prerequisites Check (5 minutes)](#part-3-prerequisites-check-5-minutes)
+- [Part 4: Setting Up Scenario 8 (15 minutes)](#part-4-setting-up-scenario-8-15-minutes)
+- [Part 5: Understanding the Attack Structure (20 minutes)](#part-5-understanding-the-attack-structure-20-minutes)
+- [Part 6: The Attack - Lock File Manipulation (30 minutes)](#part-6-the-attack---lock-file-manipulation-30-minutes)
+- [Part 7: Detection Methods (40 minutes)](#part-7-detection-methods-40-minutes)
+- [Part 8: Forensic Investigation (30 minutes)](#part-8-forensic-investigation-30-minutes)
+- [Part 9: Incident Response (30 minutes)](#part-9-incident-response-30-minutes)
+- [Part 10: Defense Strategies (20 minutes)](#part-10-defense-strategies-20-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 11: Key Takeaways (10 minutes)](#part-11-key-takeaways-10-minutes)
+- [🎓 Congratulations!](#🎓-congratulations)
+- [📚 Additional Resources](#📚-additional-resources)
+
+</div>
+
+---
 ## Part 1: Understanding Package Lock Files (15 minutes)
 
 ### What is a Package Lock File?
@@ -661,6 +687,19 @@ cat package-lock.json | grep evil-utils
 
 
 ---
+
+---
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Validate lockfiles before install in CI and locally.
+- Use git pre-commit hooks to detect unexpected lockfile changes.
+- Require careful code review of every `package-lock.json` diff.
+- Store and verify lockfile checksums as part of release gates.
+- Compare `package.json` declared deps against lockfile entries automatically.
+- Verify package integrity hashes match trusted registry metadata.
 
 ---
 

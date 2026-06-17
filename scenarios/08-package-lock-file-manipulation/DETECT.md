@@ -36,3 +36,12 @@ rule Lockfile_Manipulation_IOC {
 - Package install using altered lockfile metadata.
 - Registry/source mismatch against approved policy.
 - Captures available from mock endpoint/log file.
+
+## Mitigation
+
+- Validate lockfiles before install in CI and locally.
+- Use git pre-commit hooks to detect unexpected lockfile changes.
+- Require careful code review of every `package-lock.json` diff.
+- Store and verify lockfile checksums as part of release gates.
+- Compare `package.json` declared deps against lockfile entries automatically.
+- Verify package integrity hashes match trusted registry metadata.

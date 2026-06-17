@@ -1,6 +1,10 @@
 # Zero-to-hero scenario walkthroughs
 
-Step-by-step learner guides for all **22** scenarios. Each guide includes lab steps, detection notes, and an optional **Elasticsearch + Kibana** sequence diagram.
+> **Which "Zero to Hero" is this?** These are the **22 step-by-step lab walkthroughs**.
+> - New here and just want to **run your first lab**? → [First lab in 10 minutes](../../getting-started/ZERO_TO_HERO.md)
+> - Want the **conceptual curriculum**? → [Curriculum overview](../../learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md)
+
+Step-by-step learner guides for all **22** scenarios. Each guide includes a **table of contents** (jump links to every major section), lab steps, detection notes, a **Mitigation Playbook** (aligned with the scenario README), and an optional **Elasticsearch + Kibana** sequence diagram.
 
 | # | Scenario | Guide |
 |---|----------|-------|

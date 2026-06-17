@@ -2,6 +2,27 @@
 
 > **Important:** This directory only contains `README.md` and `setup.sh` (plus embedded templates) until you run **`./setup.sh`**. That script generates the workspace root `package.json`, `packages/`, `legitimate-packages/`, `compromised-package/`, `victim-app/`, `infrastructure/mock-server.js`, `detection-tools/`, and other lab files. Run it once before commands like `cat package.json` or `ls packages/` below.
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [🎓 Learning Objectives](#🎓-learning-objectives)
+- [📖 Background](#📖-background)
+- [🎯 Scenario Description](#🎯-scenario-description)
+- [🔧 Setup](#🔧-setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [🛡️ Defense Strategies](#🛡️-defense-strategies)
+- [📊 Key Takeaways](#📊-key-takeaways)
+- [🔍 Real-World Impact](#🔍-real-world-impact)
+- [⚠️ Safety & Ethics](#⚠️-safety--ethics)
+
+</div>
+
+---
 ## 🎓 Learning Objectives
 
 By completing this scenario, you will learn:

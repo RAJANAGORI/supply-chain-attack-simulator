@@ -311,6 +311,44 @@ body.docs-page .nav-inner {
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.docs-content .doc-toc {
+  margin: 0.5rem 0 1.25rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md, 8px);
+  background: var(--bg-secondary);
+  columns: 1;
+}
+
+@media (min-width: 720px) {
+  .docs-content .doc-toc {
+    columns: 2;
+    column-gap: 2rem;
+  }
+}
+
+.docs-content .doc-toc ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.docs-content .doc-toc li {
+  margin-bottom: 0.45rem;
+  break-inside: avoid;
+}
+
+.docs-content .doc-toc a {
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: var(--text-secondary);
+}
+
+.docs-content .doc-toc a:hover {
+  color: var(--cyan);
+  text-decoration: underline;
+}
+
 .docs-content h3 {
   font-size: 1.1rem;
   font-weight: 600;

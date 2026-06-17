@@ -11,8 +11,33 @@ By the end of this guide, you will:
 - Detect and prevent malicious updates
 - Implement update verification strategies
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Malicious Updates (10 minutes)](#part-1-understanding-malicious-updates-10-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 4 (Coming Soon)](#part-3-setting-up-scenario-4-coming-soon)
+- [Part 3: Setting Up Scenario 4 (15 minutes)](#part-3-setting-up-scenario-4-15-minutes)
+- [Part 4: Understanding Automatic Updates (15 minutes)](#part-4-understanding-automatic-updates-15-minutes)
+- [Part 5: Executing the Attack (30 minutes)](#part-5-executing-the-attack-30-minutes)
+- [Part 6: Understanding What Happened (10 minutes)](#part-6-understanding-what-happened-10-minutes)
+- [Part 7: Detecting the Attack (25 minutes)](#part-7-detecting-the-attack-25-minutes)
+- [Part 8: Prevention and Mitigation (30 minutes)](#part-8-prevention-and-mitigation-30-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 9: Clean Up and Next Steps (5 minutes)](#part-9-clean-up-and-next-steps-5-minutes)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Important Reminders](#⚠️-important-reminders)
+
+</div>
+
+---
 ## Part 1: Understanding Malicious Updates (10 minutes)
 
 ### What is a Malicious Update?
@@ -366,6 +391,19 @@ Always review changelogs before updating:
 
 
 ---
+
+---
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/04-malicious-update/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin exact versions in `package.json` — avoid carets on sensitive dependencies.
+- Commit lockfiles and use `npm ci` in CI/CD pipelines.
+- Verify updates before install (changelog review, integrity checks, code diff).
+- Scan dependency updates automatically in CI before merge.
+- Use staged rollouts — test updates in staging before production.
+- Require human review of changelogs for patch and minor bumps on critical packages.
 
 ---
 

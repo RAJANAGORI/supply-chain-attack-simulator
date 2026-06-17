@@ -1,5 +1,29 @@
 # Scenario 3: Compromised Package Attack 🎯
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [🎓 Learning Objectives](#🎓-learning-objectives)
+- [📖 Background](#📖-background)
+- [🎯 Scenario Description](#🎯-scenario-description)
+- [🔧 Setup](#🔧-setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [Mitigation Playbook](#mitigation-playbook)
+- [✅ Success Criteria](#✅-success-criteria)
+- [🎁 Bonus Challenges](#🎁-bonus-challenges)
+- [📊 Compromise Comparison](#📊-compromise-comparison)
+- [🔍 Real-World Case Study: event-stream](#🔍-real-world-case-study-event-stream)
+- [💡 Key Takeaways](#💡-key-takeaways)
+- [📚 Additional Resources](#📚-additional-resources)
+
+</div>
+
+---
 ## 🎓 Learning Objectives
 
 By completing this scenario, you will learn:
@@ -465,6 +489,15 @@ Implement preventive measures:
    - Deploy application monitoring
    - Alert on suspicious behavior
    - Log all package installations
+
+## Mitigation Playbook
+
+- Enforce lockfiles in CI (`npm ci --audit`) instead of open-ended `npm install`.
+- Pin exact versions for packages with high trust or wide blast radius.
+- Run automated security scanning on dependency updates (`npm audit`, custom scanners).
+- Verify package integrity and signatures when the registry supports them.
+- Monitor runtime behavior and log package installation events in production.
+- Maintain maintainer-transfer and dependency-addition review policies.
 
 ## ✅ Success Criteria
 

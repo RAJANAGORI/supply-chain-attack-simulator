@@ -12,8 +12,35 @@ By the end of this guide, you will:
 - Perform incident response
 - Implement detection and prevention strategies
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Package Compromise (10 minutes)](#part-1-understanding-package-compromise-10-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 3 (15 minutes)](#part-3-setting-up-scenario-3-15-minutes)
+- [Part 4: Understanding the Legitimate Package (15 minutes)](#part-4-understanding-the-legitimate-package-15-minutes)
+- [Part 5: The Attack - Account Compromise (25 minutes)](#part-5-the-attack---account-compromise-25-minutes)
+- [Part 6: Forensic Investigation (30 minutes)](#part-6-forensic-investigation-30-minutes)
+- [Part 7: Detection Methods (25 minutes)](#part-7-detection-methods-25-minutes)
+- [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
+- [Part 9: Understanding the Attack Flow (10 minutes)](#part-9-understanding-the-attack-flow-10-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 10: Clean Up and Next Steps (5 minutes)](#part-10-clean-up-and-next-steps-5-minutes)
+- [🆘 Troubleshooting](#🆘-troubleshooting)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Important Reminders](#⚠️-important-reminders)
+- [🎉 Congratulations!](#🎉-congratulations)
+
+</div>
+
+---
 ## Part 1: Understanding Package Compromise (10 minutes)
 
 ### What is a Compromised Package?
@@ -554,6 +581,19 @@ Implement preventive measures:
 
 
 ---
+
+---
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/03-compromised-package/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Enforce lockfiles in CI (`npm ci --audit`) instead of open-ended `npm install`.
+- Pin exact versions for packages with high trust or wide blast radius.
+- Run automated security scanning on dependency updates (`npm audit`, custom scanners).
+- Verify package integrity and signatures when the registry supports them.
+- Monitor runtime behavior and log package installation events in production.
+- Maintain maintainer-transfer and dependency-addition review policies.
 
 ---
 

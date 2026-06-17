@@ -36,3 +36,12 @@ rule Signing_Bypass_Indicator {
 - Verification logs inconsistent with package acceptance decision.
 - Install/run behavior from unsigned or invalidly signed artifact.
 - Capture records in infrastructure data file.
+
+## Mitigation
+
+- Protect signing keys with HSMs or hardened secret stores.
+- Require MFA for all key access and signing operations.
+- Rotate signing keys on a regular schedule and after incidents.
+- Limit who can sign packages with strict access controls.
+- Always verify signatures — but pair with behavioral and content analysis.
+- Monitor signing activity for anomalies (time, volume, key fingerprint).

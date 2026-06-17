@@ -32,4 +32,4 @@ fi
 echo "Canonical record:"
 grep -E '"creator"|"fingerprint"|"repository"' "${CANON}" | sed 's/^/  /'
 echo ""
-echo "If a copy lacks SCAS_PROVENANCE.json or these markers, compare git history and see COPYRIGHT.md."
+echo "If a copy lacks SCAS_PROVENANCE.json or these markers, compare git history and see LEGAL.md."

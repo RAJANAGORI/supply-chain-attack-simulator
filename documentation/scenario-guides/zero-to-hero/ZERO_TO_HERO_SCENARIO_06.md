@@ -12,8 +12,37 @@ By the end of this guide, you will:
 - Detect and respond to self-replicating attacks
 - Implement comprehensive defenses
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Shai-Hulud (15 minutes)](#part-1-understanding-shai-hulud-15-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 6 (15 minutes)](#part-3-setting-up-scenario-6-15-minutes)
+- [Part 4: Understanding the Legitimate Package (15 minutes)](#part-4-understanding-the-legitimate-package-15-minutes)
+- [Part 5: The Attack - Understanding Post-Install Scripts (20 minutes)](#part-5-the-attack---understanding-post-install-scripts-20-minutes)
+- [Part 6: Simulating the Attack (30 minutes)](#part-6-simulating-the-attack-30-minutes)
+- [Part 7: Self-Replication Simulation (25 minutes)](#part-7-self-replication-simulation-25-minutes)
+- [Part 8: Forensic Investigation (30 minutes)](#part-8-forensic-investigation-30-minutes)
+- [Part 9: Detection Methods (25 minutes)](#part-9-detection-methods-25-minutes)
+- [Part 10: Incident Response & Mitigation (30 minutes)](#part-10-incident-response--mitigation-30-minutes)
+- [Part 11: Understanding the Complete Attack Chain (15 minutes)](#part-11-understanding-the-complete-attack-chain-15-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 12: Clean Up and Next Steps (5 minutes)](#part-12-clean-up-and-next-steps-5-minutes)
+- [🆘 Troubleshooting](#🆘-troubleshooting)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Important Reminders](#⚠️-important-reminders)
+- [🎉 Congratulations!](#🎉-congratulations)
+
+</div>
+
+---
 ## Part 1: Understanding Shai-Hulud (15 minutes)
 
 ### What is Shai-Hulud?
@@ -587,6 +616,19 @@ Implement preventive measures:
 
 
 ---
+
+---
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/06-sha-hulud/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Require 2FA on all package maintainer and publishing accounts.
+- Restrict or monitor `postinstall` and other lifecycle scripts.
+- Run automated security scanning in CI on every dependency change.
+- Use secret management tools; never commit tokens or keys to repositories.
+- Enforce lockfiles with `npm ci --audit` in CI pipelines.
+- Rotate credentials immediately after suspected compromise.
 
 ---
 

@@ -4,6 +4,30 @@
 - **Estimated Time**: 45-60 minutes
 - **Primary Attack Surface**: Container image build/runtime trust
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Learning Objectives](#learning-objectives)
+- [Background](#background)
+- [Threat Model Snapshot](#threat-model-snapshot)
+- [Lab Setup](#lab-setup)
+- [Run the lab](#run-the-lab)
+- [Attack Walkthrough](#attack-walkthrough)
+- [Lab Tasks](#lab-tasks)
+- [Detection Playbook](#detection-playbook)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Validation Checklist](#validation-checklist)
+- [Hints](#hints)
+- [Lab Report Prompts](#lab-report-prompts)
+- [Safety](#safety)
+
+</div>
+
+---
 ## Learning Objectives
 
 By the end of this lab, you should be able to:
@@ -62,7 +86,7 @@ Optional Docker comparison (when Docker is available):
 ```bash
 docker build -t scas-legit images/legitimate-image
 docker build -t scas-compromised images/compromised-image
-docker run --rm -e TESTBENCH_MODE=enabled scas-compromised
+docker run --rm -e TESTBENCH_MODE=enabled --add-host=host.docker.internal:host-gateway scas-compromised
 ```
 
 ### Cleanup (optional)
@@ -106,7 +130,7 @@ If Docker is available:
 ```bash
 docker build -t scas-legit images/legitimate-image
 docker build -t scas-compromised images/compromised-image
-docker run --rm -e TESTBENCH_MODE=enabled scas-compromised
+docker run --rm -e TESTBENCH_MODE=enabled --add-host=host.docker.internal:host-gateway scas-compromised
 ```
 
 Note: this scenario is valid without Docker; scanner + runtime script already model the attack.

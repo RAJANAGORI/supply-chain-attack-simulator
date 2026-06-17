@@ -11,7 +11,7 @@ docs/
 ├── docs-manifest.json      Navigation catalog for guide.html
 ├── index.md                → ../documentation/index.md (navigation hub)
 ├── DOCUMENTATION_INDEX.md  → ../documentation/index.md (alias for guide.html)
-├── COPYRIGHT.md · ATTRIBUTION.md · AUTHORS.md · LICENSE-DOCUMENTATION.md  → repo root
+Governance Markdown (LEGAL.md, ATTRIBUTION.md, AUTHORS.md, DOCUMENTATION-CC-BY-NC-ND.md) is copied from repo root at Pages deploy — not symlinked under docs/ (avoids duplicate GitHub License tabs).
 ├── assets/
 │   ├── css/                Landing + documentation hub styles
 │   └── js/                 docs-app.js, theme.js
@@ -20,13 +20,14 @@ docs/
 ├── reference/              → ../documentation/reference/
 ├── learning-path/          → ../documentation/learning-path/
 ├── modules/                → ../documentation/modules/
-├── scenario-guides/          → ../documentation/scenario-guides/
+├── scenario-guides/        → ../documentation/scenario-guides/
+├── guides/                 → ../documentation/guides/
 └── 404.html · sitemap.xml · robots.txt · og-image.png · _config.yml
 ```
 
 ## Same content as `documentation/`?
 
-Markdown under **`getting-started/`**, **`platform/`**, **`reference/`**, **`learning-path/`**, **`modules/`**, and **`scenario-guides/`** are **symbolic links** to matching paths under **`documentation/`** — not separate copies. Edit under `documentation/` for content changes.
+Markdown under **`getting-started/`**, **`platform/`**, **`reference/`**, **`learning-path/`**, **`modules/`**, **`scenario-guides/`**, and **`guides/`** are **symbolic links** to matching paths under **`documentation/`** — not separate copies. Edit under `documentation/` for content changes.
 
 **Web docs:** Open [`guide.html`](./guide.html) for the full sequential documentation experience.
 

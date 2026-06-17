@@ -2,6 +2,26 @@
 
 Use this as your runbook for Scenario 3 when you are teaching live or practicing quickly.
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [📋 Initial Setup](#📋-initial-setup)
+- [🎯 Attack Execution](#🎯-attack-execution)
+- [🔍 Forensic Investigation](#🔍-forensic-investigation)
+- [🛡️ Detection Commands](#🛡️-detection-commands)
+- [🚨 Incident Response](#🚨-incident-response)
+- [📁 Important File Locations](#📁-important-file-locations)
+- [🛠️ Useful Commands](#🛠️-useful-commands)
+- [🆘 Quick Troubleshooting](#🆘-quick-troubleshooting)
+- [📚 Documentation Links](#📚-documentation-links)
+- [💡 Key Concepts](#💡-key-concepts)
+
+</div>
+
+---
 ## 📋 Initial Setup
 
 ```bash

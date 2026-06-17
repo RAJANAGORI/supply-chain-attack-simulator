@@ -36,3 +36,12 @@ rule Shai_Hulud_Replication_Indicator {
 - Coupled file-system spread + network indicators.
 - Multi-process behavior (harvester + CDN + victim app).
 - Credential capture evidence in `infrastructure/captured-credentials.json`.
+
+## Mitigation
+
+- Require 2FA on all package maintainer and publishing accounts.
+- Restrict or monitor `postinstall` and other lifecycle scripts.
+- Run automated security scanning in CI on every dependency change.
+- Use secret management tools; never commit tokens or keys to repositories.
+- Enforce lockfiles with `npm ci --audit` in CI pipelines.
+- Rotate credentials immediately after suspected compromise.

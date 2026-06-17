@@ -11,8 +11,33 @@ By the end of this guide, you will:
 - Detect and prevent build system attacks
 - Implement secure CI/CD practices
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Build System Compromise (10 minutes)](#part-1-understanding-build-system-compromise-10-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 5 (Coming Soon)](#part-3-setting-up-scenario-5-coming-soon)
+- [Part 3: Setting Up Scenario 5 (15 minutes)](#part-3-setting-up-scenario-5-15-minutes)
+- [Part 4: Understanding Build Systems (15 minutes)](#part-4-understanding-build-systems-15-minutes)
+- [Part 5: Executing the Attack (30 minutes)](#part-5-executing-the-attack-30-minutes)
+- [Part 6: Understanding What Happened (10 minutes)](#part-6-understanding-what-happened-10-minutes)
+- [Part 7: Detecting the Attack (25 minutes)](#part-7-detecting-the-attack-25-minutes)
+- [Part 8: Prevention and Mitigation (30 minutes)](#part-8-prevention-and-mitigation-30-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 9: Clean Up and Next Steps (5 minutes)](#part-9-clean-up-and-next-steps-5-minutes)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Important Reminders](#⚠️-important-reminders)
+
+</div>
+
+---
 ## Part 1: Understanding Build System Compromise (10 minutes)
 
 ### What is a Build System Compromise?
@@ -378,6 +403,20 @@ gpg --verify dist/app.js.asc
 
 
 ---
+
+---
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/05-build-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Verify build script integrity with checksums before each build.
+- Apply least privilege to CI/CD jobs and secret exposure.
+- Run builds in isolated environments with minimal credentials.
+- Verify build artifacts with checksums and signed attestations.
+- Use secret management tools — never hardcode secrets in build scripts.
+- Audit and log all build activities for forensic review.
+- Sign release artifacts and verify signatures before deployment.
 
 ---
 

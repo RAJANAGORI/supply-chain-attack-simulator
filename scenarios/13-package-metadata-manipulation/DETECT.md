@@ -37,3 +37,10 @@ rule Metadata_Manipulation_IOC {
 - Metadata anomalies before runtime execution.
 - Detector output from `metadata-validator.js` indicating mismatches.
 - Capture artifacts in `infrastructure/captured-data.json`.
+
+## Mitigation
+
+- Validate metadata against trusted allowlists for critical packages.
+- Require lockfile and integrity verification in CI.
+- Pin exact versions for sensitive dependencies.
+- Mirror and sign internal-approved artifacts.

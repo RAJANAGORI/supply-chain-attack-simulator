@@ -36,3 +36,11 @@ rule Container_Image_Compromise_IOC {
 - Container process tree includes non-baseline startup script.
 - Immediate outbound request at container boot.
 - Evidence in `infrastructure/captured-data.json`.
+
+## Mitigation
+
+- Enforce image provenance and signature verification in CI/CD.
+- Pin immutable image digests (not mutable tags only).
+- Add policy checks for entrypoint/CMD changes on critical images.
+- Restrict outbound network from build and runtime where possible.
+- Require reproducible image builds and signed attestations.

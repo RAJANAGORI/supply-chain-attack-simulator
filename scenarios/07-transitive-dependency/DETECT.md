@@ -36,3 +36,12 @@ rule Transitive_Dependency_IOC {
 - Child process execution from nested dependency path.
 - Root app behavior change despite no direct dependency update.
 - Capture evidence in scenario infrastructure output.
+
+## Mitigation
+
+- Pin exact dependency versions — avoid loose semver ranges on critical packages.
+- Commit `package-lock.json` and use `npm ci` in CI/CD.
+- Run automated scanning (`npm audit`, SBOM tools) across the full dependency tree.
+- Generate and maintain SBOMs for transitive dependency visibility.
+- Monitor postinstall script execution and unexpected network requests.
+- Review the full dependency tree regularly, not only direct dependencies.

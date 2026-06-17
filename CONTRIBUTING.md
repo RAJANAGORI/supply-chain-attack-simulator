@@ -5,12 +5,12 @@ Thanks for helping improve the Supply Chain Attack Test Bench.
 ## Copyright and licensing
 
 The maintainers’ original work in this repository is **copyright Raja Nagori**
-(see [LICENSE](LICENSE), [LICENSE-DOCUMENTATION.md](LICENSE-DOCUMENTATION.md),
-[COPYRIGHT.md](COPYRIGHT.md), and [NOTICE](NOTICE)).
+(see [LICENSE](LICENSE), [DOCUMENTATION-CC-BY-NC-ND.md](DOCUMENTATION-CC-BY-NC-ND.md),
+[LEGAL.md](LEGAL.md), and [NOTICE](NOTICE)).
 
 - **Software** contributions are licensed under the **MIT License**.
 - **Documentation** contributions (`documentation/`, guides, modules, learning
-  paths) are licensed under **CC BY-NC-ND 4.0** (see LICENSE-DOCUMENTATION.md).
+  paths) are licensed under **CC BY-NC-ND 4.0** (see DOCUMENTATION-CC-BY-NC-ND.md).
 
 The MIT License grants certain permissions for software; CC BY-NC-ND governs
 documentation. Neither transfers ownership of the project’s copyright to
@@ -72,9 +72,23 @@ For teaching consistency, use `documentation/modules/MODULE_TEMPLATE.md` when wr
 
 1. Create or update the scenario directory under `scenarios/`.
 2. Include a complete `README.md` with objectives, setup, attack flow, detection, and mitigations.
-3. Ensure all simulated malicious behavior is testbench-gated and local-only.
-4. Add or update any scenario-specific detection scripts.
-5. Validate your scenario end-to-end locally.
+3. Add a `## Mitigation Playbook` section to the scenario `README.md` and a `## Mitigation` section to `DETECT.md` (see **Documentation maintenance** below).
+4. Ensure all simulated malicious behavior is testbench-gated and local-only.
+5. Add or update any scenario-specific detection scripts.
+6. Validate your scenario end-to-end locally.
+
+## Documentation maintenance
+
+Scenario docs use shared tooling under `scripts/`. The **canonical reference** for every script and the doc-sync lifecycle is **[documentation/platform/TOOLING.md](documentation/platform/TOOLING.md)** — read it before changing scenario docs.
+
+Quick version after editing scenario mitigations or headings:
+
+```bash
+node scripts/sync-mitigation-gaps.js     # sync DETECT.md + README playbooks (01–06)
+node scripts/inject-markdown-toc.js all  # rebuild every Table of Contents
+```
+
+Canonical mitigation bullets live in `scripts/lib/mitigation-playbooks.js` — edit there first. Learner docs (`documentation/scenario-guides/zero-to-hero/`) carry a **Mitigation Playbook** + **Table of Contents**; blue-team `DETECT.md` runbooks carry detection content plus a short **Mitigation** section.
 
 ## Code style and scripts
 

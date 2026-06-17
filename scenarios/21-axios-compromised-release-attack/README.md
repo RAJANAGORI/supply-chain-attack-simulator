@@ -6,6 +6,29 @@
 
 **Inspired by:** Maintainer-account takeover pattern discussed for npm (e.g. unexpected patch semver + transitive `postinstall`), as requested in [GitHub issue #3](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/3). This lab uses **fictional** package names (`axios-like`, `plain-crypto-js-like`) and **localhost-only** telemetry—no real malware or external C2.
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Learning objectives](#learning-objectives)
+- [Attack flow (testbench)](#attack-flow-testbench)
+- [Threat Model Snapshot](#threat-model-snapshot)
+- [Setup](#setup)
+- [Run the lab](#run-the-lab)
+- [Containment, eradication, recovery (playbook)](#containment-eradication-recovery-playbook)
+- [Validation Checklist](#validation-checklist)
+- [Hints](#hints)
+- [Lab Report Prompts](#lab-report-prompts)
+- [CI-safe and offline modes](#ci-safe-and-offline-modes)
+- [References (real world)](#references-real-world)
+- [Safety](#safety)
+
+</div>
+
+---
 ## Learning objectives
 
 - See how a **trusted parent** can add an **unreferenced transitive** that still executes via **`postinstall`**.

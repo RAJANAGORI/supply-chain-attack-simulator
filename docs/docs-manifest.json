@@ -58,6 +58,7 @@
         { "path": "platform/OPERATIONS.md", "title": "Operations" },
         { "path": "platform/DETECTION_AND_OBSERVABILITY.md", "title": "Detection & observability" },
         { "path": "platform/BEST_PRACTICES.md", "title": "Best practices" },
+        { "path": "platform/TOOLING.md", "title": "Tooling & doc maintenance" },
         { "path": "platform/FAQ.md", "title": "FAQ" },
         { "path": "platform/QUICK_REFERENCE.md", "title": "Quick reference" }
       ]
@@ -112,13 +113,22 @@
       ]
     },
     {
+      "id": "guides",
+      "title": "Integration guides",
+      "description": "Optional integrations that extend the core labs",
+      "items": [
+        { "path": "guides/index.md", "title": "Integration guides index" },
+        { "path": "guides/FLOCI_INTEGRATION.md", "title": "Floci (local-AWS) integration" }
+      ]
+    },
+    {
       "id": "governance",
       "title": "Copyright & licensing",
       "items": [
-        { "path": "COPYRIGHT.md", "title": "Copyright & ownership" },
+        { "path": "LEGAL.md", "title": "Copyright & ownership" },
         { "path": "ATTRIBUTION.md", "title": "How to attribute SCAS" },
         { "path": "AUTHORS.md", "title": "Authors" },
-        { "path": "LICENSE-DOCUMENTATION.md", "title": "Documentation license (CC BY-NC-ND)" }
+        { "path": "DOCUMENTATION-CC-BY-NC-ND.md", "title": "Documentation license (CC BY-NC-ND)" }
       ]
     },
     {

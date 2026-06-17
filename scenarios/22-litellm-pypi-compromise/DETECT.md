@@ -37,3 +37,11 @@ rule PyPI_PTH_Compromise_IOC {
 - Python process execution with no explicit package import still triggering activity.
 - Site-packages file integrity drift (`.pth` additions).
 - Detector findings from `litellm_pth_scanner.py` and mock capture output.
+
+## Mitigation
+
+- Contain: stop workloads using the compromised virtualenv; block egress from CI if needed.
+- Eradicate: `pip uninstall`, delete `.venv`, remove rogue `*.pth` under `site-packages`.
+- Recover: pin known-good version (`litellm_like==1.82.6`); enforce hash pinning or vetting.
+- Rotate: API keys and PyPI maintainer tokens after confirmed incidents.
+- Scan `site-packages/*.pth` in CI after every `pip install`.

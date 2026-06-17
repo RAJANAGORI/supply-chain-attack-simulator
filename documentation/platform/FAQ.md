@@ -130,7 +130,7 @@ Scenario 01's package may produce **zero scanner findings** (subtle payload). Th
 
 ### Where is the master index of all files?
 
-[documentation/README.md](../README.md) and the [scenario catalog](../scenario-guides/CATALOG.md).
+[documentation index](../index.md) and the [scenario catalog](../scenario-guides/CATALOG.md).
 
 ---
 
@@ -138,7 +138,7 @@ Scenario 01's package may produce **zero scanner findings** (subtle payload). Th
 
 ### Who owns Supply Chain Attack Simulator?
 
-**Raja Nagori** holds copyright (© 2024–2026) in the original scenarios, documentation, curriculum, and related materials. See [AUTHORS.md](../../AUTHORS.md) and [COPYRIGHT.md](../../COPYRIGHT.md).
+**Raja Nagori** holds copyright (© 2024–2026) in the original scenarios, documentation, curriculum, and related materials. See [AUTHORS.md](../../AUTHORS.md) and [LEGAL.md](../../LEGAL.md).
 
 ### Can someone copy this and claim they created it?
 
@@ -149,7 +149,7 @@ Scenario 01's package may produce **zero scanner findings** (subtle payload). Th
 | Material | License |
 |----------|---------|
 | Software (`scenarios/`, `scripts/`, tools) | [MIT](../../LICENSE) |
-| Documentation (`documentation/`, guides, modules) | [CC BY-NC-ND 4.0](../../LICENSE-DOCUMENTATION.md) |
+| Documentation (`documentation/`, guides, modules) | [CC BY-NC-ND 4.0](../../DOCUMENTATION-CC-BY-NC-ND.md) |
 
 You may fork and use **software** under MIT with attribution. **Documentation** may be shared with credit but not commercially republished as modified derivatives without permission.
 

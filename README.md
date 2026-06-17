@@ -26,7 +26,7 @@ This test bench provides hands-on scenarios for supply chain attacks—among the
 
 - **22** self-contained labs under `scenarios/` (numbered folders `01-` … `22-`)
 - Each lab includes attack mechanics, detection ideas, mitigations, and references where relevant
-- Canonical guides and learning paths live in [`documentation/`](documentation/README.md)
+- Canonical guides and learning paths live in [`documentation/`](documentation/index.md)
 - Malicious samples are gated (for example `TESTBENCH_MODE=enabled`) and designed for localhost-style exercises—see [Security notice](#security-notice)
 
 ## What you'll learn (themes)
@@ -185,26 +185,27 @@ This repository contains intentionally vulnerable code and malicious package exa
 
 ## Documentation
 
-Authoritative Markdown lives under **`documentation/`** — start at the **[documentation index](documentation/README.md)** (master source of truth).
+Authoritative Markdown lives under **`documentation/`** — start at the **[documentation index](documentation/index.md)** (master source of truth).
 
 **Browse on the web:** [Documentation hub](docs/guide.html) — sequential Zero to Hero guides (01→22), setup, detection, and FAQ rendered from the same Markdown files.
 
 | Doc | Purpose |
 |-----|---------|
-| [Documentation index](documentation/README.md) | Master index — all links |
+| [Documentation index](documentation/index.md) | Master navigation hub — start here |
 | [Scenario catalog](documentation/scenario-guides/CATALOG.md) | All 22 labs — README, DETECT, guides, modules |
-| [Docs map (legacy)](documentation/README.md) | Same as index |
-| [FAQ](documentation/platform/FAQ.md) | Troubleshooting |
-| [Architecture](documentation/platform/ARCHITECTURE.md) | Platform design |
-| [Operations](documentation/platform/OPERATIONS.md) | Scripts and ports |
-| [Detection & observability](documentation/platform/DETECTION_AND_OBSERVABILITY.md) | Blue team + Elasticsearch |
-| [Zero to Hero](documentation/getting-started/ZERO_TO_HERO.md) | Guided start if you are new |
+| [First lab in 10 minutes](documentation/getting-started/ZERO_TO_HERO.md) | Guided start if you are new |
+| [Complete setup](documentation/getting-started/SETUP.md) | Full installation and prerequisites |
 | [Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md) | Beginner / intermediate / advanced tracks |
+| [Architecture](documentation/platform/ARCHITECTURE.md) | Platform design |
+| [Operations](documentation/platform/OPERATIONS.md) | Lab workflow, ports, teardown |
+| [Detection & observability](documentation/platform/DETECTION_AND_OBSERVABILITY.md) | Blue team + Elasticsearch |
+| [Best practices](documentation/platform/BEST_PRACTICES.md) | Defensive patterns and prevention |
 | [Quick reference](documentation/platform/QUICK_REFERENCE.md) | One-page commands |
-| [Complete setup](documentation/getting-started/SETUP.md) |
-| [Best practices](documentation/platform/BEST_PRACTICES.md) |
-| [Scenario walkthroughs](documentation/reference/SCENARIOS.md) |
-| [Additional resources](documentation/reference/RESOURCES.md) |
+| [Tooling & doc maintenance](documentation/platform/TOOLING.md) | `scripts/` catalog + doc lifecycle (maintainers) |
+| [Integration guides](documentation/guides/index.md) | Optional Floci (local-AWS) cloud track |
+| [FAQ](documentation/platform/FAQ.md) | Troubleshooting |
+| [Scenario walkthroughs](documentation/reference/SCENARIOS.md) | Numbered list with skills |
+| [Additional resources](documentation/reference/RESOURCES.md) | External tools and incidents |
 | [Observability stack](observability/README.md) | Optional Elasticsearch + Kibana |
 
 The **`docs/`** folder is the GitHub Pages site (`index.html`, `guide.html`, `assets/`); shared guides are **symlinks** into `documentation/` — see **`docs/README.md`**.
@@ -252,9 +253,9 @@ This project uses **dual licensing**:
 | Material | License |
 |----------|---------|
 | **Software** — scenarios, scripts, detection tools, observability | [MIT License](LICENSE) |
-| **Documentation** — guides, modules, learning paths, curriculum | [CC BY-NC-ND 4.0](LICENSE-DOCUMENTATION.md) |
+| **Documentation** — guides, modules, learning paths, curriculum | [CC BY-NC-ND 4.0](DOCUMENTATION-CC-BY-NC-ND.md) |
 
-- **[COPYRIGHT.md](COPYRIGHT.md)** — ownership and what others may not do  
+- **[LEGAL.md](LEGAL.md)** — ownership and what others may not do  
 - **[ATTRIBUTION.md](ATTRIBUTION.md)** — how to credit SCAS when sharing or teaching  
 - **[AUTHORS.md](AUTHORS.md)** — creator and contributors  
 - **[NOTICE](NOTICE)** — summary for distributions  
@@ -276,7 +277,7 @@ Inspired by real-world supply chain incidents, including:
 
 For questions or issues:
 
-- Read the [FAQ](documentation/platform/FAQ.md) and [documentation index](documentation/README.md)
+- Read the [FAQ](documentation/platform/FAQ.md) and [documentation index](documentation/index.md)
 - Check [OPERATIONS.md](documentation/platform/OPERATIONS.md) for ports and teardown
 - Open an issue on GitHub
 

@@ -1,0 +1,36 @@
+# Fast path — published Floci image (no vendor clone / no Java build).
+# Setup: ../../scripts/floci-setup.sh --image
+
+name: scas-floci
+
+services:
+  floci:
+    image: ${FLOCI_IMAGE:-floci/floci:latest-compat}
+    container_name: scas-floci
+    tty: true
+    ports:
+      - "${FLOCI_PORT:-4566}:4566"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/app/data
+      - ./init/ready.d:/etc/floci/init/ready.d:ro
+    environment:
+      FLOCI_DEFAULT_REGION: ${FLOCI_DEFAULT_REGION:-us-east-1}
+      FLOCI_STORAGE_MODE: ${FLOCI_STORAGE_MODE:-memory}
+      FLOCI_STORAGE_PERSISTENT_PATH: /app/data
+      FLOCI_SERVICES_DOCKER_NETWORK: scas_floci_default
+      AWS_DEFAULT_REGION: ${FLOCI_DEFAULT_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4566/_floci/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
+    networks:
+      - scas_floci_default
+
+networks:
+  scas_floci_default:
+    name: scas_floci_default

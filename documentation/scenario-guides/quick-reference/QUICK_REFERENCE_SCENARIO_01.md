@@ -2,6 +2,23 @@
 
 Use this as your runbook for Scenario 1 when you are teaching live or practicing quickly.
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [📋 Initial Setup (One-Time)](#📋-initial-setup-one-time)
+- [🎯 Scenario 1: Quick Start](#🎯-scenario-1-quick-start)
+- [🔍 Detection Commands](#🔍-detection-commands)
+- [🛠️ Useful Commands](#🛠️-useful-commands)
+- [📁 Important File Locations](#📁-important-file-locations)
+- [🆘 Quick Troubleshooting](#🆘-quick-troubleshooting)
+- [📚 Documentation Links](#📚-documentation-links)
+
+</div>
+
+---
 ## 📋 Initial Setup (One-Time)
 
 ```bash

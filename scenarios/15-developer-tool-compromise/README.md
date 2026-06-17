@@ -4,6 +4,33 @@
 - **Estimated Time**: 45-60 minutes
 - **Primary Attack Surface**: Developer tooling and install lifecycle hooks
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Learning Objectives](#learning-objectives)
+- [Background](#background)
+- [Threat Model Snapshot](#threat-model-snapshot)
+- [Scenario Description](#scenario-description)
+- [Setup](#setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [Structure](#structure)
+- [Evidence](#evidence)
+- [Detection](#detection)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Expected Outcome](#expected-outcome)
+- [Validation Checklist](#validation-checklist)
+- [Hints](#hints)
+- [Lab Report Prompts](#lab-report-prompts)
+- [Safety](#safety)
+
+</div>
+
+---
 ## Learning Objectives
 
 - Understand how compromised developer tools (CLI helpers, build plugins, local `npm` packages) can run arbitrary code during install or dev workflows.

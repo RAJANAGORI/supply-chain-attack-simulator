@@ -1,5 +1,28 @@
 # Scenario 7: Transitive Dependency Attack 🎯
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [🎓 Learning Objectives](#🎓-learning-objectives)
+- [📖 Background](#📖-background)
+- [🎯 Scenario Description](#🎯-scenario-description)
+- [🔧 Setup](#🔧-setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [🛡️ Defense Strategies](#🛡️-defense-strategies)
+- [📊 Key Takeaways](#📊-key-takeaways)
+- [🔍 Real-World Impact](#🔍-real-world-impact)
+- [🎓 Advanced Exercises](#🎓-advanced-exercises)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Safety & Ethics](#⚠️-safety--ethics)
+
+</div>
+
+---
 ## 🎓 Learning Objectives
 
 By completing this scenario, you will learn:

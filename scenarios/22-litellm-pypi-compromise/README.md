@@ -6,6 +6,29 @@
 
 **Inspired by:** PyPI account compromise pattern with **import-time** vs **`.pth` startup** execution, as requested in [GitHub issue #4](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/4). This lab uses a **fictional** package name `litellm_like` and **127.0.0.1**-only HTTP—no credential theft, no external exfiltration.
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Learning objectives](#learning-objectives)
+- [Releases (testbench)](#releases-testbench)
+- [Threat Model Snapshot](#threat-model-snapshot)
+- [Setup](#setup)
+- [Run the lab](#run-the-lab)
+- [Containment, eradication, recovery](#containment-eradication-recovery)
+- [Validation Checklist](#validation-checklist)
+- [Hints](#hints)
+- [Lab Report Prompts](#lab-report-prompts)
+- [CI-safe and offline modes](#ci-safe-and-offline-modes)
+- [References (real world)](#references-real-world)
+- [Safety](#safety)
+
+</div>
+
+---
 ## Learning objectives
 
 - Compare **malicious code on import** (modelled as `1.82.7`) vs **`.pth` hook at interpreter startup** (modelled as `1.82.8`).

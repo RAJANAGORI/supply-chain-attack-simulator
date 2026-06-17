@@ -36,3 +36,11 @@ rule Submodule_Attack_IOC {
 - Git metadata change + script execution sequence.
 - Submodule path running executable content during setup.
 - Capture artifacts in scenario infrastructure.
+
+## Mitigation
+
+- Review every submodule addition in pull requests.
+- Validate submodule repository URLs against an allowlist.
+- Limit who can add or modify submodules in protected branches.
+- Pin submodules to specific commits, not floating branch heads.
+- Scan submodule content and monitor submodule initialization behavior.

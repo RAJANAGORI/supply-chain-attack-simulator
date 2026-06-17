@@ -94,7 +94,7 @@ This file provides a concise reference for each scenario included in the testben
 
 ---
 
-Tip: Use the **[scenario catalog](scenario-guides/CATALOG.md)** for direct links to every lab's README, DETECT runbook, zero-to-hero guide, quick reference, and teaching module. For a short walkthrough see `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_NN.md`; for command cheat sheets see `documentation/scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_NN.md` (replace `NN` with the scenario number).
+Tip: Use the **[scenario catalog](../scenario-guides/CATALOG.md)** for direct links to every lab's README, DETECT runbook, zero-to-hero guide, quick reference, and teaching module. For a short walkthrough see `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_NN.md`; for command cheat sheets see `documentation/scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_NN.md` (replace `NN` with the scenario number).
 
 ## Port Cleanup (free ports between scenarios)
 

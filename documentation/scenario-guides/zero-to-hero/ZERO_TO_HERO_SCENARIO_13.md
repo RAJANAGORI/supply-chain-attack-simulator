@@ -12,8 +12,34 @@ By the end of this guide, you will:
 - Perform detection and forensic investigation
 - Implement defense strategies for registry metadata trust
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Package Metadata (15 minutes)](#part-1-understanding-package-metadata-15-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 13 (15 minutes)](#part-3-setting-up-scenario-13-15-minutes)
+- [Part 4: Understanding the Package Structure (20 minutes)](#part-4-understanding-the-package-structure-20-minutes)
+- [Part 5: The Attack - Metadata Manipulation (30 minutes)](#part-5-the-attack---metadata-manipulation-30-minutes)
+- [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
+- [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
+- [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 9: Key Takeaways](#part-9-key-takeaways)
+- [Part 10: Advanced Exercises](#part-10-advanced-exercises)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Safety & Ethics](#⚠️-safety--ethics)
+- [🎉 Congratulations!](#🎉-congratulations)
+
+</div>
+
+---
 ## Part 1: Understanding Package Metadata (15 minutes)
 
 ### What Is Package Metadata?
@@ -589,6 +615,17 @@ node detection-tools/metadata-validator.js victim-app/node_modules/clean-utils
 ---
 
 ---
+
+---
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/13-package-metadata-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Validate metadata against trusted allowlists for critical packages.
+- Require lockfile and integrity verification in CI.
+- Pin exact versions for sensitive dependencies.
+- Mirror and sign internal-approved artifacts.
 
 ---
 

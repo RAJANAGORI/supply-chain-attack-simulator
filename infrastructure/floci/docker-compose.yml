@@ -1,0 +1,49 @@
+# SCAS — local Floci AWS emulator (floci-io/floci)
+# Clone source first: ../../scripts/floci-setup.sh
+#
+# Start: ../../scripts/floci-up.sh
+# Stop:  ../../scripts/floci-down.sh
+
+name: scas-floci
+
+services:
+  floci:
+    build:
+      context: ../../vendor/floci-aws
+      dockerfile: docker/Dockerfile
+    image: scas-floci-emulator:local
+    container_name: scas-floci
+    tty: true
+    ports:
+      - "${FLOCI_PORT:-4566}:4566"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/app/data
+      - ./init/ready.d:/etc/floci/init/ready.d:ro
+    environment:
+      FLOCI_PORT: ${FLOCI_PORT:-4566}
+      FLOCI_DEFAULT_REGION: ${FLOCI_DEFAULT_REGION:-us-east-1}
+      FLOCI_DEFAULT_ACCOUNT_ID: ${FLOCI_DEFAULT_ACCOUNT_ID:-000000000000}
+      FLOCI_HOSTNAME: ${FLOCI_HOSTNAME:-floci}
+      FLOCI_BASE_URL: ${FLOCI_BASE_URL:-http://127.0.0.1:4566}
+      FLOCI_STORAGE_MODE: ${FLOCI_STORAGE_MODE:-memory}
+      FLOCI_STORAGE_PERSISTENT_PATH: /app/data
+      FLOCI_SERVICES_DOCKER_NETWORK: ${FLOCI_SERVICES_DOCKER_NETWORK:-scas_floci_default}
+      FLOCI_SERVICES_LAMBDA_HOT_RELOAD_ENABLED: ${FLOCI_SERVICES_LAMBDA_HOT_RELOAD_ENABLED:-true}
+      AWS_DEFAULT_REGION: ${FLOCI_DEFAULT_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:4566/_floci/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 45s
+    networks:
+      scas_floci_default:
+        aliases:
+          - localhost.floci.io
+
+networks:
+  scas_floci_default:
+    name: scas_floci_default

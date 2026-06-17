@@ -36,3 +36,12 @@ rule Malicious_Update_Script {
 - Update event closely followed by new outbound behavior.
 - Script execution telemetry around dependency installation.
 - Captures stored in scenario mock server artifacts.
+
+## Mitigation
+
+- Pin exact versions in `package.json` — avoid carets on sensitive dependencies.
+- Commit lockfiles and use `npm ci` in CI/CD pipelines.
+- Verify updates before install (changelog review, integrity checks, code diff).
+- Scan dependency updates automatically in CI before merge.
+- Use staged rollouts — test updates in staging before production.
+- Require human review of changelogs for patch and minor bumps on critical packages.

@@ -12,8 +12,33 @@ By the end of this guide, you will:
 - Perform incident response and key rotation
 - Implement defense strategies
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Package Signing (15 minutes)](#part-1-understanding-package-signing-15-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 9 (15 minutes)](#part-3-setting-up-scenario-9-15-minutes)
+- [Part 4: Understanding the Legitimate Package (20 minutes)](#part-4-understanding-the-legitimate-package-20-minutes)
+- [Part 5: The Attack - Key Compromise (30 minutes)](#part-5-the-attack---key-compromise-30-minutes)
+- [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
+- [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
+- [Part 8: Incident Response (30 minutes)](#part-8-incident-response-30-minutes)
+- [Part 9: Defense Strategies (20 minutes)](#part-9-defense-strategies-20-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 10: Key Takeaways (10 minutes)](#part-10-key-takeaways-10-minutes)
+- [🎓 Congratulations!](#🎓-congratulations)
+- [📚 Additional Resources](#📚-additional-resources)
+
+</div>
+
+---
 ## Part 1: Understanding Package Signing (15 minutes)
 
 ### What is Package Signing?
@@ -294,6 +319,19 @@ npm cache clean --force
 
 
 ---
+
+---
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/09-package-signing-bypass/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Protect signing keys with HSMs or hardened secret stores.
+- Require MFA for all key access and signing operations.
+- Rotate signing keys on a regular schedule and after incidents.
+- Limit who can sign packages with strict access controls.
+- Always verify signatures — but pair with behavioral and content analysis.
+- Monitor signing activity for anomalies (time, volume, key fingerprint).
 
 ---
 

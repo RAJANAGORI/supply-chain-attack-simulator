@@ -12,8 +12,33 @@ By the end of this guide, you will:
 - Perform forensic investigation of hook-driven compromise
 - Implement defense strategies for plugin governance
 
+- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [Part 1: Understanding Package Manager Plugins (15 minutes)](#part-1-understanding-package-manager-plugins-15-minutes)
+- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
+- [Part 3: Setting Up Scenario 18 (15 minutes)](#part-3-setting-up-scenario-18-15-minutes)
+- [Part 4: Understanding the Plugin Structure (20 minutes)](#part-4-understanding-the-plugin-structure-20-minutes)
+- [Part 5: The Attack - Malicious Plugin Hook (30 minutes)](#part-5-the-attack---malicious-plugin-hook-30-minutes)
+- [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
+- [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
+- [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
+- [Part 9: Key Takeaways](#part-9-key-takeaways)
+- [Part 10: Advanced Exercises](#part-10-advanced-exercises)
+- [📚 Additional Resources](#📚-additional-resources)
+- [⚠️ Safety & Ethics](#⚠️-safety--ethics)
+
+</div>
+
+---
 ## Part 1: Understanding Package Manager Plugins (15 minutes)
 
 ### What Is a Package Manager Plugin?
@@ -561,6 +586,18 @@ test ! -f node_modules/target-lib/.infected-by-plugin && echo "Clean"
 ---
 
 ---
+
+---
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/18-package-manager-plugin-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Enforce plugin allowlists with signed/approved plugin sources.
+- Block arbitrary plugin execution in CI and controlled developer images.
+- Run integrity checks on `node_modules` and generated lockfile state.
+- Review plugin code changes with the same rigor as build scripts.
+- Alert on hook-driven modifications outside expected paths.
 
 ---
 

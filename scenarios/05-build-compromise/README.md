@@ -1,5 +1,30 @@
 # Scenario 5: Build System Compromise 🎯
 
+
+
+
+## Table of Contents
+
+<div class="doc-toc">
+
+- [🎓 Learning Objectives](#🎓-learning-objectives)
+- [📖 Background](#📖-background)
+- [🎯 Scenario Description](#🎯-scenario-description)
+- [🔧 Setup](#🔧-setup)
+- [Run the lab](#run-the-lab)
+- [📝 Lab Tasks](#📝-lab-tasks)
+- [Mitigation Playbook](#mitigation-playbook)
+- [✅ Success Criteria](#✅-success-criteria)
+- [🎁 Bonus Challenges](#🎁-bonus-challenges)
+- [📊 Attack Comparison](#📊-attack-comparison)
+- [🔍 Real-World Lessons](#🔍-real-world-lessons)
+- [💡 Key Takeaways](#💡-key-takeaways)
+- [📚 Additional Resources](#📚-additional-resources)
+- [🔗 Related Scenarios](#🔗-related-scenarios)
+
+</div>
+
+---
 ## 🎓 Learning Objectives
 
 By completing this scenario, you will learn:
@@ -334,6 +359,16 @@ gpg --sign dist/app.js
 # Verify signatures before deployment
 gpg --verify dist/app.js.asc
 ```
+
+## Mitigation Playbook
+
+- Verify build script integrity with checksums before each build.
+- Apply least privilege to CI/CD jobs and secret exposure.
+- Run builds in isolated environments with minimal credentials.
+- Verify build artifacts with checksums and signed attestations.
+- Use secret management tools — never hardcode secrets in build scripts.
+- Audit and log all build activities for forensic review.
+- Sign release artifacts and verify signatures before deployment.
 
 ## ✅ Success Criteria
 
