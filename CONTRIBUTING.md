@@ -79,17 +79,16 @@ For teaching consistency, use `documentation/modules/MODULE_TEMPLATE.md` when wr
 
 ## Documentation maintenance
 
-Scenario docs use shared tooling under `scripts/`. After changing headings or mitigation content, regenerate affected sections:
+Scenario docs use shared tooling under `scripts/`. The **canonical reference** for every script and the doc-sync lifecycle is **[documentation/platform/TOOLING.md](documentation/platform/TOOLING.md)** — read it before changing scenario docs.
 
-| Script | When to run |
-|--------|-------------|
-| `node scripts/sync-mitigation-gaps.js` | Update `DETECT.md` mitigation bullets or README playbooks for scenarios 01–06 from the canonical playbook data |
-| `node scripts/inject-markdown-toc.js all` | Regenerate **Table of Contents** in zero-to-hero guides, scenario READMEs, and quick-reference cards after adding/renaming `##` headings |
-| `node scripts/inject-zero-to-hero-mitigation-playbooks.js` | Insert `## Mitigation Playbook` into a new zero-to-hero guide (skips files that already have it) |
+Quick version after editing scenario mitigations or headings:
 
-Canonical mitigation bullets live in `scripts/lib/mitigation-playbooks.js` — edit that file first, then run `sync-mitigation-gaps.js` and `inject-markdown-toc.js readme` (or `all`) so README, `DETECT.md`, and TOCs stay aligned.
+```bash
+node scripts/sync-mitigation-gaps.js     # sync DETECT.md + README playbooks (01–06)
+node scripts/inject-markdown-toc.js all  # rebuild every Table of Contents
+```
 
-Learner docs (`documentation/scenario-guides/zero-to-hero/`) should include both a **Mitigation Playbook** section and a **Table of Contents** with jump links. Blue-team `DETECT.md` runbooks include detection content plus a short **Mitigation** section for incident responders.
+Canonical mitigation bullets live in `scripts/lib/mitigation-playbooks.js` — edit there first. Learner docs (`documentation/scenario-guides/zero-to-hero/`) carry a **Mitigation Playbook** + **Table of Contents**; blue-team `DETECT.md` runbooks carry detection content plus a short **Mitigation** section.
 
 ## Code style and scripts
 

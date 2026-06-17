@@ -9,4 +9,4 @@ Structured progression for self-study, workshops, and instructor-led courses.
 | [TEACHING_DELIVERY_PACK.md](./TEACHING_DELIVERY_PACK.md) | Talk, workshop, course, and lab delivery formats |
 | [CAPSTONE_RUBRIC.md](./CAPSTONE_RUBRIC.md) | Capstone deliverables and scoring criteria |
 
-**Related:** [Teaching modules](../modules/index.md) · [Zero-to-hero walkthroughs](../scenario-guides/zero-to-hero/index.md) · [Getting started](../getting-started/ZERO_TO_HERO.md)
+**Related:** [Teaching modules](../modules/index.md) · [Zero-to-hero walkthroughs](../scenario-guides/zero-to-hero/index.md) · [Getting started](../getting-started/ZERO_TO_HERO.md) · [↑ Documentation index](../index.md)

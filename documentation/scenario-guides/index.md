@@ -9,3 +9,5 @@ Learner walkthroughs, command cheat sheets, and the master scenario catalog. Zer
 | [quick-reference/index.md](./quick-reference/index.md) | Command cheat sheets for live teaching (22 cards) with TOC |
 
 **Runtime labs:** [`scenarios/`](../../scenarios/) (README + **Mitigation Playbook**) · **Blue-team runbooks:** `scenarios/*/DETECT.md` (detection + **Mitigation**)
+
+**Related:** [Getting started](../getting-started/index.md) · [Learning path](../learning-path/index.md) · [↑ Documentation index](../index.md)

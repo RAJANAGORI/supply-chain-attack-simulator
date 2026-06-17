@@ -130,7 +130,7 @@ Scenario 01's package may produce **zero scanner findings** (subtle payload). Th
 
 ### Where is the master index of all files?
 
-[documentation/README.md](../README.md) and the [scenario catalog](../scenario-guides/CATALOG.md).
+[documentation index](../index.md) and the [scenario catalog](../scenario-guides/CATALOG.md).
 
 ---
 

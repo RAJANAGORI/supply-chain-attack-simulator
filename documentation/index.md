@@ -1,36 +1,50 @@
-# Supply Chain Attack Simulator — Documentation index
+# Supply Chain Attack Simulator — Documentation
 
-**Single source of truth** for learners, blue-team practitioners, and instructors.
+**The single source of truth** for learners, blue-team practitioners, and instructors.
 
-Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) directory publishes GitHub Pages (`index.html`, [guide.html](../docs/guide.html)) and **symlinks** to this tree — edit here, not in `docs/`, for content changes.
+Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) directory publishes the GitHub Pages site (`index.html` landing page, [`guide.html`](../docs/guide.html) reader) and **symlinks** back to this tree — always edit here, never in `docs/`.
 
----
-
-## Choose your path
-
-| You are… | Start here |
-|----------|------------|
-| **Brand-new to SCAS** | [ZERO_TO_HERO.md](./getting-started/ZERO_TO_HERO.md) → [Scenario 01](./scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md) |
-| **Experienced developer** | [QUICK_START.md](./getting-started/QUICK_START.md) → [Scenario catalog](./scenario-guides/CATALOG.md) |
-| **Blue-team / detection focus** | [DETECTION_AND_OBSERVABILITY.md](./platform/DETECTION_AND_OBSERVABILITY.md) → `scenarios/*/DETECT.md` (IOCs + mitigation) |
-| **Instructor / workshop lead** | [TEACHING_DELIVERY_PACK.md](./learning-path/TEACHING_DELIVERY_PACK.md) → [Module instances](./modules/MODULE_INSTANCES_INDEX.md) |
-| **Workshop with Elasticsearch** | [observability/README.md](../observability/README.md) → [OPERATIONS.md](./platform/OPERATIONS.md) |
-| **Need one-page commands** | [QUICK_REFERENCE.md](./platform/QUICK_REFERENCE.md) |
-
-Interactive onboarding: [`START_HERE.sh`](../START_HERE.sh) from the repo root.
+**Browse on the web:** [Documentation hub (`guide.html`)](../docs/guide.html) renders this folder with sidebar navigation, search, and sequential paging.
 
 ---
 
-## Documentation sections
+## Start by role
 
-| Section | Index | Contents |
-|---------|-------|----------|
-| Getting started | [getting-started/index.md](./getting-started/index.md) | First lab, quick start, full setup |
-| Platform & operations | [platform/index.md](./platform/index.md) | Architecture, operations, detection, FAQ |
-| Reference | [reference/index.md](./reference/index.md) | Scenario summaries, external resources, roadmap |
-| Scenario guides | [scenario-guides/index.md](./scenario-guides/index.md) | Catalog, zero-to-hero (TOC + mitigation), quick-reference (TOC) |
-| Learning path | [learning-path/index.md](./learning-path/index.md) | Curriculum and teaching delivery |
-| Teaching modules | [modules/index.md](./modules/index.md) | Instructor cards for all 22 scenarios |
+| You are… | Start here | Then |
+|----------|------------|------|
+| **New to SCAS** | [First lab in 10 minutes](./getting-started/ZERO_TO_HERO.md) | [Scenario 01 walkthrough](./scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md) |
+| **Experienced developer** | [Quick start](./getting-started/QUICK_START.md) | [Scenario catalog](./scenario-guides/CATALOG.md) |
+| **Blue-team / detection** | [Detection & observability](./platform/DETECTION_AND_OBSERVABILITY.md) | `scenarios/*/DETECT.md` (IOCs + mitigation) |
+| **Instructor / workshop lead** | [Teaching delivery pack](./learning-path/TEACHING_DELIVERY_PACK.md) | [Teaching modules](./modules/index.md) |
+| **Running the observability stack** | [Operations](./platform/OPERATIONS.md) | [Observability stack](../observability/README.md) |
+| **Maintainer / contributor** | [Tooling & doc maintenance](./platform/TOOLING.md) | [CONTRIBUTING](../CONTRIBUTING.md) |
+
+---
+
+## Browse by task
+
+- **Set up the lab** → [SETUP](./getting-started/SETUP.md) · [Operations](./platform/OPERATIONS.md) · [FAQ](./platform/FAQ.md)
+- **Run one scenario** → [Scenario catalog](./scenario-guides/CATALOG.md) → its README → [Quick-reference card](./scenario-guides/quick-reference/index.md)
+- **Learn an attack class** → [Zero-to-hero walkthroughs](./scenario-guides/zero-to-hero/index.md)
+- **Detect & hunt** → [Detection & observability](./platform/DETECTION_AND_OBSERVABILITY.md) · [Best practices](./platform/BEST_PRACTICES.md)
+- **Teach a course** → [Learning path](./learning-path/index.md) · [Modules](./modules/index.md) · [Capstone rubric](./learning-path/CAPSTONE_RUBRIC.md)
+- **Optional cloud track** → [Floci integration guide](./guides/FLOCI_INTEGRATION.md)
+- **One-page commands** → [Quick reference](./platform/QUICK_REFERENCE.md)
+
+---
+
+## Documentation map
+
+| Section | Index | What's inside |
+|---------|-------|---------------|
+| **Getting started** | [getting-started/](./getting-started/index.md) | First lab, quick start, full setup |
+| **Scenario guides** | [scenario-guides/](./scenario-guides/index.md) | The 22-lab [catalog](./scenario-guides/CATALOG.md), zero-to-hero walkthroughs, quick-reference cards |
+| **Platform & operations** | [platform/](./platform/index.md) | Architecture, operations, detection, best practices, tooling, FAQ, quick reference |
+| **Learning path** | [learning-path/](./learning-path/index.md) | Curriculum, tracks, teaching delivery, capstone rubric |
+| **Teaching modules** | [modules/](./modules/index.md) | Instructor cards for all 22 scenarios + reusable template |
+| **Integration guides** | [guides/](./guides/index.md) | Optional integrations (Floci local-AWS cloud track) |
+| **Reference** | [reference/](./reference/index.md) | Scenario summaries, external resources, roadmap |
+| **Governance** | [LEGAL](../LEGAL.md) · [ATTRIBUTION](../ATTRIBUTION.md) · [AUTHORS](../AUTHORS.md) | Copyright, licensing, attribution |
 
 ---
 
@@ -38,23 +52,40 @@ Interactive onboarding: [`START_HERE.sh`](../START_HERE.sh) from the repo root.
 
 ```text
 documentation/
-├── README.md                 Project overview (you may also use this index)
-├── index.md                  ← YOU ARE HERE (navigation hub)
-├── getting-started/          Onboarding (3 guides)
-├── platform/                 Architecture, ops, detection, FAQ (6 guides)
-├── reference/                Catalogs & external refs (3 guides)
-├── learning-path/            Curriculum (4 guides)
-├── modules/                  Teaching cards (24 files)
-└── scenario-guides/
-    ├── CATALOG.md            All 22 scenarios — full link matrix
-    ├── zero-to-hero/         22 learner walkthroughs (TOC + Mitigation Playbook)
-    └── quick-reference/      22 command cheat sheets (TOC)
+├── index.md                  ← YOU ARE HERE (canonical navigation hub)
+├── README.md                 Thin pointer for GitHub folder view → this index
+├── getting-started/          Onboarding: first lab, quick start, setup
+├── scenario-guides/
+│   ├── CATALOG.md            All 22 scenarios — full link matrix
+│   ├── zero-to-hero/         22 learner walkthroughs (TOC + Mitigation Playbook)
+│   └── quick-reference/      22 command cheat sheets (TOC)
+├── platform/                 Architecture, operations, detection, tooling, FAQ
+├── learning-path/            Curriculum, tracks, teaching delivery, capstone
+├── modules/                  Teaching cards (template + index + 22 instances)
+├── guides/                   Optional integrations (Floci cloud track)
+└── reference/                Scenario summaries, external resources, roadmap
 ```
 
 ---
 
 ## Safety reminder
 
-Use SCAS **only** in isolated environments. Always `export TESTBENCH_MODE=enabled`. Exfiltration targets **localhost only**.
+This test bench contains **intentionally vulnerable code** for education only.
 
-See [FAQ.md](./platform/FAQ.md) and [SECURITY.md](../SECURITY.md).
+- Use **only** in isolated environments (VM recommended).
+- Always `export TESTBENCH_MODE=enabled` before labs.
+- Exfiltration targets **localhost only** — never publish malicious samples.
+
+See [FAQ](./platform/FAQ.md) and [SECURITY](../SECURITY.md).
+
+---
+
+## Keeping docs in sync
+
+When scenario runtime behavior changes, update docs in lockstep using the shared tooling. The full script catalog and the doc-maintenance lifecycle live in **[Tooling & doc maintenance](./platform/TOOLING.md)**.
+
+**Questions?** See the [FAQ](./platform/FAQ.md) or [open an issue](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues).
+
+---
+
+Documentation © 2024–2026 **Raja Nagori**, licensed [CC BY-NC-ND 4.0](../DOCUMENTATION-CC-BY-NC-ND.md). Software is [MIT](../LICENSE). See [LEGAL](../LEGAL.md) and [ATTRIBUTION](../ATTRIBUTION.md).

@@ -1,6 +1,10 @@
 # Floci integration guide (SCAS)
 
+> [Documentation](../index.md) › [Integration guides](./index.md) › Floci
+
 Optional **local AWS emulator** track for scenarios **05, 06, 14, 17, 21**. Uses [Floci](https://github.com/floci-io/floci) on port **4566**.
+
+The Floci helper scripts are also catalogued in [Tooling & doc maintenance](../platform/TOOLING.md#floci-cloud-track-optional).
 
 ## Initial setup (required once)
 
@@ -135,3 +139,11 @@ If you also run an external `floci` stack, stop one of them to avoid port 4566 c
 | `scripts/floci-down.sh` | Stop emulator |
 | `scripts/floci-status.sh` | Health + container status |
 | `scripts/floci-bridge.sh` | Sourced by scenario seed/verify scripts |
+
+---
+
+## Related
+
+- [Integration guides index](./index.md)
+- [Operations](../platform/OPERATIONS.md) · [Tooling & doc maintenance](../platform/TOOLING.md#floci-cloud-track-optional)
+- [↑ Documentation index](../index.md)

@@ -28,6 +28,24 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://rajanagori.github.io/supply-chain-attack-simulator/guide.html?p=scenario-guides/CATALOG.md</loc>
+    <lastmod>2026-06-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://rajanagori.github.io/supply-chain-attack-simulator/guide.html?p=platform/TOOLING.md</loc>
+    <lastmod>2026-06-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://rajanagori.github.io/supply-chain-attack-simulator/guide.html?p=guides/FLOCI_INTEGRATION.md</loc>
+    <lastmod>2026-06-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://rajanagori.github.io/supply-chain-attack-simulator/404.html</loc>
     <lastmod>2026-06-06</lastmod>
     <changefreq>monthly</changefreq>

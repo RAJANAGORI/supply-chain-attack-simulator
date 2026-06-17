@@ -1,6 +1,6 @@
 # Quick reference
 
-One-page navigation for the test bench. **Master index:** [README.md](./README.md) · **Full scenario link matrix:** [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md)
+One-page navigation for the test bench. **Master index:** [Documentation index](../index.md) · **Full scenario link matrix:** [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md)
 
 Authoritative content lives under **`documentation/`**. The **`docs/`** directory (GitHub Pages) adds **`index.html`** and **symlinks** to this tree.
 
@@ -8,7 +8,7 @@ Authoritative content lives under **`documentation/`**. The **`docs/`** director
 
 | Doc | Purpose |
 | --- | --- |
-| [README.md](./README.md) | **Master documentation index** |
+| [Documentation index](../index.md) | **Master documentation index** |
 | [FAQ.md](./FAQ.md) | Troubleshooting and common questions |
 | [ZERO_TO_HERO.md](../getting-started/ZERO_TO_HERO.md) | First lab for beginners |
 | [QUICK_START.md](../getting-started/QUICK_START.md) | Fast setup |

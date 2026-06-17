@@ -51,6 +51,6 @@ cat scenarios/11-registry-mirror-poisoning/DETECT.md
 
 ## Docs
 
-- [Zero-to-Hero walkthrough](./ZERO_TO_HERO_SCENARIO_11.md)
-- [Scenario README](../../scenarios/11-registry-mirror-poisoning/README.md)
+- [Zero-to-Hero walkthrough](../zero-to-hero/ZERO_TO_HERO_SCENARIO_11.md)
+- [Scenario README](../../../scenarios/11-registry-mirror-poisoning/README.md)
 - [Module card](../../modules/MODULE_INSTANCE_SCENARIO_11.md)

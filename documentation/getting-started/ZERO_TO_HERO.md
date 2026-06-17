@@ -1,4 +1,8 @@
-# Zero to Hero — Quick Beginner Guide
+# First lab in 10 minutes (Zero to Hero)
+
+> **Which "Zero to Hero" is this?** This is the **hands-on quick start** — clone, set up, and run your first scenario.
+> - Want the **conceptual curriculum** (trust-edge model, staged learning)? → [Curriculum overview](../learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md)
+> - Want the **22 step-by-step lab walkthroughs**? → [Zero-to-hero walkthroughs](../scenario-guides/zero-to-hero/index.md)
 
 This guide gets a newcomer from zero to running their first scenario and understanding the testbench safety controls.
 

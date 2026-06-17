@@ -1,4 +1,8 @@
-# Supply Chain Attacks: Zero to Hero
+# Supply Chain Attacks: Zero to Hero (Curriculum Overview)
+
+> **Which "Zero to Hero" is this?** This is the **conceptual curriculum** — the trust-edge mental model and staged learning progression for instructors and self-learners.
+> - Just want to **run your first lab**? → [First lab in 10 minutes](../getting-started/ZERO_TO_HERO.md)
+> - Want the **22 step-by-step lab walkthroughs**? → [Zero-to-hero walkthroughs](../scenario-guides/zero-to-hero/index.md)
 
 If you are teaching this topic to engineers, this page is the clean starting line.  
 The goal is simple: make people understand not just *what* happened, but *why* it happened and how to prevent it next time.

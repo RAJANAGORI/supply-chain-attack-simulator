@@ -34,4 +34,4 @@ Per-scenario instructor cards and the reusable module schema.
 | 21 | Axios-style npm release | [MODULE_INSTANCE_SCENARIO_21.md](./MODULE_INSTANCE_SCENARIO_21.md) |
 | 22 | LiteLLM-style PyPI compromise | [MODULE_INSTANCE_SCENARIO_22.md](./MODULE_INSTANCE_SCENARIO_22.md) |
 
-**Related:** [Scenario catalog](../scenario-guides/CATALOG.md) · [Teaching delivery pack](../learning-path/TEACHING_DELIVERY_PACK.md)
+**Related:** [Scenario catalog](../scenario-guides/CATALOG.md) · [Teaching delivery pack](../learning-path/TEACHING_DELIVERY_PACK.md) · [↑ Documentation index](../index.md)
