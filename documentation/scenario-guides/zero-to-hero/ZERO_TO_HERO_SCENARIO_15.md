@@ -551,6 +551,18 @@ node detection-tools/dev-tool-compromise-detector.js victim-app
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/15-developer-tool-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Enforce `--ignore-scripts` for untrusted tool installs by default.
+- Pin dev tooling versions and source from an approved internal registry.
+- Require review/allowlist for new lifecycle scripts in dependency diffs.
+- Isolate tool installation to sandboxed CI runners with egress controls.
+- Rotate credentials after any install-time compromise.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **15 — Developer Tool Compromise** is indexed in Elasticsearch when the observability stack is running.

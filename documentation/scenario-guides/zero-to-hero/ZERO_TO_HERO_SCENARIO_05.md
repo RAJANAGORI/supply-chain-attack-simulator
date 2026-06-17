@@ -381,6 +381,20 @@ gpg --verify dist/app.js.asc
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/05-build-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Verify build script integrity with checksums before each build.
+- Apply least privilege to CI/CD jobs and secret exposure.
+- Run builds in isolated environments with minimal credentials.
+- Verify build artifacts with checksums and signed attestations.
+- Use secret management tools — never hardcode secrets in build scripts.
+- Audit and log all build activities for forensic review.
+- Sign release artifacts and verify signatures before deployment.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **05 — Build System Compromise** is indexed in Elasticsearch when the observability stack is running.

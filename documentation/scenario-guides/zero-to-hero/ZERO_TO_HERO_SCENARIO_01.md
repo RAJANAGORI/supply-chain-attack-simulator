@@ -10,6 +10,7 @@ By the end of this guide, you will:
 - Execute a typosquatting attack (safely in a test environment)
 - See how data exfiltration works
 - Learn how to detect malicious packages
+- Apply the mitigation playbook controls for typosquatting prevention
 
 ---
 
@@ -522,6 +523,18 @@ For internal packages:
 
 
 ---
+
+---
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/01-typosquatting/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Commit `package-lock.json` and use `npm ci` in production pipelines.
+- Configure registry scope restrictions and verify package signatures where supported.
+- Run automated dependency scanning (e.g. `npm audit`, Snyk, Socket.dev).
+- Require a code-review checklist for every new dependency (name, maintainer, reputation).
+- Prefer private registries and scope-based routing for internal package names.
 
 ---
 

@@ -536,6 +536,18 @@ pip install litellm_like==1.82.6 --no-deps  # after verifying package integrity
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/22-litellm-pypi-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Contain: stop workloads using the compromised virtualenv; block egress from CI if needed.
+- Eradicate: `pip uninstall`, delete `.venv`, remove rogue `*.pth` under `site-packages`.
+- Recover: pin known-good version (`litellm_like==1.82.6`); enforce hash pinning or vetting.
+- Rotate: API keys and PyPI maintainer tokens after confirmed incidents.
+- Scan `site-packages/*.pth` in CI after every `pip install`.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **22 — LiteLLM-style PyPI Compromise** is indexed in Elasticsearch when the observability stack is running.

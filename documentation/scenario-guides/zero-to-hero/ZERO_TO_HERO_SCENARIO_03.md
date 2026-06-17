@@ -557,6 +557,19 @@ Implement preventive measures:
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/03-compromised-package/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Enforce lockfiles in CI (`npm ci --audit`) instead of open-ended `npm install`.
+- Pin exact versions for packages with high trust or wide blast radius.
+- Run automated security scanning on dependency updates (`npm audit`, custom scanners).
+- Verify package integrity and signatures when the registry supports them.
+- Monitor runtime behavior and log package installation events in production.
+- Maintain maintainer-transfer and dependency-addition review policies.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **03 — Compromised Package** is indexed in Elasticsearch when the observability stack is running.

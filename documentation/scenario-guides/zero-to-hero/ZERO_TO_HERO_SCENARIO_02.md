@@ -537,6 +537,20 @@ npm uses semantic versioning (semver) to resolve versions:
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/02-dependency-confusion/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Configure scope-specific registry routing in `.npmrc` (e.g. `@org:registry=...`).
+- Enforce package lock files and use `npm ci --audit` in CI/CD.
+- Isolate private registry traffic from public npm at the network layer.
+- Reserve internal namespaces on public registries where applicable.
+- Pin dependencies to exact versions for critical packages.
+- Verify package integrity hashes on install.
+- Add build-time validation to reject unexpected registry sources.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **02 — Dependency Confusion** is indexed in Elasticsearch when the observability stack is running.

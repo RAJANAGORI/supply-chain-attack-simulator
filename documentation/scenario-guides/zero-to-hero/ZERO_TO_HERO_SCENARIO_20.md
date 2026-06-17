@@ -519,6 +519,18 @@ node detection-tools/version-confusion-detector.js victim-app
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/20-package-version-confusion/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin exact versions for critical dependencies and enforce lockfile usage.
+- Scope private packages explicitly to internal registry endpoints.
+- Alert on unusual semver jumps and first-seen maintainers.
+- Require human review for dependency version changes above policy thresholds.
+- Prefer deterministic `npm ci` workflows in CI.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **20 — Package Version Confusion** is indexed in Elasticsearch when the observability stack is running.

@@ -627,6 +627,18 @@ node detection-tools/workspace-scanner.js .
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/12-workspace-monorepo-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Limit who can modify workspace and monorepo internal packages.
+- Audit all workspace packages regularly for lifecycle scripts and drift.
+- Monitor postinstall execution across workspace packages.
+- Review workspace dependency changes with the same rigor as external deps.
+- Track workspace package changes in version control with mandatory review.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **12 — Workspace / Monorepo Attack** is indexed in Elasticsearch when the observability stack is running.

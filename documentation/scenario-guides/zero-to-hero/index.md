@@ -1,6 +1,6 @@
 # Zero-to-hero scenario walkthroughs
 
-Step-by-step learner guides for all **22** scenarios. Each guide includes lab steps, detection notes, and an optional **Elasticsearch + Kibana** sequence diagram.
+Step-by-step learner guides for all **22** scenarios. Each guide includes lab steps, detection notes, a **Mitigation Playbook** (aligned with the scenario README), and an optional **Elasticsearch + Kibana** sequence diagram.
 
 | # | Scenario | Guide |
 |---|----------|-------|

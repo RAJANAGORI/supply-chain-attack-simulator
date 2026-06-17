@@ -547,6 +547,18 @@ node detection-tools/cache-poisoning-detector.js .
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/16-package-cache-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Clear/rotate package cache during incident response and critical pipeline runs.
+- Enforce lockfile + integrity verification against trusted metadata.
+- Use deterministic installs in CI (`npm ci`) and immutable artifact mirrors.
+- Monitor for suspicious cache path mutations and postinstall behavior.
+- Separate developer cache trust from production build trust boundaries.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **16 — Package Cache Poisoning** is indexed in Elasticsearch when the observability stack is running.

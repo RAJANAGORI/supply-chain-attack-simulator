@@ -564,6 +564,18 @@ test ! -f node_modules/target-lib/.infected-by-plugin && echo "Clean"
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/18-package-manager-plugin-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Enforce plugin allowlists with signed/approved plugin sources.
+- Block arbitrary plugin execution in CI and controlled developer images.
+- Run integrity checks on `node_modules` and generated lockfile state.
+- Review plugin code changes with the same rigor as build scripts.
+- Alert on hook-driven modifications outside expected paths.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **18 — Package Manager Plugin Attack** is indexed in Elasticsearch when the observability stack is running.

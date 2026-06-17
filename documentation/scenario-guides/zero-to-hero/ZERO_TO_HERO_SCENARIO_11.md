@@ -621,6 +621,18 @@ node detection-tools/mirror-validator.js compromised-mirror legitimate-packages
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/11-registry-mirror-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Secure mirror access — limit who can publish or modify mirror storage.
+- Audit mirror configuration and cached packages on a schedule.
+- Verify mirror packages match upstream registry digests.
+- Implement strict access controls and MFA on mirror admin paths.
+- Monitor mirror behavior and alert on unexpected package mutations.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **11 — Registry Mirror Poisoning** is indexed in Elasticsearch when the observability stack is running.

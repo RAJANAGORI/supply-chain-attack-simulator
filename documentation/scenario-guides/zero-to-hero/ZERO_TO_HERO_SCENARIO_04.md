@@ -369,6 +369,19 @@ Always review changelogs before updating:
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/04-malicious-update/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin exact versions in `package.json` — avoid carets on sensitive dependencies.
+- Commit lockfiles and use `npm ci` in CI/CD pipelines.
+- Verify updates before install (changelog review, integrity checks, code diff).
+- Scan dependency updates automatically in CI before merge.
+- Use staged rollouts — test updates in staging before production.
+- Require human review of changelogs for patch and minor bumps on critical packages.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **04 — Malicious Update** is indexed in Elasticsearch when the observability stack is running.

@@ -534,6 +534,18 @@ npm ci 2>/dev/null || npm install
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/19-sbom-manipulation-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Regenerate SBOM from lockfile/build artifacts in trusted CI only.
+- Require SBOM signing and provenance attestation.
+- Enforce fail-closed CI policy for SBOM-lockfile mismatches.
+- Keep truth-source and SBOM generation isolated from app code tampering.
+- Periodically diff production SBOM against runtime inventory scans.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **19 — SBOM Manipulation** is indexed in Elasticsearch when the observability stack is running.

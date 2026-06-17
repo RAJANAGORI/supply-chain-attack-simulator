@@ -592,6 +592,17 @@ node detection-tools/metadata-validator.js victim-app/node_modules/clean-utils
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/13-package-metadata-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Validate metadata against trusted allowlists for critical packages.
+- Require lockfile and integrity verification in CI.
+- Pin exact versions for sensitive dependencies.
+- Mirror and sign internal-approved artifacts.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **13 — Package Metadata Manipulation** is indexed in Elasticsearch when the observability stack is running.

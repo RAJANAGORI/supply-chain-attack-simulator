@@ -316,6 +316,18 @@ git commit -m "Remove malicious submodule"
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/10-git-submodule-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Review every submodule addition in pull requests.
+- Validate submodule repository URLs against an allowlist.
+- Limit who can add or modify submodules in protected branches.
+- Pin submodules to specific commits, not floating branch heads.
+- Scan submodule content and monitor submodule initialization behavior.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **10 — Git Submodule Attack** is indexed in Elasticsearch when the observability stack is running.

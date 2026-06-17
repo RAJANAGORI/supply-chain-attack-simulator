@@ -553,6 +553,18 @@ node detection-tools/axios-compromise-detector.js victim-app
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/21-axios-compromised-release-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Contain: stop CI runners and isolate hosts that installed the bad version.
+- Eradicate: remove `node_modules`, regenerate lockfiles, rotate npm tokens and CI secrets.
+- Recover: pin to a known-good exact version; enforce lockfile-only installs in CI.
+- Hunt: search org lockfiles for unexpected transitive packages from advisories.
+- Enable trusted publishing / provenance checks and lifecycle script monitoring.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **21 — Axios-style Compromised Release** is indexed in Elasticsearch when the observability stack is running.

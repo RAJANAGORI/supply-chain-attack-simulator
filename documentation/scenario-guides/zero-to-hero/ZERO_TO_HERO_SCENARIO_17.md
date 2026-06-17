@@ -577,6 +577,18 @@ node detection-tools/multi-stage-correlator.js .
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/17-multi-stage-attack-chain/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Add correlation rules that require cross-stage context before closing alerts.
+- Segment credentials and permissions to block stage progression.
+- Trigger automated containment when stage transitions occur in short windows.
+- Preserve forensic artifacts per stage for post-incident timeline reconstruction.
+- Run attack-chain tabletop exercises against your CI/CD architecture.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **17 — Multi-Stage Attack Chain** is indexed in Elasticsearch when the observability stack is running.

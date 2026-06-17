@@ -664,6 +664,19 @@ cat package-lock.json | grep evil-utils
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Validate lockfiles before install in CI and locally.
+- Use git pre-commit hooks to detect unexpected lockfile changes.
+- Require careful code review of every `package-lock.json` diff.
+- Store and verify lockfile checksums as part of release gates.
+- Compare `package.json` declared deps against lockfile entries automatically.
+- Verify package integrity hashes match trusted registry metadata.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **08 — Package Lock File Manipulation** is indexed in Elasticsearch when the observability stack is running.

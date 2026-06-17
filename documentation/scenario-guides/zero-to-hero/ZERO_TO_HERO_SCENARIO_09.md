@@ -297,6 +297,19 @@ npm cache clean --force
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/09-package-signing-bypass/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Protect signing keys with HSMs or hardened secret stores.
+- Require MFA for all key access and signing operations.
+- Rotate signing keys on a regular schedule and after incidents.
+- Limit who can sign packages with strict access controls.
+- Always verify signatures — but pair with behavioral and content analysis.
+- Monitor signing activity for anomalies (time, volume, key fingerprint).
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **09 — Package Signing Bypass** is indexed in Elasticsearch when the observability stack is running.

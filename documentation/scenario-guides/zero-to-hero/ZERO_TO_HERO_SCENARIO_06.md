@@ -590,6 +590,19 @@ Implement preventive measures:
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/06-sha-hulud/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Require 2FA on all package maintainer and publishing accounts.
+- Restrict or monitor `postinstall` and other lifecycle scripts.
+- Run automated security scanning in CI on every dependency change.
+- Use secret management tools; never commit tokens or keys to repositories.
+- Enforce lockfiles with `npm ci --audit` in CI pipelines.
+- Rotate credentials immediately after suspected compromise.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **06 — Shai-Hulud (Self-Replicating)** is indexed in Elasticsearch when the observability stack is running.

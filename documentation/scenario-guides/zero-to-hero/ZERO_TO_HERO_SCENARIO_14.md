@@ -549,6 +549,18 @@ docker run --rm scas-legit
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/14-container-image-supply-chain-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Enforce image provenance and signature verification in CI/CD.
+- Pin immutable image digests (not mutable tags only).
+- Add policy checks for entrypoint/CMD changes on critical images.
+- Restrict outbound network from build and runtime where possible.
+- Require reproducible image builds and signed attestations.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **14 — Container Image Supply Chain** is indexed in Elasticsearch when the observability stack is running.

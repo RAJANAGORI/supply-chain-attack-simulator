@@ -615,6 +615,19 @@ git commit -m "Update package-lock.json with safe dependencies"
 
 ---
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/07-transitive-dependency/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin exact dependency versions — avoid loose semver ranges on critical packages.
+- Commit `package-lock.json` and use `npm ci` in CI/CD.
+- Run automated scanning (`npm audit`, SBOM tools) across the full dependency tree.
+- Generate and maintain SBOMs for transitive dependency visibility.
+- Monitor postinstall script execution and unexpected network requests.
+- Review the full dependency tree regularly, not only direct dependencies.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **07 — Transitive Dependency** is indexed in Elasticsearch when the observability stack is running.
