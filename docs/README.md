@@ -29,11 +29,11 @@ Governance Markdown (LEGAL.md, ATTRIBUTION.md, AUTHORS.md, DOCUMENTATION-CC-BY-N
 
 Markdown under **`getting-started/`**, **`platform/`**, **`reference/`**, **`learning-path/`**, **`modules/`**, **`scenario-guides/`**, and **`guides/`** are **symbolic links** to matching paths under **`documentation/`** — not separate copies. Edit under `documentation/` for content changes.
 
-**Web docs:** Open [`guide.html`](./guide.html) for the full sequential documentation experience.
+**Web docs:** Open [`guide.html`](./guide.html) for the full sequential documentation experience. Use URLs like `guide.html?p=platform/TOOLING.md#floci-cloud-track-optional` — not bare `/platform/TOOLING.md` paths (those redirect to `guide.html` after deploy).
 
 ### Deploying to GitHub Pages
 
-GitHub Pages does not publish symlinks that point outside `docs/`. Before deploy, run `./scripts/materialize-docs-for-pages.sh` (or use the GitHub Actions workflow) to replace symlinks with real copies.
+GitHub Pages does not publish symlinks that point outside `docs/`. Before deploy, run `./scripts/materialize-docs-for-pages.sh` (or use the GitHub Actions workflow). The script copies Markdown into **`docs/_sources/`** only (not at public `docs/platform/` paths), so browsers load the rendered hub instead of raw `.md` files.
 
 Also present: **`docs/.nojekyll`** disables Jekyll so static HTML/JSON assets are served as-is.
 

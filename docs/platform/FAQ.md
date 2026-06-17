@@ -159,7 +159,6 @@ You may fork and use **software** under MIT with attribution. **Documentation** 
 
 - [CONTRIBUTING.md](../../CONTRIBUTING.md)
 - [SECURITY.md](../../SECURITY.md)
-- [ROADMAP.md](../reference/ROADMAP.md)
 - [GitHub Issues](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues)
 
 ---

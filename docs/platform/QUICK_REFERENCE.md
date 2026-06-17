@@ -60,4 +60,4 @@ Centralized in [`scripts/ports.env`](../../scripts/ports.env). See [OPERATIONS.m
 
 ## External references
 
-[RESOURCES.md](../reference/RESOURCES.md) · [ROADMAP.md](../reference/ROADMAP.md)
+[RESOURCES.md](../reference/RESOURCES.md)

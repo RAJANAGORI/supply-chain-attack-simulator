@@ -43,7 +43,7 @@ Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) direct
 | **Learning path** | [learning-path/](./learning-path/index.md) | Curriculum, tracks, teaching delivery, capstone rubric |
 | **Teaching modules** | [modules/](./modules/index.md) | Instructor cards for all 22 scenarios + reusable template |
 | **Integration guides** | [guides/](./guides/index.md) | Optional integrations (Floci local-AWS cloud track) |
-| **Reference** | [reference/](./reference/index.md) | Scenario summaries, external resources, roadmap |
+| **Reference** | [reference/](./reference/index.md) | Scenario summaries and external resources |
 | **Governance** | [LEGAL](../LEGAL.md) · [ATTRIBUTION](../ATTRIBUTION.md) · [AUTHORS](../AUTHORS.md) | Copyright, licensing, attribution |
 
 ---
@@ -63,7 +63,7 @@ documentation/
 ├── learning-path/            Curriculum, tracks, teaching delivery, capstone
 ├── modules/                  Teaching cards (template + index + 22 instances)
 ├── guides/                   Optional integrations (Floci cloud track)
-└── reference/                Scenario summaries, external resources, roadmap
+└── reference/                Scenario summaries and external resources
 ```
 
 ---

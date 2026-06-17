@@ -54,7 +54,7 @@ Keeps scenario docs, table-of-contents blocks, and mitigation playbooks consiste
 | [`scripts/inject-zero-to-hero-toc.js`](../../scripts/inject-zero-to-hero-toc.js) | Zero-to-hero-only TOC pass (subset of `inject-markdown-toc.js`) |
 | [`scripts/lib/markdown-toc.js`](../../scripts/lib/markdown-toc.js) | Shared TOC/slug helpers (consumed by the inject scripts) |
 | [`scripts/lib/mitigation-playbooks.js`](../../scripts/lib/mitigation-playbooks.js) | **Canonical mitigation bullets** per scenario — edit here first |
-| [`scripts/materialize-docs-for-pages.sh`](../../scripts/materialize-docs-for-pages.sh) | Replace `docs/` symlinks with real files for GitHub Pages |
+| [`scripts/materialize-docs-for-pages.sh`](../../scripts/materialize-docs-for-pages.sh) | Copy Markdown into `docs/_sources/` for GitHub Pages (guide.html fetch; no bare `.md` URLs) |
 
 ### Content & publishing
 
@@ -116,7 +116,7 @@ node detection-tools/es/load-runbooks.js                    # reload DETECT.md i
 The site under [`docs/`](../../docs/) is GitHub Pages. Content folders are **symlinks** into `documentation/`, and [`docs-manifest.json`](../../docs/docs-manifest.json) drives the [`guide.html`](../../docs/guide.html) reader's sidebar.
 
 ```bash
-# Replace docs/ symlinks with real copies before deploy
+# Replace docs/ symlinks with real files under docs/_sources/ for guide.html fetch.
 ./scripts/materialize-docs-for-pages.sh
 ```
 

@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Materialize documentation for static hosting
-        run: chmod +x scripts/materialize-docs-for-pages.sh && ./scripts/materialize-docs-for-pages.sh
+        run: chmod +x scripts/materialize-docs-for-pages.sh && SCAS_MATERIALIZE_DOCS=1 ./scripts/materialize-docs-for-pages.sh
 
       - uses: actions/upload-pages-artifact@v3
         with:

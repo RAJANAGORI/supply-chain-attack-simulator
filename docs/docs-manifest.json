@@ -105,12 +105,11 @@
     {
       "id": "reference",
       "title": "Reference",
-      "description": "Catalogs, external resources, and project planning",
+      "description": "Catalogs and external resources",
       "items": [
         { "path": "reference/index.md", "title": "Reference index" },
         { "path": "reference/SCENARIOS.md", "title": "Scenario summaries" },
-        { "path": "reference/RESOURCES.md", "title": "External resources" },
-        { "path": "reference/ROADMAP.md", "title": "2026 roadmap" }
+        { "path": "reference/RESOURCES.md", "title": "External resources" }
       ]
     },
     {

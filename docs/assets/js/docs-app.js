@@ -6,6 +6,9 @@
   const REPO_BLOB = REPO + '/blob/main';
   const REPO_RAW = 'https://raw.githubusercontent.com/rajanagori/supply-chain-attack-simulator/main';
 
+  /** Not published on the public docs site (internal / gitignored). */
+  const BLOCKED_DOC_PATHS = new Set(['reference/ROADMAP.md']);
+
   /** @type {{ version: number, defaultDoc: string, repoUrl: string, sections: Array }} */
   let manifest = null;
   /** @type {Array<{ path: string, title: string, badge?: string, sectionId: string, sectionTitle: string }>} */
@@ -41,12 +44,18 @@
     return './';
   }
 
-  function guideUrl(path) {
+  function guideUrl(path, hash) {
     const base = basePath();
-    if (base === './') {
-      return 'guide.html?p=' + encodeURIComponent(path);
-    }
-    return base + 'guide.html?p=' + encodeURIComponent(path);
+    const q = 'guide.html?p=' + encodeURIComponent(path);
+    const url = base === './' ? q : base + q;
+    const fragment = hash ? (hash.startsWith('#') ? hash : '#' + hash) : '';
+    return url + fragment;
+  }
+
+  function splitHash(href) {
+    const idx = href.indexOf('#');
+    if (idx === -1) return { path: href, hash: '' };
+    return { path: href.slice(0, idx), hash: href.slice(idx) };
   }
 
   function normalizePath(p) {
@@ -99,7 +108,6 @@
     'QUICK_REFERENCE.md': 'documentation/platform/QUICK_REFERENCE.md',
     'SCENARIOS.md': 'documentation/reference/SCENARIOS.md',
     'RESOURCES.md': 'documentation/reference/RESOURCES.md',
-    'ROADMAP.md': 'documentation/reference/ROADMAP.md',
   };
 
   /** Legacy flat paths → new layout under docs/ (local fetch). */
@@ -116,7 +124,6 @@
     'QUICK_REFERENCE.md': 'platform/QUICK_REFERENCE.md',
     'SCENARIOS.md': 'reference/SCENARIOS.md',
     'RESOURCES.md': 'reference/RESOURCES.md',
-    'ROADMAP.md': 'reference/ROADMAP.md',
   };
 
   function localDocPath(resolved) {
@@ -149,8 +156,10 @@
   }
 
   async function fetchMarkdown(path) {
-    const localUrl = basePath() + localDocPath(path);
-    const urls = [localUrl, rawRepoUrl(path)];
+    const rel = localDocPath(path);
+    const localUrl = basePath() + rel;
+    const sourcesUrl = basePath() + '_sources/' + rel;
+    const urls = [localUrl, sourcesUrl, rawRepoUrl(path)];
 
     let lastError = null;
     for (let i = 0; i < urls.length; i++) {
@@ -174,28 +183,36 @@
   }
 
   function rewriteHref(fromPath, href) {
-    if (/^https?:\/\//i.test(href) || href.startsWith('#') || href.startsWith('mailto:')) {
+    const split = splitHash(href);
+    const hrefPath = split.path;
+    const hash = split.hash;
+
+    if (/^https?:\/\//i.test(hrefPath) || hrefPath.startsWith('mailto:')) {
       return href;
     }
 
-    const resolved = normalizePath(resolveRelative(fromPath, href));
+    if (hrefPath.startsWith('#')) {
+      return href;
+    }
 
-    if (resolved.endsWith('.md') && allowedPaths.has(resolved)) {
-      return guideUrl(resolved);
+    const resolved = normalizePath(resolveRelative(fromPath, hrefPath));
+
+    if (resolved.endsWith('.md') && allowedPaths.has(resolved) && !BLOCKED_DOC_PATHS.has(resolved)) {
+      return guideUrl(resolved, hash);
     }
 
     if (resolved.startsWith('scenarios/') || resolved.includes('/scenarios/')) {
-      return repoBlobUrl(resolved);
+      return repoBlobUrl(resolved) + hash;
     }
 
     if (resolved.startsWith('scripts/') || resolved.startsWith('observability/') ||
         resolved.startsWith('detection-tools/')) {
-      return repoBlobUrl(resolved);
+      return repoBlobUrl(resolved) + hash;
     }
 
-    if (href.endsWith('.md')) {
-      if (allowedPaths.has(resolved)) return guideUrl(resolved);
-      return repoBlobUrl(repoPathForResolved(resolved));
+    if (hrefPath.endsWith('.md')) {
+      if (allowedPaths.has(resolved) && !BLOCKED_DOC_PATHS.has(resolved)) return guideUrl(resolved, hash);
+      return repoBlobUrl(repoPathForResolved(resolved)) + hash;
     }
 
     return href;
@@ -394,12 +411,18 @@
     });
   }
 
-  async function loadDoc(path) {
+  async function loadDoc(path, hash) {
+    if (BLOCKED_DOC_PATHS.has(path)) {
+      navigate(manifest.defaultDoc);
+      return;
+    }
+
     if (!allowedPaths.has(path)) {
       showError('Document not found in catalog: ' + path);
       return;
     }
 
+    const fragment = hash || '';
     currentPath = path;
     const meta = getDocMeta(path);
 
@@ -445,7 +468,17 @@
 
     bindMermaidLightbox();
 
-    history.replaceState({ path: path }, '', guideUrl(path));
+    history.replaceState({ path: path, hash: fragment }, '', guideUrl(path, fragment));
+
+    if (fragment) {
+      const id = fragment.replace(/^#/, '');
+      requestAnimationFrame(function () {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
   }
 
   function bindInternalLinks() {
@@ -456,10 +489,11 @@
 
   function onGuideLinkClick(e) {
     const href = e.currentTarget.getAttribute('href');
-    const match = href.match(/[?&]p=([^&]+)/);
+    const match = href.match(/[?&]p=([^&#]+)/);
     if (!match) return;
     e.preventDefault();
-    navigate(decodeURIComponent(match[1]));
+    const hash = href.includes('#') ? href.slice(href.indexOf('#')) : '';
+    navigate(decodeURIComponent(match[1]), hash);
   }
 
   function showError(msg) {
@@ -468,10 +502,14 @@
     els.progress.textContent = '';
   }
 
-  function navigate(path) {
+  function navigate(path, hash) {
     path = normalizePath(path);
-    loadDoc(path);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const fragment = hash || '';
+    const shouldScrollTop = !fragment;
+    loadDoc(path, fragment);
+    if (shouldScrollTop) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   function scrollActiveNavIntoView() {
@@ -577,12 +615,17 @@
     els.backdrop.classList.add('open');
   }
 
-  function getInitialPath() {
+  function getInitialDoc() {
     const params = new URLSearchParams(window.location.search);
-    if (params.has('p')) return normalizePath(params.get('p'));
-    const hash = window.location.hash.replace(/^#/, '');
-    if (hash.startsWith('p=')) return normalizePath(decodeURIComponent(hash.slice(2)));
-    return manifest.defaultDoc;
+    const hash = window.location.hash || '';
+    if (params.has('p')) {
+      return { path: normalizePath(params.get('p')), hash: hash };
+    }
+    const hashOnly = window.location.hash.replace(/^#/, '');
+    if (hashOnly.startsWith('p=')) {
+      return { path: normalizePath(decodeURIComponent(hashOnly.slice(2))), hash: '' };
+    }
+    return { path: manifest.defaultDoc, hash: '' };
   }
 
   async function init() {
@@ -602,12 +645,14 @@
     }
 
     window.addEventListener('popstate', function (e) {
-      if (e.state && e.state.path) navigate(e.state.path);
+      if (e.state && e.state.path) {
+        navigate(e.state.path, e.state.hash || '');
+      }
     });
 
     window.addEventListener('scas-theme-change', function () {
       if (!currentPath || !allowedPaths.has(currentPath)) return;
-      loadDoc(currentPath);
+      loadDoc(currentPath, window.location.hash || '');
     });
 
     try {
@@ -618,7 +663,8 @@
       }
       buildIndex(manifest);
       renderSidebar('');
-      navigate(getInitialPath());
+      const initial = getInitialDoc();
+      navigate(initial.path, initial.hash);
     } catch (err) {
       showError('Failed to load documentation manifest: ' + err.message);
     }

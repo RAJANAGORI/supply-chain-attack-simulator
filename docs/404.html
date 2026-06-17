@@ -7,10 +7,22 @@
   <meta name="description" content="The page you're looking for doesn't exist. Return to the Supply Chain Attack Simulator homepage.">
   <meta name="robots" content="noindex, follow">
   <meta name="theme-color" content="#0a0a0f">
-  <link rel="canonical" href="https://rajanagori.github.io/supply-chain-attack-simulator/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      var path = window.location.pathname.replace(/\/$/, '');
+      var prefix = path.indexOf('/supply-chain-attack-simulator') === 0 ? '/supply-chain-attack-simulator/' : '/';
+      var rel = path.replace(/^\/supply-chain-attack-simulator\//, '').replace(/^\//, '');
+      if (rel.endsWith('.md')) {
+        var target = prefix + 'guide.html?p=' + encodeURIComponent(rel) + window.location.hash;
+        window.location.replace(target);
+        return;
+      }
+      window.__scas404Base = prefix;
+    })();
+  </script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#e8e8f0;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;overflow:hidden}
@@ -28,10 +40,17 @@
     <div class="error-code" aria-hidden="true">404</div>
     <h1>Page not found</h1>
     <p>The page you're looking for doesn't exist or has been moved. Head back to the Supply Chain Attack Simulator homepage.</p>
-    <a href="/supply-chain-attack-simulator/" class="btn">
+    <a href="/" id="scas-home-link" class="btn">
       Back to Home
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
   </main>
+  <script>
+    (function () {
+      var base = window.__scas404Base || '/';
+      var link = document.getElementById('scas-home-link');
+      if (link) link.setAttribute('href', base);
+    })();
+  </script>
 </body>
 </html>
