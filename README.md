@@ -12,7 +12,7 @@ Pick **one** path; everything else links out so you are not stuck in a long READ
 
 | You are… | Do this |
 |----------|---------|
-| **New to the project** | Run `./START_HERE.sh` (after `chmod +x START_HERE.sh`) or read [Zero to Hero](documentation/getting-started/ZERO_TO_HERO.md) |
+| **New to the project** | [Full-stack setup](documentation/getting-started/FULL_STACK_SETUP.md) (SCAS + ES + Floci) or `./START_HERE.sh` |
 | **Planning teaching or a curriculum** | Use the [Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md) (beginner → intermediate → advanced) |
 | **Comfortable with npm, shells, and isolated VMs** | [Quick Start](#quick-start-experienced-users) below, then open the README inside each scenario folder |
 
@@ -193,8 +193,9 @@ Authoritative Markdown lives under **`documentation/`** — start at the **[docu
 |-----|---------|
 | [Documentation index](documentation/index.md) | Master navigation hub — start here |
 | [Scenario catalog](documentation/scenario-guides/CATALOG.md) | All 22 labs — README, DETECT, guides, modules |
+| [Full-stack setup](documentation/getting-started/FULL_STACK_SETUP.md) | Workshop install — SCAS + Elasticsearch + Floci |
 | [First lab in 10 minutes](documentation/getting-started/ZERO_TO_HERO.md) | Guided start if you are new |
-| [Complete setup](documentation/getting-started/SETUP.md) | Full installation and prerequisites |
+| [SCAS-only setup](documentation/getting-started/SETUP.md) | Core installation and prerequisites |
 | [Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md) | Beginner / intermediate / advanced tracks |
 | [Architecture](documentation/platform/ARCHITECTURE.md) | Platform design |
 | [Operations](documentation/platform/OPERATIONS.md) | Lab workflow, ports, teardown |

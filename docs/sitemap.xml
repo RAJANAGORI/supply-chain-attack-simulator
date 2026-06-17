@@ -28,6 +28,12 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://rajanagori.github.io/supply-chain-attack-simulator/guide.html?p=getting-started/FULL_STACK_SETUP.md</loc>
+    <lastmod>2026-06-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://rajanagori.github.io/supply-chain-attack-simulator/guide.html?p=scenario-guides/CATALOG.md</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>

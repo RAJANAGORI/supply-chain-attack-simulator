@@ -12,7 +12,7 @@ Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) direct
 
 | You are… | Start here | Then |
 |----------|------------|------|
-| **New to SCAS** | [First lab in 10 minutes](./getting-started/ZERO_TO_HERO.md) | [Scenario 01 walkthrough](./scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md) |
+| **New to SCAS** | [Full-stack setup](./getting-started/FULL_STACK_SETUP.md) | [Scenario 01 walkthrough](./scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md) |
 | **Experienced developer** | [Quick start](./getting-started/QUICK_START.md) | [Scenario catalog](./scenario-guides/CATALOG.md) |
 | **Blue-team / detection** | [Detection & observability](./platform/DETECTION_AND_OBSERVABILITY.md) | `scenarios/*/DETECT.md` (IOCs + mitigation) |
 | **Instructor / workshop lead** | [Teaching delivery pack](./learning-path/TEACHING_DELIVERY_PACK.md) | [Teaching modules](./modules/index.md) |
@@ -23,7 +23,7 @@ Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) direct
 
 ## Browse by task
 
-- **Set up the lab** → [SETUP](./getting-started/SETUP.md) · [Operations](./platform/OPERATIONS.md) · [FAQ](./platform/FAQ.md)
+- **Set up the lab** → [Full-stack setup](./getting-started/FULL_STACK_SETUP.md) · [SETUP](./getting-started/SETUP.md) · [Operations](./platform/OPERATIONS.md) · [FAQ](./platform/FAQ.md)
 - **Run one scenario** → [Scenario catalog](./scenario-guides/CATALOG.md) → its README → [Quick-reference card](./scenario-guides/quick-reference/index.md)
 - **Learn an attack class** → [Zero-to-hero walkthroughs](./scenario-guides/zero-to-hero/index.md)
 - **Detect & hunt** → [Detection & observability](./platform/DETECTION_AND_OBSERVABILITY.md) · [Best practices](./platform/BEST_PRACTICES.md)
@@ -37,7 +37,7 @@ Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) direct
 
 | Section | Index | What's inside |
 |---------|-------|---------------|
-| **Getting started** | [getting-started/](./getting-started/index.md) | First lab, quick start, full setup |
+| **Getting started** | [getting-started/](./getting-started/index.md) | Full-stack setup, first lab, quick start, SCAS-only setup |
 | **Scenario guides** | [scenario-guides/](./scenario-guides/index.md) | The 22-lab [catalog](./scenario-guides/CATALOG.md), zero-to-hero walkthroughs, quick-reference cards |
 | **Platform & operations** | [platform/](./platform/index.md) | Architecture, operations, detection, best practices, tooling, FAQ, quick reference |
 | **Learning path** | [learning-path/](./learning-path/index.md) | Curriculum, tracks, teaching delivery, capstone rubric |
@@ -54,7 +54,7 @@ Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) direct
 documentation/
 ├── index.md                  ← YOU ARE HERE (canonical navigation hub)
 ├── README.md                 Thin pointer for GitHub folder view → this index
-├── getting-started/          Onboarding: first lab, quick start, setup
+├── getting-started/          Onboarding: full-stack setup, first lab, quick start
 ├── scenario-guides/
 │   ├── CATALOG.md            All 22 scenarios — full link matrix
 │   ├── zero-to-hero/         22 learner walkthroughs (TOC + Mitigation Playbook)

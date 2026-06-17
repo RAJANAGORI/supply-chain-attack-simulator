@@ -15,6 +15,7 @@
       "sequential": true,
       "items": [
         { "path": "index.md", "title": "Documentation index" },
+        { "path": "getting-started/FULL_STACK_SETUP.md", "title": "Full-stack setup (SCAS + ES + Floci)" },
         { "path": "getting-started/ZERO_TO_HERO.md", "title": "Zero to Hero overview" },
         { "path": "getting-started/QUICK_START.md", "title": "Quick start" },
         { "path": "getting-started/SETUP.md", "title": "Complete setup" }
