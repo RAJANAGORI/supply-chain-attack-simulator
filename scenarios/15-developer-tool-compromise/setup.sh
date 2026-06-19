@@ -21,7 +21,7 @@ if [[ "${TESTBENCH_MODE:-}" != "enabled" ]]; then
 fi
 
 mkdir -p infrastructure victim-app
-echo "[]" > infrastructure/captured-data.json
+echo '{"captures": []}' > infrastructure/captured-data.json
 rm -rf victim-app/node_modules
 
 cat <<'EOF'

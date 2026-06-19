@@ -31,6 +31,8 @@ Markdown under **`getting-started/`**, **`platform/`**, **`reference/`**, **`lea
 
 **Web docs:** Open [`guide.html`](./guide.html) for the full sequential documentation experience. Use URLs like `guide.html?p=platform/TOOLING.md#floci-cloud-track-optional` — not bare `/platform/TOOLING.md` paths (those redirect to `guide.html` after deploy).
 
+**Accidentally ran materialize locally?** `./scripts/restore-docs-symlinks.sh` then `git status docs/`.
+
 ### Deploying to GitHub Pages
 
 GitHub Pages does not publish symlinks that point outside `docs/`. Before deploy, run `./scripts/materialize-docs-for-pages.sh` (or use the GitHub Actions workflow). The script copies Markdown into **`docs/_sources/`** only (not at public `docs/platform/` paths), so browsers load the rendered hub instead of raw `.md` files.

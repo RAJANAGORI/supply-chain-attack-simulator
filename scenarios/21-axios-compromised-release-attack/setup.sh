@@ -20,7 +20,7 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
-echo "[]" > infrastructure/captured-data.json
+echo '{"beacons": []}' > infrastructure/captured-data.json
 rm -f victim-app/.testbench-axios-ioc.json
 
 command -v node >/dev/null 2>&1 || { echo "❌ Node.js required"; exit 1; }

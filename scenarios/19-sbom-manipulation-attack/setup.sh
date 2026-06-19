@@ -21,7 +21,7 @@ if [[ "${TESTBENCH_MODE:-}" != "enabled" ]]; then
 fi
 
 mkdir -p infrastructure victim-app
-echo "[]" > infrastructure/captured-data.json
+echo '{"captures": []}' > infrastructure/captured-data.json
 
 cat <<'EOF'
 ================================================
@@ -33,6 +33,7 @@ cat <<'EOF'
    cd victim-app
    rm -rf node_modules package-lock.json
    npm install
+   export TESTBENCH_MODE=enabled
    npm start
 
 3) Detection (from scenario root):

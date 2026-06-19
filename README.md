@@ -54,7 +54,7 @@ For a **full numbered list** with paths and skills, see [Scenario walkthroughs](
 ```
 supply-chain-attack-simulator/
 ├── scenarios/                  # Attack scenario labs (01- … 22-)
-├── vulnerable-apps/             # Sample vulnerable applications (Node, Python, CI)
+├── vulnerable-apps/             # Optional sample vulnerable Node.js app (scenario 03)
 ├── malicious-packages/          # Example malicious packages (for learning)
 ├── detection-tools/             # Security scanning and detection tools
 ├── observability/               # Optional Elasticsearch + Kibana stack (issue #22)

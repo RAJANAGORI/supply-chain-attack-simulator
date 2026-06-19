@@ -15,6 +15,7 @@ Educational supply-chain attack labs. **22 scenarios** (`01-` … `22-`), CLI-on
 | Full-stack install | `documentation/getting-started/FULL_STACK_SETUP.md` | SCAS + Elasticsearch + Floci workshop walkthrough |
 | Scripts & doc sync | `documentation/platform/TOOLING.md` | Full `scripts/` catalog + content lifecycle |
 | Mock exfil server | `scenarios/01-typosquatting/infrastructure/mock-server.js` | Same file in other scenarios unless port/endpoints differ |
+| New mock server (template) | `scenarios/_shared/mock-server-template.js` | Copy into `scenarios/NN-*/infrastructure/`; adjust `PORT` |
 | Setup flow | `scenarios/01-typosquatting/setup.sh` | Each scenario has its own `setup.sh` with same `TESTBENCH_MODE` gate |
 | Detection runbook | `scenarios/01-typosquatting/DETECT.md` | Sections: IOCs, Sample Log Lines, Sigma, YARA, EDR/SIEM, **Mitigation** |
 | Malicious package | `scenarios/01-typosquatting/templates/malicious-package-template.js` | Per-scenario `templates/` or `malicious-packages/` |

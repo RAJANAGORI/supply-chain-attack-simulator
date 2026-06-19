@@ -51,7 +51,8 @@ Keeps scenario docs, table-of-contents blocks, and mitigation playbooks consiste
 | [`scripts/inject-markdown-toc.js`](../../scripts/inject-markdown-toc.js) | Regenerate the **Table of Contents** in zero-to-hero guides, scenario READMEs, and quick-reference cards. Targets: `all`, `readme`, `quick-ref`, `zero-to-hero` |
 | [`scripts/sync-mitigation-gaps.js`](../../scripts/sync-mitigation-gaps.js) | Sync `## Mitigation` (DETECT.md) and README playbooks for scenarios 01–06 from canonical data |
 | [`scripts/inject-zero-to-hero-mitigation-playbooks.js`](../../scripts/inject-zero-to-hero-mitigation-playbooks.js) | Insert `## Mitigation Playbook` into a zero-to-hero guide (idempotent) |
-| [`scripts/inject-zero-to-hero-toc.js`](../../scripts/inject-zero-to-hero-toc.js) | Zero-to-hero-only TOC pass (subset of `inject-markdown-toc.js`) |
+| [`scripts/inject-zero-to-hero-toc.js`](../../scripts/inject-zero-to-hero-toc.js) | Deprecated wrapper → `inject-markdown-toc.js zero-to-hero` |
+| [`scripts/restore-docs-symlinks.sh`](../../scripts/restore-docs-symlinks.sh) | Restore `docs/` → `documentation/` symlinks after accidental local materialize |
 | [`scripts/lib/markdown-toc.js`](../../scripts/lib/markdown-toc.js) | Shared TOC/slug helpers (consumed by the inject scripts) |
 | [`scripts/lib/mitigation-playbooks.js`](../../scripts/lib/mitigation-playbooks.js) | **Canonical mitigation bullets** per scenario — edit here first |
 | [`scripts/materialize-docs-for-pages.sh`](../../scripts/materialize-docs-for-pages.sh) | Copy Markdown into `docs/_sources/` for GitHub Pages (guide.html fetch; no bare `.md` URLs) |

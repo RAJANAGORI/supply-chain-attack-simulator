@@ -16,6 +16,17 @@ if (!fs.existsSync(logFile)) {
   fs.writeFileSync(logFile, JSON.stringify({ captures: [] }, null, 2));
 }
 
+function loadCaptures() {
+  const raw = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+  if (Array.isArray(raw)) return { captures: raw };
+  if (raw && Array.isArray(raw.captures)) return raw;
+  return { captures: [] };
+}
+
+function saveCaptures(captures) {
+  fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
+}
+
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/collect') {
     let body = '';
@@ -23,10 +34,10 @@ const server = http.createServer((req, res) => {
     req.on('end', () => {
       try {
         const data = JSON.parse(body || '{}');
-        const captures = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+        const captures = loadCaptures();
         const captureEntry = { timestamp: new Date().toISOString(), data };
-                captures.captures.push(captureEntry);
-        fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
+        captures.captures.push(captureEntry);
+        saveCaptures(captures);
         require('../../../detection-tools/es/forward-capture')
           .forwardCaptureIfEnabled(__dirname, captureEntry)
           .catch(() => {});
@@ -41,14 +52,13 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.method === 'GET' && req.url === '/captured-data') {
-    const captures = fs.readFileSync(logFile, 'utf8');
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(captures);
+    res.end(JSON.stringify(loadCaptures(), null, 2));
     return;
   }
 
   if (req.method === 'DELETE' && req.url === '/captured-data') {
-    fs.writeFileSync(logFile, JSON.stringify({ captures: [] }, null, 2));
+    saveCaptures({ captures: [] });
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'success', message: 'Data cleared' }));
     return;
