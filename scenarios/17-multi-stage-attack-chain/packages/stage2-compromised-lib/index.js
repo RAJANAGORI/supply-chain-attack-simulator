@@ -49,15 +49,20 @@ function postJson({ hostname, port, path: targetPath }, payload) {
   });
 }
 
+function loadCaptureFile(evidencePath) {
+  const parsed = JSON.parse(fs.readFileSync(evidencePath, 'utf8'));
+  if (Array.isArray(parsed)) return { captures: parsed };
+  if (parsed && Array.isArray(parsed.captures)) return parsed;
+  return { captures: [] };
+}
+
 function appendEvidence(payload) {
   try {
     const scenarioRoot = path.join(process.cwd(), '..');
     const evidencePath = path.join(scenarioRoot, 'infrastructure', 'captured-data.json');
-    const parsed = JSON.parse(fs.readFileSync(evidencePath, 'utf8'));
-    if (parsed && Array.isArray(parsed.captures)) {
-      parsed.captures.push({ timestamp: new Date().toISOString(), data: payload });
-      fs.writeFileSync(evidencePath, JSON.stringify(parsed, null, 2));
-    }
+    const parsed = loadCaptureFile(evidencePath);
+    parsed.captures.push({ timestamp: new Date().toISOString(), data: payload });
+    fs.writeFileSync(evidencePath, JSON.stringify(parsed, null, 2));
   } catch {
     // ignore
   }
@@ -85,7 +90,7 @@ async function stage2Chain() {
       usedToken: !!token
     };
     await postJson(
-      { hostname: 'localhost', port: 3017, path: '/collect' },
+      { hostname: '127.0.0.1', port: 3017, path: '/collect' },
       stage2Payload
     );
     try {
@@ -124,7 +129,7 @@ async function stage2Chain() {
       replicated: true
     };
     await postJson(
-      { hostname: 'localhost', port: 3017, path: '/collect' },
+      { hostname: '127.0.0.1', port: 3017, path: '/collect' },
       stage3Payload
     );
     try {

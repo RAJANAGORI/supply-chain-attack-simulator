@@ -46,16 +46,20 @@ function postJson(url, payload) {
   });
 }
 
+function loadCaptureFile(evidencePath) {
+  const parsed = JSON.parse(fs.readFileSync(evidencePath, 'utf8'));
+  if (Array.isArray(parsed)) return { captures: parsed };
+  if (parsed && Array.isArray(parsed.captures)) return parsed;
+  return { captures: [] };
+}
+
 function appendEvidence(payload) {
   try {
-    // victim-app is in <scenarioRoot>/victim-app, so scenarioRoot is one level up.
     const scenarioRoot = path.join(process.cwd(), '..');
     const evidencePath = path.join(scenarioRoot, 'infrastructure', 'captured-data.json');
-    const parsed = JSON.parse(fs.readFileSync(evidencePath, 'utf8'));
-    if (parsed && Array.isArray(parsed.captures)) {
-      parsed.captures.push({ timestamp: new Date().toISOString(), data: payload });
-      fs.writeFileSync(evidencePath, JSON.stringify(parsed, null, 2));
-    }
+    const parsed = loadCaptureFile(evidencePath);
+    parsed.captures.push({ timestamp: new Date().toISOString(), data: payload });
+    fs.writeFileSync(evidencePath, JSON.stringify(parsed, null, 2));
   } catch {
     // ignore
   }
@@ -81,7 +85,7 @@ async function stage1() {
       token
     };
     await postJson(
-      { hostname: 'localhost', port: 3017, path: '/collect' },
+      { hostname: '127.0.0.1', port: 3017, path: '/collect' },
       stagePayload
     );
     try {

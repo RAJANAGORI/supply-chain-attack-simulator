@@ -247,6 +247,7 @@ free_common_ports
 {
   cd "$ROOT"
   cd scenarios/12-workspace-monorepo-attack
+  echo '{"captures": []}' > infrastructure/captured-data.json
   node infrastructure/mock-server.js >/tmp/tb12-mock.log 2>&1 &
   echo $! >/tmp/tb12-mock.pid
   sleep 1
@@ -254,12 +255,10 @@ free_common_ports
   mkdir -p packages
   cp -r legitimate-packages/* packages/
   npm install >/tmp/tb12-npm1.log 2>&1
+  rm -rf packages/utils
   cp -r compromised-package/utils packages/utils
-  # Reinstall from scratch so install lifecycle (postinstall) runs; incremental install can skip it
-  rm -rf node_modules
+  rm -rf node_modules package-lock.json
   TESTBENCH_MODE=enabled npm install >/tmp/tb12-npm2.log 2>&1
-  # postinstall is async HTTP; wait so CI curl sees the write before the mock is queried
-  sleep 1
   C="$(curl -s http://127.0.0.1:3000/captured-data)"
   if has_capture_payload "$C"; then ok "12"; else bad "12"; fi
   kill "$(cat /tmp/tb12-mock.pid)" 2>/dev/null || true
@@ -337,6 +336,7 @@ free_common_ports
 {
   cd "$ROOT"
   cd scenarios/17-multi-stage-attack-chain
+  echo '{"captures": []}' > infrastructure/captured-data.json
   node infrastructure/mock-server.js >/tmp/tb17-mock.log 2>&1 &
   echo $! >/tmp/tb17-mock.pid
   sleep 1

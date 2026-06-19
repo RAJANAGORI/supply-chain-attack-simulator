@@ -1,5 +1,4 @@
 const path = require('path');
-const { Client } = require('@elastic/elasticsearch');
 const { SCAS_PROVENANCE } = require('../scas-provenance');
 
 const DEFAULT_ES_URL = process.env.SCAS_ES_URL || 'http://localhost:9200';
@@ -9,6 +8,7 @@ function getRepoRoot() {
 }
 
 function createEsClient(url = DEFAULT_ES_URL) {
+  const { Client } = require('@elastic/elasticsearch');
   return new Client({ node: url });
 }
 

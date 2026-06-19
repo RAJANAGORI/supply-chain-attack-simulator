@@ -30,12 +30,13 @@ const server = http.createServer((req, res) => {
         const captureEntry = { timestamp: new Date().toISOString(), attackType: 'package-signing-bypass', data: data };
                 captures.captures.push(captureEntry);
         fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
-        require('../../../detection-tools/es/forward-capture')
-          .forwardCaptureIfEnabled(__dirname, captureEntry)
-          .catch(() => {});
-        
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'success' }));
+        try {
+          require('../../../detection-tools/es/forward-capture')
+            .forwardCaptureIfEnabled(__dirname, captureEntry)
+            .catch(() => {});
+        } catch (_) {}
       } catch (e) {
         res.writeHead(400);
         res.end('Bad Request');

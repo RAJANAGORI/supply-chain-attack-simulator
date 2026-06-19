@@ -99,6 +99,7 @@ cat legitimate-packages/api/index.js
 cat compromised-package/utils/postinstall.js
 cp -r legitimate-packages/* packages/
 npm install
+rm -rf packages/utils
 cp -r compromised-package/utils packages/utils
 export TESTBENCH_MODE=enabled
 npm install

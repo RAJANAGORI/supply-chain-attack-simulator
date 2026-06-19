@@ -14,11 +14,13 @@ const server = http.createServer((req, res) => {
       const existing = fs.existsSync(DATA_FILE) ? JSON.parse(fs.readFileSync(DATA_FILE)) : [];
       existing.push(entry);
       fs.writeFileSync(DATA_FILE, JSON.stringify(existing, null, 2));
-      require('../../../detection-tools/es/forward-capture')
-        .forwardCaptureIfEnabled(__dirname, entry)
-        .catch(() => {});
       res.writeHead(200);
       res.end('ok');
+      try {
+        require('../../../detection-tools/es/forward-capture')
+          .forwardCaptureIfEnabled(__dirname, entry)
+          .catch(() => {});
+      } catch (_) {}
     });
     return;
   }
