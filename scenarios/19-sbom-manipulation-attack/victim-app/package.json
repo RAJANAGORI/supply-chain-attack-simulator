@@ -5,7 +5,7 @@
   "description": "Victim app for SBOM manipulation simulation",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node -r ./testbench-env.js index.js"
   },
   "license": "MIT"
 }

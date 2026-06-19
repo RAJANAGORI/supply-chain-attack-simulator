@@ -64,11 +64,10 @@ The victim runs a **malicious SBOM generator** that writes `victim-app/sbom.json
 
 ```bash
 cd scenarios/19-sbom-manipulation-attack
-export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-`./setup.sh` prepares `infrastructure/` (mock server on port **3019**), capture storage, and prints the same numbered steps as **Run the lab** below.
+`./setup.sh` sources repo `.testbench.env` when present and sets `TESTBENCH_MODE=enabled` for the setup shell. **`npm start` in `victim-app/` also enables testbench mode automatically** (see `victim-app/testbench-env.js`).
 
 ## Run the lab
 
@@ -84,7 +83,6 @@ node infrastructure/mock-server.js
 cd victim-app
 rm -rf node_modules package-lock.json
 npm install
-export TESTBENCH_MODE=enabled
 npm start
 ```
 

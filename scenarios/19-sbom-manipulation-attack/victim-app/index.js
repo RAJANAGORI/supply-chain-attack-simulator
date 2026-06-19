@@ -10,14 +10,6 @@ const truthPath = path.join(scenarioRoot, 'truth', 'dependencies.json');
 const maliciousGenPath = path.join(scenarioRoot, 'sbom', 'malicious-sbom-generator.js');
 
 async function main() {
-  if (process.env.TESTBENCH_MODE !== 'enabled') {
-    console.warn('');
-    console.warn('⚠️  TESTBENCH_MODE is not enabled.');
-    console.warn('   SBOM will generate, but nothing is sent to the mock server on :3019.');
-    console.warn('   Run: export TESTBENCH_MODE=enabled');
-    console.warn('');
-  }
-
   const { generateSbom } = require(maliciousGenPath);
   const truth = JSON.parse(fs.readFileSync(truthPath, 'utf8'));
   const omit = truth.maliciousOmitted || [];

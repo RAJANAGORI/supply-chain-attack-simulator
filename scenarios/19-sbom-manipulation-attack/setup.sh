@@ -23,6 +23,15 @@ fi
 mkdir -p infrastructure victim-app
 echo '{"captures": []}' > infrastructure/captured-data.json
 
+REPO_ROOT="$(cd "${ROOT_DIR}/../.." && pwd)"
+if [[ -f "${REPO_ROOT}/.testbench.env" ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "${REPO_ROOT}/.testbench.env"
+  set +a
+fi
+export TESTBENCH_MODE=enabled
+
 cat <<'EOF'
 ================================================
 🎯 Next Steps:
@@ -33,7 +42,6 @@ cat <<'EOF'
    cd victim-app
    rm -rf node_modules package-lock.json
    npm install
-   export TESTBENCH_MODE=enabled
    npm start
 
 3) Detection (from scenario root):
@@ -46,3 +54,5 @@ cat <<'EOF'
    ../../scripts/kill-port.sh 3019
 ================================================
 EOF
+echo ""
+echo "TESTBENCH_MODE=enabled for this shell. victim-app npm start enables it automatically."
