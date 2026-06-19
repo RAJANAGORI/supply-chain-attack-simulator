@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
 # Scenario 21: Axios-style compromised npm release (safe simulation)
+SCENARIO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCENARIO_DIR}"
+# shellcheck disable=SC1091
+source "${SCENARIO_DIR}/../_shared/enable-testbench.sh"
+
 set -euo pipefail
 
 echo "================================================"
@@ -8,17 +13,6 @@ echo "🔧 Scenario 21: Axios-style compromised release"
 echo "================================================"
 echo ""
 
-if [ "${TESTBENCH_MODE:-}" != "enabled" ]; then
-  echo "⚠️  TESTBENCH_MODE is not enabled"
-  echo "   export TESTBENCH_MODE=enabled"
-  echo ""
-  read -r -p "Continue anyway? (y/N): " REPLY
-  if [[ ! ${REPLY:-} =~ ^[Yy]$ ]]; then
-    exit 1
-  fi
-fi
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 echo '{"beacons": []}' > infrastructure/captured-data.json
 rm -f victim-app/.testbench-axios-ioc.json

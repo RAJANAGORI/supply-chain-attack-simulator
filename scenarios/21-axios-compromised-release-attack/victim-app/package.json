@@ -5,7 +5,7 @@
   "description": "Scenario 21 victim — starts on clean axios-like 1.14.0",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node -r ../../_shared/testbench-env.js index.js"
   },
   "dependencies": {
     "axios-like": "file:../packages/axios-like-1.14.1.tgz"

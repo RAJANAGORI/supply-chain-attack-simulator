@@ -4,11 +4,9 @@
   "description": "Application that uses web-utils (which depends on data-processor)",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node -r ../../_shared/testbench-env.js index.js"
   },
   "dependencies": {
     "web-utils": "file:../legitimate-packages/web-utils"
   }
 }
-
-

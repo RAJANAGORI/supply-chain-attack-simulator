@@ -4,7 +4,7 @@
   "description": "Application that uses workspace packages",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node -r ../../_shared/testbench-env.js index.js"
   },
   "dependencies": {
     "@devcorp/api": "file:../packages/api",

@@ -1,5 +1,9 @@
 #!/bin/bash
 # SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
+SCENARIO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCENARIO_DIR}"
+# shellcheck disable=SC1091
+source "${SCENARIO_DIR}/../_shared/enable-testbench.sh"
 
 # Scenario 6: Shai-Hulud Self-Replicating Supply Chain Attack - Setup Script
 # This script prepares the environment for the Shai-Hulud attack lab
@@ -10,18 +14,6 @@ echo "================================================"
 echo "🔧 Setting up Shai-Hulud Attack Scenario"
 echo "================================================"
 echo ""
-
-# Check if TESTBENCH_MODE is enabled
-if [ "$TESTBENCH_MODE" != "enabled" ]; then
-    echo "⚠️  WARNING: TESTBENCH_MODE is not enabled"
-    echo "Please run: export TESTBENCH_MODE=enabled"
-    echo ""
-    read -p "Do you want to continue anyway? (y/N): " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
-fi
 
 # Check prerequisites
 echo "📋 Checking prerequisites..."

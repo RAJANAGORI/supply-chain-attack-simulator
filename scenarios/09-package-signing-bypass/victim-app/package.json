@@ -4,10 +4,9 @@
   "description": "Application using signed secure-utils package",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node -r ../../_shared/testbench-env.js index.js"
   },
   "dependencies": {
     "secure-utils": "file:../compromised-package/secure-utils"
   }
 }
-

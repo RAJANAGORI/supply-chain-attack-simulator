@@ -1,24 +1,17 @@
 #!/usr/bin/env bash
 # SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
+SCENARIO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCENARIO_DIR}"
+# shellcheck disable=SC1091
+source "${SCENARIO_DIR}/../_shared/enable-testbench.sh"
+
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "${ROOT_DIR}"
 
 echo "================================================"
 echo "🔧 Scenario 17: Multi-Stage Attack Chain"
 echo "================================================"
 echo ""
-
-if [[ "${TESTBENCH_MODE:-}" != "enabled" ]]; then
-  echo "⚠️  TESTBENCH_MODE is not enabled."
-  echo "Run: export TESTBENCH_MODE=enabled"
-  echo ""
-  read -r -p "Continue anyway? (y/N): " REPLY
-  if [[ ! "${REPLY}" =~ ^[Yy]$ ]]; then
-    exit 1
-  fi
-fi
 
 mkdir -p infrastructure victim-app
 echo '{"captures": []}' > infrastructure/captured-data.json

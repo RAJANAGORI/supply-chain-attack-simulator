@@ -1,5 +1,9 @@
 #!/bin/bash
 # SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
+SCENARIO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCENARIO_DIR}"
+# shellcheck disable=SC1091
+source "${SCENARIO_DIR}/../_shared/enable-testbench.sh"
 
 # Scenario 3: Compromised Package — Setup Script
 
@@ -9,17 +13,6 @@ echo "================================================"
 echo "🔧 Setting up Compromised Package Attack Scenario"
 echo "================================================"
 echo ""
-
-if [ "$TESTBENCH_MODE" != "enabled" ]; then
-    echo "⚠️  WARNING: TESTBENCH_MODE is not enabled"
-    echo "Please run: export TESTBENCH_MODE=enabled"
-    echo ""
-    read -p "Do you want to continue anyway? (y/N): " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
-fi
 
 echo "📋 Checking prerequisites..."
 echo ""
@@ -31,7 +24,6 @@ echo "✅ Node.js version: $(node --version)"
 echo "✅ npm version: $(npm --version)"
 echo ""
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 echo "📁 Ensuring directory structure..."

@@ -4,7 +4,7 @@
   "description": "Application using utils-helper with automatic updates",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node -r ../../_shared/testbench-env.js index.js"
   },
   "dependencies": {
     "utils-helper": "file:../malicious-update/utils-helper"

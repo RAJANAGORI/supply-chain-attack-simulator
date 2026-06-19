@@ -4,7 +4,7 @@
   "description": "Application using data-processor",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node -r ../../_shared/testbench-env.js index.js"
   },
   "dependencies": {
     "data-processor": "file:../compromised-package/data-processor"
