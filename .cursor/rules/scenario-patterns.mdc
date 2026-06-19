@@ -16,7 +16,8 @@ Educational supply-chain attack labs. **22 scenarios** (`01-` … `22-`), CLI-on
 | Scripts & doc sync | `documentation/platform/TOOLING.md` | Full `scripts/` catalog + content lifecycle |
 | Mock exfil server | `scenarios/01-typosquatting/infrastructure/mock-server.js` | Same file in other scenarios unless port/endpoints differ |
 | New mock server (template) | `scenarios/_shared/mock-server-template.js` | Copy into `scenarios/NN-*/infrastructure/`; adjust `PORT` |
-| Setup flow | `scenarios/01-typosquatting/setup.sh` | Each scenario has its own `setup.sh` with same `TESTBENCH_MODE` gate |
+| Setup flow | `scenarios/01-typosquatting/setup.sh` | Each `setup.sh` sources `scenarios/_shared/enable-testbench.sh` |
+| TESTBENCH auto-enable | `scenarios/_shared/enable-testbench.sh`, `testbench-env.js`, `testbench_env.py` | `setup.sh` exports for that shell; Node `npm start` uses `-r ../../_shared/testbench-env.js`; scenario 22 imports `testbench_env.py` |
 | Detection runbook | `scenarios/01-typosquatting/DETECT.md` | Sections: IOCs, Sample Log Lines, Sigma, YARA, EDR/SIEM, **Mitigation** |
 | Malicious package | `scenarios/01-typosquatting/templates/malicious-package-template.js` | Per-scenario `templates/` or `malicious-packages/` |
 | Learner walkthrough | `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md` | `ZERO_TO_HERO_SCENARIO_XX.md` mirrors scenario number |
@@ -32,7 +33,7 @@ Educational supply-chain attack labs. **22 scenarios** (`01-` … `22-`), CLI-on
 scenarios/NN-slug/
 ├── README.md              # Scenario overview
 ├── DETECT.md              # Runbook (detection + ## Mitigation) → scas-rules via load-runbooks.js
-├── setup.sh               # TESTBENCH_MODE check, deps, instructions
+├── setup.sh               # sources _shared/enable-testbench.sh, deps, instructions
 ├── infrastructure/        # Mock attacker / harvester servers
 │   ├── mock-server.js     # Most scenarios (Node http, PORT, captured-data.json)
 │   └── captured-data.json # Runtime artifact (gitignored in some scenarios)
@@ -55,7 +56,7 @@ scenarios/NN-slug/
 
 ## Safety gates (never weaken)
 
-- Shell: `setup.sh` warns when `TESTBENCH_MODE != enabled`
+- Shell: `setup.sh` sources `scenarios/_shared/enable-testbench.sh` (lab auto-enable; payloads still gate on `TESTBENCH_MODE`)
 - Node/Python payloads: guard with `process.env.TESTBENCH_MODE === 'enabled'` (or equivalent) before malicious paths
 - Network: exfil targets **127.0.0.1 / localhost** only — no real external C2
 - Malicious samples are for isolated lab VMs only

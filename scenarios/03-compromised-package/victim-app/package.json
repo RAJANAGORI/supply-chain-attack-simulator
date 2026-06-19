@@ -4,7 +4,7 @@
   "description": "Application using secure-validator",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node -r ../../_shared/testbench-env.js index.js"
   },
   "dependencies": {
     "secure-validator": "file:../compromised-package/secure-validator"

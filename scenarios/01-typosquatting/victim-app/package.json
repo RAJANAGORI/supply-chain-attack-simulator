@@ -4,7 +4,7 @@
   "description": "Sample application that accidentally installs typosquatted package",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node -r ../../_shared/testbench-env.js index.js"
   },
   "keywords": [],
   "author": "",

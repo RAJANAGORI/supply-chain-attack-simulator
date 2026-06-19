@@ -4,7 +4,7 @@
   "description": "TechCorp's internal web application",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node -r ../../_shared/testbench-env.js index.js",
     "preinstall": "node scripts/validate-dependencies.js || true"
   },
   "dependencies": {

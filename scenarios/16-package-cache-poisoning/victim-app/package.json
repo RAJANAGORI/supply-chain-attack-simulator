@@ -6,8 +6,7 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "node scripts/install-from-cache.js",
-    "start": "node index.js"
+    "start": "node -r ../../_shared/testbench-env.js index.js"
   },
   "license": "MIT"
 }
-

@@ -4,9 +4,8 @@
   "description": "Application using compromised build artifacts",
   "main": "dist/app.js",
   "scripts": {
-    "start": "node dist/app.js"
+    "start": "node -r ../../_shared/testbench-env.js dist/app.js"
   },
   "author": "",
   "license": "MIT"
 }
-
