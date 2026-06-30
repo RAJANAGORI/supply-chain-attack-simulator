@@ -35,8 +35,9 @@ jobs:
       # using a tag reference would fetch the malicious code.
       # -----------------------------------------------------------------------
       - name: Run Trivy vulnerability scanner (VULNERABLE)
-        # COMPROMISED: tag v0.34.2 was force-pushed with malicious payload
-        uses: aquasecurity/trivy-action@v0.34.2
+        # COMPROMISED: aquasecurity/trivy-action@v0.34.2 was force-pushed with malicious payload
+        # uses: local stand-in — v0.34.2 is fictional (CVE-2026-33634 lab); real tag never existed on GitHub
+        uses: ./.github/actions/trivy-compromised
         with:
           scan-type: fs
           scan-ref: .
