@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Victim CI environment — Scenario 23 Trivy Supply Chain Attack [EDUCATIONAL]",
   "scripts": {
-    "ci": "node run-pipeline.js"
+    "ci": "node run-pipeline.js",
+    "scan": "node ../detection-tools/trivy-version-scanner.js .",
+    "audit": "node ../detection-tools/ci-workflow-auditor.js ."
   },
   "dependencies": {
     "trivy-action-like": "file:../malicious-trivy/v0.69.4"

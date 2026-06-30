@@ -146,12 +146,18 @@ curl -X DELETE http://127.0.0.1:3023/captured-data
 
 ### Blue Team Detection
 
-```bash
-# Scan victim CI for compromised version references
-node detection-tools/trivy-version-scanner.js victim-ci
+From the **scenario root** (`scenarios/23-trivy-supply-chain-attack/`):
 
-# Audit GitHub Actions workflow files for security misconfigurations
+```bash
+node detection-tools/trivy-version-scanner.js victim-ci
 node detection-tools/ci-workflow-auditor.js victim-ci
+```
+
+From **`victim-ci/`** (after `node run-pipeline.js`):
+
+```bash
+npm run scan
+npm run audit
 ```
 
 ---

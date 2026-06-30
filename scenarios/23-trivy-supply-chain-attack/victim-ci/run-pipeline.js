@@ -59,6 +59,10 @@ setTimeout(() => {
     console.log('  If TESTBENCH_MODE was enabled, credentials were already');
     console.log('  exfiltrated in Step 3 before you saw this message.');
     console.log('  Check: curl http://127.0.0.1:3023/captured-data');
+    console.log('');
+    console.log('  Detection (from this directory):');
+    console.log('    npm run scan');
+    console.log('    npm run audit');
     console.log('='.repeat(60));
     console.log('');
 }, 400);
