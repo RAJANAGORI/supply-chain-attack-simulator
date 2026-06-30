@@ -1,0 +1,34 @@
+---
+description: Plain, human writing for docs, comments, PRs, and learner-facing copy. No em dashes; short and direct.
+alwaysApply: true
+---
+
+# Writing style
+
+Write like a clear technical blog post, not marketing copy or an AI summary.
+
+## Punctuation
+
+- Do **not** use em dashes (`—`). Use a comma, period, colon, or parentheses instead.
+- Regular hyphens (`-`) are fine for compound words and lists.
+
+**Avoid:** `The attack runs locally — no external C2.`
+**Prefer:** `The attack runs locally. No external C2.`
+
+## Tone
+
+- Sound human and normal. Use plain words.
+- Be direct. Say what happens and what to do.
+- Keep it short. Cut filler, throat-clearing, and repeated points.
+- Do not stack bold, backticks, or headings for decoration.
+
+## Scope
+
+Applies to READMEs, DETECT.md, zero-to-hero guides, quick-reference cards, PR text, commit messages, setup output, and comments you add in this repo.
+
+## Quick check
+
+Before finishing user-facing text:
+1. Search for `—` and replace.
+2. Remove lines that restate the heading.
+3. If a sentence has two ideas, split it or use a colon.
