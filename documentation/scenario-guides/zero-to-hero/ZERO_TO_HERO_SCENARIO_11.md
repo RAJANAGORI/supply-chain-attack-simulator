@@ -185,12 +185,11 @@ export TESTBENCH_MODE=enabled
 ```
 
 **What this does:**
-- Creates `legitimate-packages/` (upstream baseline: `enterprise-utils`, `secure-lib`)
-- Creates `compromised-mirror/` (poisoned copies with postinstall scripts)
-- Creates `corporate-app/` with `.npmrc` simulating internal mirror use
-- Creates `infrastructure/mock-server.js` on port **3000**
+- Creates `legitimate-packages/` and `compromised-mirror/` (upstream vs poisoned baseline)
+- Packs poisoned tarballs via `build-registry.js` → `work/tarballs/` + `work/registry-meta.json`
+- Creates `corporate-app/` with `.npmrc` → `registry=http://localhost:4873/`
+- Creates `infrastructure/registry-server.js` (port **4873**) and mock C2 (port **3000**)
 - Creates `detection-tools/mirror-validator.js`
-- Initializes `infrastructure/captured-data.json`
 
 **Expected output:**
 - Prerequisites check (Node.js, npm)
@@ -240,7 +239,7 @@ registry=http://internal-mirror.enterprisecorp.local:4873
 always-auth=false
 ```
 
-**Notice**: The app is configured to use an internal mirror — in this lab, dependencies resolve via `file:` paths to `compromised-mirror/` to simulate poisoned mirror content.
+**Notice**: The app uses `registry=http://localhost:4873/` in `.npmrc` — npm resolves **all** packages through the poisoned mirror server (`registry-server.js`), not `file:` paths.
 
 ### Step 2: Examine Corporate Application Dependencies
 
@@ -253,13 +252,13 @@ cat corporate-app/package.json
 {
   "name": "enterprisecorp-web-app",
   "dependencies": {
-    "enterprise-utils": "file:../compromised-mirror/enterprise-utils",
-    "secure-lib": "file:../compromised-mirror/secure-lib"
+    "enterprise-utils": "1.0.0",
+    "secure-lib": "2.0.0"
   }
 }
 ```
 
-**Key Point**: The victim app installs from the compromised mirror path — modeling what happens when a real internal mirror serves poisoned tarballs.
+**Key Point**: Version ranges resolve through `.npmrc` → poisoned mirror on `:4873`. npm downloads tarballs from `registry-server.js`, not local `file:` paths.
 
 ### Step 3: Compare Legitimate vs Compromised Packages
 
@@ -322,43 +321,43 @@ cat compromised-mirror/enterprise-utils/postinstall.js
 - POSTs JSON payload to `http://localhost:3000/collect`
 - Fails silently if mock server is not running
 
-### Step 3: Start the Mock Attacker Server
+### Step 3: Start the Poisoned Registry Mirror
 
-**Terminal A** — from scenario root:
+**Terminal A** — mock C2 (from scenario root):
 
 ```bash
-cd scenarios/11-registry-mirror-poisoning
-export TESTBENCH_MODE=enabled
 node infrastructure/mock-server.js
 ```
 
-**What this does:**
-- Starts HTTP server on **port 3000**
-- Listens for `POST /collect` exfil payloads
-- Appends captures to `infrastructure/captured-data.json`
-
-**Verify it's running** (second shell):
+**Terminal B** — poisoned registry (speaks npm protocol on port **4873**):
 
 ```bash
-curl -s http://localhost:3000/captured-data
-# Expected: {"captures":[]}
+node infrastructure/registry-server.js
+```
+
+**Verify mirror is serving packages:**
+```bash
+curl -s http://localhost:4873/enterprise-utils | jq '.["dist-tags"]'
+# Expected: {"latest":"1.0.0"}
 ```
 
 ### Step 4: Install Packages from the Poisoned Mirror
 
-**Terminal B**:
+**Terminal C**:
 
 ```bash
-cd scenarios/11-registry-mirror-poisoning/corporate-app
+cd corporate-app
+rm -rf node_modules package-lock.json
 export TESTBENCH_MODE=enabled
 npm install
 ```
 
 **What happens:**
-1. npm resolves `file:../compromised-mirror/...` dependencies
-2. Packages copied into `node_modules/`
-3. **`postinstall` scripts execute immediately**
-4. Mock server receives exfil payloads (check Terminal A output)
+1. npm reads `.npmrc` → `registry=http://localhost:4873/`
+2. Fetches metadata and tarballs from `registry-server.js`
+3. Extracts poisoned packages into `node_modules/`
+4. **`postinstall` scripts execute immediately** during install
+5. Mock C2 receives exfil payloads (check Terminal A output)
 
 **Watch Terminal A** for:
 ```

@@ -96,11 +96,9 @@ export TESTBENCH_MODE=enabled
 ```
 
 **What this does:**
-- Creates directory structure
-- Sets up legitimate repository
-- Creates compromised repository with malicious submodule
-- Sets up detection tools
-- Creates mock attacker server
+- Builds **real local git repositories** under `work/` via `build-repos.sh`
+- Creates `work/awesome-project` (parent) with `work/malicious-lib` as a genuine submodule
+- Sets up detection tools and mock C2 server on port **3000**
 
 ---
 
@@ -138,66 +136,58 @@ cat .gitmodules
 
 ### Step 1: Understand the Attack
 
-**Scenario**: Attacker has added a malicious submodule to the repository.
+**Scenario**: Attacker registered a malicious git submodule in the parent repository. When a developer clones with `--recurse-submodules` and runs `npm install`, the submodule's `postinstall.sh` executes automatically.
 
-**Attack Steps:**
-1. Attacker adds malicious submodule to repository
-2. Submodule contains malicious scripts
-3. `.gitmodules` file updated to include submodule
-4. When developers clone/update, submodule executes
-5. Malicious code runs automatically
-
-### Step 2: Examine the Compromised Repository
+### Step 2: Build Real Git Repos (if needed)
 
 ```bash
-cd ../compromised-repo
-cat .gitmodules
+bash infrastructure/build-repos.sh
 ```
 
-**What you'll see:**
-```
-[submodule "legitimate-lib"]
-	path = libs/legitimate-lib
-	url = https://github.com/legitproject/legitimate-lib.git
+Creates:
+- `work/malicious-lib` — attacker-controlled submodule source
+- `work/awesome-project` — parent repo with `.gitmodules` pointing at malicious-lib
 
-[submodule "malicious-submodule"]
-	path = libs/malicious-submodule
-	url = ./malicious-submodule
-```
-
-**Key Difference**: New submodule added!
-
-### Step 3: Examine the Malicious Submodule
+### Step 3: Start the Mock Attacker Server
 
 ```bash
-cd ../malicious-submodule
-cat postinstall.sh
+node infrastructure/mock-server.js
 ```
 
-**What it does:**
-- Executes automatically when submodule is initialized
-- Collects system information
-- Exfiltrates data to attacker server
-
-### Step 4: Start the Mock Attacker Server
+### Step 4: Clone Like a Real Developer
 
 ```bash
-cd ../infrastructure
-node mock-server.js &
+git -c protocol.file.allow=always clone --recurse-submodules \
+    work/awesome-project work/victim-clone
 ```
 
-### Step 5: Simulate the Attack
+**Why `protocol.file.allow=always`?** Git ≥ 2.38 blocks local `file://` submodule URLs by default (CVE-2022-39253). This flag enables the lab's local-only submodule transport.
+
+Verify submodule was fetched:
+```bash
+ls work/victim-clone/libs/malicious-submodule/postinstall.sh
+cat work/victim-clone/.gitmodules
+```
+
+### Step 5: Trigger the Attack via npm install
 
 ```bash
-cd ../malicious-submodule
 export TESTBENCH_MODE=enabled
-bash postinstall.sh
+npm --prefix work/victim-clone install
 ```
 
 **What happens:**
-1. Submodule postinstall script executes
-2. System information collected
-3. Data exfiltrated to attacker server
+1. npm runs the parent's `postinstall` script
+2. Script calls `bash libs/malicious-submodule/postinstall.sh`
+3. Submodule payload collects host info and exfiltrates to `:3000`
+4. No manual `bash postinstall.sh` needed — this is the real attack path
+
+### Step 6: Verify Capture and Run Detection
+
+```bash
+curl -s http://localhost:3000/captured-data | jq
+node detection-tools/submodule-validator.js work/victim-clone
+```
 4. Check mock server console for captured data!
 
 ---
@@ -207,8 +197,7 @@ bash postinstall.sh
 ### Detection Method 1: Submodule Validation
 
 ```bash
-cd detection-tools
-node submodule-validator.js ../compromised-repo
+node detection-tools/submodule-validator.js work/victim-clone
 ```
 
 **What to look for:**
@@ -220,8 +209,8 @@ node submodule-validator.js ../compromised-repo
 ### Detection Method 2: Manual .gitmodules Review
 
 ```bash
-cd ../compromised-repo
-cat .gitmodules
+cat work/victim-clone/.gitmodules
+ls work/victim-clone/libs/malicious-submodule/
 ```
 
 **Red Flags:**

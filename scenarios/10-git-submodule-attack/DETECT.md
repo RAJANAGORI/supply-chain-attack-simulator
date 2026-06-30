@@ -1,24 +1,29 @@
 # Detection Runbook: Scenario 10 (Git Submodule Attack)
 
 ## IOCs
+- `git clone --recurse-submodules` or `git submodule update --init` fetches unexpected submodule URL.
+- Submodule path `libs/malicious-submodule` contains executable `postinstall.sh`.
+- Parent `package.json` `postinstall` invokes `bash libs/malicious-submodule/postinstall.sh`.
+- Local file-protocol submodule URLs (`file://` or relative paths) in `.gitmodules` (lab uses `protocol.file.allow=always`).
 - Submodule URL/commit drift from approved baseline.
-- Post-checkout/postinstall behavior from submodule path.
-- Mock exfil events on `127.0.0.1:3000`.
+- Mock exfil events on `127.0.0.1:3000` with `attackType: git-submodule`.
 
 ## Sample Log Lines
 ```json
-{"scenario_id":"10","event_type":"submodule_payload_exec","source":"malicious-submodule","destination":"127.0.0.1:3000","timestamp_utc":"2026-04-20T12:45:00Z"}
+{"scenario_id":"10","event_type":"submodule_postinstall_exec","package":"malicious-submodule","attackType":"git-submodule","source":"libs/malicious-submodule/postinstall.sh","destination":"127.0.0.1:3000","timestamp_utc":"2026-06-30T04:27:18.958Z"}
 ```
 
 ## Sigma (example)
 ```yaml
-title: Suspicious Git Submodule Script Execution
+title: Suspicious Git Submodule Clone And Postinstall Chain
 detection:
-  selection:
+  selection_git:
+    process.command_line|contains|all: ["git", "clone", "--recurse-submodules"]
+  selection_npm:
     process.command_line|contains|all: ["bash", "postinstall.sh"]
-    process.command_line|contains: "submodule"
-  condition: selection
-level: medium
+    process.command_line|contains: "malicious-submodule"
+  condition: selection_git or selection_npm
+level: high
 ```
 
 ## YARA-like Text Rule (example)
@@ -27,15 +32,17 @@ rule Submodule_Attack_IOC {
   strings:
     $a = ".gitmodules"
     $b = "postinstall.sh"
+    $c = "malicious-submodule"
   condition:
-    all of them
+    2 of them
 }
 ```
 
 ## EDR/SIEM What To Expect
-- Git metadata change + script execution sequence.
-- Submodule path running executable content during setup.
-- Capture artifacts in scenario infrastructure.
+- Git metadata change + submodule fetch + npm/bash script execution sequence.
+- Submodule path running executable content during `npm install` / build setup.
+- `protocol.file.allow` or local submodule URL usage (CVE-2022-39253 bypass indicator).
+- Capture artifacts in scenario `infrastructure/captured-data.json`.
 
 ## Mitigation
 
@@ -44,3 +51,4 @@ rule Submodule_Attack_IOC {
 - Limit who can add or modify submodules in protected branches.
 - Pin submodules to specific commits, not floating branch heads.
 - Scan submodule content and monitor submodule initialization behavior.
+- Block `file://` submodule URLs in CI unless explicitly required.

@@ -26,165 +26,117 @@ Use this as your runbook for Scenario 9 when you are teaching live or practicing
 ## 📋 Initial Setup
 
 ```bash
-# 1. Navigate to scenario
 cd scenarios/09-package-signing-bypass
-
-# 2. Enable testbench mode
 export TESTBENCH_MODE=enabled
-
-# 3. Run scenario setup
 ./setup.sh
 ```
+
+`setup.sh` generates Ed25519 keys and signs both legitimate and compromised packages.
 
 ## 🎯 Attack Execution
 
 ```bash
-# 1. Compare legitimate vs compromised packages
-cd legitimate-package/secure-utils
-cat package.json
-cat SIGNATURE.md
+# Terminal A — mock C2
+node infrastructure/mock-server.js
 
-cd ../../compromised-package/secure-utils
-cat package.json
-cat SIGNATURE.md  # Shows compromised signature
+# Terminal B — verify BOTH packages pass crypto (key compromise demo)
+node infrastructure/verify-signature.js legitimate-package/secure-utils
+node infrastructure/verify-signature.js compromised-package/secure-utils
 
-# 2. Start mock server
-cd ../../infrastructure
-node mock-server.js &
-
-# 3. Install compromised package
-cd ../victim-app
+# Install compromised package (signature valid; postinstall exfiltrates)
+cd victim-app
 npm install
+export TESTBENCH_MODE=enabled && npm start
 
-# 4. Run victim application
-export TESTBENCH_MODE=enabled
-npm start
-
-# 5. Check captured data
-curl http://localhost:3000/captured-data
+curl -s http://localhost:3000/captured-data
 ```
 
 ## 🔍 Detection Commands
 
 ```bash
-# Run signature validator
-cd detection-tools
-node signature-validator.js ../compromised-package/secure-utils
+# Real Ed25519 verify + behavioural scan (catches malicious postinstall)
+node detection-tools/signature-validator.js compromised-package/secure-utils
+node detection-tools/signature-validator.js victim-app/node_modules/secure-utils
 
-# Check signature information
-cd ../compromised-package/secure-utils
-cat package.json | jq '.signing'
-
-# Compare key fingerprints
-echo "Expected: ABCD 1234 EFGH 5678 90AB CDEF 1234 5678 90AB CDEF"
-cat package.json | jq -r '.signing.keyFingerprint'
-
-# Check for postinstall scripts in signed packages
-cat package.json | jq '.scripts.postinstall'
+cat compromised-package/secure-utils/package.sig | jq '.keyFingerprint, .label'
+cat scenarios/09-package-signing-bypass/DETECT.md
 ```
 
 ## 🛡️ Forensic Investigation
 
 ```bash
-# Compare package signatures
-diff legitimate-package/secure-utils/SIGNATURE.md compromised-package/secure-utils/SIGNATURE.md
+# Compare signatures — same key, different content hash
+diff <(jq -S . legitimate-package/secure-utils/package.sig) \
+     <(jq -S . compromised-package/secure-utils/package.sig)
 
-# Check signature details
-cat compromised-package/secure-utils/package.json | jq '.signing'
-
-# Analyze package behavior
-node detection-tools/signature-validator.js compromised-package/secure-utils
+cat compromised-package/secure-utils/postinstall.js
+cat infrastructure/keys/key-info.json
 ```
 
 ## 🚨 Incident Response
 
 ```bash
-# Immediate containment
+cd victim-app
 npm uninstall secure-utils
 npm cache clean --force
 
-# Key rotation (simulated)
-# 1. Revoke compromised keys
-# 2. Generate new signing keys
-# 3. Re-sign legitimate packages
-# 4. Distribute new public keys
-
-# Verify new signatures
-node detection-tools/signature-validator.js legitimate-package/secure-utils
+# Lab key rotation (production: revoke HSM key, re-sign all packages)
+node infrastructure/keygen.js
+node infrastructure/sign-package.js legitimate-package/secure-utils "re-signed v1.0.0"
 ```
 
 ## 📁 Important File Locations
 
 ```text
 scenarios/09-package-signing-bypass/
-├── legitimate-package/secure-utils/    # Legitimate signed package
-├── compromised-package/secure-utils/   # Compromised signed package
-├── victim-app/                         # Victim application
 ├── infrastructure/
-│   └── mock-server.js                  # Mock attacker server
-├── detection-tools/
-│   └── signature-validator.js          # Signature validation tool
-└── templates/                          # Attack templates
+│   ├── keygen.js              # Ed25519 keypair generator
+│   ├── sign-package.js        # Signs package → package.sig
+│   ├── verify-signature.js    # Real crypto.verify() demo
+│   ├── keys/                  # Lab keypair (gitignored)
+│   └── mock-server.js
+├── legitimate-package/secure-utils/package.sig
+├── compromised-package/secure-utils/package.sig
+└── detection-tools/signature-validator.js
 ```
 
 ## 🛠️ Useful Commands
 
 ```bash
-# Verify signature information
-cat package.json | jq '.signing'
-
-# Check key fingerprint
-cat package.json | jq -r '.signing.keyFingerprint'
-
-# Compare signatures
-diff legitimate-package/secure-utils/SIGNATURE.md compromised-package/secure-utils/SIGNATURE.md
-
-# Check for malicious behavior
-node detection-tools/signature-validator.js .
+node infrastructure/sign-package.js compromised-package/secure-utils "attacker re-sign"
+cat legitimate-package/secure-utils/package.sig | jq .
+curl -X DELETE http://localhost:3000/captured-data
 ```
 
 ## 🆘 Quick Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
-| Signature validation passes but package is malicious | Keys may be compromised - use behavioral analysis |
-| Cannot find signature information | Check package.json for .signing field |
-| Key fingerprint matches but package is suspicious | Keys compromised - need key rotation |
-| Postinstall script in signed package | Review script content for malicious behavior |
+| Public key not found | Re-run `./setup.sh` or `node infrastructure/keygen.js` |
+| Both packages show VALID | Expected — demonstrates key compromise; use behavioural scanner |
+| No capture | `export TESTBENCH_MODE=enabled` before `npm install`; mock server on :3000 |
+| package.sig missing | `node infrastructure/sign-package.js <pkg-dir>` |
 
 ## 📚 Documentation Links
 
-If you need more context than the commands above, these are the right deep links.
-
 - Full Guide: `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_09.md`
 - Scenario README: `scenarios/09-package-signing-bypass/README.md`
-- Setup Guide: `documentation/getting-started/SETUP.md`
-- Best Practices: `documentation/platform/BEST_PRACTICES.md`
+- Detection runbook: `scenarios/09-package-signing-bypass/DETECT.md`
 
 ## 💡 Key Concepts
 
-- **Package Signing**: Packages signed with private keys, verified with public keys
-- **Key Compromise**: Attacker gains access to signing keys
-- **Signature Bypass**: Valid signatures on malicious packages (keys compromised)
-- **Detection**: Signature verification alone insufficient - need behavioral analysis
-- **Key Rotation**: Revoke compromised keys, generate new ones, re-sign packages
-- **Prevention**: Protect signing keys, use HSMs, implement multi-factor auth
+- **Ed25519 signing**: Real `crypto.sign` / `crypto.verify` in this lab
+- **Key compromise**: Attacker signs malicious package with stolen private key
+- **Both pass verification**: Signature validity ≠ package safety
+- **Behavioural detection**: Postinstall exfil patterns catch what crypto misses
+- **Defence**: HSM, Sigstore transparency logs, SBOM hash pinning
 
 ## 🔑 Key Commands Cheat Sheet
 
 ```bash
-# Setup
-cd scenarios/09-package-signing-bypass && export TESTBENCH_MODE=enabled && ./setup.sh
-
-# Attack
-node infrastructure/mock-server.js &
-cd victim-app && npm install && npm start
-
-# Detection
+./setup.sh
+node infrastructure/verify-signature.js legitimate-package/secure-utils
+node infrastructure/verify-signature.js compromised-package/secure-utils
+cd victim-app && npm install && TESTBENCH_MODE=enabled npm start
 node detection-tools/signature-validator.js compromised-package/secure-utils
-cat compromised-package/secure-utils/package.json | jq '.signing'
-
-# Response
-npm uninstall secure-utils && npm cache clean --force
 ```
-
