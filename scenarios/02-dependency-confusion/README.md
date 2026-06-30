@@ -3,6 +3,8 @@
 
 
 
+> **Live registry race mechanism:** `setup.sh` packs `@techcorp/auth-lib@999.999.999` into a real `.tgz` tarball and starts `infrastructure/registry-server.js` — a minimal npm registry server on port 4874. `corporate-app/.npmrc` sets `@techcorp:registry=http://localhost:4874/`, which is the *misconfigured* state (should point to the internal registry). npm resolves `@techcorp/auth-lib` from the attacker-controlled server, downloads `v999.999.999`, and the malicious `postinstall` fires — the authentic Alex Birsan-style registry race, locally reproduced.
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -88,20 +90,35 @@ node infrastructure/mock-server.js
 
 Leave this running. The malicious package posts to `http://localhost:3000/collect` when you run the victim with `TESTBENCH_MODE=enabled`.
 
-### Terminal B — recon, malicious package, corporate install, victim
+### Terminal B — start the fake public registry
 
 ```bash
+# Attacker-controlled registry — serves @techcorp/auth-lib@999.999.999
+node infrastructure/registry-server.js
+```
+
+### Terminal C — victim (npm resolves from the attacker's registry)
+
+```bash
+# Reconnaissance: see what internal package names leaked
 cat leaked-data/package.json
-ls -la internal-packages/@techcorp/
-cp templates/dependency-confusion-template.js attacker-packages/@techcorp/auth-lib/index.js
-cd attacker-packages/@techcorp/auth-lib
-cat package.json
-cd ../../..
+
+# Inspect the vulnerable .npmrc — @techcorp:registry points to localhost:4874
+cat corporate-app/.npmrc
+
+# Inspect the attacker's package (v999.999.999 beats any internal version)
+cat attacker-packages/@techcorp/auth-lib/package.json
+
 cd corporate-app
-npm install
-npm install ../attacker-packages/@techcorp/auth-lib
+rm -rf node_modules package-lock.json
 export TESTBENCH_MODE=enabled
+npm install   # @techcorp:registry=localhost:4874 → downloads 999.999.999 → postinstall fires
+
+# App still works silently while attack is in progress
 npm start
+
+# Run the detection scanner
+node ../detection-tools/dependency-confusion-scanner.js .
 ```
 
 ### Verify capture

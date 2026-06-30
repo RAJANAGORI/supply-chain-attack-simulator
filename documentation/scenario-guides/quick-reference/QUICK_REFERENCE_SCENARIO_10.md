@@ -26,94 +26,56 @@ Use this as your runbook for Scenario 10 when you are teaching live or practicin
 ## 📋 Initial Setup
 
 ```bash
-# 1. Navigate to scenario
 cd scenarios/10-git-submodule-attack
-
-# 2. Enable testbench mode
 export TESTBENCH_MODE=enabled
-
-# 3. Run scenario setup
 ./setup.sh
 ```
+
+`setup.sh` runs `build-repos.sh` — creates real git repos under `work/` (gitignored).
 
 ## 🎯 Attack Execution
 
 ```bash
-# 1. Compare legitimate vs compromised repos
-cd legitimate-repo
-cat .gitmodules
+# Terminal A — mock C2
+node infrastructure/mock-server.js
 
-cd ../compromised-repo
-cat .gitmodules  # Contains malicious submodule
+# Terminal B — real attack path
+bash infrastructure/build-repos.sh   # if work/ was cleared
 
-# 2. Start mock server
-cd ../infrastructure
-node mock-server.js &
+git -c protocol.file.allow=always clone --recurse-submodules \
+    work/awesome-project work/victim-clone
 
-# 3. Simulate submodule execution
-cd ../malicious-submodule
-export TESTBENCH_MODE=enabled
-bash postinstall.sh
+# ⚠️  export must be in the SAME terminal as npm install — env vars don't cross sessions
+export TESTBENCH_MODE=enabled && npm --prefix work/victim-clone install
 
-# 4. Check captured data
-curl http://localhost:3000/captured-data
+curl -s http://localhost:3000/captured-data
 ```
 
 ## 🔍 Detection Commands
 
 ```bash
-# Run submodule validator
-cd detection-tools
-node submodule-validator.js ../compromised-repo
-
-# Check .gitmodules file
-cat .gitmodules
-
-# List submodules
-git submodule status
-
-# Check submodule URLs
-cat .gitmodules | grep "url ="
-
-# Analyze submodule content
-ls -la libs/malicious-submodule/
-cat libs/malicious-submodule/postinstall.sh
+node detection-tools/submodule-validator.js work/victim-clone
+cat work/victim-clone/.gitmodules
+cat work/victim-clone/libs/malicious-submodule/postinstall.sh
+cat scenarios/10-git-submodule-attack/DETECT.md
 ```
 
 ## 🛡️ Forensic Investigation
 
 ```bash
-# Compare .gitmodules files
+cd work/victim-clone
+git submodule status
+git log --oneline -5
 diff legitimate-repo/.gitmodules compromised-repo/.gitmodules
-
-# Check git history for .gitmodules changes
-git log -p .gitmodules
-
-# Analyze submodule content
-cd compromised-repo
-find libs -name "*.sh" -o -name "*.js" | xargs grep -l "curl\|wget"
-
-# Check submodule URLs
-cat .gitmodules | grep -A 2 "malicious"
 ```
 
 ## 🚨 Incident Response
 
 ```bash
-# Immediate containment
-# Remove malicious submodule from .gitmodules
-# Remove submodule directory
-rm -rf libs/malicious-submodule
-
-# Update .gitmodules
-# Remove the [submodule "malicious-submodule"] section
-
-# Clean git cache
-git rm --cached libs/malicious-submodule
-git submodule deinit libs/malicious-submodule
-
-# Commit changes
-git add .gitmodules
+cd work/victim-clone
+git submodule deinit -f libs/malicious-submodule
+git rm -f libs/malicious-submodule
+# Remove [submodule "malicious-submodule"] from .gitmodules
 git commit -m "Remove malicious submodule"
 ```
 
@@ -121,79 +83,54 @@ git commit -m "Remove malicious submodule"
 
 ```text
 scenarios/10-git-submodule-attack/
-├── legitimate-repo/              # Clean repository
-├── compromised-repo/             # Repository with malicious submodule
-├── malicious-submodule/          # Malicious submodule content
-├── victim-app/                   # Victim application
 ├── infrastructure/
-│   └── mock-server.js            # Mock attacker server
-└── detection-tools/
-    └── submodule-validator.js    # Submodule validation tool
+│   ├── build-repos.sh         # Builds work/awesome-project + work/malicious-lib
+│   └── mock-server.js
+├── work/                      # Real git repos (gitignored)
+│   ├── awesome-project/       # Parent with embedded submodule
+│   ├── malicious-lib/         # Attacker submodule source
+│   └── victim-clone/          # Learner clone target
+├── malicious-submodule/       # Source template for build-repos.sh
+└── detection-tools/submodule-validator.js
 ```
 
 ## 🛠️ Useful Commands
 
 ```bash
-# List all submodules
-git submodule status
-
-# Initialize submodules (WARNING: executes malicious code if compromised)
-git submodule update --init
-
-# Check submodule URLs
-cat .gitmodules | grep "url ="
-
-# Validate submodule integrity
-node detection-tools/submodule-validator.js .
-
-# Review submodule additions in git history
-git log -p .gitmodules
+rm -rf work/victim-clone
+git -c protocol.file.allow=always clone --recurse-submodules work/awesome-project work/victim-clone
+curl -X DELETE http://localhost:3000/captured-data
 ```
 
 ## 🆘 Quick Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
-| Cannot find .gitmodules | Repository may not use submodules |
-| Submodule validator shows no issues | Check if submodules are actually initialized |
-| Submodule execution not triggering | Ensure TESTBENCH_MODE is enabled |
-| Cannot remove submodule | Use git rm --cached and remove from .gitmodules |
+| Clone fails on local submodule | Use `git -c protocol.file.allow=always clone ...` (CVE-2022-39253) |
+| No capture | `export TESTBENCH_MODE=enabled`; mock server on :3000; run `npm --prefix work/victim-clone install` |
+| work/ missing | `bash infrastructure/build-repos.sh` or re-run `./setup.sh` |
+| postinstall not found | Confirm `--recurse-submodules` was used; check `libs/malicious-submodule/postinstall.sh` exists |
 
 ## 📚 Documentation Links
 
-If you need more context than the commands above, these are the right deep links.
-
 - Full Guide: `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_10.md`
 - Scenario README: `scenarios/10-git-submodule-attack/README.md`
-- Setup Guide: `documentation/getting-started/SETUP.md`
-- Best Practices: `documentation/platform/BEST_PRACTICES.md`
+- Detection runbook: `scenarios/10-git-submodule-attack/DETECT.md`
 
 ## 💡 Key Concepts
 
-- **Git Submodules**: Include other repositories in your project
-- **.gitmodules File**: Configuration file defining submodules
-- **Automatic Execution**: Submodules can execute code during clone/update
-- **Hidden Attack**: Malicious submodules can be overlooked in reviews
-- **Detection**: Review .gitmodules, validate URLs, check submodule content
-- **Prevention**: Review submodule additions, validate URLs, pin to commits
+- **Real git flow**: `clone --recurse-submodules` → `npm install` → submodule script runs
+- **.gitmodules**: Defines submodule URL and path — review on every PR
+- **protocol.file.allow**: Git hardening blocks local submodules unless explicitly enabled
+- **Detection**: Submodule URL allowlist, commit pinning, postinstall script audit
+- **Prevention**: Block `file://` submodules in CI; scan submodule content
 
 ## 🔑 Key Commands Cheat Sheet
 
 ```bash
-# Setup
-cd scenarios/10-git-submodule-attack && export TESTBENCH_MODE=enabled && ./setup.sh
-
-# Attack
+./setup.sh
 node infrastructure/mock-server.js &
-cd malicious-submodule && bash postinstall.sh
-
-# Detection
-node detection-tools/submodule-validator.js compromised-repo
-cat .gitmodules
-
-# Response
-git rm --cached libs/malicious-submodule
-# Edit .gitmodules to remove malicious submodule
-git commit -m "Remove malicious submodule"
+git -c protocol.file.allow=always clone --recurse-submodules work/awesome-project work/victim-clone
+export TESTBENCH_MODE=enabled && npm --prefix work/victim-clone install
+node detection-tools/submodule-validator.js work/victim-clone
 ```
-

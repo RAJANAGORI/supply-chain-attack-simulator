@@ -15,7 +15,7 @@
 - [🔧 Setup](#🔧-setup)
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
-- [🛡️ Defense Strategies](#🛡️-defense-strategies)
+- [Mitigation Playbook](#mitigation-playbook)
 - [📊 Key Takeaways](#📊-key-takeaways)
 - [🔍 Real-World Impact](#🔍-real-world-impact)
 - [⚠️ Safety & Ethics](#⚠️-safety--ethics)
@@ -195,7 +195,7 @@ See detection tools and README for detailed detection methods.
 4. Audit all workspace packages
 5. Review workspace access controls
 
-## 🛡️ Defense Strategies
+## Mitigation Playbook
 
 ### Prevention
 

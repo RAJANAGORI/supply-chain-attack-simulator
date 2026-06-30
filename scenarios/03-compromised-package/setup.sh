@@ -24,7 +24,7 @@ echo "✅ Node.js version: $(node --version)"
 echo "✅ npm version: $(npm --version)"
 echo ""
 
-cd "$SCRIPT_DIR"
+cd "${SCENARIO_DIR}"
 
 echo "📁 Ensuring directory structure..."
 mkdir -p compromised-package/secure-validator

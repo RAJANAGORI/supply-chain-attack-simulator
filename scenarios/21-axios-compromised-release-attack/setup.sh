@@ -13,7 +13,7 @@ echo "🔧 Scenario 21: Axios-style compromised release"
 echo "================================================"
 echo ""
 
-cd "$SCRIPT_DIR"
+cd "${SCENARIO_DIR}"
 echo '{"beacons": []}' > infrastructure/captured-data.json
 rm -f victim-app/.testbench-axios-ioc.json
 

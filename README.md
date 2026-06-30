@@ -116,11 +116,11 @@ Open each folder’s **README** for objectives, duration, and step-by-step steps
 | # | Lab | Level |
 |---|-----|--------|
 | 01 | [Typosquatting](scenarios/01-typosquatting/) | Beginner |
-| 02 | [Dependency confusion](scenarios/02-dependency-confusion/) | Intermediate |
-| 03 | [Compromised package](scenarios/03-compromised-package/) | Intermediate |
-| 04 | [Malicious update](scenarios/04-malicious-update/) | Advanced |
+| 02 | [Dependency confusion](scenarios/02-dependency-confusion/) | Beginner |
+| 03 | [Compromised package](scenarios/03-compromised-package/) | Beginner |
+| 04 | [Malicious update](scenarios/04-malicious-update/) | Intermediate |
 | 05 | [Build system compromise](scenarios/05-build-compromise/) | Advanced |
-| 06 | [Shai-Hulud (self-replicating)](scenarios/06-sha-hulud/) | Expert |
+| 06 | [Shai-Hulud (self-replicating)](scenarios/06-sha-hulud/) | Advanced |
 | 07 | [Transitive dependency](scenarios/07-transitive-dependency/) | Intermediate |
 | 08 | [Package lock file manipulation](scenarios/08-package-lock-file-manipulation/) | Intermediate |
 | 09 | [Package signing bypass](scenarios/09-package-signing-bypass/) | Advanced |

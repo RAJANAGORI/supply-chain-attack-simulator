@@ -24,83 +24,52 @@ Use this as your runbook for Scenario 2 when you are teaching live or practicing
 ## 📋 Initial Setup
 
 ```bash
-# 1. Navigate to scenario
 cd scenarios/02-dependency-confusion
-
-# 2. Enable testbench mode
 export TESTBENCH_MODE=enabled
-
-# 3. Run scenario setup
 ./setup.sh
 ```
 
 ## 🎯 Attack Execution
 
+Three terminals (or background A + B):
+
 ```bash
-# 1. Create malicious package
-cd attacker-packages/@techcorp/auth-lib
-cp ../../templates/dependency-confusion-template.js index.js
+# Terminal A — mock C2 (port 3000)
+node infrastructure/mock-server.js
 
-# 2. Create package.json with high version
-cat > package.json << 'EOF'
-{
-  "name": "@techcorp/auth-lib",
-  "version": "999.999.999",
-  "description": "TechCorp Authentication Library [MALICIOUS - EDUCATIONAL]",
-  "main": "index.js"
-}
-EOF
+# Terminal B — fake public registry (port 4874)
+node infrastructure/registry-server.js
 
-# 3. Start mock server (from scenario root — run ./setup.sh first)
-cd ../../..
-node infrastructure/mock-server.js &
-
-# 4. Install malicious package in corporate app
+# Terminal C — victim
+cat corporate-app/.npmrc          # @techcorp:registry → localhost:4874 (misconfigured!)
 cd corporate-app
 rm -rf node_modules package-lock.json
-npm install ../attacker-packages/@techcorp/auth-lib
-
-# 5. Run victim application
+npm cache clean --force
 export TESTBENCH_MODE=enabled
-npm start
+npm install                       # resolves @techcorp/auth-lib@999.999.999 from attacker registry
+npm start                         # app still works; postinstall already exfiltrated
 
-# 6. Check captured data
-curl http://localhost:3000/captured-data
+curl -s http://localhost:3000/captured-data
 ```
 
 ## 🔍 Detection Commands
 
 ```bash
-# Version anomaly detection
-cd detection-tools
-node dependency-confusion-scanner.js ../corporate-app
-
-# Check installed version
-cd ../corporate-app
+node detection-tools/dependency-confusion-scanner.js corporate-app
 npm list @techcorp/auth-lib
-
-# Check package source
-cat package-lock.json | grep -A 5 "@techcorp/auth-lib"
-
-# Inspect installed package
-cat node_modules/@techcorp/auth-lib/package.json
-cat node_modules/@techcorp/auth-lib/index.js | head -50
+cat corporate-app/node_modules/@techcorp/auth-lib/package.json
+cat scenarios/02-dependency-confusion/DETECT.md
 ```
 
 ## 🛡️ Prevention Commands
 
 ```bash
-# Configure scope restrictions (.npmrc)
-cd corporate-app
-cat > .npmrc << 'EOF'
-@techcorp:registry=http://localhost:4873/
+# Fix .npmrc — point @techcorp scope at INTERNAL registry only
+cat > corporate-app/.npmrc << 'EOF'
+@techcorp:registry=https://internal-registry.techcorp.local/
 registry=https://registry.npmjs.org/
 EOF
 
-# Verify configuration
-npm config list
-
-# Test with proper configuration
 rm -rf node_modules package-lock.json
 npm install
 npm list @techcorp/auth-lib
@@ -110,63 +79,45 @@ npm list @techcorp/auth-lib
 
 ```text
 scenarios/02-dependency-confusion/
-├── infrastructure/mock-server.js     # After ./setup.sh — exfil receiver
-├── internal-packages/@techcorp/     # Legitimate internal packages
-│   ├── auth-lib/                   # Authentication library
-│   ├── data-utils/                 # Data utilities
-│   └── api-client/                 # API client
-├── attacker-packages/@techcorp/    # Malicious packages
-│   └── auth-lib/                   # Malicious version
-├── corporate-app/                   # Victim application
-├── leaked-data/                    # Simulated leaked package.json
-└── detection-tools/                 # Detection scripts
+├── infrastructure/
+│   ├── mock-server.js          # C2 receiver (:3000)
+│   ├── registry-server.js      # Attacker fake public registry (:4874)
+│   └── build-registry.js       # Packs attacker tarball + metadata
+├── attacker-packages/@techcorp/auth-lib/  # Malicious v999.999.999
+├── internal-packages/@techcorp/           # Legitimate internal packages
+├── corporate-app/.npmrc        # Vulnerable scope routing (lab)
+├── work/                       # Runtime tarballs + registry-meta.json (gitignored)
+└── detection-tools/dependency-confusion-scanner.js
 ```
 
 ## 🛠️ Useful Commands
 
 ```bash
-# View leaked data (reconnaissance)
 cat leaked-data/package.json
-
-# Check internal packages
-ls -la internal-packages/@techcorp/
-
-# View validation script
-cat corporate-app/scripts/validate-dependencies.js
-
-# Check registry configuration
-npm config get registry
-cat .npmrc
-
-# Clear and reinstall
-rm -rf node_modules package-lock.json
-npm cache clean --force
-npm install
+node infrastructure/build-registry.js
+curl -s http://localhost:4874/@techcorp%2Fauth-lib | jq '.versions | keys'
+curl -X DELETE http://localhost:3000/captured-data
 ```
 
 ## 🆘 Quick Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
-| Wrong version installed | Check `.npmrc` configuration, verify registry settings |
-| Package not found | Verify path: `npm install ../attacker-packages/@techcorp/auth-lib` |
-| .npmrc not working | Ensure file is in project root, check npm config |
-| Mock server not running | From `scenarios/02-dependency-confusion`: `node infrastructure/mock-server.js &` (after `./setup.sh`) |
+| No capture after install | Ensure registry-server (:4874) and mock-server (:3000) are running; `export TESTBENCH_MODE=enabled` before `npm install` |
+| Wrong version / file: path | Delete `node_modules` + `package-lock.json`; run `npm cache clean --force`; confirm `.npmrc` points `@techcorp` to `:4874` |
+| Registry connection refused | Start `node infrastructure/registry-server.js`; re-run `node infrastructure/build-registry.js` if `work/` missing |
+| EADDRINUSE on 3000/4874 | `lsof -ti :3000 -ti :4874 \| xargs kill -9` then restart servers |
 
 ## 📚 Documentation Links
 
-If you need more context than the commands above, these are the right deep links.
-
 - Full Guide: `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_02.md`
 - Scenario README: `scenarios/02-dependency-confusion/README.md`
-- Setup Guide: `documentation/getting-started/SETUP.md`
-- Best Practices: `documentation/platform/BEST_PRACTICES.md`
+- Detection runbook: `scenarios/02-dependency-confusion/DETECT.md`
 
 ## 💡 Key Concepts
 
-- **Dependency Confusion**: Public package with same name as private package
-- **Version Priority**: Higher version numbers win in resolution
-- **Scope Restrictions**: `.npmrc` must configure `@scope:registry` for private packages
-- **Detection**: Look for unusually high version numbers (999.x)
-- **Prevention**: Always configure scope-specific registries
-
+- **Dependency Confusion**: Scoped internal name published to public/attacker registry with higher semver
+- **Registry race**: npm picks `999.999.999` over internal `1.x` when scope routing is wrong
+- **postinstall**: Exfiltration fires at install time — no `npm start` required
+- **Detection**: Anomalous semver, wrong `resolved` registry, postinstall in scoped internal packages
+- **Prevention**: `@scope:registry` to internal host only; lock files; CI registry validation

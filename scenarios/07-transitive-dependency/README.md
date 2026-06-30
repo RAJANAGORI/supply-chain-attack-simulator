@@ -3,6 +3,8 @@
 
 
 
+> **Simulation scope:** The malicious transitive dependency is introduced by replacing `node_modules/data-processor` with the compromised copy (modeling a poisoned package pulled in through a trusted parent). Because the package is already on disk, its `postinstall` is triggered explicitly in "Run the lab" — re-running `npm install` alone will not re-fire it.
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -13,7 +15,7 @@
 - [🔧 Setup](#🔧-setup)
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
-- [🛡️ Defense Strategies](#🛡️-defense-strategies)
+- [Mitigation Playbook](#mitigation-playbook)
 - [📊 Key Takeaways](#📊-key-takeaways)
 - [🔍 Real-World Impact](#🔍-real-world-impact)
 - [🎓 Advanced Exercises](#🎓-advanced-exercises)
@@ -108,7 +110,8 @@ rm -rf node_modules package-lock.json
 export TESTBENCH_MODE=enabled
 npm install
 cp -r ../compromised-packages/data-processor node_modules/data-processor
-npm install
+# An in-place swap won't re-run npm lifecycle scripts, so trigger the postinstall explicitly
+node node_modules/data-processor/postinstall.js
 npm start
 ```
 
@@ -194,12 +197,12 @@ cat ../legitimate-packages/data-processor/package.json
    # (In real attack, this would happen automatically from npm registry)
    cp -r ../compromised-packages/data-processor node_modules/data-processor
    
-   # Reinstall to trigger postinstall script
-   npm install
+   # An in-place swap won't re-run npm lifecycle scripts, so trigger the postinstall explicitly
+   node node_modules/data-processor/postinstall.js
    ```
 
 4. **Observe the Attack**:
-   - The postinstall script executes automatically
+   - The postinstall script executes (here triggered explicitly; in a real install npm runs it automatically)
    - Data is exfiltrated to the attacker server
    - Check the mock server console for captured data
 
@@ -442,7 +445,7 @@ npm audit fix
    - Alert on unexpected postinstall execution
    - Block postinstall scripts in production (if possible)
 
-## 🛡️ Defense Strategies
+## Mitigation Playbook
 
 ### Prevention
 

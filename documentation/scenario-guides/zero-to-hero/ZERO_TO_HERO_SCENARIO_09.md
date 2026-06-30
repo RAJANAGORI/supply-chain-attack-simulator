@@ -102,11 +102,10 @@ export TESTBENCH_MODE=enabled
 ```
 
 **What this does:**
-- Creates directory structure
-- Sets up legitimate signed package
-- Creates compromised signed package
-- Sets up victim application
-- Creates detection tools
+- Generates a real **Ed25519 keypair** (`infrastructure/keys/`)
+- Signs legitimate v1.0.0 and compromised v1.0.1 with the same key (`package.sig`)
+- Sets up victim application and detection tools
+- Creates mock C2 server on port **3000**
 
 ---
 
@@ -131,17 +130,31 @@ cat package.json
 }
 ```
 
-### Step 2: Review Signature Information
+### Step 2: Review Real Signature File
 
 ```bash
-cat SIGNATURE.md
+cat package.sig
 ```
 
-**Key Information:**
-- Key ID: Identifies the signing key
-- Key Fingerprint: Unique identifier for the key
-- Signed By: Who signed the package
-- Signature Date: When it was signed
+**What you'll see:**
+```json
+{
+  "algorithm": "Ed25519",
+  "keyId": "scas-lab-key-001",
+  "keyFingerprint": "40:94:08:...",
+  "signedBy": "Secure Tools Inc. <security@securetools.com>",
+  "contentHash": "...",
+  "signature": "..."
+}
+```
+
+Run real cryptographic verification:
+```bash
+cd ../..
+node infrastructure/verify-signature.js legitimate-package/secure-utils
+```
+
+**Expected:** `Cryptographic signature: ✅ VALID`
 
 ---
 
@@ -163,44 +176,50 @@ cat SIGNATURE.md
 ```bash
 cd ../../compromised-package/secure-utils
 cat package.json
-cat SIGNATURE.md
+cat package.sig
+cat postinstall.js | head -20
 ```
 
 **Key Changes:**
 - Version: 1.0.0 → 1.0.1 (seems like normal update)
-- Signature: Still valid (signed with legitimate keys!)
-- Postinstall script: Added malicious code
+- `package.sig`: **Still cryptographically VALID** (signed with stolen key!)
+- Postinstall script: Added malicious exfiltration code
 
-**Critical Point**: Signature verification PASSES because keys are legitimate (but compromised)!
+Verify it also passes crypto:
+```bash
+cd ../..
+node infrastructure/verify-signature.js compromised-package/secure-utils
+```
+
+**Critical Point**: Both packages show `✅ VALID` — signature verification cannot detect key compromise!
 
 ### Step 3: Start the Mock Attacker Server
 
 ```bash
-cd ../../infrastructure
-node mock-server.js &
+node infrastructure/mock-server.js
 ```
 
-### Step 4: Simulate the Attack
+### Step 4: Install and Run the Victim App
 
 ```bash
-cd ../victim-app
+cd victim-app
 npm install
 export TESTBENCH_MODE=enabled
 npm start
 ```
 
 **What happens:**
-1. Package signature verification passes
-2. Package appears legitimate
-3. Postinstall script executes
-4. Data is exfiltrated
-5. Attack succeeds despite valid signature!
+1. `crypto.verify()` would pass on `package.sig`
+2. Package appears legitimate to signature-only checks
+3. Postinstall script executes during `npm install`
+4. Data is exfiltrated to mock C2
+5. Detection tool flags behavioural `CRITICAL` despite valid signature
 
 ---
 
 ## Part 6: Detection Methods (40 minutes)
 
-### Detection Method 1: Signature Validation
+### Detection Method 1: Real Ed25519 Verification + Behavioural Scan
 
 ```bash
 cd detection-tools
@@ -208,9 +227,9 @@ node signature-validator.js ../compromised-package/secure-utils
 ```
 
 **What to look for:**
-- Signature information exists
-- Key fingerprint matches
-- BUT: Behavioral analysis reveals malicious code
+- `Cryptographic signature: ✅ VALID` (expected — key is compromised!)
+- `🚨 CRITICAL: postinstall.js contains network exfiltration`
+- Signature alone is insufficient — behavioural analysis catches the attack
 
 ### Detection Method 2: Behavioral Analysis
 
@@ -237,14 +256,15 @@ node signature-validator.js ../compromised-package/secure-utils
 ### Investigation Step 1: Signature Analysis
 
 ```bash
-cd compromised-package/secure-utils
-cat package.json | jq '.signing'
+node infrastructure/verify-signature.js legitimate-package/secure-utils
+node infrastructure/verify-signature.js compromised-package/secure-utils
+cat compromised-package/secure-utils/package.sig | jq '.keyFingerprint, .contentHash, .label'
 ```
 
 **Findings:**
-- Signature: Valid
-- Key fingerprint: Matches expected value
-- Signed by: Legitimate maintainer
+- Both packages: `Cryptographic signature: ✅ VALID`
+- Same `keyFingerprint` on legitimate and malicious releases
+- Different `contentHash` (malicious content was signed with stolen key)
 - **Conclusion**: Keys are legitimate but compromised!
 
 ### Investigation Step 2: Behavioral Analysis

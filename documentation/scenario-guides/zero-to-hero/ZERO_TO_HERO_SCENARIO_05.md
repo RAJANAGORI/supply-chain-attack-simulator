@@ -1,7 +1,5 @@
 # 🚀 Zero to Hero: Scenario 5 - Build System Compromise
 
-> **Note**: This scenario is currently under development. This guide will be updated once the scenario is fully implemented.
-
 ## 📚 What You'll Learn
 
 By the end of this guide, you will:
@@ -22,7 +20,6 @@ By the end of this guide, you will:
 
 - [Part 1: Understanding Build System Compromise (10 minutes)](#part-1-understanding-build-system-compromise-10-minutes)
 - [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
-- [Part 3: Setting Up Scenario 5 (Coming Soon)](#part-3-setting-up-scenario-5-coming-soon)
 - [Part 3: Setting Up Scenario 5 (15 minutes)](#part-3-setting-up-scenario-5-15-minutes)
 - [Part 4: Understanding Build Systems (15 minutes)](#part-4-understanding-build-systems-15-minutes)
 - [Part 5: Executing the Attack (30 minutes)](#part-5-executing-the-attack-30-minutes)
@@ -80,16 +77,6 @@ Before we start, make sure you've completed:
 - ✅ Scenario 6 (Shai-Hulud)
 - ✅ Node.js 16+ and npm installed
 - ✅ TESTBENCH_MODE enabled
-
----
-
-## Part 3: Setting Up Scenario 5 (Coming Soon)
-
-This scenario will cover:
-- Understanding CI/CD pipelines
-- Simulating build system compromise
-- Detecting build-time attacks
-- Implementing secure build practices
 
 ---
 

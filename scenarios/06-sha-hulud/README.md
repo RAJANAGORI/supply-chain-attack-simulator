@@ -3,6 +3,8 @@
 
 
 
+> **Simulation scope:** This is a **simplified educational model** of Shai-Hulud, not a faithful reproduction. The install-time payload fetches a bundle from a local mock CDN and harvests to `localhost:3001` only. GitHub-repo exfiltration and worm-style self-replication are illustrated by **standalone** local simulators (`infrastructure/github-actions-simulator.js` on `:3002`, `infrastructure/replication-simulator.js` on `:3003`) and are **not** wired into the install-time payload.
+
 ## Table of Contents
 
 <div class="doc-toc">

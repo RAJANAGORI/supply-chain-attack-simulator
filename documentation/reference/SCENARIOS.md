@@ -8,15 +8,15 @@ This file provides a concise reference for each scenario included in the testben
    Path: `scenarios/01-typosquatting/`  
    Skills: package creation, name-squatting, basic exfiltration
 
-2. Scenario 02 — Dependency Confusion (Intermediate)  
+2. Scenario 02 — Dependency Confusion (Beginner)  
    Path: `scenarios/02-dependency-confusion/`  
    Skills: registry resolution, private vs public package handling
 
-3. Scenario 03 — Compromised Package (Intermediate)  
+3. Scenario 03 — Compromised Package (Beginner)  
    Path: `scenarios/03-compromised-package/`  
    Skills: account takeover simulation, malicious update delivery
 
-4. Scenario 04 — Malicious Update (Advanced)  
+4. Scenario 04 — Malicious Update (Intermediate)  
    Path: `scenarios/04-malicious-update/`  
    Skills: trojan update delivery, persistence techniques
 
@@ -24,7 +24,7 @@ This file provides a concise reference for each scenario included in the testben
    Path: `scenarios/05-build-compromise/`  
    Skills: CI/CD compromise, artifact poisoning
 
-6. Scenario 06 — Shai-Hulud Self-Replicating Attack (Expert)  
+6. Scenario 06 — Shai-Hulud Self-Replicating Attack (Advanced)  
    Path: `scenarios/06-sha-hulud/`  
    Skills: credential harvesting, self-replication, incident response
 

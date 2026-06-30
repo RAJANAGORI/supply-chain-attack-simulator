@@ -1,7 +1,5 @@
 # 🚀 Zero to Hero: Scenario 4 - Malicious Update Attack
 
-> **Note**: This scenario is currently under development. This guide will be updated once the scenario is fully implemented.
-
 ## 📚 What You'll Learn
 
 By the end of this guide, you will:
@@ -22,7 +20,6 @@ By the end of this guide, you will:
 
 - [Part 1: Understanding Malicious Updates (10 minutes)](#part-1-understanding-malicious-updates-10-minutes)
 - [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
-- [Part 3: Setting Up Scenario 4 (Coming Soon)](#part-3-setting-up-scenario-4-coming-soon)
 - [Part 3: Setting Up Scenario 4 (15 minutes)](#part-3-setting-up-scenario-4-15-minutes)
 - [Part 4: Understanding Automatic Updates (15 minutes)](#part-4-understanding-automatic-updates-15-minutes)
 - [Part 5: Executing the Attack (30 minutes)](#part-5-executing-the-attack-30-minutes)
@@ -77,16 +74,6 @@ Before we start, make sure you've completed:
 - ✅ Scenario 3 (Compromised Package)
 - ✅ Node.js 16+ and npm installed
 - ✅ TESTBENCH_MODE enabled
-
----
-
-## Part 3: Setting Up Scenario 4 (Coming Soon)
-
-This scenario will cover:
-- Creating malicious updates
-- Understanding version ranges
-- Detecting suspicious updates
-- Implementing update verification
 
 ---
 
