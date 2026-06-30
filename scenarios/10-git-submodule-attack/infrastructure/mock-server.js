@@ -1,6 +1,3 @@
-/** SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori */
-
-require('../../_shared/scenario-provenance');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -26,16 +23,11 @@ const server = http.createServer((req, res) => {
         console.log('─'.repeat(50));
         
         const captures = JSON.parse(fs.readFileSync(logFile, 'utf8'));
-        const captureEntry = { timestamp: new Date().toISOString(), attackType: 'git-submodule', data: data };
-                captures.captures.push(captureEntry);
+        captures.captures.push({ timestamp: new Date().toISOString(), attackType: 'git-submodule', data: data });
         fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
+        
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'success' }));
-        try {
-          require('../../../detection-tools/es/forward-capture')
-            .forwardCaptureIfEnabled(__dirname, captureEntry)
-            .catch(() => {});
-        } catch (_) {}
       } catch (e) {
         res.writeHead(400);
         res.end('Bad Request');

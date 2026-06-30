@@ -46,6 +46,15 @@ detection-tools/package-lock.json
 scenarios/**/infrastructure/captured-data.json
 scenarios/**/infrastructure/captured-credentials.json
 
+# Runtime artefacts for hardened scenarios (built by setup.sh / build-*.sh)
+scenarios/10-git-submodule-attack/work/
+scenarios/09-package-signing-bypass/infrastructure/keys/
+scenarios/09-package-signing-bypass/**/package.sig
+scenarios/11-registry-mirror-poisoning/work/
+scenarios/11-registry-mirror-poisoning/corporate-app/package-lock.json
+scenarios/02-dependency-confusion/work/
+scenarios/02-dependency-confusion/corporate-app/package-lock.json
+
 
 logs/*.log
 

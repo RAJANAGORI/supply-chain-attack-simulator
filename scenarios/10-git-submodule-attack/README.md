@@ -3,6 +3,8 @@
 
 
 
+> **Live attack mechanism:** `setup.sh` builds real local git repositories (`work/awesome-project` with `work/malicious-lib` registered as a genuine submodule). A real `git clone --recurse-submodules` fetches the malicious submodule, and `npm install` triggers the submodule's `postinstall.sh` through the normal npm lifecycle — exactly as the attack works against a real developer machine. No shortcuts or manual script invocations.
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -13,7 +15,7 @@
 - [🔧 Setup](#🔧-setup)
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
-- [🛡️ Defense Strategies](#🛡️-defense-strategies)
+- [Mitigation Playbook](#mitigation-playbook)
 - [📊 Key Takeaways](#📊-key-takeaways)
 - [🔍 Real-World Impact](#🔍-real-world-impact)
 - [⚠️ Safety & Ethics](#⚠️-safety--ethics)
@@ -76,7 +78,7 @@ export TESTBENCH_MODE=enabled
 
 ## Run the lab
 
-Use two terminals (or background the mock server). All paths are relative to `scenarios/10-git-submodule-attack`.
+Use two terminals. All paths are relative to `scenarios/10-git-submodule-attack`.
 
 ### Terminal A — mock attacker server
 
@@ -84,22 +86,32 @@ Use two terminals (or background the mock server). All paths are relative to `sc
 node infrastructure/mock-server.js
 ```
 
-### Terminal B — compare repos, run malicious submodule script, scan
+### Terminal B — real git clone + npm install (the authentic attack path)
 
 ```bash
-cat legitimate-repo/.gitmodules
-cat compromised-repo/.gitmodules
-cat malicious-submodule/postinstall.sh
+# 1. Build real local git repos (setup.sh does this automatically; re-run any time)
+bash infrastructure/build-repos.sh
+
+# 2. Clone just like a developer would — --recurse-submodules fetches the malicious submodule
+git -c protocol.file.allow=always clone --recurse-submodules \
+    work/awesome-project work/victim-clone
+
+# 3. npm install triggers the REAL postinstall hook from inside the submodule
 export TESTBENCH_MODE=enabled
-bash malicious-submodule/postinstall.sh
-node detection-tools/submodule-validator.js compromised-repo
-```
+npm --prefix work/victim-clone install
 
-### Verify capture
-
-```bash
+# 4. Verify the capture arrived
 curl -s http://localhost:3000/captured-data
+
+# 5. Run the detection tool against the cloned repo
+node detection-tools/submodule-validator.js work/victim-clone
 ```
+
+### What you'll observe
+
+- `git clone --recurse-submodules` fetches `libs/malicious-submodule/` from the poisoned source repo
+- `npm install` triggers `postinstall.sh` inside that submodule — **no manual invocation needed**
+- The mock C2 server logs the exfiltrated host details
 
 ## 📝 Lab Tasks
 
@@ -161,7 +173,7 @@ See detection tools and README for detailed detection methods.
 4. Verify repository integrity
 5. Notify affected users
 
-## 🛡️ Defense Strategies
+## Mitigation Playbook
 
 ### Prevention
 

@@ -18,7 +18,7 @@
 - [Threat Model Snapshot](#threat-model-snapshot)
 - [Setup](#setup)
 - [Run the lab](#run-the-lab)
-- [Containment, eradication, recovery](#containment-eradication-recovery)
+- [Mitigation Playbook](#mitigation-playbook)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -112,7 +112,7 @@ Key indicators to capture:
 - marker files (`.testbench-litellm-*.json`) after import/startup execution
 - mock-server capture events on `127.0.0.1:3022`
 
-## Containment, eradication, recovery
+## Mitigation Playbook
 
 1. **Contain:** stop workloads using the venv; block outbound from CI runners if this were real exfil.
 2. **Eradicate:** `pip uninstall litellm_like`; delete `.venv` and recreate from locked requirements; remove rogue `*.pth` under `site-packages` if any remain.

@@ -63,23 +63,31 @@ free_common_ports
 }
 
 # --- 02 ---
-note "Scenario 02 dependency confusion"
+note "Scenario 02 dependency confusion (real registry race — attacker tarball via localhost:4874)"
 free_common_ports
 {
   cd "$ROOT"
   cd scenarios/02-dependency-confusion
+  # Build attacker tarball + fake public registry metadata
   cp templates/dependency-confusion-template.js attacker-packages/@techcorp/auth-lib/index.js
+  node infrastructure/build-registry.js >/tmp/tb02-build.log 2>&1
+  # Start mock C2 server
   node infrastructure/mock-server.js >/tmp/tb02-mock.log 2>&1 &
   echo $! >/tmp/tb02-mock.pid
+  # Start fake public registry (attacker-controlled, serves v999.999.999)
+  node infrastructure/registry-server.js >/tmp/tb02-reg.log 2>&1 &
+  echo $! >/tmp/tb02-reg.pid
   sleep 1
   cd corporate-app
   rm -rf node_modules package-lock.json
-  npm install >/tmp/tb02-npm1.log 2>&1
-  npm install ../attacker-packages/@techcorp/auth-lib >/tmp/tb02-npm2.log 2>&1
-  TESTBENCH_MODE=enabled node index.js >/tmp/tb02-app.log 2>&1 || true
+  npm cache clean --force >/dev/null 2>&1 || true
+  # .npmrc sets @techcorp:registry=localhost:4874 → npm downloads the malicious tarball
+  TESTBENCH_MODE=enabled npm install >/tmp/tb02-npm.log 2>&1 || true
+  sleep 1
   C="$(curl -s http://127.0.0.1:3000/captured-data)"
-  if has_capture_payload "$C"; then ok "02"; else bad "02"; fi
+  if has_capture_payload "$C"; then ok "02"; else bad "02 (no captures — check /tmp/tb02-*.log)"; fi
   kill "$(cat /tmp/tb02-mock.pid)" 2>/dev/null || true
+  kill "$(cat /tmp/tb02-reg.pid)"  2>/dev/null || true
 }
 
 # --- 03 ---
@@ -209,7 +217,7 @@ free_common_ports
 }
 
 # --- 10 ---
-note "Scenario 10 git submodule"
+note "Scenario 10 git submodule (real git clone --recurse-submodules + npm install)"
 free_common_ports
 {
   cd "$ROOT"
@@ -217,28 +225,45 @@ free_common_ports
   node infrastructure/mock-server.js >/tmp/tb10-mock.log 2>&1 &
   echo $! >/tmp/tb10-mock.pid
   sleep 1
-  TESTBENCH_MODE=enabled bash malicious-submodule/postinstall.sh >/tmp/tb10-sh.log 2>&1
+  # Build real local git repos (idempotent — wipes work/ each run)
+  bash infrastructure/build-repos.sh >/tmp/tb10-build.log 2>&1
+  # Real git clone --recurse-submodules fetches the malicious submodule
+  git -c protocol.file.allow=always clone --recurse-submodules \
+      work/awesome-project work/victim-clone >/tmp/tb10-git.log 2>&1
+  # npm install triggers the real postinstall hook from the real submodule
+  TESTBENCH_MODE=enabled npm --prefix work/victim-clone install \
+      >/tmp/tb10-npm.log 2>&1 || true
+  sleep 1
   C="$(curl -s http://127.0.0.1:3000/captured-data)"
-  if has_capture_payload "$C"; then ok "10"; else bad "10"; fi
+  if has_capture_payload "$C"; then ok "10"; else bad "10 (no captures — check /tmp/tb10-*.log)"; fi
   kill "$(cat /tmp/tb10-mock.pid)" 2>/dev/null || true
+  rm -rf work/victim-clone
 }
 
 # --- 11 ---
-note "Scenario 11 registry mirror poisoning"
+note "Scenario 11 registry mirror poisoning (real npm registry server on localhost:4873)"
 free_common_ports
 {
   cd "$ROOT"
   cd scenarios/11-registry-mirror-poisoning
+  # Pack compromised packages + generate registry metadata
+  node infrastructure/build-registry.js >/tmp/tb11-build.log 2>&1
+  # Start mock C2 server
   node infrastructure/mock-server.js >/tmp/tb11-mock.log 2>&1 &
   echo $! >/tmp/tb11-mock.pid
+  # Start the poisoned registry mirror (speaks npm registry protocol)
+  node infrastructure/registry-server.js >/tmp/tb11-reg.log 2>&1 &
+  echo $! >/tmp/tb11-reg.pid
   sleep 1
   cd corporate-app
   rm -rf node_modules package-lock.json
-  npm install >/tmp/tb11-npm.log 2>&1
-  TESTBENCH_MODE=enabled node index.js >/tmp/tb11-app.log 2>&1 || true
+  # .npmrc points registry to localhost:4873 → npm downloads poisoned tarballs
+  TESTBENCH_MODE=enabled npm install >/tmp/tb11-npm.log 2>&1 || true
+  sleep 1
   C="$(curl -s http://127.0.0.1:3000/captured-data)"
-  if has_capture_payload "$C"; then ok "11"; else bad "11"; fi
+  if has_capture_payload "$C"; then ok "11"; else bad "11 (no captures — check /tmp/tb11-*.log)"; fi
   kill "$(cat /tmp/tb11-mock.pid)" 2>/dev/null || true
+  kill "$(cat /tmp/tb11-reg.pid)"  2>/dev/null || true
 }
 
 # --- 12 ---

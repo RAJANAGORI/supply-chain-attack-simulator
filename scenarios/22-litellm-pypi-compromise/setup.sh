@@ -13,7 +13,7 @@ echo "🔧 Scenario 22: LiteLLM-style PyPI compromise"
 echo "================================================"
 echo ""
 
-cd "$SCRIPT_DIR"
+cd "${SCENARIO_DIR}"
 echo '{"events": []}' > infrastructure/captured-data.json
 rm -f victim-app/.testbench-litellm-*.json
 

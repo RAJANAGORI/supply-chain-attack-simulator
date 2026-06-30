@@ -7,6 +7,8 @@
 
 
 
+> **Simulation scope:** Version selection is performed by the lab's own resolver in `victim-app/index.js` (it scans `registry/` and copies the **highest** semver into `node_modules`), not by npm's installer — so `npm install` does not perform the confusion, `npm start` does. This models the risk of "highest version wins" logic; it does not exercise npm's semver resolution or registry precedence directly.
+
 ## Table of Contents
 
 <div class="doc-toc">

@@ -9,9 +9,8 @@
   },
   "dependencies": {
     "@techcorp/api-client": "file:../internal-packages/@techcorp/api-client",
-    "@techcorp/auth-lib": "file:../attacker-packages/@techcorp/auth-lib",
-    "@techcorp/data-utils": "file:../internal-packages/@techcorp/data-utils",
-    "express": "^4.18.0"
+    "@techcorp/auth-lib": ">=1.0.0",
+    "@techcorp/data-utils": "file:../internal-packages/@techcorp/data-utils"
   },
   "author": "TechCorp Internal Team",
   "license": "PROPRIETARY"

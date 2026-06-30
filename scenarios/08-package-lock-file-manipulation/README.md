@@ -13,7 +13,7 @@
 - [🔧 Setup](#🔧-setup)
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
-- [🛡️ Defense Strategies](#🛡️-defense-strategies)
+- [Mitigation Playbook](#mitigation-playbook)
 - [📊 Key Takeaways](#📊-key-takeaways)
 - [🔍 Real-World Impact](#🔍-real-world-impact)
 - [🎓 Advanced Exercises](#🎓-advanced-exercises)
@@ -493,7 +493,7 @@ node ../detection-tools/lock-file-validator.js .
    - Package integrity verification
    - Automated alerts for suspicious packages
 
-## 🛡️ Defense Strategies
+## Mitigation Playbook
 
 ### Prevention
 

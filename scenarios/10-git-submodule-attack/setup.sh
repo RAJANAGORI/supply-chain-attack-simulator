@@ -83,6 +83,7 @@ server.listen(PORT, () => {
 EOF
 
 chmod +x infrastructure/mock-server.js
+chmod +x infrastructure/build-repos.sh
 chmod +x malicious-submodule/postinstall.sh
 echo '{"captures": []}' > infrastructure/captured-data.json
 echo "✅ Mock server created"
@@ -92,28 +93,33 @@ chmod +x detection-tools/submodule-validator.js
 echo "✅ Detection tools ready"
 echo ""
 
+echo "📦 Building real local git repositories for the attack..."
+bash infrastructure/build-repos.sh
+echo ""
+
 echo "================================================"
 echo "✅ Setup Complete!"
 echo "================================================"
 echo ""
-echo "🎯 Next Steps:"
+echo "🎯 Next Steps (two terminals):"
 echo ""
-echo "1. Start mock server:"
-echo "   node infrastructure/mock-server.js &"
+echo "Terminal A — mock attacker server:"
+echo "  node infrastructure/mock-server.js"
 echo ""
-echo "2. Compare legitimate vs compromised repos:"
-echo "   cat legitimate-repo/.gitmodules"
-echo "   cat compromised-repo/.gitmodules"
+echo "Terminal B — execute the real submodule attack:"
+echo "  # Clone the compromised repo (--recurse-submodules fetches the malicious submodule)"
+echo "  git -c protocol.file.allow=always clone --recurse-submodules \\"
+echo "      work/awesome-project work/victim-clone"
 echo ""
-echo "3. Examine malicious submodule:"
-echo "   cat malicious-submodule/postinstall.sh"
+echo "  # npm install triggers the real postinstall hook inside the submodule"
+echo "  export TESTBENCH_MODE=enabled"
+echo "  npm --prefix work/victim-clone install"
 echo ""
-echo "4. Simulate submodule execution:"
-echo "   export TESTBENCH_MODE=enabled"
-echo "   bash malicious-submodule/postinstall.sh"
+echo "  # Verify the capture landed"
+echo "  curl -s http://localhost:3000/captured-data"
 echo ""
-echo "5. Run detection tools:"
-echo "   node detection-tools/submodule-validator.js compromised-repo"
+echo "  # Run the detection tool against the cloned repo"
+echo "  node detection-tools/submodule-validator.js work/victim-clone"
 echo ""
 echo "📖 Read README.md for full instructions"
 

@@ -71,7 +71,7 @@ Source of truth: [`scripts/ports.env`](../../scripts/ports.env)
 | 3000 | Scenarios 01–05, 07–12 (default mock-server) |
 | 3001 | Scenario 06 (credential harvester), 13 (mock-server) |
 | 3002 | Scenario 14 (container mock), 06 (GitHub Actions sim) |
-| 3003 | Reserved in allow-list |
+| 3003 | Scenario 06 (replication simulator) |
 | 3015–3022 | Scenarios 15–22 (dedicated mock servers) |
 | 9200 | Elasticsearch (optional) |
 | 5601 | Kibana (optional) |

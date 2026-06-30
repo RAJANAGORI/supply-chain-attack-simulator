@@ -18,7 +18,7 @@
 - [Threat Model Snapshot](#threat-model-snapshot)
 - [Setup](#setup)
 - [Run the lab](#run-the-lab)
-- [Containment, eradication, recovery (playbook)](#containment-eradication-recovery-playbook)
+- [Mitigation Playbook](#mitigation-playbook)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -96,7 +96,7 @@ Key indicators to capture:
 - marker artifact `.testbench-axios-ioc.json`
 - capture data entries on `http://localhost:3021/captured-data`
 
-## Containment, eradication, recovery (playbook)
+## Mitigation Playbook
 
 1. **Contain:** stop CI runners / isolate dev machines that ran `npm install` with `TESTBENCH_MODE=enabled` against the bad version.
 2. **Eradicate:** remove `node_modules`, delete lockfile or regenerate from a known-good manifest; revoke **npm tokens** and rotate CI secrets (real incidents—here, only mock markers).

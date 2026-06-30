@@ -506,8 +506,6 @@ server.listen(PORT, () => {
 });
 EOF
 
-chmod +x infrastructure/mock-server.js
-echo '{"captures": []}' > infrastructure/captured-data.json
 echo "✅ Mock server created"
 echo ""
 
@@ -643,27 +641,39 @@ chmod +x detection-tools/mirror-validator.js
 echo "✅ Detection tools created"
 echo ""
 
+echo "📦 Building poisoned registry (packing tarballs for the mirror)..."
+node infrastructure/build-registry.js
+echo ""
+
+chmod +x infrastructure/mock-server.js
+chmod +x infrastructure/registry-server.js
+echo '{"captures": []}' > infrastructure/captured-data.json
+
 echo "================================================"
 echo "✅ Setup Complete!"
 echo "================================================"
 echo ""
-echo "🎯 Next Steps:"
+echo "🎯 Next Steps (three terminals or background two):"
 echo ""
-echo "1. Start mock server:"
-echo "   node infrastructure/mock-server.js &"
+echo "Terminal A — mock C2 server (receives exfiltrated data):"
+echo "  node infrastructure/mock-server.js"
 echo ""
-echo "2. Compare legitimate vs compromised packages:"
-echo "   diff -r legitimate-packages/ compromised-mirror/"
+echo "Terminal B — poisoned registry mirror (speaks npm protocol):"
+echo "  node infrastructure/registry-server.js"
 echo ""
-echo "3. Install packages from compromised mirror:"
-echo "   cd corporate-app"
-echo "   npm install"
+echo "Terminal C — victim (npm resolves from the poisoned mirror):"
+echo "  cd corporate-app"
+echo "  rm -rf node_modules package-lock.json"
+echo "  export TESTBENCH_MODE=enabled"
+echo "  npm install   # .npmrc points to localhost:4873 — installs poisoned packages"
+echo "  # postinstall fires automatically; check capture:"
+echo "  curl -s http://localhost:3000/captured-data"
 echo ""
-echo "4. Run detection tools:"
-echo "   node detection-tools/mirror-validator.js"
+echo "  # Compare legitimate vs poisoned packages:"
+echo "  diff -r ../legitimate-packages/ ../compromised-mirror/"
 echo ""
-echo "5. Run corporate app:"
-echo "   export TESTBENCH_MODE=enabled"
-echo "   npm start"
+echo "  # Run detection scanner:"
+echo "  node ../detection-tools/mirror-validator.js \\"
+echo "      ../compromised-mirror ../legitimate-packages"
 echo ""
 echo "📖 Read README.md for full instructions"

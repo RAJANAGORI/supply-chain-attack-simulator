@@ -1,218 +1,232 @@
 #!/usr/bin/env node
-
+// SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
 /**
- * Signature Validator
- * Validates package signatures and detects signing bypass attacks
+ * Signature Validator — Scenario 09 (Package Signing Bypass)
+ *
+ * Performs REAL Ed25519 signature verification using Node.js built-in crypto.
+ * Demonstrates that cryptographic validity is insufficient when the key is
+ * compromised: the malicious package also passes signature verification.
+ *
+ * Usage:
+ *   node detection-tools/signature-validator.js <pkg-dir>
+ *
+ * Typical targets:
+ *   node detection-tools/signature-validator.js legitimate-package/secure-utils
+ *   node detection-tools/signature-validator.js compromised-package/secure-utils
+ *   node detection-tools/signature-validator.js victim-app/node_modules/secure-utils
  */
 
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+function packageContentHash(pkgDir) {
+  const files = fs.readdirSync(pkgDir)
+    .filter(f => f !== 'package.sig')
+    .sort();
+  const h = crypto.createHash('sha256');
+  for (const f of files) {
+    const fp = path.join(pkgDir, f);
+    if (!fs.statSync(fp).isFile()) continue;
+    h.update(`${f}\0`);
+    h.update(fs.readFileSync(fp));
+    h.update('\0');
+  }
+  return h.digest('hex');
+}
+
+function loadPublicKey() {
+  // Public key lives next to the scenario's infrastructure/ dir
+  const scenarioDir = path.join(__dirname, '..');
+  const pubKeyPath  = path.join(scenarioDir, 'infrastructure', 'keys', 'public.pem');
+  if (!fs.existsSync(pubKeyPath)) return null;
+  return fs.readFileSync(pubKeyPath);
+}
+
+// ── validator ─────────────────────────────────────────────────────────────────
+
 class SignatureValidator {
-  constructor(packagePath) {
-    this.packagePath = packagePath;
+  constructor(pkgPath) {
+    this.pkgPath  = pkgPath;
     this.findings = [];
-    this.packageJson = null;
+    this.pkgJson  = null;
+    this.sigData  = null;
+    this.publicKey = loadPublicKey();
   }
 
-  /**
-   * Validate package signature
-   */
   async validate() {
-    console.log('🔍 Signature Validator');
-    console.log('='.repeat(60));
-    console.log(`Validating: ${this.packagePath}\n`);
+    const sep = '='.repeat(60);
+    console.log('\n🔍 Signature Validator (real Ed25519 crypto)');
+    console.log(sep);
+    console.log(`Target: ${this.pkgPath}\n`);
 
     try {
-      await this.loadPackageJson();
-      await this.checkSignatureExists();
-      await this.validateSignature();
-      await this.checkKeyFingerprint();
-      await this.analyzeBehavior();
-      this.generateReport();
-      
-      return this.findings.length === 0;
-    } catch (error) {
-      console.error('❌ Validation failed:', error.message);
+      this._loadPackageJson();
+      this._checkSignatureFile();
+      this._verifyCrypto();
+      this._analyzePostinstall();
+      this._generateReport();
+      return this.findings.filter(f => f.severity === 'CRITICAL').length === 0;
+    } catch (err) {
+      console.error('❌  Validation error:', err.message);
       return false;
     }
   }
 
-  /**
-   * Load package.json
-   */
-  async loadPackageJson() {
-    const packageJsonPath = path.join(this.packagePath, 'package.json');
-    if (!fs.existsSync(packageJsonPath)) {
-      throw new Error('package.json not found');
-    }
-    this.packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  _loadPackageJson() {
+    const p = path.join(this.pkgPath, 'package.json');
+    if (!fs.existsSync(p)) throw new Error('package.json not found');
+    this.pkgJson = JSON.parse(fs.readFileSync(p, 'utf8'));
+    console.log(`Package: ${this.pkgJson.name}@${this.pkgJson.version}`);
   }
 
-  /**
-   * Check if signature information exists
-   */
-  async checkSignatureExists() {
-    if (!this.packageJson.signing) {
+  _checkSignatureFile() {
+    const sigPath = path.join(this.pkgPath, 'package.sig');
+    if (!fs.existsSync(sigPath)) {
       this.findings.push({
         severity: 'WARNING',
         type: 'NO_SIGNATURE',
-        message: 'Package has no signature information',
-        recommendation: 'Package should be signed for security'
+        message: 'No package.sig found — package is unsigned.',
+        recommendation: 'Require all packages to carry a valid signature.',
       });
+      console.log('⚠️   No package.sig found.\n');
       return;
     }
-    console.log('✅ Signature information found');
+    this.sigData = JSON.parse(fs.readFileSync(sigPath, 'utf8'));
+    console.log(`Algorithm:  ${this.sigData.algorithm}`);
+    console.log(`Key ID:     ${this.sigData.keyId}`);
+    console.log(`Signed by:  ${this.sigData.signedBy}`);
+    console.log(`Signed at:  ${this.sigData.signedAt}`);
+    console.log(`Label:      ${this.sigData.label || '(none)'}`);
     console.log('');
   }
 
-  /**
-   * Validate signature
-   */
-  async validateSignature() {
-    if (!this.packageJson.signing) return;
+  _verifyCrypto() {
+    if (!this.sigData) return;
 
-    const signing = this.packageJson.signing;
-    
-    console.log('🔍 Validating signature...\n');
-    console.log(`Key ID: ${signing.keyId}`);
-    console.log(`Key Fingerprint: ${signing.keyFingerprint}`);
-    console.log(`Signed By: ${signing.signedBy}`);
-    console.log(`Signature Date: ${signing.signatureDate}`);
-    console.log('');
-
-    // In real scenario, would verify actual signature
-    // For educational purposes, we check if signature info exists
-    if (signing.keyId && signing.keyFingerprint) {
-      console.log('✅ Signature information present');
-    } else {
-      this.findings.push({
-        severity: 'ERROR',
-        type: 'INVALID_SIGNATURE',
-        message: 'Signature information is incomplete',
-        recommendation: 'Package signature is invalid'
-      });
-    }
-    console.log('');
-  }
-
-  /**
-   * Check key fingerprint
-   */
-  async checkKeyFingerprint() {
-    if (!this.packageJson.signing) return;
-
-    console.log('🔍 Checking key fingerprint...\n');
-
-    const expectedFingerprint = 'ABCD 1234 EFGH 5678 90AB CDEF 1234 5678 90AB CDEF';
-    const actualFingerprint = this.packageJson.signing.keyFingerprint;
-
-    if (actualFingerprint === expectedFingerprint) {
-      console.log('✅ Key fingerprint matches expected value');
-      console.log(`   ${actualFingerprint}`);
-    } else {
-      this.findings.push({
-        severity: 'CRITICAL',
-        type: 'FINGERPRINT_MISMATCH',
-        message: `Key fingerprint mismatch: ${actualFingerprint}`,
-        recommendation: 'This may indicate key compromise or package tampering'
-      });
-    }
-    console.log('');
-  }
-
-  /**
-   * Analyze package behavior
-   */
-  async analyzeBehavior() {
-    console.log('🔍 Analyzing package behavior...\n');
-
-    // Check for postinstall scripts (suspicious in signed packages)
-    if (this.packageJson.scripts && this.packageJson.scripts.postinstall) {
+    if (!this.publicKey) {
       this.findings.push({
         severity: 'WARNING',
-        type: 'POSTINSTALL_IN_SIGNED',
-        message: 'Package has postinstall script despite being signed',
-        recommendation: 'Review postinstall script - signed packages should be trusted, but scripts can still be malicious'
+        type: 'NO_PUBLIC_KEY',
+        message: 'infrastructure/keys/public.pem not found — run setup.sh first.',
+        recommendation: 'Run ./setup.sh to generate the lab keypair.',
       });
-    }
-
-    // Check package path for suspicious files
-    const postinstallPath = path.join(this.packagePath, 'postinstall.js');
-    if (fs.existsSync(postinstallPath)) {
-      const content = fs.readFileSync(postinstallPath, 'utf8');
-      if (content.includes('exfiltrate') || content.includes('collect') || content.includes('/collect')) {
-        this.findings.push({
-          severity: 'CRITICAL',
-          type: 'MALICIOUS_BEHAVIOR',
-          message: 'Package contains postinstall script with data exfiltration',
-          recommendation: 'CRITICAL: Package appears malicious despite valid signature - keys may be compromised!'
-        });
-      }
-    }
-
-    console.log('✅ Behavior analysis completed');
-    console.log('');
-  }
-
-  /**
-   * Generate report
-   */
-  generateReport() {
-    console.log('\n' + '='.repeat(60));
-    console.log('📊 Validation Results');
-    console.log('='.repeat(60));
-
-    const critical = this.findings.filter(f => f.severity === 'CRITICAL').length;
-    const warnings = this.findings.filter(f => f.severity === 'WARNING').length;
-    const errors = this.findings.filter(f => f.severity === 'ERROR').length;
-
-    console.log(`Total Findings: ${this.findings.length}`);
-    console.log(`  🚨 Critical: ${critical}`);
-    console.log(`  ⚠️  Warnings: ${warnings}`);
-    console.log(`  ❌ Errors: ${errors}`);
-    console.log('='.repeat(60));
-
-    if (this.findings.length === 0) {
-      console.log('\n✅ Signature validation passed!');
-      console.log('⚠️  However, remember: Valid signatures do not guarantee package safety');
-      console.log('   if signing keys are compromised!');
+      console.log('⚠️   Public key not available — skipping crypto verification.\n');
       return;
     }
 
-    console.log('\n🔍 Findings:\n');
-    
-    this.findings.forEach(finding => {
-      const icon = finding.severity === 'CRITICAL' ? '🚨' :
-                   finding.severity === 'ERROR' ? '❌' :
-                   finding.severity === 'WARNING' ? '⚠️' : 'ℹ️';
-      
-      console.log(`${icon} [${finding.severity}] ${finding.message}`);
-      if (finding.recommendation) {
-        console.log(`   Recommendation: ${finding.recommendation}`);
-      }
-      console.log('');
-    });
+    console.log('🔐 Running real Ed25519 verification…');
 
-    console.log('='.repeat(60));
-    console.log('\n⚠️  IMPORTANT: Signature verification alone is not sufficient!');
-    console.log('   If signing keys are compromised, signatures will verify as valid');
-    console.log('   but packages can still be malicious.');
-    console.log('   Always combine signature verification with behavioral analysis.');
-    
-    if (critical > 0 || errors > 0) {
-      console.log('\n🚨 CRITICAL issues found! Immediate action required.');
+    const sigBuf = Buffer.from(this.sigData.signature, 'base64');
+    const sigValid = crypto.verify(
+      null,
+      Buffer.from(this.sigData.contentHash, 'hex'),
+      this.publicKey,
+      sigBuf
+    );
+
+    const currentHash      = packageContentHash(this.pkgPath);
+    const contentUnchanged = this.sigData.contentHash === currentHash;
+
+    console.log(`   Cryptographic signature: ${sigValid ? '✅  VALID'  : '❌  INVALID'}`);
+    console.log(`   Signed content hash:  ${this.sigData.contentHash.slice(0, 32)}…`);
+    console.log(`   Current content hash: ${currentHash.slice(0, 32)}…`);
+    console.log(`   Content unchanged:    ${contentUnchanged ? '✅  YES' : '⚠️   NO'}`);
+    console.log('');
+
+    if (!sigValid) {
+      this.findings.push({
+        severity: 'CRITICAL',
+        type: 'INVALID_SIGNATURE',
+        message: 'Ed25519 signature is cryptographically INVALID.',
+        recommendation: 'Package may have been tampered with. Do not install.',
+      });
+    } else {
+      // Signature is valid — but that's the point of the attack!
+      this.findings.push({
+        severity: 'INFO',
+        type: 'VALID_SIGNATURE',
+        message: 'Ed25519 signature is cryptographically VALID (key is trusted).',
+        recommendation: 'Note: this is also true for the ATTACKER\'s package — key is compromised!',
+      });
+    }
+  }
+
+  _analyzePostinstall() {
+    const pkgJson = this.pkgJson;
+    if (!pkgJson) return;
+
+    console.log('🔍 Behavioural analysis…');
+
+    const hasPostinstall = pkgJson.scripts && pkgJson.scripts.postinstall;
+    if (hasPostinstall) {
+      this.findings.push({
+        severity: 'WARNING',
+        type: 'POSTINSTALL_PRESENT',
+        message: 'Package declares a postinstall script.',
+        recommendation: 'Audit the postinstall script before installing.',
+      });
+      console.log('   ⚠️   postinstall script detected in package.json');
+    }
+
+    const postPath = path.join(this.pkgPath, 'postinstall.js');
+    if (fs.existsSync(postPath)) {
+      const src = fs.readFileSync(postPath, 'utf8');
+      if (/\/collect|exfiltrat|curl|http\.request/i.test(src)) {
+        this.findings.push({
+          severity: 'CRITICAL',
+          type: 'MALICIOUS_POSTINSTALL',
+          message: 'postinstall.js contains network exfiltration code.',
+          recommendation: 'CRITICAL: Package is malicious despite a valid signature. Key is compromised!',
+        });
+        console.log('   🚨 postinstall.js contains network exfiltration patterns!');
+      }
+    }
+
+    console.log('');
+  }
+
+  _generateReport() {
+    const sep      = '='.repeat(60);
+    const critical = this.findings.filter(f => f.severity === 'CRITICAL').length;
+    const warnings = this.findings.filter(f => f.severity === 'WARNING').length;
+    const infos    = this.findings.filter(f => f.severity === 'INFO').length;
+
+    console.log(`\n${sep}`);
+    console.log('📊 Validation Report');
+    console.log(sep);
+    console.log(`  🚨 Critical: ${critical}`);
+    console.log(`  ⚠️   Warnings: ${warnings}`);
+    console.log(`  ℹ️   Info:     ${infos}`);
+    console.log(sep);
+
+    for (const f of this.findings) {
+      const icon = f.severity === 'CRITICAL' ? '🚨' :
+                   f.severity === 'WARNING'  ? '⚠️ ' : 'ℹ️ ';
+      console.log(`\n${icon} [${f.severity}] ${f.message}`);
+      if (f.recommendation) console.log(`     → ${f.recommendation}`);
+    }
+
+    console.log(`\n${sep}`);
+    console.log('⚠️   KEY LESSON: Signature verification alone is NOT sufficient.');
+    console.log('    When a signing key is compromised, an attacker can sign any payload.');
+    console.log('    Combine signatures with: transparency logs, SBOM hash pinning,');
+    console.log('    behavioural sandboxing, and postinstall script audits.');
+    console.log(sep);
+
+    if (critical > 0) {
+      console.log('\n🚨 CRITICAL issues found — package is malicious!');
       process.exit(1);
     }
   }
 }
 
-// CLI Interface
 if (require.main === module) {
-  const packagePath = process.argv[2] || process.cwd();
-  const validator = new SignatureValidator(packagePath);
-  validator.validate();
+  const pkgPath = process.argv[2] || process.cwd();
+  const v = new SignatureValidator(pkgPath);
+  v.validate();
 }
 
 module.exports = SignatureValidator;
-

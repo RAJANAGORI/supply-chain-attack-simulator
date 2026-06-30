@@ -3,6 +3,8 @@
 
 
 
+> **Live crypto mechanism:** `setup.sh` generates a real **Ed25519 keypair** (Node.js built-in `crypto`) and signs *both* the legitimate v1.0.0 and the attacker's v1.0.1 package with the same private key. `infrastructure/verify-signature.js` performs a genuine `crypto.verify()` — and **both packages pass**. The detection tool then finds the CRITICAL indicator: the malicious postinstall. This is the authentic key-compromise signing bypass: valid signatures everywhere, danger in the behaviour.
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -13,7 +15,7 @@
 - [🔧 Setup](#🔧-setup)
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
-- [🛡️ Defense Strategies](#🛡️-defense-strategies)
+- [Mitigation Playbook](#mitigation-playbook)
 - [📊 Key Takeaways](#📊-key-takeaways)
 - [🔍 Real-World Impact](#🔍-real-world-impact)
 - [⚠️ Safety & Ethics](#⚠️-safety--ethics)
@@ -84,16 +86,20 @@ Use two terminals (or background the mock server). All paths are relative to `sc
 node infrastructure/mock-server.js
 ```
 
-### Terminal B — compare packages, install, scan, run victim
+### Terminal B — real Ed25519 verification + attack + detection
 
 ```bash
-cat legitimate-package/secure-utils/SIGNATURE.md
-cat compromised-package/secure-utils/SIGNATURE.md
+# 1. See both packages pass real cryptographic verification (same stolen key!)
+node infrastructure/verify-signature.js legitimate-package/secure-utils
+node infrastructure/verify-signature.js compromised-package/secure-utils
+
+# 2. Install the compromised package (signature passes; postinstall exfiltrates)
 cd victim-app
-export TESTBENCH_MODE=enabled
 npm install
+export TESTBENCH_MODE=enabled && npm start
+
+# 3. Deep-scan the installed package — catches malicious postinstall despite valid sig
 node ../detection-tools/signature-validator.js node_modules/secure-utils
-npm start
 ```
 
 ### Verify capture
@@ -101,6 +107,10 @@ npm start
 ```bash
 curl -s http://localhost:3000/captured-data
 ```
+
+### Key insight
+
+Both `verify-signature.js` calls show `✅ VALID` because the attacker used the **same stolen Ed25519 private key** to sign their malicious `v1.0.1`. Signature verification alone is blind to this. The detection tool's **behavioural analysis** (`🚨 CRITICAL: postinstall.js contains network exfiltration`) is what catches it.
 
 ## 📝 Lab Tasks
 
@@ -162,7 +172,7 @@ See detection tools and README for detailed detection methods.
 4. Notify users of compromise
 5. Update signature verification
 
-## 🛡️ Defense Strategies
+## Mitigation Playbook
 
 ### Prevention
 
