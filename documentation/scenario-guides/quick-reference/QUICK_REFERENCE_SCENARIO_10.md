@@ -45,8 +45,8 @@ bash infrastructure/build-repos.sh   # if work/ was cleared
 git -c protocol.file.allow=always clone --recurse-submodules \
     work/awesome-project work/victim-clone
 
-export TESTBENCH_MODE=enabled
-npm --prefix work/victim-clone install   # triggers submodule postinstall.sh
+# ⚠️  export must be in the SAME terminal as npm install — env vars don't cross sessions
+export TESTBENCH_MODE=enabled && npm --prefix work/victim-clone install
 
 curl -s http://localhost:3000/captured-data
 ```
@@ -131,6 +131,6 @@ curl -X DELETE http://localhost:3000/captured-data
 ./setup.sh
 node infrastructure/mock-server.js &
 git -c protocol.file.allow=always clone --recurse-submodules work/awesome-project work/victim-clone
-TESTBENCH_MODE=enabled npm --prefix work/victim-clone install
+export TESTBENCH_MODE=enabled && npm --prefix work/victim-clone install
 node detection-tools/submodule-validator.js work/victim-clone
 ```

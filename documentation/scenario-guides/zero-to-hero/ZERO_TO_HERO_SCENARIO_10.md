@@ -172,8 +172,8 @@ cat work/victim-clone/.gitmodules
 ### Step 5: Trigger the Attack via npm install
 
 ```bash
-export TESTBENCH_MODE=enabled
-npm --prefix work/victim-clone install
+# ⚠️  TESTBENCH_MODE must be set in the SAME terminal as npm install
+export TESTBENCH_MODE=enabled && npm --prefix work/victim-clone install
 ```
 
 **What happens:**
