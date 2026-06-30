@@ -17,6 +17,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -688,8 +690,6 @@ cat package-lock.json | grep evil-utils
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -700,6 +700,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Store and verify lockfile checksums as part of release gates.
 - Compare `package.json` declared deps against lockfile entries automatically.
 - Verify package integrity hashes match trusted registry metadata.
+
+---
 
 ---
 
@@ -780,7 +782,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

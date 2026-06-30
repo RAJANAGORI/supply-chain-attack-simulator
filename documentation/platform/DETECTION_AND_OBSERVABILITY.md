@@ -10,7 +10,7 @@ How blue-team content, shared scanners, and the optional Elasticsearch + Kibana 
 | **Runtime captures** | `scenarios/*/infrastructure/captured-*.json` | JSON exfil events | Optional → `scas-detections` |
 | **Scanners** | `detection-tools/` + per-scenario tools | CLI output, JSON, SARIF | Via shipper → `scas-detections` |
 
-## DETECT.md runbooks (all 22 scenarios)
+## DETECT.md runbooks (all 23 scenarios)
 
 Each scenario includes a blue-team runbook at `scenarios/<folder>/DETECT.md`:
 

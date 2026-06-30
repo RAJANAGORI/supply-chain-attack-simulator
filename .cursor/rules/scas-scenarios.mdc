@@ -1,0 +1,36 @@
+---
+description: Scenario layout, mock-server contract, TESTBENCH hooks, scenario doc sync
+globs: scenarios/**
+alwaysApply: false
+---
+
+# Scenario code
+
+## Typical layout
+
+```
+scenarios/NN-slug/
+├── setup.sh              # sources _shared/enable-testbench.sh
+├── infrastructure/       # mock-server.js (or exception infra)
+├── victim-app/           # or corporate-app/, compromised-app/, …
+├── malicious-packages/   # or templates/, registry/, packages/
+└── detection-tools/      # optional
+```
+
+## Mock server (Node majority)
+
+- `POST /collect` — append exfil JSON to `{ captures: [...] }` file
+- `GET|DELETE /captured-data`
+- After each capture: `require('../../../detection-tools/es/forward-capture').forwardCaptureIfEnabled(__dirname, captureEntry).catch(() => {})`
+
+## TESTBENCH wiring
+
+- Shell: `enable-testbench.sh` (via `setup.sh`)
+- Node: `npm start` with `-r ../../_shared/testbench-env.js`
+- Python (22): import `testbench_env.py`
+
+## README.md / DETECT.md in this folder
+
+- `DETECT.md` — IOCs, log lines, Sigma, YARA, EDR/SIEM, `## Mitigation` → `scas-rules` via `load-runbooks.js`
+- `README.md` — `## Mitigation Playbook` + TOC
+- Mitigation or runtime changes: edit `scripts/lib/mitigation-playbooks.js` first, then run sync scripts in `documentation/platform/TOOLING.md` § Documentation lifecycle

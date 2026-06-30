@@ -1,0 +1,11 @@
+{
+  "name": "acme-victim-ci",
+  "version": "1.0.0",
+  "description": "Victim CI environment — Scenario 23 Trivy Supply Chain Attack [EDUCATIONAL]",
+  "scripts": {
+    "ci": "node run-pipeline.js"
+  },
+  "dependencies": {
+    "trivy-action-like": "file:../malicious-trivy/v0.69.4"
+  }
+}

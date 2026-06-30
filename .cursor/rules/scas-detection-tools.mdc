@@ -1,0 +1,34 @@
+---
+description: Shared scanners, ES forwarding, runbook loading, and observability metadata
+globs: detection-tools/**
+alwaysApply: false
+---
+
+# Detection tools
+
+Opt-in observability: `export SCAS_ES_URL=http://localhost:9200` (stack: `observability/README.md`, `scripts/elasticsearch-up.sh`).
+
+## ES pipeline
+
+| Module | Role |
+|--------|------|
+| `es/forward-capture.js` | Mock-server hook → `scas-detections` (no-op without `SCAS_ES_URL`) |
+| `es/load-runbooks.js` | All `scenarios/*/DETECT.md` → `scas-rules` |
+| `es/ship-findings.js` | Scanner JSON → `scas-detections` |
+| `es/parse-detect-md.js` | DETECT.md parser (used by load-runbooks) |
+
+Mock servers call: `forwardCaptureIfEnabled(__dirname, captureEntry).catch(() => {})`.
+
+## Scanners
+
+- `package-scanner.js` — shared Node project scanner (text/JSON/SARIF)
+- Scenario-local scanners live under `scenarios/NN-*/detection-tools/` — match their sibling scenario's IOCs
+
+## Doc / diagram metadata
+
+- `es/scenario-observability.json` — Kibana / doc-gen metadata
+- `es/scenario-diagram-steps.js` — lab flow steps; edit before `generate-observability-section.js`
+
+## Floci track (05, 06, 14, 17, 21)
+
+Helpers in `floci/` — sourced by scenario seed/verify scripts; see `documentation/guides/FLOCI_INTEGRATION.md`.

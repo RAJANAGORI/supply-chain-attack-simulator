@@ -17,6 +17,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -601,8 +603,6 @@ node detection-tools/multi-stage-correlator.js .
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/17-multi-stage-attack-chain/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -612,6 +612,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Trigger automated containment when stage transitions occur in short windows.
 - Preserve forensic artifacts per stage for post-incident timeline reconstruction.
 - Run attack-chain tabletop exercises against your CI/CD architecture.
+
+---
 
 ---
 
@@ -692,7 +694,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

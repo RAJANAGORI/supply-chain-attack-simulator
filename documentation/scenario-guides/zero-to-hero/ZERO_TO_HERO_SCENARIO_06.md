@@ -17,6 +17,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -617,8 +619,6 @@ Implement preventive measures:
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/06-sha-hulud/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -629,6 +629,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Use secret management tools; never commit tokens or keys to repositories.
 - Enforce lockfiles with `npm ci --audit` in CI pipelines.
 - Rotate credentials immediately after suspected compromise.
+
+---
 
 ---
 
@@ -709,7 +711,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

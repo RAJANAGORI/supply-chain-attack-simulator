@@ -5,6 +5,8 @@
 
 > **Simulation scope:** The malicious transitive dependency is introduced by replacing `node_modules/data-processor` with the compromised copy (modeling a poisoned package pulled in through a trusted parent). Because the package is already on disk, its `postinstall` is triggered explicitly in "Run the lab" — re-running `npm install` alone will not re-fire it.
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">

@@ -5,6 +5,8 @@
 
 > **Simulation scope:** The victim installs the malicious `utils-helper` via a `file:` path rather than auto-resolving `^2.1.0` from a registry, so the semver auto-update is modeled rather than executed by npm. The malicious patch behavior — hidden exfiltration on load, gated by `TESTBENCH_MODE` — is real.
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">

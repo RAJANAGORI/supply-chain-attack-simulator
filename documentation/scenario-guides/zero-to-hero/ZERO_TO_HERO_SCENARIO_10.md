@@ -17,6 +17,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -328,8 +330,6 @@ git commit -m "Remove malicious submodule"
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/10-git-submodule-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -339,6 +339,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Limit who can add or modify submodules in protected branches.
 - Pin submodules to specific commits, not floating branch heads.
 - Scan submodule content and monitor submodule initialization behavior.
+
+---
 
 ---
 
@@ -419,7 +421,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

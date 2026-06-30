@@ -17,6 +17,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -587,8 +589,6 @@ test ! -f node_modules/target-lib/.infected-by-plugin && echo "Clean"
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/18-package-manager-plugin-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -598,6 +598,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Run integrity checks on `node_modules` and generated lockfile state.
 - Review plugin code changes with the same rigor as build scripts.
 - Alert on hook-driven modifications outside expected paths.
+
+---
 
 ---
 
@@ -678,7 +680,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

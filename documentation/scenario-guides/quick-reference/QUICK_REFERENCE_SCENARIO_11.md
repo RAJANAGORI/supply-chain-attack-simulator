@@ -4,6 +4,8 @@
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -12,6 +14,7 @@
 - [Attack flow](#attack-flow)
 - [Detection](#detection)
 - [Docs](#docs)
+- [Troubleshooting](#troubleshooting)
 
 </div>
 

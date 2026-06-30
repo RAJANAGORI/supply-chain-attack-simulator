@@ -17,6 +17,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -582,8 +584,6 @@ Implement preventive measures:
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/03-compromised-package/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -594,6 +594,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Verify package integrity and signatures when the registry supports them.
 - Monitor runtime behavior and log package installation events in production.
 - Maintain maintainer-transfer and dependency-addition review policies.
+
+---
 
 ---
 
@@ -674,7 +676,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

@@ -50,7 +50,7 @@ source .testbench.env
 | [`scripts/setup.sh`](../../scripts/setup.sh) | Repo-wide setup, creates `.testbench.env` |
 | [`scripts/teardown.sh`](../../scripts/teardown.sh) | Kill scenario ports, remove captures & node_modules |
 | [`scripts/kill-port.sh`](../../scripts/kill-port.sh) | Free one port or all ports from `ports.env` |
-| [`scripts/smoke-all-scenarios.sh`](../../scripts/smoke-all-scenarios.sh) | End-to-end smoke for all 22 scenarios |
+| [`scripts/smoke-all-scenarios.sh`](../../scripts/smoke-all-scenarios.sh) | End-to-end smoke for all 23 scenarios |
 | [`scripts/elasticsearch-up.sh`](../../scripts/elasticsearch-up.sh) | Start ES + Kibana, seed runbooks |
 | [`scripts/elasticsearch-down.sh`](../../scripts/elasticsearch-down.sh) | Stop observability stack |
 | [`scripts/setup-kibana-data-views.sh`](../../scripts/setup-kibana-data-views.sh) | Create Kibana data views + saved searches |

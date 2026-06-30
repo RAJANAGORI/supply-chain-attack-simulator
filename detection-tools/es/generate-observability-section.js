@@ -119,7 +119,7 @@ function buildSection(scenario) {
     '',
     '```bash',
     './scripts/elasticsearch-up.sh',
-    './scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios',
+    './scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios',
     '```',
     '',
     '### Run this scenario with live Elasticsearch forwarding',

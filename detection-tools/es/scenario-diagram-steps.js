@@ -201,6 +201,16 @@ const SCENARIO_DIAGRAMS = {
       { from: 'Victim', to: 'MalPkg', message: 'Import hook or .pth loads litellm_like payload' },
       { from: 'MalPkg', to: 'MalPkg', message: 'Write .testbench-litellm-*.json markers' }
     ]
+  },
+  '23': {
+    intro: 'Trivy Supply Chain Attack (CVE-2026-33634): force-pushed trivy-action tag harvests CI secrets before the legitimate scan runs.',
+    attack_steps: [
+      { from: 'Learner', to: 'C2', message: 'node infrastructure/mock-c2-server.js (port 3023)' },
+      { from: 'Learner', to: 'Victim', message: 'cd victim-ci && node run-pipeline.js (TESTBENCH_MODE=enabled)' },
+      { from: 'Victim', to: 'MalPkg', message: 'require("trivy-action-like") triggers harvestAndExfiltrate()' },
+      { from: 'MalPkg', to: 'C2', message: 'POST http://127.0.0.1:3023/collect — CI env vars harvested' },
+      { from: 'MalPkg', to: 'Victim', message: 'scanTarget() runs — pipeline output appears normal' }
+    ]
   }
 };
 

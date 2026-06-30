@@ -41,7 +41,7 @@ Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) direct
 | **Scenario guides** | [scenario-guides/](./scenario-guides/index.md) | The 22-lab [catalog](./scenario-guides/CATALOG.md), zero-to-hero walkthroughs, quick-reference cards |
 | **Platform & operations** | [platform/](./platform/index.md) | Architecture, operations, detection, best practices, tooling, FAQ, quick reference |
 | **Learning path** | [learning-path/](./learning-path/index.md) | Curriculum, tracks, teaching delivery, capstone rubric |
-| **Teaching modules** | [modules/](./modules/index.md) | Instructor cards for all 22 scenarios + reusable template |
+| **Teaching modules** | [modules/](./modules/index.md) | Instructor cards for all 23 scenarios + reusable template |
 | **Integration guides** | [guides/](./guides/index.md) | Optional integrations (Floci local-AWS cloud track) |
 | **Reference** | [reference/](./reference/index.md) | Scenario summaries and external resources |
 | **Governance** | [LEGAL](../LEGAL.md) · [ATTRIBUTION](../ATTRIBUTION.md) · [AUTHORS](../AUTHORS.md) | Copyright, licensing, attribution |
@@ -56,7 +56,7 @@ documentation/
 ├── README.md                 Thin pointer for GitHub folder view → this index
 ├── getting-started/          Onboarding: full-stack setup, first lab, quick start
 ├── scenario-guides/
-│   ├── CATALOG.md            All 22 scenarios — full link matrix
+│   ├── CATALOG.md            All 23 scenarios — full link matrix
 │   ├── zero-to-hero/         22 learner walkthroughs (TOC + Mitigation Playbook)
 │   └── quick-reference/      22 command cheat sheets (TOC)
 ├── platform/                 Architecture, operations, detection, tooling, FAQ

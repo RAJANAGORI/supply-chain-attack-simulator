@@ -17,6 +17,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -638,8 +640,6 @@ git commit -m "Update package-lock.json with safe dependencies"
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/07-transitive-dependency/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -650,6 +650,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Generate and maintain SBOMs for transitive dependency visibility.
 - Monitor postinstall script execution and unexpected network requests.
 - Review the full dependency tree regularly, not only direct dependencies.
+
+---
 
 ---
 
@@ -730,7 +732,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

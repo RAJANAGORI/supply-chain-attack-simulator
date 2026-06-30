@@ -192,7 +192,7 @@ Authoritative Markdown lives under **`documentation/`** — start at the **[docu
 | Doc | Purpose |
 |-----|---------|
 | [Documentation index](documentation/index.md) | Master navigation hub — start here |
-| [Scenario catalog](documentation/scenario-guides/CATALOG.md) | All 22 labs — README, DETECT, guides, modules |
+| [Scenario catalog](documentation/scenario-guides/CATALOG.md) | All 23 labs — README, DETECT, guides, modules |
 | [Full-stack setup](documentation/getting-started/FULL_STACK_SETUP.md) | Workshop install — SCAS + Elasticsearch + Floci |
 | [First lab in 10 minutes](documentation/getting-started/ZERO_TO_HERO.md) | Guided start if you are new |
 | [SCAS-only setup](documentation/getting-started/SETUP.md) | Core installation and prerequisites |
@@ -221,7 +221,7 @@ GitHub issue forms live under `.github/ISSUE_TEMPLATE`:
 
 ## Learning path (how to order the labs)
 
-There is **no single mandatory order** for all 22 scenarios. Use this as a rule of thumb, then follow **[Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md)** for tracks and outcomes.
+There is **no single mandatory order** for all 23 scenarios. Use this as a rule of thumb, then follow **[Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md)** for tracks and outcomes.
 
 1. **Foundation**: Complete **01 → 02 → 03** (typosquatting, dependency confusion, compromised package) before deep dives.
 2. **Before scenario 06**: Finish **01–05** first. **06 (Shai-Hulud)** is the heaviest “single scenario” lab and assumes you understand earlier mechanics and response concepts.

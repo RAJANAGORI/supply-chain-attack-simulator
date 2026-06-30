@@ -17,6 +17,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -650,8 +652,6 @@ node detection-tools/workspace-scanner.js .
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/12-workspace-monorepo-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -661,6 +661,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Monitor postinstall execution across workspace packages.
 - Review workspace dependency changes with the same rigor as external deps.
 - Track workspace package changes in version control with mandatory review.
+
+---
 
 ---
 
@@ -741,7 +743,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

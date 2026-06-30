@@ -15,7 +15,7 @@ Every maintainer-facing script in [`scripts/`](../../scripts/), grouped by purpo
 | [`scripts/setup.sh`](../../scripts/setup.sh) | Repo-wide setup; creates `.testbench.env` |
 | [`scripts/teardown.sh`](../../scripts/teardown.sh) | Kill scenario ports, remove captures & `node_modules` |
 | [`scripts/kill-port.sh`](../../scripts/kill-port.sh) | Free one port, or `--all` ports from `ports.env` |
-| [`scripts/smoke-all-scenarios.sh`](../../scripts/smoke-all-scenarios.sh) | End-to-end smoke test across all 22 scenarios |
+| [`scripts/smoke-all-scenarios.sh`](../../scripts/smoke-all-scenarios.sh) | End-to-end smoke test across all 23 scenarios |
 | [`scripts/ports.env`](../../scripts/ports.env) | Source-of-truth port allow-list (see [Operations → port matrix](./OPERATIONS.md#port-matrix)) |
 
 ### Observability (Elasticsearch + Kibana)

@@ -16,6 +16,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -550,8 +552,6 @@ For internal packages:
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/01-typosquatting/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -561,6 +561,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Run automated dependency scanning (e.g. `npm audit`, Snyk, Socket.dev).
 - Require a code-review checklist for every new dependency (name, maintainer, reputation).
 - Prefer private registries and scope-based routing for internal package names.
+
+---
 
 ---
 
@@ -641,7 +643,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

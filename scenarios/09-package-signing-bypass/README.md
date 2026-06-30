@@ -5,6 +5,8 @@
 
 > **Live crypto mechanism:** `setup.sh` generates a real **Ed25519 keypair** (Node.js built-in `crypto`) and signs *both* the legitimate v1.0.0 and the attacker's v1.0.1 package with the same private key. `infrastructure/verify-signature.js` performs a genuine `crypto.verify()` — and **both packages pass**. The detection tool then finds the CRITICAL indicator: the malicious postinstall. This is the authentic key-compromise signing bypass: valid signatures everywhere, danger in the behaviour.
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">

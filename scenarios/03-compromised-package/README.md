@@ -5,6 +5,8 @@
 
 > **Simulation scope:** The victim installs the compromised `secure-validator` directly via a `file:` path, so the committed lab effectively starts on the malicious version; the "trusted v2.5.3 → malicious v2.5.4" upgrade is illustrative framing. The payload itself — a legitimate API surface plus hidden exfiltration on module load, gated by `TESTBENCH_MODE` — runs for real.
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">

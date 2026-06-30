@@ -1,4 +1,4 @@
-# Scenario catalog (01–22)
+# Scenario catalog (01–23)
 
 Complete index of every lab. Use this table as the fastest way to jump to **runtime instructions**, **blue-team runbooks**, **learner walkthroughs**, and **instructor modules**.
 
@@ -26,6 +26,7 @@ Complete index of every lab. Use this table as the fastest way to jump to **runt
 | 20 | [Package version confusion](../../scenarios/20-package-version-confusion/) | Advanced | 3020 | `POST /collect` | [README](../../scenarios/20-package-version-confusion/README.md) · [DETECT](../../scenarios/20-package-version-confusion/DETECT.md) · [Zero-to-Hero](./zero-to-hero/ZERO_TO_HERO_SCENARIO_20.md) · [Quick Ref](./quick-reference/QUICK_REFERENCE_SCENARIO_20.md) · [Module](../modules/MODULE_INSTANCE_SCENARIO_20.md) |
 | 21 | [Axios-style npm release](../../scenarios/21-axios-compromised-release-attack/) | Advanced | 3021 | `POST /beacon` | [README](../../scenarios/21-axios-compromised-release-attack/README.md) · [DETECT](../../scenarios/21-axios-compromised-release-attack/DETECT.md) · [Zero-to-Hero](./zero-to-hero/ZERO_TO_HERO_SCENARIO_21.md) · [Quick Ref](./quick-reference/QUICK_REFERENCE_SCENARIO_21.md) · [Module](../modules/MODULE_INSTANCE_SCENARIO_21.md) |
 | 22 | [LiteLLM-style PyPI compromise](../../scenarios/22-litellm-pypi-compromise/) | Advanced | 3022 | `POST /collect` | [README](../../scenarios/22-litellm-pypi-compromise/README.md) · [DETECT](../../scenarios/22-litellm-pypi-compromise/DETECT.md) · [Zero-to-Hero](./zero-to-hero/ZERO_TO_HERO_SCENARIO_22.md) · [Quick Ref](./quick-reference/QUICK_REFERENCE_SCENARIO_22.md) · [Module](../modules/MODULE_INSTANCE_SCENARIO_22.md) |
+| 23 | [Trivy Supply Chain Attack](../../scenarios/23-trivy-supply-chain-attack/) | Advanced | 3023 | `POST /collect` | [README](../../scenarios/23-trivy-supply-chain-attack/README.md) · [DETECT](../../scenarios/23-trivy-supply-chain-attack/DETECT.md) · [Zero-to-Hero](./zero-to-hero/ZERO_TO_HERO_SCENARIO_23.md) · [Quick Ref](./quick-reference/QUICK_REFERENCE_SCENARIO_23.md) · [Module](../modules/MODULE_INSTANCE_SCENARIO_23.md) |
 
 ## Special infrastructure notes
 
@@ -35,6 +36,7 @@ Complete index of every lab. Use this table as the fastest way to jump to **runt
 | 11 | — | Run `./setup.sh` first — generates `corporate-app/` and `compromised-mirror/` |
 | 14 | — | Optional Docker flow; default lab uses `malicious-start.js` |
 | 22 | — | Python mock server (`mock_server.py`); requires venv in `victim-app/` |
+| 23 | — | Node.js mock C2 server (`mock-c2-server.js`, port 3023); compromised module installed via local `file:` path during `setup.sh` |
 
 ## Suggested learning order
 

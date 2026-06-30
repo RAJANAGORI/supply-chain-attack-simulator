@@ -1,0 +1,22 @@
+# GitHub Pages mirror of documentation/ — edit documentation/ only
+docs/
+
+# Editorial / generated posts — not runtime
+subsstack/
+
+# Large learner guides — open explicitly when editing docs (see scas-docs.mdc)
+documentation/scenario-guides/zero-to-hero/
+documentation/scenario-guides/quick-reference/
+documentation/modules/
+documentation/learning-path/
+
+# Lab runtime artefacts
+scenarios/**/work/
+scenarios/**/infrastructure/captured*.json
+scenarios/**/node_modules/
+
+# Dependencies (install via npm in detection-tools/)
+detection-tools/node_modules/
+
+# Observability runtime data
+observability/elasticsearch/
