@@ -1,6 +1,16 @@
 User-agent: *
 Allow: /
 
+# Avoid crawling non-content assets
+Disallow: /assets/css/
+Disallow: /assets/js/
+Disallow: /_sources/
+Disallow: /site.webmanifest
+
+# Both canonical URLs are the same site
+Host: simulator.rajanagori.in
+
+Sitemap: https://simulator.rajanagori.in/sitemap.xml
 Sitemap: https://rajanagori.github.io/supply-chain-attack-simulator/sitemap.xml
 
 # Supply Chain Attack Simulator

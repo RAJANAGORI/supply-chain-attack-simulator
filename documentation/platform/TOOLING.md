@@ -125,8 +125,10 @@ When adding or moving a documentation file, update in lockstep:
 
 1. The relevant section `index.md` (and [`documentation/index.md`](../index.md) map if a new section).
 2. [`docs/docs-manifest.json`](../../docs/docs-manifest.json) — add the page to the right group.
-3. [`docs/sitemap.xml`](../../docs/sitemap.xml) — add notable new URLs.
+3. Regenerate the sitemap: `node scripts/generate-sitemap.js` → [`docs/sitemap.xml`](../../docs/sitemap.xml).
 4. [`scripts/materialize-docs-for-pages.sh`](../../scripts/materialize-docs-for-pages.sh) — add the folder if it's a new top-level section.
+
+Per-page SEO in the docs reader (`guide.html`) is updated at runtime by [`docs/assets/js/docs-app.js`](../../docs/assets/js/docs-app.js) (title, description, canonical, Open Graph, Twitter). Landing-page SEO lives in [`docs/index.html`](../../docs/index.html).
 
 ---
 

@@ -5,7 +5,7 @@ alwaysApply: true
 
 # SCAS
 
-22 localhost-only supply-chain attack labs (`scenarios/01-`…`22-`). Docs hub: `documentation/index.md` — `docs/` is a GitHub Pages mirror; do not edit both.
+23 localhost-only supply-chain attack labs (`scenarios/01-`…`23-`). Docs hub: `documentation/index.md` — `docs/` is a GitHub Pages mirror; do not edit both.
 
 ## Safety (never weaken)
 

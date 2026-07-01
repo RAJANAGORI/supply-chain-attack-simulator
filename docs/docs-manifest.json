@@ -39,123 +39,129 @@
     {
       "id": "zero-to-hero",
       "title": "Zero to Hero walkthroughs",
-      "description": "Sequential learner guides \u2014 scenarios 01 through 22",
+      "description": "Sequential learner guides — scenarios 01 through 23",
       "sequential": true,
       "items": [
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md",
-          "title": "01 \u00b7 Typosquatting",
-          "badge": "Beginner"
+          "title": "01 · Typosquatting",
+          "badge": "Beginner",
+          "seoKeyword": "typosquatting attack tutorial"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_02.md",
-          "title": "02 \u00b7 Dependency confusion",
-          "badge": "Intermediate"
+          "title": "02 · Dependency confusion",
+          "badge": "Intermediate",
+          "seoKeyword": "dependency confusion attack lab"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_03.md",
-          "title": "03 \u00b7 Compromised package",
+          "title": "03 · Compromised package",
           "badge": "Intermediate"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_04.md",
-          "title": "04 \u00b7 Malicious update",
+          "title": "04 · Malicious update",
           "badge": "Advanced"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_05.md",
-          "title": "05 \u00b7 Build system compromise",
+          "title": "05 · Build system compromise",
           "badge": "Advanced"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_06.md",
-          "title": "06 \u00b7 Shai-Hulud",
-          "badge": "Expert"
+          "title": "06 · Shai-Hulud",
+          "badge": "Expert",
+          "seoKeyword": "Shai-Hulud supply chain attack"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_07.md",
-          "title": "07 \u00b7 Transitive dependency",
+          "title": "07 · Transitive dependency",
           "badge": "Intermediate"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_08.md",
-          "title": "08 \u00b7 Package lock manipulation",
+          "title": "08 · Package lock manipulation",
           "badge": "Intermediate"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_09.md",
-          "title": "09 \u00b7 Package signing bypass",
+          "title": "09 · Package signing bypass",
           "badge": "Advanced"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_10.md",
-          "title": "10 \u00b7 Git submodule attack",
+          "title": "10 · Git submodule attack",
           "badge": "Intermediate"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_11.md",
-          "title": "11 \u00b7 Registry mirror poisoning",
+          "title": "11 · Registry mirror poisoning",
           "badge": "Advanced"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_12.md",
-          "title": "12 \u00b7 Workspace / monorepo",
+          "title": "12 · Workspace / monorepo",
           "badge": "Intermediate"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_13.md",
-          "title": "13 \u00b7 Metadata manipulation",
+          "title": "13 · Metadata manipulation",
           "badge": "Intermediate"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_14.md",
-          "title": "14 \u00b7 Container image supply chain",
+          "title": "14 · Container image supply chain",
           "badge": "Advanced"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_15.md",
-          "title": "15 \u00b7 Developer tool compromise",
+          "title": "15 · Developer tool compromise",
           "badge": "Advanced"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_16.md",
-          "title": "16 \u00b7 Package cache poisoning",
+          "title": "16 · Package cache poisoning",
           "badge": "Intermediate"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_17.md",
-          "title": "17 \u00b7 Multi-stage attack chain",
+          "title": "17 · Multi-stage attack chain",
           "badge": "Advanced"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_18.md",
-          "title": "18 \u00b7 Package manager plugin",
+          "title": "18 · Package manager plugin",
           "badge": "Advanced"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_19.md",
-          "title": "19 \u00b7 SBOM manipulation",
+          "title": "19 · SBOM manipulation",
           "badge": "Advanced"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_20.md",
-          "title": "20 \u00b7 Package version confusion",
+          "title": "20 · Package version confusion",
           "badge": "Advanced"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_21.md",
-          "title": "21 \u00b7 Axios-style npm release",
-          "badge": "Advanced"
+          "title": "21 · Axios-style npm release",
+          "badge": "Advanced",
+          "seoKeyword": "npm release compromise simulation"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_22.md",
-          "title": "22 \u00b7 LiteLLM-style PyPI compromise",
-          "badge": "Advanced"
+          "title": "22 · LiteLLM-style PyPI compromise",
+          "badge": "Advanced",
+          "seoKeyword": "PyPI LiteLLM supply chain attack"
         },
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_23.md",
-          "title": "23 \u00b7 Trivy supply chain attack",
-          "badge": "Advanced"
+          "title": "23 · Trivy supply chain attack",
+          "badge": "Advanced",
+          "seoKeyword": "Trivy CVE-2026-33634 CI attack"
         }
       ]
     },
@@ -199,7 +205,7 @@
       "items": [
         {
           "path": "scenario-guides/CATALOG.md",
-          "title": "Full catalog (01\u201322)"
+          "title": "Full catalog (01–22)"
         },
         {
           "path": "scenario-guides/zero-to-hero/index.md",
@@ -209,104 +215,105 @@
           "path": "scenario-guides/quick-reference/index.md",
           "title": "Quick reference index"
         }
-      ]
+      ],
+      "description": "Scenario catalog and quick-reference cards — 01 through 23"
     },
     {
       "id": "quick-ref",
       "title": "Quick reference cards",
-      "description": "Command cheat sheets per scenario",
+      "description": "Command cheat sheets per scenario — 01 through 23",
       "items": [
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_01.md",
-          "title": "01 \u00b7 Typosquatting"
+          "title": "01 · Typosquatting"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_02.md",
-          "title": "02 \u00b7 Dependency confusion"
+          "title": "02 · Dependency confusion"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_03.md",
-          "title": "03 \u00b7 Compromised package"
+          "title": "03 · Compromised package"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_04.md",
-          "title": "04 \u00b7 Malicious update"
+          "title": "04 · Malicious update"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_05.md",
-          "title": "05 \u00b7 Build system compromise"
+          "title": "05 · Build system compromise"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_06.md",
-          "title": "06 \u00b7 Shai-Hulud"
+          "title": "06 · Shai-Hulud"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_07.md",
-          "title": "07 \u00b7 Transitive dependency"
+          "title": "07 · Transitive dependency"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_08.md",
-          "title": "08 \u00b7 Package lock manipulation"
+          "title": "08 · Package lock manipulation"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_09.md",
-          "title": "09 \u00b7 Package signing bypass"
+          "title": "09 · Package signing bypass"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_10.md",
-          "title": "10 \u00b7 Git submodule attack"
+          "title": "10 · Git submodule attack"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_11.md",
-          "title": "11 \u00b7 Registry mirror poisoning"
+          "title": "11 · Registry mirror poisoning"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_12.md",
-          "title": "12 \u00b7 Workspace / monorepo"
+          "title": "12 · Workspace / monorepo"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_13.md",
-          "title": "13 \u00b7 Metadata manipulation"
+          "title": "13 · Metadata manipulation"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_14.md",
-          "title": "14 \u00b7 Container image supply chain"
+          "title": "14 · Container image supply chain"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_15.md",
-          "title": "15 \u00b7 Developer tool compromise"
+          "title": "15 · Developer tool compromise"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_16.md",
-          "title": "16 \u00b7 Package cache poisoning"
+          "title": "16 · Package cache poisoning"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_17.md",
-          "title": "17 \u00b7 Multi-stage attack chain"
+          "title": "17 · Multi-stage attack chain"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_18.md",
-          "title": "18 \u00b7 Package manager plugin"
+          "title": "18 · Package manager plugin"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_19.md",
-          "title": "19 \u00b7 SBOM manipulation"
+          "title": "19 · SBOM manipulation"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_20.md",
-          "title": "20 \u00b7 Package version confusion"
+          "title": "20 · Package version confusion"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_21.md",
-          "title": "21 \u00b7 Axios-style npm release"
+          "title": "21 · Axios-style npm release"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_22.md",
-          "title": "22 \u00b7 LiteLLM-style PyPI compromise"
+          "title": "22 · LiteLLM-style PyPI compromise"
         },
         {
           "path": "scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_23.md",
-          "title": "23 \u00b7 Trivy supply chain attack"
+          "title": "23 · Trivy supply chain attack"
         }
       ]
     },
@@ -399,121 +406,121 @@
     {
       "id": "modules",
       "title": "Teaching module cards",
-      "description": "Per-scenario instructor cards (01\u201322)",
+      "description": "Per-scenario instructor cards (01–23)",
       "items": [
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_01.md",
-          "title": "01 \u00b7 Typosquatting",
+          "title": "01 · Typosquatting",
           "badge": "Beginner"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_02.md",
-          "title": "02 \u00b7 Dependency confusion",
+          "title": "02 · Dependency confusion",
           "badge": "Intermediate"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_03.md",
-          "title": "03 \u00b7 Compromised package",
+          "title": "03 · Compromised package",
           "badge": "Intermediate"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_04.md",
-          "title": "04 \u00b7 Malicious update",
+          "title": "04 · Malicious update",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_05.md",
-          "title": "05 \u00b7 Build system compromise",
+          "title": "05 · Build system compromise",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_06.md",
-          "title": "06 \u00b7 Shai-Hulud",
+          "title": "06 · Shai-Hulud",
           "badge": "Expert"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_07.md",
-          "title": "07 \u00b7 Transitive dependency",
+          "title": "07 · Transitive dependency",
           "badge": "Intermediate"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_08.md",
-          "title": "08 \u00b7 Package lock manipulation",
+          "title": "08 · Package lock manipulation",
           "badge": "Intermediate"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_09.md",
-          "title": "09 \u00b7 Package signing bypass",
+          "title": "09 · Package signing bypass",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_10.md",
-          "title": "10 \u00b7 Git submodule attack",
+          "title": "10 · Git submodule attack",
           "badge": "Intermediate"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_11.md",
-          "title": "11 \u00b7 Registry mirror poisoning",
+          "title": "11 · Registry mirror poisoning",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_12.md",
-          "title": "12 \u00b7 Workspace / monorepo",
+          "title": "12 · Workspace / monorepo",
           "badge": "Intermediate"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_13.md",
-          "title": "13 \u00b7 Metadata manipulation",
+          "title": "13 · Metadata manipulation",
           "badge": "Intermediate"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_14.md",
-          "title": "14 \u00b7 Container image supply chain",
+          "title": "14 · Container image supply chain",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_15.md",
-          "title": "15 \u00b7 Developer tool compromise",
+          "title": "15 · Developer tool compromise",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_16.md",
-          "title": "16 \u00b7 Package cache poisoning",
+          "title": "16 · Package cache poisoning",
           "badge": "Intermediate"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_17.md",
-          "title": "17 \u00b7 Multi-stage attack chain",
+          "title": "17 · Multi-stage attack chain",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_18.md",
-          "title": "18 \u00b7 Package manager plugin",
+          "title": "18 · Package manager plugin",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_19.md",
-          "title": "19 \u00b7 SBOM manipulation",
+          "title": "19 · SBOM manipulation",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_20.md",
-          "title": "20 \u00b7 Package version confusion",
+          "title": "20 · Package version confusion",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_21.md",
-          "title": "21 \u00b7 Axios-style npm release",
+          "title": "21 · Axios-style npm release",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_22.md",
-          "title": "22 \u00b7 LiteLLM-style PyPI compromise",
+          "title": "22 · LiteLLM-style PyPI compromise",
           "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_23.md",
-          "title": "23 \u00b7 Trivy supply chain attack",
+          "title": "23 · Trivy supply chain attack",
           "badge": "Advanced"
         }
       ]
