@@ -19,6 +19,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -576,8 +578,6 @@ node detection-tools/axios-compromise-detector.js victim-app
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/21-axios-compromised-release-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -587,6 +587,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Recover: pin to a known-good exact version; enforce lockfile-only installs in CI.
 - Hunt: search org lockfiles for unexpected transitive packages from advisories.
 - Enable trusted publishing / provenance checks and lifecycle script monitoring.
+
+---
 
 ---
 
@@ -667,7 +669,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

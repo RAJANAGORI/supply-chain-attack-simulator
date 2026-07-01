@@ -50,10 +50,10 @@ rule Dependency_Confusion_Indicator {
 
 ## Mitigation
 
-- Configure scope-specific registry routing in `.npmrc` (e.g. `@org:registry=https://internal-registry.corp/`).
+- Configure scope-specific registry routing in `.npmrc` (e.g. `@org:registry=...`).
 - Enforce package lock files and use `npm ci --audit` in CI/CD.
 - Isolate private registry traffic from public npm at the network layer.
 - Reserve internal namespaces on public registries where applicable.
 - Pin dependencies to exact versions for critical packages.
-- Verify package integrity hashes and registry `resolved` URLs on install.
-- Add build-time validation to reject unexpected registry sources and anomalous semver (e.g. `999.x`).
+- Verify package integrity hashes on install.
+- Add build-time validation to reject unexpected registry sources.

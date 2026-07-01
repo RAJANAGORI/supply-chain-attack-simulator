@@ -23,7 +23,7 @@ Authoritative content lives under **`documentation/`**. The **`docs/`** director
 
 | Type | Index |
 | --- | --- |
-| **Full catalog (22 scenarios)** | [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md) |
+| **Full catalog (23 scenarios)** | [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md) |
 | Zero-to-hero walkthroughs | [scenario-guides/zero-to-hero/README.md](../scenario-guides/zero-to-hero/README.md) |
 | Quick reference cards | [scenario-guides/quick-reference/README.md](../scenario-guides/quick-reference/README.md) |
 

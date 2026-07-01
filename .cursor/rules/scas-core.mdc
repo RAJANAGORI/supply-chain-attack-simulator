@@ -1,0 +1,35 @@
+---
+description: SCAS safety gates, canonical paths, and exploration discipline
+alwaysApply: true
+---
+
+# SCAS
+
+23 localhost-only supply-chain attack labs (`scenarios/01-`…`23-`). Docs hub: `documentation/index.md` — `docs/` is a GitHub Pages mirror; do not edit both.
+
+## Safety (never weaken)
+
+- `setup.sh` sources `scenarios/_shared/enable-testbench.sh`
+- Payloads gate on `TESTBENCH_MODE === 'enabled'` before malicious paths
+- Exfil targets `127.0.0.1` / `localhost` only
+
+## Canonical examples (read one, grep the rest)
+
+| Need | Path |
+|------|------|
+| Mock server | `scenarios/01-typosquatting/infrastructure/mock-server.js` |
+| New mock server | `scenarios/_shared/mock-server-template.js` |
+| Setup | `scenarios/01-typosquatting/setup.sh` |
+| Payload template | `scenarios/01-typosquatting/templates/malicious-package-template.js` |
+| DETECT runbook | `scenarios/01-typosquatting/DETECT.md` |
+| ES forward hook | `detection-tools/es/forward-capture.js` |
+| Scripts / doc sync | `documentation/platform/TOOLING.md` |
+| Ports | `scripts/ports.env` |
+
+**Exceptions:** **06** — `credential-harvester.js`, `mock-cdn.js`; **21**/**22** — npm/PyPI sims, **22** uses `mock_server.py`.
+
+Shared-pattern edits: implement in **01** (or exception), `grep` `scenarios/` + `documentation/scenario-guides/`, apply the same diff — do not open all 22 folders.
+
+## Exploration
+
+`grep`/glob before broad reads. Read narrow slices (signatures, call sites). Stop once the pattern is clear.

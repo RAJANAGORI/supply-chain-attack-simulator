@@ -52,6 +52,5 @@ rule Signing_Bypass_Indicator {
 - Require MFA for all key access and signing operations.
 - Rotate signing keys on a regular schedule and after incidents.
 - Limit who can sign packages with strict access controls.
-- Always verify signatures — but pair with behavioural and content analysis.
+- Always verify signatures — but pair with behavioral and content analysis.
 - Monitor signing activity for anomalies (time, volume, key fingerprint).
-- Use transparency logs (Sigstore) and SBOM hash pinning alongside signature checks.

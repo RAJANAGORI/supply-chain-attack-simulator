@@ -1,0 +1,9 @@
+{
+  "name": "trivy-action-like",
+  "version": "0.69.4",
+  "description": "COMPROMISED trivy-action simulation v0.69.4 — CVE-2026-33634 [EDUCATIONAL ONLY]",
+  "main": "trivy-action-like.js",
+  "keywords": ["trivy", "security-scanner", "github-action"],
+  "author": "TeamPCP (simulated attacker — SCAS lab)",
+  "license": "Apache-2.0"
+}

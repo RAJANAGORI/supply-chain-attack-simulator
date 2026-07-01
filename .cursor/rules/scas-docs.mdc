@@ -1,0 +1,32 @@
+---
+description: Documentation locations, Zero-to-Hero scope, and maintainer sync workflow
+globs: documentation/**
+alwaysApply: false
+---
+
+# Documentation
+
+Canonical source: `documentation/` (`index.md` hub). GitHub Pages build reads `docs/` — update manifests via `scripts/materialize-docs-for-pages.sh` when moving files.
+
+## Zero to Hero (three docs — do not conflate)
+
+| File | Scope |
+|------|-------|
+| `getting-started/ZERO_TO_HERO.md` | First-lab quick start |
+| `learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md` | Full curriculum |
+| `scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_NN.md` | Per-scenario walkthrough |
+
+Quick refs: `scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_NN.md`. Floci track (05, 06, 14, 17, 21): `guides/FLOCI_INTEGRATION.md`.
+
+Zero-to-hero and quick-ref trees are in `.cursorignore` for code-focused indexing — open the target file directly when editing guides.
+
+## After content or mitigation changes
+
+1. `scripts/lib/mitigation-playbooks.js` — canonical bullets (if mitigations changed)
+2. `node scripts/sync-mitigation-gaps.js` — DETECT `## Mitigation` + README playbooks (01–06)
+3. `node scripts/inject-zero-to-hero-mitigation-playbooks.js` — zero-to-hero playbooks
+4. `node scripts/inject-markdown-toc.js all` — rebuild TOCs
+5. Observability blocks: `detection-tools/es/scenario-diagram-steps.js` → `generate-observability-section.js`
+6. `node detection-tools/es/load-runbooks.js` — if `DETECT.md` structure changed
+
+Full script catalog: `platform/TOOLING.md`.

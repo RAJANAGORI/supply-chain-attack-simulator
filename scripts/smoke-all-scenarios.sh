@@ -473,6 +473,22 @@ free_common_ports
   kill "$(cat /tmp/tb22-mock.pid)" 2>/dev/null || true
 }
 
+# --- 23 ---
+note "Scenario 23 Trivy supply chain attack"
+free_common_ports
+{
+  cd "$ROOT"
+  cd scenarios/23-trivy-supply-chain-attack
+  node infrastructure/mock-c2-server.js >/tmp/tb23-mock.log 2>&1 &
+  echo $! >/tmp/tb23-mock.pid
+  sleep 1
+  cd victim-ci
+  TESTBENCH_MODE=enabled node run-pipeline.js >/tmp/tb23-run.log 2>&1 || true
+  C="$(curl -s http://127.0.0.1:3023/captured-data)"
+  if has_capture_payload "$C"; then ok "23"; else bad "23"; fi
+  kill "$(cat /tmp/tb23-mock.pid)" 2>/dev/null || true
+}
+
 free_common_ports
 
 echo ""

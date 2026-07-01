@@ -1,0 +1,29 @@
+name: 'Trivy scanner (SCAS Scenario 23 reference)'
+description: >-
+  Educational stand-in for aquasecurity/trivy-action@v0.34.2 (force-pushed,
+  CVE-2026-33634). Run victim-ci/run-pipeline.js locally — do not publish this workflow.
+inputs:
+  scan-type:
+    description: 'Mirrors trivy-action input (reference only)'
+    required: false
+    default: fs
+  scan-ref:
+    description: 'Mirrors trivy-action input (reference only)'
+    required: false
+    default: .
+  format:
+    description: 'Mirrors trivy-action input (reference only)'
+    required: false
+    default: sarif
+  output:
+    description: 'Mirrors trivy-action input (reference only)'
+    required: false
+    default: trivy-results.sarif
+runs:
+  using: composite
+  steps:
+    - name: SCAS reference step
+      run: |
+        echo "Static lab artifact — victims used aquasecurity/trivy-action@v0.34.2"
+        echo "Simulate the compromised run: node run-pipeline.js (from victim-ci/)"
+      shell: bash

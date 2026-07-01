@@ -6,6 +6,93 @@
   const REPO_BLOB = REPO + '/blob/main';
   const REPO_RAW = 'https://raw.githubusercontent.com/rajanagori/supply-chain-attack-simulator/main';
 
+  const SITE_ORIGIN = 'https://simulator.rajanagori.in';
+  const OG_IMAGE = SITE_ORIGIN + '/logo.png';
+  const SITE_NAME = 'Supply Chain Attack Simulator';
+
+  function absoluteGuideUrl(docPath) {
+    return SITE_ORIGIN + '/guide.html?p=' + encodeURIComponent(docPath);
+  }
+
+  function upsertMeta(attr, key, content) {
+    let el = document.querySelector('meta[' + attr + '="' + key + '"]');
+    if (!el) {
+      el = document.createElement('meta');
+      el.setAttribute(attr, key);
+      document.head.appendChild(el);
+    }
+    el.setAttribute('content', content);
+  }
+
+  function upsertLink(rel, href) {
+    let el = document.querySelector('link[rel="' + rel + '"]');
+    if (!el) {
+      el = document.createElement('link');
+      el.setAttribute('rel', rel);
+      document.head.appendChild(el);
+    }
+    el.setAttribute('href', href);
+  }
+
+  function excerptFromMarkdown(markdown) {
+    let body = String(markdown || '');
+    body = body.replace(/^---[\s\S]*?---\n/m, '');
+    body = body.replace(/```[\s\S]*?```/g, ' ');
+    body = body.replace(/!\[[^\]]*\]\([^)]*\)/g, ' ');
+    body = body.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1');
+    body = body.replace(/^#{1,6}\s+/gm, '');
+    body = body.replace(/[*_`>#|-]/g, ' ');
+    body = body.replace(/\s+/g, ' ').trim();
+    return body.slice(0, 160);
+  }
+
+  function updateDocSeo(docPath, meta, markdownText) {
+    const pageTitle = (meta ? meta.title + ' · ' : '') + 'SCAS Documentation';
+    let description = meta && meta.sectionDescription
+      ? meta.title + ' — ' + meta.sectionDescription + ' Part of the Supply Chain Attack Simulator documentation.'
+      : (meta ? meta.title + ' — Supply Chain Attack Simulator documentation.' : 'Supply Chain Attack Simulator documentation.');
+
+    const excerpt = excerptFromMarkdown(markdownText);
+    if (excerpt.length >= 40) {
+      description = excerpt;
+    }
+
+    const url = absoluteGuideUrl(docPath);
+    document.title = pageTitle;
+    upsertMeta('name', 'description', description);
+    upsertLink('canonical', url);
+    upsertMeta('property', 'og:type', 'article');
+    upsertMeta('property', 'og:url', url);
+    upsertMeta('property', 'og:title', pageTitle);
+    upsertMeta('property', 'og:description', description);
+    upsertMeta('property', 'og:image', OG_IMAGE);
+    upsertMeta('property', 'og:site_name', SITE_NAME);
+    upsertMeta('name', 'twitter:card', 'summary_large_image');
+    upsertMeta('name', 'twitter:url', url);
+    upsertMeta('name', 'twitter:title', pageTitle);
+    upsertMeta('name', 'twitter:description', description);
+    upsertMeta('name', 'twitter:image', OG_IMAGE);
+
+    // Article authorship signals
+    upsertMeta('property', 'article:author', 'https://github.com/rajanagori');
+    if (meta && meta.sectionTitle) {
+      upsertMeta('property', 'article:section', meta.sectionTitle);
+    }
+
+    // Update inline WebPage JSON-LD if present (for crawlers that execute JS)
+    var ldEl = document.getElementById('ld-webpage');
+    if (ldEl && meta) {
+      try {
+        var ld = JSON.parse(ldEl.textContent);
+        ld.name = pageTitle;
+        ld.description = description;
+        ld.url = url;
+        ldEl.textContent = JSON.stringify(ld);
+      } catch (e) {}
+    }
+  }
+
+
   /** Not published on the public docs site (internal / gitignored). */
   const BLOCKED_DOC_PATHS = new Set(['reference/ROADMAP.md']);
 
@@ -232,6 +319,7 @@
           badge: item.badge,
           sectionId: section.id,
           sectionTitle: section.title,
+          sectionDescription: section.description || '',
         };
         flatDocs.push(entry);
         if (section.sequential) {
@@ -431,8 +519,6 @@
       ? '<span>' + escapeHtml(meta.sectionTitle) + '</span> / ' + escapeHtml(meta.title)
       : escapeHtml(path);
 
-    document.title = (meta ? meta.title + ' · ' : '') + 'SCAS Documentation';
-
     let text;
     let loadedFromGithub = false;
     try {
@@ -443,6 +529,8 @@
       showError('Could not load ' + path + '. ' + err.message + ' (static host may not publish symlinked docs — redeploy after running scripts/materialize-docs-for-pages.sh)');
       return;
     }
+
+    updateDocSeo(path, meta, text);
 
     configureMarked();
     els.content.innerHTML = marked.parse(text);

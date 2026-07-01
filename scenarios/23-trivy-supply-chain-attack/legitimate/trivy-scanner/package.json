@@ -1,0 +1,12 @@
+{
+  "name": "trivy-scanner-like",
+  "version": "0.69.2",
+  "description": "Legitimate Trivy scanner simulation — CLEAN baseline for comparison [EDUCATIONAL]",
+  "main": "index.js",
+  "scripts": {
+    "scan": "node index.js"
+  },
+  "keywords": ["trivy", "vulnerability-scanner", "security"],
+  "author": "Aqua Security (simulated for SCAS lab)",
+  "license": "Apache-2.0"
+}

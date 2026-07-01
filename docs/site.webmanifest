@@ -1,0 +1,56 @@
+{
+  "name": "Supply Chain Attack Simulator",
+  "short_name": "SCAS",
+  "description": "Hands-on cybersecurity training platform with 23 real-world supply chain attack scenarios.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "lang": "en",
+  "categories": [
+    "education",
+    "security"
+  ],
+  "icons": [
+    {
+      "src": "favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "1376x768",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "logo.png",
+      "sizes": "1376x768",
+      "type": "image/png",
+      "label": "Supply Chain Attack Simulator \u2014 broken chain logo"
+    }
+  ],
+  "prefer_related_applications": false
+}

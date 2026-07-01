@@ -231,6 +231,16 @@ const PLAYBOOKS = {
       'Scan `site-packages/*.pth` in CI after every `pip install`.',
     ],
   },
+  '23': {
+    scenarioDir: '23-trivy-supply-chain-attack',
+    bullets: [
+      'Contain: disable and re-queue all pipelines that ran `trivy-action@v0.34.x` or `setup-trivy@v0.2.5` or earlier after March 19 2026.',
+      'Eradicate: replace every mutable tag reference with an immutable commit SHA (`aquasecurity/trivy-action@<SHA>`).',
+      'Recover: rotate all CI secrets (GITHUB_TOKEN, AWS keys, registry credentials, database URLs) accessible to affected pipeline runs.',
+      'Hunt: scan every workflow YAML in the organization for compromised version strings; check Dockerfiles and container registries for `trivy:0.69.4/5/6`.',
+      'Harden: enforce SHA pinning for all third-party actions via policy (e.g. `step-security/harden-runner`, Allstar, or custom CI lint); alert on unexpected outbound network calls from action steps.',
+    ],
+  },
 };
 
 function playbookBullets(id) {

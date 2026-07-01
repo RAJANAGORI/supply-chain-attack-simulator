@@ -5,6 +5,8 @@
 
 > **Live registry race mechanism:** `setup.sh` packs `@techcorp/auth-lib@999.999.999` into a real `.tgz` tarball and starts `infrastructure/registry-server.js` — a minimal npm registry server on port 4874. `corporate-app/.npmrc` sets `@techcorp:registry=http://localhost:4874/`, which is the *misconfigured* state (should point to the internal registry). npm resolves `@techcorp/auth-lib` from the attacker-controlled server, downloads `v999.999.999`, and the malicious `postinstall` fires — the authentic Alex Birsan-style registry race, locally reproduced.
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">

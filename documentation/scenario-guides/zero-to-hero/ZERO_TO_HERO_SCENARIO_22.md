@@ -19,6 +19,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -559,8 +561,6 @@ pip install litellm_like==1.82.6 --no-deps  # after verifying package integrity
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/22-litellm-pypi-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -570,6 +570,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Recover: pin known-good version (`litellm_like==1.82.6`); enforce hash pinning or vetting.
 - Rotate: API keys and PyPI maintainer tokens after confirmed incidents.
 - Scan `site-packages/*.pth` in CI after every `pip install`.
+
+---
 
 ---
 
@@ -650,7 +652,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

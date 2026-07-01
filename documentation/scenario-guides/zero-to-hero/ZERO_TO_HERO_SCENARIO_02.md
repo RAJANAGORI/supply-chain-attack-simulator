@@ -16,6 +16,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -527,8 +529,6 @@ npm uses semantic versioning (semver) to resolve versions:
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/02-dependency-confusion/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -540,6 +540,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Pin dependencies to exact versions for critical packages.
 - Verify package integrity hashes on install.
 - Add build-time validation to reject unexpected registry sources.
+
+---
 
 ---
 
@@ -620,7 +622,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

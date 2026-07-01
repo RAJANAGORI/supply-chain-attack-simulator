@@ -19,6 +19,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -644,8 +646,6 @@ node detection-tools/mirror-validator.js compromised-mirror legitimate-packages
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/11-registry-mirror-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -655,6 +655,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Verify mirror packages match upstream registry digests.
 - Implement strict access controls and MFA on mirror admin paths.
 - Monitor mirror behavior and alert on unexpected package mutations.
+
+---
 
 ---
 
@@ -735,7 +737,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

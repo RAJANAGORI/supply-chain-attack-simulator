@@ -15,7 +15,7 @@ Every maintainer-facing script in [`scripts/`](../../scripts/), grouped by purpo
 | [`scripts/setup.sh`](../../scripts/setup.sh) | Repo-wide setup; creates `.testbench.env` |
 | [`scripts/teardown.sh`](../../scripts/teardown.sh) | Kill scenario ports, remove captures & `node_modules` |
 | [`scripts/kill-port.sh`](../../scripts/kill-port.sh) | Free one port, or `--all` ports from `ports.env` |
-| [`scripts/smoke-all-scenarios.sh`](../../scripts/smoke-all-scenarios.sh) | End-to-end smoke test across all 22 scenarios |
+| [`scripts/smoke-all-scenarios.sh`](../../scripts/smoke-all-scenarios.sh) | End-to-end smoke test across all 23 scenarios |
 | [`scripts/ports.env`](../../scripts/ports.env) | Source-of-truth port allow-list (see [Operations → port matrix](./OPERATIONS.md#port-matrix)) |
 
 ### Observability (Elasticsearch + Kibana)
@@ -125,8 +125,10 @@ When adding or moving a documentation file, update in lockstep:
 
 1. The relevant section `index.md` (and [`documentation/index.md`](../index.md) map if a new section).
 2. [`docs/docs-manifest.json`](../../docs/docs-manifest.json) — add the page to the right group.
-3. [`docs/sitemap.xml`](../../docs/sitemap.xml) — add notable new URLs.
+3. Regenerate the sitemap: `node scripts/generate-sitemap.js` → [`docs/sitemap.xml`](../../docs/sitemap.xml).
 4. [`scripts/materialize-docs-for-pages.sh`](../../scripts/materialize-docs-for-pages.sh) — add the folder if it's a new top-level section.
+
+Per-page SEO in the docs reader (`guide.html`) is updated at runtime by [`docs/assets/js/docs-app.js`](../../docs/assets/js/docs-app.js) (title, description, canonical, Open Graph, Twitter). Landing-page SEO lives in [`docs/index.html`](../../docs/index.html).
 
 ---
 

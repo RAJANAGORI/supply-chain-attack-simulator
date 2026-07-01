@@ -53,4 +53,3 @@ rule Registry_Mirror_Poisoning_IOC {
 - Verify mirror packages match upstream registry digests.
 - Implement strict access controls and MFA on mirror admin paths.
 - Monitor mirror behavior and alert on unexpected package mutations.
-- Compare installed `node_modules` scripts against upstream baseline after every mirror sync.

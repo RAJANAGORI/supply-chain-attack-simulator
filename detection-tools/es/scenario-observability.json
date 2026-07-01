@@ -288,5 +288,18 @@
     "mock_start": "python3 infrastructure/mock_server.py",
     "lab_run": "cd victim-app && source .venv/bin/activate && pip install -U ../python-packages/v1_82_7 && python run_victim.py",
     "verify_cli": "curl -s http://127.0.0.1:3022/captured-data"
+  },
+  {
+    "scenario_id": "23",
+    "title": "Trivy Supply Chain Attack (CVE-2026-33634)",
+    "folder": "23-trivy-supply-chain-attack",
+    "victim_label": "victim-ci (node run-pipeline.js)",
+    "malicious_label": "trivy-action-like@0.69.4 (force-pushed tag)",
+    "mock_label": "mock-c2-server.js :3023",
+    "mock_endpoint": "POST /collect",
+    "trigger_action": "module load in CI pipeline step",
+    "mock_start": "node infrastructure/mock-c2-server.js",
+    "lab_run": "cd victim-ci && export TESTBENCH_MODE=enabled && node run-pipeline.js",
+    "verify_cli": "curl -s http://127.0.0.1:3023/captured-data"
   }
 ]

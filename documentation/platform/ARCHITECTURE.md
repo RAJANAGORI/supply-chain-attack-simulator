@@ -112,4 +112,4 @@ flowchart LR
 
 - [OPERATIONS.md](./OPERATIONS.md) — scripts, ports, teardown
 - [DETECTION_AND_OBSERVABILITY.md](./DETECTION_AND_OBSERVABILITY.md) — scanners, Elasticsearch, Kibana
-- [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md) — all 22 labs with links
+- [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md) — all 23 labs with links

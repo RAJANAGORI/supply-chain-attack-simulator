@@ -14,6 +14,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -391,8 +393,6 @@ gpg --verify dist/app.js.asc
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/05-build-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -404,6 +404,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Use secret management tools — never hardcode secrets in build scripts.
 - Audit and log all build activities for forensic review.
 - Sign release artifacts and verify signatures before deployment.
+
+---
 
 ---
 
@@ -484,7 +486,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

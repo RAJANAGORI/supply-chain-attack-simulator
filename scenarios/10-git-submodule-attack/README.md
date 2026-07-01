@@ -5,6 +5,8 @@
 
 > **Live attack mechanism:** `setup.sh` builds real local git repositories (`work/awesome-project` with `work/malicious-lib` registered as a genuine submodule). A real `git clone --recurse-submodules` fetches the malicious submodule, and `npm install` triggers the submodule's `postinstall.sh` through the normal npm lifecycle — exactly as the attack works against a real developer machine. No shortcuts or manual script invocations.
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">

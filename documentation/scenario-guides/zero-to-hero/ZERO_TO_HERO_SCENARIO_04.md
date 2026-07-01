@@ -14,6 +14,8 @@ By the end of this guide, you will:
 
 
 
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -379,8 +381,6 @@ Always review changelogs before updating:
 
 ---
 
----
-
 ## Mitigation Playbook
 
 Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/04-malicious-update/README.md)). Lab walkthroughs above expand each control with hands-on steps.
@@ -391,6 +391,8 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 - Scan dependency updates automatically in CI before merge.
 - Use staged rollouts — test updates in staging before production.
 - Require human review of changelogs for patch and minor bumps on critical packages.
+
+---
 
 ---
 
@@ -471,7 +473,7 @@ From the repository root:
 
 ```bash
 ./scripts/elasticsearch-up.sh
-./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 22 scenarios
+./scripts/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

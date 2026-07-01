@@ -125,11 +125,16 @@ Use these modules for deeper engineering teams who need production-grade detecti
 - **Path**: `scenarios/22-litellm-pypi-compromise/`
 - **Outcome**: contrast import-time vs `.pth` startup execution; triage `site-packages` and rebuild venvs safely.
 
+### Scenario 23: Trivy Supply Chain Attack
+
+- **Path**: `scenarios/23-trivy-supply-chain-attack/`
+- **Outcome**: understand force-push tag attacks against CI security tools; implement SHA pinning and runtime network controls (CVE-2026-33634).
+
 ## Suggested Progression
 
 1. Beginner: 01 -> 02 -> 03  
 2. Intermediate: 04 -> 07 -> 08 -> 10 -> 12 -> 13 -> 16  
-3. Advanced: 05 -> 06 -> 09 -> 11 -> 14 -> 15 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22  
+3. Advanced: 05 -> 06 -> 09 -> 11 -> 14 -> 15 -> 17 -> 18 -> 19 -> 20 -> 21 -> 22 -> 23  
 
 ## Exit Criteria By Level
 

@@ -51,4 +51,3 @@ rule Submodule_Attack_IOC {
 - Limit who can add or modify submodules in protected branches.
 - Pin submodules to specific commits, not floating branch heads.
 - Scan submodule content and monitor submodule initialization behavior.
-- Block `file://` submodule URLs in CI unless explicitly required.
