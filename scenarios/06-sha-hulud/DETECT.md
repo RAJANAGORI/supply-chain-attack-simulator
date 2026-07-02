@@ -45,3 +45,7 @@ rule Shai_Hulud_Replication_Indicator {
 - Use secret management tools; never commit tokens or keys to repositories.
 - Enforce lockfiles with `npm ci --audit` in CI pipelines.
 - Rotate credentials immediately after suspected compromise.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc06-artifacts/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 06`.

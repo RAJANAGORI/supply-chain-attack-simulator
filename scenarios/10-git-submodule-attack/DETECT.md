@@ -51,3 +51,7 @@ rule Submodule_Attack_IOC {
 - Limit who can add or modify submodules in protected branches.
 - Pin submodules to specific commits, not floating branch heads.
 - Scan submodule content and monitor submodule initialization behavior.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc10-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 10`.

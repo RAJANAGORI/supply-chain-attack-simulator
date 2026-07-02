@@ -12,3 +12,5 @@ cd victim-app && npm install ../packages/stage1-access-lib ../packages/stage2-co
 ```
 
 Compare `infrastructure/captured-data.json` (mock) with `s3://scas-sc17-artifacts/chain/*/`.
+
+Extended seed registers **Step Functions** `scas-sc17-chain` and an **EventBridge** correlation event. Verify with `eventbridge-chain-check.sh`.

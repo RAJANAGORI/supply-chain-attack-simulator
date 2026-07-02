@@ -45,3 +45,7 @@ rule PyPI_PTH_Compromise_IOC {
 - Recover: pin known-good version (`litellm_like==1.82.6`); enforce hash pinning or vetting.
 - Rotate: API keys and PyPI maintainer tokens after confirmed incidents.
 - Scan `site-packages/*.pth` in CI after every `pip install`.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc22-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 22`.

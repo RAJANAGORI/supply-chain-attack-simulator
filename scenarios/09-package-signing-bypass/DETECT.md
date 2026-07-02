@@ -54,3 +54,7 @@ rule Signing_Bypass_Indicator {
 - Limit who can sign packages with strict access controls.
 - Always verify signatures — but pair with behavioral and content analysis.
 - Monitor signing activity for anomalies (time, volume, key fingerprint).
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc09-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 09`.

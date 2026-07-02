@@ -22,6 +22,10 @@ EOF
 
 scas_floci_s3_put "$BUCKET" "releases/legitimate/manifest.json" "${LEGIT}/manifest.json"
 
+scas_floci_iam_create_role "scas-sc05-codebuild-role"
+scas_floci_logs_put "/scas/sc05/build" "compromised-run" "CodeBuild-style env harvest simulated"
+scas_floci_ssm_put_parameter "/scas/sc05/ci-database-url" "postgres://decoy:decoy@127.0.0.1:5432/ci"
+
 echo "✅ Floci seeded for scenario 05"
 echo "   Bucket: s3://${BUCKET}"
 echo "   Baseline: s3://${BUCKET}/releases/legitimate/manifest.json"

@@ -44,3 +44,7 @@ rule Workspace_Attack_IOC {
 - Monitor postinstall execution across workspace packages.
 - Review workspace dependency changes with the same rigor as external deps.
 - Track workspace package changes in version control with mandatory review.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc12-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 12`.

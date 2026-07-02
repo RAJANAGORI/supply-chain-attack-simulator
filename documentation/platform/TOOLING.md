@@ -31,7 +31,7 @@ Full workflow: [Detection & observability](./DETECTION_AND_OBSERVABILITY.md) · 
 
 ### Floci cloud track (optional)
 
-Local-AWS emulator track for scenarios 05, 06, 14, 17, 21. Full guide: [Floci integration](../guides/FLOCI_INTEGRATION.md).
+Local-AWS emulator track for all 23 scenarios (S3 universal; extended on 05, 06, 11, 14, 17, 19, 23). Full guide: [Floci integration](../guides/FLOCI_INTEGRATION.md).
 
 | Script | Purpose |
 |--------|---------|

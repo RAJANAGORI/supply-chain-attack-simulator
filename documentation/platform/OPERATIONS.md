@@ -75,7 +75,7 @@ Source of truth: [`scripts/ports.env`](../../scripts/ports.env)
 | 3015–3022 | Scenarios 15–22 (dedicated mock servers) |
 | 9200 | Elasticsearch (optional) |
 | 5601 | Kibana (optional) |
-| 4566 | Floci AWS emulator (optional; scenarios 05, 06, 14, 17, 21) |
+| 4566 | Floci AWS emulator (optional; all scenarios — S3 universal; extended on 05, 06, 11, 14, 17, 19, 23) |
 
 Free a port after a lab:
 

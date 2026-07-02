@@ -45,3 +45,7 @@ rule Plugin_Attack_IOC {
 - Run integrity checks on `node_modules` and generated lockfile state.
 - Review plugin code changes with the same rigor as build scripts.
 - Alert on hook-driven modifications outside expected paths.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc18-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 18`.

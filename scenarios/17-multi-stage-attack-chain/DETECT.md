@@ -48,3 +48,7 @@ rule Multi_Stage_Attack_IOC {
 - Trigger automated containment when stage transitions occur in short windows.
 - Preserve forensic artifacts per stage for post-incident timeline reconstruction.
 - Run attack-chain tabletop exercises against your CI/CD architecture.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc17-artifacts/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 17`.

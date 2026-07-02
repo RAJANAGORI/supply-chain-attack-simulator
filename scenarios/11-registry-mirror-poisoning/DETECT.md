@@ -53,3 +53,7 @@ rule Registry_Mirror_Poisoning_IOC {
 - Verify mirror packages match upstream registry digests.
 - Implement strict access controls and MFA on mirror admin paths.
 - Monitor mirror behavior and alert on unexpected package mutations.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc11-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 11`.

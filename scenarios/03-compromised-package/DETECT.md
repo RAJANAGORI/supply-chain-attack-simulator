@@ -46,3 +46,7 @@ rule Compromised_Package_Runtime_IOC {
 - Verify package integrity and signatures when the registry supports them.
 - Monitor runtime behavior and log package installation events in production.
 - Maintain maintainer-transfer and dependency-addition review policies.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc03-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 03`.

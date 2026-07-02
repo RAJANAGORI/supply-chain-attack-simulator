@@ -16,7 +16,7 @@
 |-----------|---------|-----------|
 | **SCAS core** | 22 hands-on supply-chain attack labs | Yes |
 | **Elasticsearch + Kibana** | Index detection runbooks and lab events for blue-team practice | Optional (recommended for workshops) |
-| **Floci** | Local AWS emulator (S3, ECR, Secrets Manager) for cloud-track labs | Optional (scenarios **05, 06, 14, 17, 21** only) |
+| **Floci** | Local AWS emulator (S3 universal; ECR/IAM/pipeline on select labs) | Optional (all **23** scenarios; extended **05, 06, 11, 14, 17, 19, 23**) |
 
 ### Safety rules (non-negotiable)
 
@@ -177,7 +177,7 @@ Expect `PASS` for rules count and detections after shipping.
 
 ## Part 3 — Floci (AWS emulator)
 
-Required for cloud-track scenarios **05, 06, 14, 17, 21**. Per-scenario detail: [Floci integration guide](../guides/FLOCI_INTEGRATION.md).
+Required for the optional cloud track on **all 23** scenarios (S3 mirror); extended primitives on **05, 06, 11, 14, 17, 19, 23**. Per-scenario detail: [Floci integration guide](../guides/FLOCI_INTEGRATION.md).
 
 ### Step 1: One-time Floci setup
 
@@ -436,7 +436,7 @@ More: [FAQ](../platform/FAQ.md) · [Operations](../platform/OPERATIONS.md)
 1. [First lab quick start](./ZERO_TO_HERO.md)
 2. [Scenario catalog](../scenario-guides/CATALOG.md)
 3. [Detection & observability](../platform/DETECTION_AND_OBSERVABILITY.md)
-4. [Floci cloud-track scenarios](../guides/FLOCI_INTEGRATION.md) — 05, 06, 14, 17, 21
+4. [Floci cloud-track scenarios](../guides/FLOCI_INTEGRATION.md) — all 23 (S3); extended 05, 06, 11, 14, 17, 19, 23
 
 ---
 

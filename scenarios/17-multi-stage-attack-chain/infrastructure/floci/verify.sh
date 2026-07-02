@@ -12,3 +12,5 @@ echo "--- chain/ (stage markers) ---"
 scas_floci_s3_ls "$BUCKET" "chain/" || echo "(empty)"
 echo "--- exfil/ ---"
 scas_floci_s3_ls "$BUCKET" "exfil/" || true
+echo "--- EventBridge / Step Functions ---"
+"${REPO_ROOT}/detection-tools/floci/eventbridge-chain-check.sh" || true

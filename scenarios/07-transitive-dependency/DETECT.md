@@ -45,3 +45,7 @@ rule Transitive_Dependency_IOC {
 - Generate and maintain SBOMs for transitive dependency visibility.
 - Monitor postinstall script execution and unexpected network requests.
 - Review the full dependency tree regularly, not only direct dependencies.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc07-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 07`.

@@ -14,3 +14,12 @@ docker build -t scas-compromised images/compromised-image
 ```
 
 Runtime simulation still beacons to `:3002`; Floci track adds cloud registry trust abuse.
+
+After `./infrastructure/floci/push-compromised.sh`, optionally run:
+
+```bash
+./infrastructure/floci/run-compromised-task.sh
+```
+
+This requests an **ECS RunTask** on cluster `scas-sc14` using task definition `scas-sc14-compromised`.
+

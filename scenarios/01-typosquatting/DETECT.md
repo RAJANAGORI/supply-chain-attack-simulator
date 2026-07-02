@@ -44,3 +44,7 @@ rule Typosquat_Install_Script {
 - Run automated dependency scanning (e.g. `npm audit`, Snyk, Socket.dev).
 - Require a code-review checklist for every new dependency (name, maintainer, reputation).
 - Prefer private registries and scope-based routing for internal package names.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc01-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 01`.

@@ -44,3 +44,7 @@ rule Metadata_Manipulation_IOC {
 - Require lockfile and integrity verification in CI.
 - Pin exact versions for sensitive dependencies.
 - Mirror and sign internal-approved artifacts.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc13-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 13`.

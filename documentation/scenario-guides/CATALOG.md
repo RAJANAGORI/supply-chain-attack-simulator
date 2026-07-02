@@ -30,6 +30,10 @@ Complete index of every lab. Use this table as the fastest way to jump to **runt
 
 ## Special infrastructure notes
 
+### Optional Floci cloud track
+
+All **23** scenarios support optional dual-write to Floci S3 (`source .floci.env`). Extended AWS primitives on **05, 06, 11, 14, 17, 19, 23**. Hub: [FLOCI_INTEGRATION.md](../guides/FLOCI_INTEGRATION.md) · per-scenario `FLOCI.md`.
+
 | Scenario | Extra listeners | Notes |
 |----------|-----------------|-------|
 | 06 | Mock CDN `:3000`, GitHub Actions sim `:3002`, replication sim `:3003` | Primary exfil via `credential-harvester.js` on **3001** → `captured-credentials.json` |

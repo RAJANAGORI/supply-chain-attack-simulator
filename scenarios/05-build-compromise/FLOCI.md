@@ -22,7 +22,7 @@ chmod +x infrastructure/floci/*.sh
 ./infrastructure/floci/seed.sh
 ```
 
-Creates bucket `scas-sc05-artifacts` with a legitimate `releases/legitimate/manifest.json`.
+Creates bucket `scas-sc05-artifacts` with a legitimate `releases/legitimate/manifest.json`, plus IAM role `scas-sc05-codebuild-role` and SSM parameter `/scas/sc05/ci-database-url` for CI abuse narrative.
 
 ### 2. Run the normal lab (mock server still required)
 
@@ -37,17 +37,18 @@ npm run build
 
 **What changes with Floci enabled:**
 
-| Step | Mock (port 3000) | Floci S3 |
-|------|------------------|----------|
+| Step | Mock (port 3000) | Floci (S3 + IAM/STS + Logs) |
+|------|------------------|---------------------------|
 | Stolen env JSON | `POST /collect` | `s3://scas-sc05-artifacts/exfil/build-secrets-*.json` |
 | Build output | local `dist/` | `s3://scas-sc05-artifacts/releases/compromised/<ts>/` |
+| CI identity abuse | — | STS `GetCallerIdentity` + CloudWatch Logs `/scas/sc05/build` |
 
 ### 3. Blue team — verify cloud evidence
 
 ```bash
 ./infrastructure/floci/verify.sh
-# or
 ../../detection-tools/floci/s3-exfil-check.sh 05
+../../detection-tools/floci/cloudtrail-hunt.sh 05
 ```
 
 ### 4. Compare legitimate vs compromised in S3

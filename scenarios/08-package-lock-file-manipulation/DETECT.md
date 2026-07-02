@@ -45,3 +45,7 @@ rule Lockfile_Manipulation_IOC {
 - Store and verify lockfile checksums as part of release gates.
 - Compare `package.json` declared deps against lockfile entries automatically.
 - Verify package integrity hashes match trusted registry metadata.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc08-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 08`.

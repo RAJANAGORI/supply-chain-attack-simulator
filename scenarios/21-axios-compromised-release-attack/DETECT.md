@@ -45,3 +45,7 @@ rule Axios_Compromise_IOC {
 - Recover: pin to a known-good exact version; enforce lockfile-only installs in CI.
 - Hunt: search org lockfiles for unexpected transitive packages from advisories.
 - Enable trusted publishing / provenance checks and lifecycle script monitoring.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc21-artifacts/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 21`.

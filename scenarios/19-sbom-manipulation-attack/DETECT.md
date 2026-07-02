@@ -45,3 +45,7 @@ rule SBOM_Manipulation_IOC {
 - Enforce fail-closed CI policy for SBOM-lockfile mismatches.
 - Keep truth-source and SBOM generation isolated from app code tampering.
 - Periodically diff production SBOM against runtime inventory scans.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc19-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 19`.

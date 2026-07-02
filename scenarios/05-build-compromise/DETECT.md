@@ -46,3 +46,7 @@ rule Build_Compromise_IOC {
 - Use secret management tools — never hardcode secrets in build scripts.
 - Audit and log all build activities for forensic review.
 - Sign release artifacts and verify signatures before deployment.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc05-artifacts/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 05`.

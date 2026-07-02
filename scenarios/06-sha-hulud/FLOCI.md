@@ -13,3 +13,6 @@ export TESTBENCH_MODE=enabled SCAS_FLOCI_ENABLED=1
 ```
 
 Dual-write: `:3001/collect` (mock) + `s3://scas-sc06-artifacts/exfil/harvested-credentials-*.json`
+
+Extended seed also creates **SQS** `scas-sc06-worm-events`, **SNS** `scas-sc06-worm-replicated`, and an **EventBridge** harvest event for worm fan-out narrative.
+

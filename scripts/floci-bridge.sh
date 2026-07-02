@@ -214,3 +214,134 @@ scas_floci_secret_put() {
     || scas_floci_aws secretsmanager put-secret-value --secret-id "$name" --secret-string "$value" >/dev/null 2>&1 \
     || true
 }
+
+# --- Extended AWS helpers (SQS, EventBridge, STS, ECS, CloudWatch Logs) ---
+
+scas_floci_sqs_create_queue() {
+  local name="${1:?queue name}"
+  scas_floci_aws sqs create-queue --queue-name "$name" --output text --query 'QueueUrl' 2>/dev/null || true
+}
+
+scas_floci_sqs_send() {
+  local queue_url="${1:?queue url}"
+  local body="${2:?message body}"
+  scas_floci_aws sqs send-message --queue-url "$queue_url" --message-body "$body" >/dev/null 2>&1
+}
+
+scas_floci_sns_create_topic() {
+  local name="${1:?topic name}"
+  scas_floci_aws sns create-topic --name "$name" --output text --query 'TopicArn' 2>/dev/null || true
+}
+
+scas_floci_sns_publish() {
+  local topic_arn="${1:?topic arn}"
+  local message="${2:?message}"
+  scas_floci_aws sns publish --topic-arn "$topic_arn" --message "$message" >/dev/null 2>&1
+}
+
+scas_floci_eventbridge_put() {
+  local detail_type="${1:?detail type}"
+  local detail="${2:?detail json}"
+  local tmp entries
+  tmp="$(mktemp)"
+  python3 -c 'import json,sys; print(json.dumps([{"Source":"scas.lab","DetailType":sys.argv[1],"Detail":sys.argv[2]}]))' \
+    "$detail_type" "$detail" >"$tmp"
+  entries="$(cat "$tmp")"
+  rm -f "$tmp"
+  scas_floci_aws events put-events --entries "$entries" >/dev/null 2>&1 || true
+}
+
+scas_floci_sts_get_caller() {
+  scas_floci_aws sts get-caller-identity
+}
+
+scas_floci_iam_create_role() {
+  local name="${1:?role name}"
+  local trust="${2:-{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"codebuild.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}}"
+  scas_floci_aws iam create-role --role-name "$name" --assume-role-policy-document "$trust" >/dev/null 2>&1 || true
+}
+
+scas_floci_ecs_create_cluster() {
+  local name="${1:?cluster name}"
+  scas_floci_aws ecs create-cluster --cluster-name "$name" >/dev/null 2>&1 || true
+}
+
+scas_floci_ecs_register_task() {
+  local family="${1:?task family}"
+  local image="${2:?container image}"
+  local tmp
+  tmp="$(mktemp)"
+  cat >"$tmp" <<EOF
+{
+  "family": "${family}",
+  "networkMode": "bridge",
+  "containerDefinitions": [{
+    "name": "app",
+    "image": "${image}",
+    "essential": true,
+    "memory": 128
+  }]
+}
+EOF
+  scas_floci_aws ecs register-task-definition --cli-input-json "file://${tmp}" >/dev/null 2>&1 || true
+  rm -f "$tmp"
+}
+
+scas_floci_ecs_run_task() {
+  local cluster="${1:?cluster}"
+  local task_def="${2:?task definition family or arn}"
+  scas_floci_aws ecs run-task --cluster "$cluster" --task-definition "$task_def" --launch-type EC2 >/dev/null 2>&1 || true
+}
+
+scas_floci_logs_put() {
+  local log_group="${1:?log group}"
+  local log_stream="${2:?log stream}"
+  local message="${3:?message}"
+  local ts
+  ts="$(python3 -c 'import time; print(int(time.time()*1000))')"
+  scas_floci_aws logs create-log-group --log-group-name "$log_group" >/dev/null 2>&1 || true
+  scas_floci_aws logs create-log-stream --log-group-name "$log_group" --log-stream-name "$log_stream" >/dev/null 2>&1 || true
+  scas_floci_aws logs put-log-events \
+    --log-group-name "$log_group" \
+    --log-stream-name "$log_stream" \
+    --log-events "timestamp=${ts},message=${message}" >/dev/null 2>&1 || true
+}
+
+scas_floci_codepipeline_create() {
+  local name="${1:?pipeline name}"
+  local bucket="${2:?artifact bucket}"
+  local role_arn="${3:-arn:aws:iam::000000000000:role/scas-codepipeline-role}"
+  local tmp
+  tmp="$(mktemp)"
+  cat >"$tmp" <<EOF
+{
+  "pipeline": {
+    "name": "${name}",
+    "roleArn": "${role_arn}",
+    "artifactStore": {"type": "S3", "location": "${bucket}"},
+    "stages": [
+      {"name": "Source", "actions": [{"name": "Source", "actionTypeId": {"category": "Source", "owner": "AWS", "provider": "S3", "version": "1"}, "configuration": {"S3Bucket": "${bucket}", "S3ObjectKey": "source.zip"}, "outputArtifacts": [{"name": "SourceOutput"}]}]},
+      {"name": "Build", "actions": [{"name": "Build", "actionTypeId": {"category": "Build", "owner": "AWS", "provider": "CodeBuild", "version": "1"}, "configuration": {"ProjectName": "${name}-build"}, "inputArtifacts": [{"name": "SourceOutput"}], "outputArtifacts": [{"name": "BuildOutput"}]}]}
+    ]
+  }
+}
+EOF
+  scas_floci_aws codepipeline create-pipeline --cli-input-json "file://${tmp}" >/dev/null 2>&1 || true
+  rm -f "$tmp"
+}
+
+scas_floci_stepfunctions_create() {
+  local name="${1:?state machine name}"
+  local definition="${2:?state machine definition json}"
+  local role_arn="${3:-arn:aws:iam::000000000000:role/scas-sfn-role}"
+  scas_floci_aws stepfunctions create-state-machine \
+    --name "$name" \
+    --definition "$definition" \
+    --role-arn "$role_arn" >/dev/null 2>&1 || true
+}
+
+scas_floci_ssm_put_parameter() {
+  local name="${1:?parameter name}"
+  local value="${2:?parameter value}"
+  scas_floci_aws ssm put-parameter --name "$name" --value "$value" --type String --overwrite >/dev/null 2>&1 || true
+}

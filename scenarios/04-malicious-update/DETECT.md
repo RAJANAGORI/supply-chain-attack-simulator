@@ -45,3 +45,7 @@ rule Malicious_Update_Script {
 - Scan dependency updates automatically in CI before merge.
 - Use staged rollouts — test updates in staging before production.
 - Require human review of changelogs for patch and minor bumps on critical packages.
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc04-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 04`.
