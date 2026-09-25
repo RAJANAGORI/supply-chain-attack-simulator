@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,6 +29,9 @@ By the end of this guide, you will:
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
 - [Part 10: Advanced Exercises](#part-10-advanced-exercises)
@@ -584,6 +588,47 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 16 code-level workflow: Package Cache Poisoning](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-16.svg)
 
 *Code-level workflow for Scenario 16. Editable source: [`scas-codeflow-scenario-16.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-16.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/16-package-cache-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Clear/rotate package cache during incident response and critical pipeline runs.
+- Enforce lockfile + integrity verification against trusted metadata.
+- Use deterministic installs in CI (`npm ci`) and immutable artifact mirrors.
+- Monitor for suspicious cache path mutations and postinstall behavior.
+- Separate developer cache trust from production build trust boundaries.
+
+## Straightforward Implementation
+
+### 1. Cache clearing
+
+```bash
+npm cache clean --force
+```
+
+### 2. CI cache key
+
+```yaml
+# .github/workflows/ci.yml
+- uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
+  with:
+    path: ~/.npm
+    key: npm-${{ hashFiles('package-lock.json') }}
+```
+
+### 3. GitHub Actions cache cleanup
+
+```bash
+gh actions-cache list -R org/repo
+gh actions-cache delete <key> -R org/repo --confirm
+```
+
+### 4. Trust boundary
+
+Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

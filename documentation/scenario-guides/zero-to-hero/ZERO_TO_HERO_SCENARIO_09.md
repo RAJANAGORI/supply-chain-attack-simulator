@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -29,6 +30,9 @@ By the end of this guide, you will:
 - [Part 8: Incident Response (30 minutes)](#part-8-incident-response-30-minutes)
 - [Part 9: Defense Strategies (20 minutes)](#part-9-defense-strategies-20-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 10: Key Takeaways (10 minutes)](#part-10-key-takeaways-10-minutes)
 - [🎓 Congratulations!](#🎓-congratulations)
@@ -353,6 +357,49 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 09 code-level workflow: Package Signing Bypass](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-09.svg)
 
 *Code-level workflow for Scenario 09. Editable source: [`scas-codeflow-scenario-09.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-09.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/09-package-signing-bypass/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Protect signing keys with HSMs or hardened secret stores.
+- Require MFA for all key access and signing operations.
+- Rotate signing keys on a regular schedule and after incidents.
+- Limit who can sign packages with strict access controls.
+- Always verify signatures - but pair with behavioral and content analysis.
+- Monitor signing activity for anomalies (time, volume, key fingerprint).
+
+## Straightforward Implementation
+
+### 1. Signature verification
+
+```bash
+npm audit signatures
+```
+
+### 2. Publish with provenance
+
+```yaml
+# .github/workflows/publish.yml
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+- uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+  with:
+    node-version: 20
+    registry-url: https://registry.npmjs.org
+- run: npm publish --provenance --access public
+  env:
+    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+```
+
+### 3. Key management
+
+Store signing keys in AWS KMS, GCP KMS, or Azure Key Vault. Rotate every 90 days or on maintainer departure.
+
+### 4. Behavioral analysis
+
+Pair signature checks with supply-chain scanners (Socket, Snyk Supply Chain) that inspect package behavior.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

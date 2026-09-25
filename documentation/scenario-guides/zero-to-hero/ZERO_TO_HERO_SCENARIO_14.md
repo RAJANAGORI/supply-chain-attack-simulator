@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,6 +29,9 @@ By the end of this guide, you will:
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
 - [Part 10: Advanced Exercises](#part-10-advanced-exercises)
@@ -586,6 +590,44 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 14 code-level workflow: Container Image Supply Chain](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-14.svg)
 
 *Code-level workflow for Scenario 14. Editable source: [`scas-codeflow-scenario-14.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-14.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/14-container-image-supply-chain-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Enforce image provenance and signature verification in CI/CD.
+- Pin immutable image digests (not mutable tags only).
+- Add policy checks for entrypoint/CMD changes on critical images.
+- Restrict outbound network from build and runtime where possible.
+- Require reproducible image builds and signed attestations.
+
+## Straightforward Implementation
+
+### 1. Digest pinning
+
+```dockerfile
+# Dockerfile
+FROM node:20.11.0-alpine@sha256:abcdef123...
+```
+
+### 2. Image signing and verification
+
+```bash
+cosign sign --yes registry.example/image@sha256:...
+cosign verify --key cosign.pub registry.example/image@sha256:...
+```
+
+### 3. BuildKit provenance
+
+```bash
+docker buildx build --provenance=true --sbom=true -t image:tag .
+```
+
+### 4. Admission control
+
+Use Kyverno or OPA Gatekeeper to reject pods that use images without signatures or digests.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

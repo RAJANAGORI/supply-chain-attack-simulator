@@ -46,6 +46,11 @@ rule Signing_Bypass_Indicator {
 - Same key fingerprint on multiple package versions signed at different times.
 - Capture records in `infrastructure/captured-data.json` with `keyCompromised: true`.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc09-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 09`.
+
 ## Mitigation
 
 - Protect signing keys with HSMs or hardened secret stores.
@@ -55,6 +60,32 @@ rule Signing_Bypass_Indicator {
 - Always verify signatures - but pair with behavioral and content analysis.
 - Monitor signing activity for anomalies (time, volume, key fingerprint).
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc09-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 09`.
+## Straightforward Implementation
+
+### 1. Signature verification
+
+```bash
+npm audit signatures
+```
+
+### 2. Publish with provenance
+
+```yaml
+# .github/workflows/publish.yml
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+- uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+  with:
+    node-version: 20
+    registry-url: https://registry.npmjs.org
+- run: npm publish --provenance --access public
+  env:
+    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+```
+
+### 3. Key management
+
+Store signing keys in AWS KMS, GCP KMS, or Azure Key Vault. Rotate every 90 days or on maintainer departure.
+
+### 4. Behavioral analysis
+
+Pair signature checks with supply-chain scanners (Socket, Snyk Supply Chain) that inspect package behavior.

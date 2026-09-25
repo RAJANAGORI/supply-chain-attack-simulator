@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -29,6 +30,9 @@ By the end of this guide, you will:
 - [Part 8: Incident Response (25 minutes)](#part-8-incident-response-25-minutes)
 - [Part 9: Defense Strategies (20 minutes)](#part-9-defense-strategies-20-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 10: Key Takeaways (10 minutes)](#part-10-key-takeaways-10-minutes)
 - [🎓 Congratulations!](#🎓-congratulations)
@@ -651,6 +655,49 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 07 code-level workflow: Transitive Dependency](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-07.svg)
 
 *Code-level workflow for Scenario 07. Editable source: [`scas-codeflow-scenario-07.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-07.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/07-transitive-dependency/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin exact dependency versions - avoid loose semver ranges on critical packages.
+- Commit `package-lock.json` and use `npm ci` in CI/CD.
+- Run automated scanning (`npm audit`, SBOM tools) across the full dependency tree.
+- Generate and maintain SBOMs for transitive dependency visibility.
+- Monitor postinstall script execution and unexpected network requests.
+- Review the full dependency tree regularly, not only direct dependencies.
+
+## Straightforward Implementation
+
+### 1. SBOM generation
+
+```bash
+npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+# or
+npx syft dir:. -o cyclonedx-json > sbom.json
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/sbom.yml
+- run: npm ci --ignore-scripts
+- run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+- run: node scripts/validate-sbom-against-lockfile.js sbom.json package-lock.json
+```
+
+### 3. Full-tree review
+
+```bash
+npm ls --all > dependency-tree.txt
+# Review monthly or on every major dependency update
+```
+
+### 4. Note on limits
+
+"> npm audit" finds known CVEs, not novel malware in transitive packages. Pair it with supply-chain scanners and runtime monitoring.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

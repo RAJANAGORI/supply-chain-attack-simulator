@@ -9,6 +9,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -22,6 +23,7 @@
 - [Lab Tasks](#lab-tasks)
 - [Detection Playbook](#detection-playbook)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -157,6 +159,32 @@ Note: this scenario is valid without Docker; scanner + runtime script already mo
 - Add policy checks for entrypoint/CMD changes on critical images.
 - Restrict outbound network from build and runtime where possible.
 - Require reproducible image builds and signed attestations.
+
+## Straightforward Implementation
+
+### 1. Digest pinning
+
+```dockerfile
+# Dockerfile
+FROM node:20.11.0-alpine@sha256:abcdef123...
+```
+
+### 2. Image signing and verification
+
+```bash
+cosign sign --yes registry.example/image@sha256:...
+cosign verify --key cosign.pub registry.example/image@sha256:...
+```
+
+### 3. BuildKit provenance
+
+```bash
+docker buildx build --provenance=true --sbom=true -t image:tag .
+```
+
+### 4. Admission control
+
+Use Kyverno or OPA Gatekeeper to reject pods that use images without signatures or digests.
 
 ## Validation Checklist
 

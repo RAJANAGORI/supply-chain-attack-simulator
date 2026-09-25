@@ -17,6 +17,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -30,6 +31,9 @@ By the end of this guide, you will:
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
 - [Part 10: Advanced Exercises](#part-10-advanced-exercises)
@@ -572,6 +576,50 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 22 code-level workflow: LiteLLM-style PyPI Compromise](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-22.svg)
 
 *Code-level workflow for Scenario 22. Editable source: [`scas-codeflow-scenario-22.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-22.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/22-litellm-pypi-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Contain: stop workloads using the compromised virtualenv; block egress from CI if needed.
+- Eradicate: `pip uninstall`, delete `.venv`, remove rogue `*.pth` under `site-packages`.
+- Recover: pin known-good version (`litellm_like==1.82.6`); enforce hash pinning or vetting.
+- Rotate: API keys and PyPI maintainer tokens after confirmed incidents.
+- Scan `site-packages/*.pth` in CI after every `pip install`.
+
+## Straightforward Implementation
+
+### 1. Hash pinning
+
+```bash
+# Generate requirements with hashes
+pip-compile --generate-hashes requirements.in
+pip install --require-hashes -r requirements.txt
+```
+
+### 2. .pth scan
+
+```bash
+find .venv -name "*.pth" -exec cat {} ;
+```
+
+### 3. CI gate
+
+```yaml
+# .github/workflows/python-security.yml
+- run: python -m venv .venv
+- run: .venv/bin/pip install --require-hashes -r requirements.txt
+- run: .venv/bin/python scripts/scan-pth-files.py .venv
+```
+
+### 4. Token rotation
+
+```bash
+# Revoke PyPI tokens via pypi.org/manage/account/
+pypi-token-revoke <token-id>
+```
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

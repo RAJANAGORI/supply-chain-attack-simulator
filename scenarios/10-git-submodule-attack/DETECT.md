@@ -44,6 +44,11 @@ rule Submodule_Attack_IOC {
 - `protocol.file.allow` or local submodule URL usage (CVE-2022-39253 bypass indicator).
 - Capture artifacts in scenario `infrastructure/captured-data.json`.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc10-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 10`.
+
 ## Mitigation
 
 - Review every submodule addition in pull requests.
@@ -52,6 +57,34 @@ rule Submodule_Attack_IOC {
 - Pin submodules to specific commits, not floating branch heads.
 - Scan submodule content and monitor submodule initialization behavior.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc10-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 10`.
+## Straightforward Implementation
+
+### 1. Pin submodules to commits
+
+```bash
+git submodule add https://github.com/org/lib.git
+cd lib && git checkout <commit-sha>
+cd .. && git commit -am "Pin submodule to commit"
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/submodule-check.yml
+- run: |
+    git submodule foreach 'git log --oneline -1'
+    git config --file .gitmodules --get-regexp 'url' | grep -v 'allowed-github.example.com' && exit 1 || true
+```
+
+### 3. CODEOWNERS
+
+```text
+# .github/CODEOWNERS
+.gitmodules    @org/security-team
+```
+
+### 4. Git config
+
+```bash
+git config --global protocol.file.allow never
+```

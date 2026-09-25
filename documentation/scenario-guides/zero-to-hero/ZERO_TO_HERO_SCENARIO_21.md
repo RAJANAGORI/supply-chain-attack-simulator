@@ -17,6 +17,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -30,6 +31,9 @@ By the end of this guide, you will:
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
 - [Part 10: Advanced Exercises](#part-10-advanced-exercises)
@@ -589,6 +593,47 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 21 code-level workflow: Axios-style Compromised Release](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-21.svg)
 
 *Code-level workflow for Scenario 21. Editable source: [`scas-codeflow-scenario-21.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-21.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/21-axios-compromised-release-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Contain: stop CI runners and isolate hosts that installed the bad version.
+- Eradicate: remove `node_modules`, regenerate lockfiles, rotate npm tokens and CI secrets.
+- Recover: pin to a known-good exact version; enforce lockfile-only installs in CI.
+- Hunt: search org lockfiles for unexpected transitive packages from advisories.
+- Enable trusted publishing / provenance checks and lifecycle script monitoring.
+
+## Straightforward Implementation
+
+### 1. Enable provenance
+
+```bash
+npm config set provenance true
+```
+
+### 2. Org-wide hunt
+
+```bash
+gh search code "axios-like" --owner=myorg
+```
+
+### 3. CI gate
+
+```yaml
+- run: npm ci --ignore-scripts
+- run: npx socket-dev scan
+```
+
+### 4. Incident response
+
+```bash
+rm -rf node_modules package-lock.json
+npm install <package>@<known-good-version> --save-exact
+npm token revoke <token-id>
+```
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

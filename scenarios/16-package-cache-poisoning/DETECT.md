@@ -38,6 +38,11 @@ rule Cache_Poisoning_IOC {
 - Evidence of cache artifact reuse.
 - Detector findings from `cache-poisoning-detector.js`.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc16-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 16`.
+
 ## Mitigation
 
 - Clear/rotate package cache during incident response and critical pipeline runs.
@@ -46,6 +51,31 @@ rule Cache_Poisoning_IOC {
 - Monitor for suspicious cache path mutations and postinstall behavior.
 - Separate developer cache trust from production build trust boundaries.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc16-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 16`.
+## Straightforward Implementation
+
+### 1. Cache clearing
+
+```bash
+npm cache clean --force
+```
+
+### 2. CI cache key
+
+```yaml
+# .github/workflows/ci.yml
+- uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
+  with:
+    path: ~/.npm
+    key: npm-${{ hashFiles('package-lock.json') }}
+```
+
+### 3. GitHub Actions cache cleanup
+
+```bash
+gh actions-cache list -R org/repo
+gh actions-cache delete <key> -R org/repo --confirm
+```
+
+### 4. Trust boundary
+
+Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches.

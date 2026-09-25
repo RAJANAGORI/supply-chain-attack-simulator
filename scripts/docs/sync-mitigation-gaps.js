@@ -6,8 +6,11 @@ const path = require('path');
 const {
   PLAYBOOKS,
   playbookBullets,
+  playbookImplementation,
   formatReadmePlaybook,
+  formatReadmeImplementation,
   formatDetectMitigation,
+  formatDetectImplementation,
 } = require('../lib/mitigation-playbooks');
 
 const ROOT = path.join(__dirname, '../..');
@@ -17,6 +20,14 @@ const LEARN_LINE = '- Apply the **Mitigation Playbook** from this guide and the 
 function stripSection(content, heading) {
   const re = new RegExp(`\\n## ${heading}[\\s\\S]*?(?=\\n## |$)`);
   return content.replace(re, '\n');
+}
+
+function findMarkerIndex(content, markers) {
+  for (const marker of markers) {
+    const idx = content.indexOf(marker);
+    if (idx !== -1) return idx;
+  }
+  return -1;
 }
 
 function injectReadmePlaybook01to06() {
@@ -42,6 +53,37 @@ function injectReadmePlaybook01to06() {
   return n;
 }
 
+function injectReadmeImplementationAll() {
+  let n = 0;
+  const markers = [
+    '## ✅ Success Criteria',
+    '## Validation Checklist',
+    '## 📊 Key Takeaways',
+    '## 🎁 Bonus Challenges',
+    '## References',
+    '## Cleanup',
+    '## Safety',
+  ];
+  for (const id of Object.keys(PLAYBOOKS)) {
+    const file = path.join(ROOT, 'scenarios', PLAYBOOKS[id].scenarioDir, 'README.md');
+    let content = fs.readFileSync(file, 'utf8');
+    if (content.includes('## Straightforward Implementation')) {
+      console.log(`readme ${id}: already has Straightforward Implementation`);
+      continue;
+    }
+    const idx = findMarkerIndex(content, markers);
+    if (idx === -1) {
+      throw new Error(`No suitable marker found in ${file}`);
+    }
+    const block = formatReadmeImplementation(playbookImplementation(id));
+    content = content.slice(0, idx) + block + content.slice(idx);
+    fs.writeFileSync(file, content);
+    console.log(`readme ${id}: added Straightforward Implementation`);
+    n += 1;
+  }
+  return n;
+}
+
 function injectDetectMitigationAll() {
   let n = 0;
   for (const id of Object.keys(PLAYBOOKS)) {
@@ -53,9 +95,10 @@ function injectDetectMitigationAll() {
     }
     let content = fs.readFileSync(file, 'utf8').trimEnd();
     content = stripSection(content, 'Mitigation').trimEnd();
-    content += `\n\n${formatDetectMitigation(playbookBullets(id))}\n`;
+    content = stripSection(content, 'Straightforward Implementation').trimEnd();
+    content += `\n\n${formatDetectMitigation(playbookBullets(id))}${formatDetectImplementation(playbookImplementation(id))}\n`;
     fs.writeFileSync(file, content);
-    console.log(`detect ${id}: added Mitigation section`);
+    console.log(`detect ${id}: added Mitigation + Straightforward Implementation`);
     n += 1;
   }
   return n;
@@ -87,6 +130,7 @@ function injectLearningObjectives() {
 }
 
 const readme = injectReadmePlaybook01to06();
+const impl = injectReadmeImplementationAll();
 const detect = injectDetectMitigationAll();
 const learn = injectLearningObjectives();
-console.log(`Done: readme=${readme} detect=${detect} learn=${learn}`);
+console.log(`Done: readme=${readme} implementation=${impl} detect=${detect} learn=${learn}`);

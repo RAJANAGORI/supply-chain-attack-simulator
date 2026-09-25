@@ -9,6 +9,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -25,6 +26,7 @@
 - [Detection](#detection)
 - [Mitigation Playbook](#mitigation-playbook)
 - [Expected Outcome](#expected-outcome)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -151,6 +153,31 @@ Key indicators to capture:
 
 - Entries appear in `infrastructure/captured-data.json` (and/or the mock `/captured-data` endpoint) after install/run with `TESTBENCH_MODE=enabled`.
 - The detector flags suspicious install-time behavior (e.g. `postinstall` / exfil-related patterns).
+
+## Straightforward Implementation
+
+### 1. Install policy
+
+```bash
+npm install --ignore-scripts --registry https://internal.registry.example/ <dev-tool>
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/dev-tool-check.yml
+- run: |
+    npm ci --ignore-scripts
+    grep -E '"registry": "https://registry.npmjs.org"' package-lock.json && exit 1 || true
+```
+
+### 3. Diff review
+
+Review every new "postinstall" or "preinstall" script in dependency update diffs. Use Socket or a custom PR check to flag them.
+
+### 4. Isolation
+
+Install dev tools in sandboxed CI runners with egress controls. Rotate CI credentials after any suspected install-time compromise.
 
 ## Validation Checklist
 

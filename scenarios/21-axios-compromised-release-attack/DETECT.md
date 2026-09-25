@@ -38,6 +38,11 @@ rule Axios_Compromise_IOC {
 - Lockfile/package tree IOC for unexpected bundled dependency.
 - Evidence in mock server capture and marker file.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc21-artifacts/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 21`.
+
 ## Mitigation
 
 - Contain: stop CI runners and isolate hosts that installed the bad version.
@@ -46,6 +51,31 @@ rule Axios_Compromise_IOC {
 - Hunt: search org lockfiles for unexpected transitive packages from advisories.
 - Enable trusted publishing / provenance checks and lifecycle script monitoring.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc21-artifacts/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 21`.
+## Straightforward Implementation
+
+### 1. Enable provenance
+
+```bash
+npm config set provenance true
+```
+
+### 2. Org-wide hunt
+
+```bash
+gh search code "axios-like" --owner=myorg
+```
+
+### 3. CI gate
+
+```yaml
+- run: npm ci --ignore-scripts
+- run: npx socket-dev scan
+```
+
+### 4. Incident response
+
+```bash
+rm -rf node_modules package-lock.json
+npm install <package>@<known-good-version> --save-exact
+npm token revoke <token-id>
+```

@@ -37,6 +37,11 @@ rule Workspace_Attack_IOC {
 - Unexpected script/network behavior from workspace-local package.
 - Evidence in mock capture JSON.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc12-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 12`.
+
 ## Mitigation
 
 - Limit who can modify workspace and monorepo internal packages.
@@ -45,6 +50,30 @@ rule Workspace_Attack_IOC {
 - Review workspace dependency changes with the same rigor as external deps.
 - Track workspace package changes in version control with mandatory review.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc12-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 12`.
+## Straightforward Implementation
+
+### 1. CODEOWNERS
+
+```text
+# .github/CODEOWNERS
+/packages/*     @org/security-team @org/platform-team
+/package.json   @org/security-team
+```
+
+### 2. Workspace graph check
+
+```bash
+nx graph --file=dep-graph.json
+```
+
+### 3. CI gate
+
+```yaml
+# .github/workflows/workspace-audit.yml
+- run: npm ci --ignore-scripts
+- run: node scripts/audit-workspace-packages.js
+```
+
+### 4. Policy
+
+Treat every workspace package as a third-party dependency for security review purposes.

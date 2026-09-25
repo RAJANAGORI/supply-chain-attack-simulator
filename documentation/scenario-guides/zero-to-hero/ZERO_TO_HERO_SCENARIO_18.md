@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,6 +29,9 @@ By the end of this guide, you will:
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
 - [Part 10: Advanced Exercises](#part-10-advanced-exercises)
@@ -600,6 +604,50 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 18 code-level workflow: Package Manager Plugin Attack](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-18.svg)
 
 *Code-level workflow for Scenario 18. Editable source: [`scas-codeflow-scenario-18.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-18.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/18-package-manager-plugin-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Enforce plugin allowlists with signed/approved plugin sources.
+- Block arbitrary plugin execution in CI and controlled developer images.
+- Run integrity checks on `node_modules` and generated lockfile state.
+- Review plugin code changes with the same rigor as build scripts.
+- Alert on hook-driven modifications outside expected paths.
+
+## Straightforward Implementation
+
+### 1. Plugin allowlist
+
+```yaml
+# allowed-plugins.yml
+allowed:
+  - @yarnpkg/plugin-typescript
+  - @pnpm/plugin-engines
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/plugin-check.yml
+- run: |
+    ls .yarn/plugins .pnpmfile.cjs 2>/dev/null || true
+    node scripts/validate-plugins-against-allowlist.js
+```
+
+### 3. Integrity check
+
+```bash
+# Compare node_modules state against lockfile
+npm ci --ignore-scripts
+npm ls
+```
+
+### 4. Review policy
+
+Review plugin code changes with the same rigor as build scripts. Alert on hook-driven file changes outside expected paths.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

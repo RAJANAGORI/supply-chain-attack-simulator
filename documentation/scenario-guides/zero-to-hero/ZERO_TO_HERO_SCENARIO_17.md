@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,6 +29,9 @@ By the end of this guide, you will:
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
 - [Part 10: Advanced Exercises](#part-10-advanced-exercises)
@@ -609,6 +613,42 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 17 code-level workflow: Multi-Stage Attack Chain](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-17.svg)
 
 *Code-level workflow for Scenario 17. Editable source: [`scas-codeflow-scenario-17.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-17.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/17-multi-stage-attack-chain/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Add correlation rules that require cross-stage context before closing alerts.
+- Segment credentials and permissions to block stage progression.
+- Trigger automated containment when stage transitions occur in short windows.
+- Preserve forensic artifacts per stage for post-incident timeline reconstruction.
+- Run attack-chain tabletop exercises against your CI/CD architecture.
+
+## Straightforward Implementation
+
+### 1. Correlation rule (pseudo-Splunk)
+
+```spl
+| tstats `security` count from datamodel=Endpoint.Processes
+  where Processes.process="npm install" by _time host
+| join host [ search eventtype=network_traffic dest_port=443 ]
+| where relative_time(_time,"-5m") < first_event_time
+| where event_count >= 3
+```
+
+### 2. Segmentation
+
+Use separate CI service accounts per stage. A build runner must not be able to publish packages or deploy to production.
+
+### 3. Auto-containment
+
+Configure SOAR or CI webhooks to kill runners and revoke tokens when stage transitions occur within a short window.
+
+### 4. Tabletop exercises
+
+Run quarterly attack-chain exercises against your CI/CD architecture. Preserve artifacts per stage for timeline reconstruction.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

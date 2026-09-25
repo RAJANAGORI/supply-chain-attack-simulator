@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,6 +29,9 @@ By the end of this guide, you will:
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
 - [Part 10: Advanced Exercises](#part-10-advanced-exercises)
@@ -628,6 +632,41 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 13 code-level workflow: Package Metadata Manipulation](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-13.svg)
 
 *Code-level workflow for Scenario 13. Editable source: [`scas-codeflow-scenario-13.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-13.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/13-package-metadata-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Validate metadata against trusted allowlists for critical packages.
+- Require lockfile and integrity verification in CI.
+- Pin exact versions for sensitive dependencies.
+- Mirror and sign internal-approved artifacts.
+
+## Straightforward Implementation
+
+### 1. Metadata validation
+
+```bash
+npm view <pkg> --json | jq '{name, version, author, repository, maintainers}'
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/metadata-check.yml
+- run: npm ci --ignore-scripts
+- run: node scripts/validate-package-metadata.js --allowlist allowed-packages.json
+```
+
+### 3. Allowlist maintenance
+
+Store allowed package metadata in version control. Update only through pull request with security review.
+
+### 4. SBOM comparison
+
+Compare generated SBOM against the lockfile to detect omitted or altered dependencies.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

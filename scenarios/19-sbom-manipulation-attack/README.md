@@ -9,6 +9,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -25,6 +26,7 @@
 - [Detection](#detection)
 - [Mitigation Playbook](#mitigation-playbook)
 - [Expected Outcome](#expected-outcome)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -150,6 +152,32 @@ Key indicators to capture:
 
 - The validator reports missing or inconsistent dependencies relative to truth data.
 - You can articulate how CI would fail a build when SBOM and lockfile disagree.
+
+## Straightforward Implementation
+
+### 1. SBOM generation
+
+```bash
+npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/sbom.yml
+- run: npm ci --ignore-scripts
+- run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+- run: node scripts/validate-sbom.js --lockfile package-lock.json --sbom sbom.json
+- run: cosign sign-blob --yes sbom.json --output-signature sbom.json.sig
+```
+
+### 3. Policy enforcement
+
+Use OPA or Conftest to enforce that SBOMs contain required packages and no unexpected additions.
+
+### 4. Runtime diff
+
+Periodically compare the production SBOM against runtime inventory scans (Syft, Trivy).
 
 ## Validation Checklist
 

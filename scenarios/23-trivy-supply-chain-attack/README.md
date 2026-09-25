@@ -2,6 +2,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -14,6 +15,7 @@
 - [Lab Tasks](#lab-tasks)
 - [Detection Checklist](#detection-checklist)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [References](#references)
 - [Cleanup](#cleanup)
 
@@ -235,6 +237,36 @@ Use this checklist to determine if your organization was affected:
 - Harden: enforce SHA pinning for all third-party actions via policy (e.g. `step-security/harden-runner`, Allstar, or custom CI lint); alert on unexpected outbound network calls from action steps.
 
 ---
+
+## Straightforward Implementation
+
+### 1. Pin actions by SHA
+
+```yaml
+# .github/workflows/security.yml
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+- uses: aquasecurity/trivy-action@<full-sha>
+```
+
+### 2. Audit workflow files
+
+```bash
+grep -R "uses:.*@v" .github/workflows/ && exit 1
+```
+
+### 3. Harden runner
+
+```yaml
+- uses: step-security/harden-runner@<full-sha>
+  with:
+    egress-policy: block
+    allowed-endpoints: |
+      registry.npmjs.org:443
+```
+
+### 4. Credential rotation
+
+Rotate GITHUB_TOKEN, AWS keys, registry credentials, and database URLs accessible to affected pipeline runs. Use short-lived OIDC tokens where possible.
 
 ## References
 

@@ -7,6 +7,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -18,6 +19,7 @@
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [📊 Key Takeaways](#📊-key-takeaways)
 - [🔍 Real-World Impact](#🔍-real-world-impact)
 - [⚠️ Safety & Ethics](#⚠️-safety--ethics)
@@ -200,6 +202,38 @@ See detection tools and README for detailed detection methods.
 3. **User Notification**: Notify users of the compromise
 4. **Access Review**: Review who added the submodule
 5. **Incident Documentation**: Document the attack and response
+
+## Straightforward Implementation
+
+### 1. Pin submodules to commits
+
+```bash
+git submodule add https://github.com/org/lib.git
+cd lib && git checkout <commit-sha>
+cd .. && git commit -am "Pin submodule to commit"
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/submodule-check.yml
+- run: |
+    git submodule foreach 'git log --oneline -1'
+    git config --file .gitmodules --get-regexp 'url' | grep -v 'allowed-github.example.com' && exit 1 || true
+```
+
+### 3. CODEOWNERS
+
+```text
+# .github/CODEOWNERS
+.gitmodules    @org/security-team
+```
+
+### 4. Git config
+
+```bash
+git config --global protocol.file.allow never
+```
 
 ## 📊 Key Takeaways
 

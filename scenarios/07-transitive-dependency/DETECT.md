@@ -37,6 +37,11 @@ rule Transitive_Dependency_IOC {
 - Root app behavior change despite no direct dependency update.
 - Capture evidence in scenario infrastructure output.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc07-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 07`.
+
 ## Mitigation
 
 - Pin exact dependency versions - avoid loose semver ranges on critical packages.
@@ -46,6 +51,32 @@ rule Transitive_Dependency_IOC {
 - Monitor postinstall script execution and unexpected network requests.
 - Review the full dependency tree regularly, not only direct dependencies.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc07-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 07`.
+## Straightforward Implementation
+
+### 1. SBOM generation
+
+```bash
+npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+# or
+npx syft dir:. -o cyclonedx-json > sbom.json
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/sbom.yml
+- run: npm ci --ignore-scripts
+- run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+- run: node scripts/validate-sbom-against-lockfile.js sbom.json package-lock.json
+```
+
+### 3. Full-tree review
+
+```bash
+npm ls --all > dependency-tree.txt
+# Review monthly or on every major dependency update
+```
+
+### 4. Note on limits
+
+"> npm audit" finds known CVEs, not novel malware in transitive packages. Pair it with supply-chain scanners and runtime monitoring.

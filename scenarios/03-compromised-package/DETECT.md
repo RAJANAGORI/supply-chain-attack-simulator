@@ -38,6 +38,11 @@ rule Compromised_Package_Runtime_IOC {
 - Version drift aligned with behavior change.
 - Mock server JSON evidence under `infrastructure/captured-data.json`.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc03-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 03`.
+
 ## Mitigation
 
 - Enforce lockfiles in CI (`npm ci --audit`) instead of open-ended `npm install`.
@@ -47,6 +52,38 @@ rule Compromised_Package_Runtime_IOC {
 - Monitor runtime behavior and log package installation events in production.
 - Maintain maintainer-transfer and dependency-addition review policies.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc03-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 03`.
+## Straightforward Implementation
+
+### 1. CI gate
+
+```yaml
+# .github/workflows/supply-chain-scan.yml
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+- name: Install dependencies without scripts
+  run: npm ci --ignore-scripts
+- name: Supply-chain scan
+  run: npx socket-dev scan
+- name: Snyk test
+  run: npx snyk test --severity-threshold=high
+  env:
+    SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+```
+
+### 2. Runtime monitoring
+
+```bash
+node -r ./security/module-load-logger.js app.js
+```
+
+### 3. Maintainer policy
+
+Require 2FA and admin approval for npm publishing roles. Alert on new maintainers via npm webhook or GitHub organization audit log.
+
+### 4. Incident response
+
+```bash
+npm install <package>@<known-good-version> --save-exact
+rm -rf node_modules package-lock.json
+npm ci
+npm token revoke <token-id>
+```

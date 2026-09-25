@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,6 +29,9 @@ By the end of this guide, you will:
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
 - [Part 10: Advanced Exercises](#part-10-advanced-exercises)
@@ -588,6 +592,43 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 15 code-level workflow: Developer Tool Compromise](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-15.svg)
 
 *Code-level workflow for Scenario 15. Editable source: [`scas-codeflow-scenario-15.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-15.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/15-developer-tool-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Enforce `--ignore-scripts` for untrusted tool installs by default.
+- Pin dev tooling versions and source from an approved internal registry.
+- Require review/allowlist for new lifecycle scripts in dependency diffs.
+- Isolate tool installation to sandboxed CI runners with egress controls.
+- Rotate credentials after any install-time compromise.
+
+## Straightforward Implementation
+
+### 1. Install policy
+
+```bash
+npm install --ignore-scripts --registry https://internal.registry.example/ <dev-tool>
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/dev-tool-check.yml
+- run: |
+    npm ci --ignore-scripts
+    grep -E '"registry": "https://registry.npmjs.org"' package-lock.json && exit 1 || true
+```
+
+### 3. Diff review
+
+Review every new "postinstall" or "preinstall" script in dependency update diffs. Use Socket or a custom PR check to flag them.
+
+### 4. Isolation
+
+Install dev tools in sandboxed CI runners with egress controls. Rotate CI credentials after any suspected install-time compromise.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

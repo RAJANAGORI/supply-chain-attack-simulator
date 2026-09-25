@@ -9,6 +9,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -20,6 +21,7 @@
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [📊 Key Takeaways](#📊-key-takeaways)
 - [🔍 Real-World Impact](#🔍-real-world-impact)
 - [⚠️ Safety & Ethics](#⚠️-safety--ethics)
@@ -209,6 +211,34 @@ See detection tools and README for detailed detection methods.
 3. **Upstream Verification**: Verify all packages match upstream
 4. **User Notification**: Notify developers of compromise
 5. **Access Review**: Review who has mirror access
+
+## Straightforward Implementation
+
+### 1. Mirror config example (Verdaccio)
+
+```yaml
+# verdaccio/config.yaml
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+    cache: true
+    integrity: true
+```
+
+### 2. Upstream digest check
+
+```bash
+npm view <pkg> dist.shasum
+sha1sum /path/to/mirror/cache/<pkg>/*.tgz
+```
+
+### 3. Admin hardening
+
+Require MFA on mirror admin accounts. Alert on package overwrites or deletions.
+
+### 4. Audit cadence
+
+Run a weekly job that compares a sample of mirrored packages against upstream metadata.
 
 ## 📊 Key Takeaways
 

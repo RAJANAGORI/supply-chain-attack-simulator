@@ -37,6 +37,11 @@ rule Lockfile_Manipulation_IOC {
 - Registry/source mismatch against approved policy.
 - Captures available from mock endpoint/log file.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc08-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 08`.
+
 ## Mitigation
 
 - Validate lockfiles before install in CI and locally.
@@ -46,6 +51,33 @@ rule Lockfile_Manipulation_IOC {
 - Compare `package.json` declared deps against lockfile entries automatically.
 - Verify package integrity hashes match trusted registry metadata.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc08-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 08`.
+## Straightforward Implementation
+
+### 1. Lockfile lint
+
+```bash
+npm install -g lockfile-lint
+lockfile-lint --path package-lock.json   --allowed-hosts npm internal.registry.example   --allowed-schemes https:
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/lockfile-check.yml
+- run: npm ci --ignore-scripts
+- run: git diff --exit-code package-lock.json
+- run: npx lockfile-lint --path package-lock.json --allowed-hosts npm
+```
+
+### 3. Pre-commit hook
+
+```bash
+# .git/hooks/pre-commit or husky
+if git diff --cached --name-only | grep -q package-lock.json; then
+  npx lockfile-lint --path package-lock.json --allowed-hosts npm
+fi
+```
+
+### 4. Policy
+
+Never allow "file:", "link:", or "git+ssh" dependencies in production lockfiles without explicit security review.

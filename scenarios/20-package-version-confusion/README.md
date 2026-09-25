@@ -11,6 +11,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -27,6 +28,7 @@
 - [Detection](#detection)
 - [Mitigation Playbook](#mitigation-playbook)
 - [Expected Outcome](#expected-outcome)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -150,6 +152,35 @@ Key indicators to capture:
 
 - The victim selects the attacker's high version; evidence may show exfiltration when enabled.
 - The detector warns on suspicious ranges, version jumps, or pinning gaps.
+
+## Straightforward Implementation
+
+### 1. Dependabot config
+
+```yaml
+# .github/dependabot.yml
+ignore:
+  - dependency-name: "*"
+    update-types: ["version-update:semver-major"]
+```
+
+### 2. Semver policy
+
+Any dependency update that jumps more than one major version requires security review.
+
+### 3. Scoped registry
+
+```ini
+# .npmrc
+@myorg:registry=https://artifactory.example.com/api/npm/npm-internal/
+```
+
+### 4. CI gate
+
+```yaml
+- run: npm ci --ignore-scripts
+- run: node scripts/check-version-jumps.js --threshold 2
+```
 
 ## Validation Checklist
 

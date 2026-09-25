@@ -37,6 +37,11 @@ rule Malicious_Update_Script {
 - Script execution telemetry around dependency installation.
 - Captures stored in scenario mock server artifacts.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc04-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 04`.
+
 ## Mitigation
 
 - Pin exact versions in `package.json` - avoid carets on sensitive dependencies.
@@ -46,6 +51,39 @@ rule Malicious_Update_Script {
 - Use staged rollouts - test updates in staging before production.
 - Require human review of changelogs for patch and minor bumps on critical packages.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc04-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 04`.
+## Straightforward Implementation
+
+### 1. Prevention config
+
+```json
+// package.json
+{
+  "dependencies": {
+    "express": "4.18.2"
+  }
+}
+```
+
+### 2. Dependabot config
+
+```yaml
+# .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+```
+
+### 3. Update review
+
+```bash
+npx npm-diff <package>@<old> <package>@<new>
+npx socket-dev diff
+```
+
+### 4. Staged rollout
+
+Merge dependency updates to a "staging" branch first. Run smoke tests for 24 hours before promoting to "main".

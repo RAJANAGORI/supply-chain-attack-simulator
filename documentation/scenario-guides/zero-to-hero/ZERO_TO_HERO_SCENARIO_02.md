@@ -14,6 +14,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,6 +29,9 @@ By the end of this guide, you will:
 - [Part 8: Prevention and Mitigation (30 minutes)](#part-8-prevention-and-mitigation-30-minutes)
 - [Part 9: Advanced Topics (20 minutes)](#part-9-advanced-topics-20-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 10: Clean Up and Next Steps (5 minutes)](#part-10-clean-up-and-next-steps-5-minutes)
 - [🆘 Troubleshooting](#🆘-troubleshooting)
@@ -541,6 +545,52 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 02 code-level workflow: Dependency Confusion](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-02.svg)
 
 *Code-level workflow for Scenario 02. Editable source: [`scas-codeflow-scenario-02.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-02.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/02-dependency-confusion/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Configure scope-specific registry routing in `.npmrc` (e.g. `@org:registry=...`).
+- Enforce package lock files and use `npm ci --audit` in CI/CD.
+- Isolate private registry traffic from public npm at the network layer.
+- Reserve internal namespaces on public registries where applicable.
+- Pin dependencies to exact versions for critical packages.
+- Verify package integrity hashes on install.
+- Add build-time validation to reject unexpected registry sources.
+
+## Straightforward Implementation
+
+### 1. Prevention config
+
+```ini
+# .npmrc
+@myorg:registry=https://artifactory.example.com/api/npm/npm-internal/
+//artifactory.example.com/api/npm/npm-internal/:_authToken=${NPM_TOKEN}
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/registry-validation.yml
+- name: Ensure private scopes never resolve from public npm
+  run: |
+    npm ci --ignore-scripts
+    npm ls @myorg --json | grep -q 'registry.npmjs.org' && exit 1 || true
+```
+
+### 3. Namespace reservation
+
+```bash
+# Reserve your org scope on public npm
+npm access public @myorg
+# or publish a placeholder package
+```
+
+### 4. Version policy
+
+Treat any resolved version above your internal threshold (for example, more than 10 major versions ahead of baseline) as a CI failure.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

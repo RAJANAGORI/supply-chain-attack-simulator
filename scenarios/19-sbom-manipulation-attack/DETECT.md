@@ -38,6 +38,11 @@ rule SBOM_Manipulation_IOC {
 - Validator findings from `sbom-manipulation-validator.js`.
 - Evidence in mock capture and generated SBOM artifacts.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc19-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 19`.
+
 ## Mitigation
 
 - Regenerate SBOM from lockfile/build artifacts in trusted CI only.
@@ -46,6 +51,28 @@ rule SBOM_Manipulation_IOC {
 - Keep truth-source and SBOM generation isolated from app code tampering.
 - Periodically diff production SBOM against runtime inventory scans.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc19-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 19`.
+## Straightforward Implementation
+
+### 1. SBOM generation
+
+```bash
+npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/sbom.yml
+- run: npm ci --ignore-scripts
+- run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+- run: node scripts/validate-sbom.js --lockfile package-lock.json --sbom sbom.json
+- run: cosign sign-blob --yes sbom.json --output-signature sbom.json.sig
+```
+
+### 3. Policy enforcement
+
+Use OPA or Conftest to enforce that SBOMs contain required packages and no unexpected additions.
+
+### 4. Runtime diff
+
+Periodically compare the production SBOM against runtime inventory scans (Syft, Trivy).

@@ -9,6 +9,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -25,6 +26,7 @@
 - [Detection](#detection)
 - [Mitigation Playbook](#mitigation-playbook)
 - [Expected Outcome](#expected-outcome)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -148,6 +150,38 @@ Key indicators to capture:
 
 - Captures reflect plugin-driven exfiltration when the testbench flag is on.
 - The detector flags hook-related patterns and suspicious changes under the project tree.
+
+## Straightforward Implementation
+
+### 1. Plugin allowlist
+
+```yaml
+# allowed-plugins.yml
+allowed:
+  - @yarnpkg/plugin-typescript
+  - @pnpm/plugin-engines
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/plugin-check.yml
+- run: |
+    ls .yarn/plugins .pnpmfile.cjs 2>/dev/null || true
+    node scripts/validate-plugins-against-allowlist.js
+```
+
+### 3. Integrity check
+
+```bash
+# Compare node_modules state against lockfile
+npm ci --ignore-scripts
+npm ls
+```
+
+### 4. Review policy
+
+Review plugin code changes with the same rigor as build scripts. Alert on hook-driven file changes outside expected paths.
 
 ## Validation Checklist
 

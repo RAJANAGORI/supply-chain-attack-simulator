@@ -11,6 +11,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -21,6 +22,7 @@
 - [Setup](#setup)
 - [Run the lab](#run-the-lab)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -104,6 +106,35 @@ Key indicators to capture:
 2. **Eradicate:** remove `node_modules`, delete lockfile or regenerate from a known-good manifest; revoke **npm tokens** and rotate CI secrets (real incidents-here, only mock markers).
 3. **Recover:** pin **`axios-like` to `1.14.0`** (or exact commit / verified tarball); enforce **lockfile-only** installs in CI; enable **provenance / trusted publishing** checks where available.
 4. **Hunt:** search org lockfiles for `plain-crypto-js-like` (or real IOC names from advisories).
+
+## Straightforward Implementation
+
+### 1. Enable provenance
+
+```bash
+npm config set provenance true
+```
+
+### 2. Org-wide hunt
+
+```bash
+gh search code "axios-like" --owner=myorg
+```
+
+### 3. CI gate
+
+```yaml
+- run: npm ci --ignore-scripts
+- run: npx socket-dev scan
+```
+
+### 4. Incident response
+
+```bash
+rm -rf node_modules package-lock.json
+npm install <package>@<known-good-version> --save-exact
+npm token revoke <token-id>
+```
 
 ## Validation Checklist
 

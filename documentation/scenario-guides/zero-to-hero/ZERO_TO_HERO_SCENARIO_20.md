@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,6 +29,9 @@ By the end of this guide, you will:
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
 - [Part 10: Advanced Exercises](#part-10-advanced-exercises)
@@ -555,6 +559,47 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 20 code-level workflow: Package Version Confusion](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-20.svg)
 
 *Code-level workflow for Scenario 20. Editable source: [`scas-codeflow-scenario-20.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-20.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/20-package-version-confusion/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin exact versions for critical dependencies and enforce lockfile usage.
+- Scope private packages explicitly to internal registry endpoints.
+- Alert on unusual semver jumps and first-seen maintainers.
+- Require human review for dependency version changes above policy thresholds.
+- Prefer deterministic `npm ci` workflows in CI.
+
+## Straightforward Implementation
+
+### 1. Dependabot config
+
+```yaml
+# .github/dependabot.yml
+ignore:
+  - dependency-name: "*"
+    update-types: ["version-update:semver-major"]
+```
+
+### 2. Semver policy
+
+Any dependency update that jumps more than one major version requires security review.
+
+### 3. Scoped registry
+
+```ini
+# .npmrc
+@myorg:registry=https://artifactory.example.com/api/npm/npm-internal/
+```
+
+### 4. CI gate
+
+```yaml
+- run: npm ci --ignore-scripts
+- run: node scripts/check-version-jumps.js --threshold 2
+```
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

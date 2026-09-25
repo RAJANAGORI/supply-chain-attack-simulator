@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -30,6 +31,9 @@ By the end of this guide, you will:
 - [Part 9: Incident Response (30 minutes)](#part-9-incident-response-30-minutes)
 - [Part 10: Defense Strategies (20 minutes)](#part-10-defense-strategies-20-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 11: Key Takeaways (10 minutes)](#part-11-key-takeaways-10-minutes)
 - [🎓 Congratulations!](#🎓-congratulations)
@@ -701,6 +705,50 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 08 code-level workflow: Package Lock File Manipulation](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-08.svg)
 
 *Code-level workflow for Scenario 08. Editable source: [`scas-codeflow-scenario-08.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-08.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Validate lockfiles before install in CI and locally.
+- Use git pre-commit hooks to detect unexpected lockfile changes.
+- Require careful code review of every `package-lock.json` diff.
+- Store and verify lockfile checksums as part of release gates.
+- Compare `package.json` declared deps against lockfile entries automatically.
+- Verify package integrity hashes match trusted registry metadata.
+
+## Straightforward Implementation
+
+### 1. Lockfile lint
+
+```bash
+npm install -g lockfile-lint
+lockfile-lint --path package-lock.json   --allowed-hosts npm internal.registry.example   --allowed-schemes https:
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/lockfile-check.yml
+- run: npm ci --ignore-scripts
+- run: git diff --exit-code package-lock.json
+- run: npx lockfile-lint --path package-lock.json --allowed-hosts npm
+```
+
+### 3. Pre-commit hook
+
+```bash
+# .git/hooks/pre-commit or husky
+if git diff --cached --name-only | grep -q package-lock.json; then
+  npx lockfile-lint --path package-lock.json --allowed-hosts npm
+fi
+```
+
+### 4. Policy
+
+Never allow "file:", "link:", or "git+ssh" dependencies in production lockfiles without explicit security review.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

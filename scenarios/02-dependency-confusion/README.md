@@ -7,6 +7,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -18,6 +19,7 @@
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [✅ Success Criteria](#✅-success-criteria)
 - [🎁 Bonus Challenges](#🎁-bonus-challenges)
 - [📊 Attack Comparison](#📊-attack-comparison)
@@ -405,6 +407,38 @@ Create a pre-install hook:
 - Pin dependencies to exact versions for critical packages.
 - Verify package integrity hashes on install.
 - Add build-time validation to reject unexpected registry sources.
+
+## Straightforward Implementation
+
+### 1. Prevention config
+
+```ini
+# .npmrc
+@myorg:registry=https://artifactory.example.com/api/npm/npm-internal/
+//artifactory.example.com/api/npm/npm-internal/:_authToken=${NPM_TOKEN}
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/registry-validation.yml
+- name: Ensure private scopes never resolve from public npm
+  run: |
+    npm ci --ignore-scripts
+    npm ls @myorg --json | grep -q 'registry.npmjs.org' && exit 1 || true
+```
+
+### 3. Namespace reservation
+
+```bash
+# Reserve your org scope on public npm
+npm access public @myorg
+# or publish a placeholder package
+```
+
+### 4. Version policy
+
+Treat any resolved version above your internal threshold (for example, more than 10 major versions ahead of baseline) as a CI failure.
 
 ## ✅ Success Criteria
 

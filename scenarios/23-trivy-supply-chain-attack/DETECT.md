@@ -50,6 +50,11 @@ rule Trivy_Supply_Chain_IOC {
 - CI pipeline logs show trivy-action step completing normally (infostealer preserves legitimate output to avoid detection).
 - In the lab: capture evidence at `infrastructure/captured-data.json` with `ci_secret_exfil` event type.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc23-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 23`.
+
 ## Mitigation
 
 - Contain: disable and re-queue all pipelines that ran `trivy-action@v0.34.x` or `setup-trivy@v0.2.5` or earlier after March 19 2026.
@@ -58,6 +63,32 @@ rule Trivy_Supply_Chain_IOC {
 - Hunt: scan every workflow YAML in the organization for compromised version strings; check Dockerfiles and container registries for `trivy:0.69.4/5/6`.
 - Harden: enforce SHA pinning for all third-party actions via policy (e.g. `step-security/harden-runner`, Allstar, or custom CI lint); alert on unexpected outbound network calls from action steps.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc23-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 23`.
+## Straightforward Implementation
+
+### 1. Pin actions by SHA
+
+```yaml
+# .github/workflows/security.yml
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+- uses: aquasecurity/trivy-action@<full-sha>
+```
+
+### 2. Audit workflow files
+
+```bash
+grep -R "uses:.*@v" .github/workflows/ && exit 1
+```
+
+### 3. Harden runner
+
+```yaml
+- uses: step-security/harden-runner@<full-sha>
+  with:
+    egress-policy: block
+    allowed-endpoints: |
+      registry.npmjs.org:443
+```
+
+### 4. Credential rotation
+
+Rotate GITHUB_TOKEN, AWS keys, registry credentials, and database URLs accessible to affected pipeline runs. Use short-lived OIDC tokens where possible.

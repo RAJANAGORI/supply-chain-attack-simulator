@@ -12,6 +12,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -25,6 +26,9 @@ By the end of this guide, you will:
 - [Part 7: Detecting the Attack (25 minutes)](#part-7-detecting-the-attack-25-minutes)
 - [Part 8: Prevention and Mitigation (30 minutes)](#part-8-prevention-and-mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Clean Up and Next Steps (5 minutes)](#part-9-clean-up-and-next-steps-5-minutes)
 - [📚 Additional Resources](#📚-additional-resources)
@@ -392,6 +396,56 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 04 code-level workflow: Malicious Update](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-04.svg)
 
 *Code-level workflow for Scenario 04. Editable source: [`scas-codeflow-scenario-04.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-04.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/04-malicious-update/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin exact versions in `package.json` - avoid carets on sensitive dependencies.
+- Commit lockfiles and use `npm ci` in CI/CD pipelines.
+- Verify updates before install (changelog review, integrity checks, code diff).
+- Scan dependency updates automatically in CI before merge.
+- Use staged rollouts - test updates in staging before production.
+- Require human review of changelogs for patch and minor bumps on critical packages.
+
+## Straightforward Implementation
+
+### 1. Prevention config
+
+```json
+// package.json
+{
+  "dependencies": {
+    "express": "4.18.2"
+  }
+}
+```
+
+### 2. Dependabot config
+
+```yaml
+# .github/dependabot.yml
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+```
+
+### 3. Update review
+
+```bash
+npx npm-diff <package>@<old> <package>@<new>
+npx socket-dev diff
+```
+
+### 4. Staged rollout
+
+Merge dependency updates to a "staging" branch first. Run smoke tests for 24 hours before promoting to "main".
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

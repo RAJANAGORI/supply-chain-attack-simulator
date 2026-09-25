@@ -7,6 +7,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -18,6 +19,7 @@
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [📊 Key Takeaways](#📊-key-takeaways)
 - [🔍 Real-World Impact](#🔍-real-world-impact)
 - [⚠️ Safety & Ethics](#⚠️-safety--ethics)
@@ -222,6 +224,34 @@ See detection tools and README for detailed detection methods.
 3. **Workspace Audit**: Audit all workspace packages
 4. **Access Review**: Review who has workspace access
 5. **Incident Documentation**: Document the attack and response
+
+## Straightforward Implementation
+
+### 1. CODEOWNERS
+
+```text
+# .github/CODEOWNERS
+/packages/*     @org/security-team @org/platform-team
+/package.json   @org/security-team
+```
+
+### 2. Workspace graph check
+
+```bash
+nx graph --file=dep-graph.json
+```
+
+### 3. CI gate
+
+```yaml
+# .github/workflows/workspace-audit.yml
+- run: npm ci --ignore-scripts
+- run: node scripts/audit-workspace-packages.js
+```
+
+### 4. Policy
+
+Treat every workspace package as a third-party dependency for security review purposes.
 
 ## 📊 Key Takeaways
 

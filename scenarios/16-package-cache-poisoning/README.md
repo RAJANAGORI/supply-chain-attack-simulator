@@ -9,6 +9,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -25,6 +26,7 @@
 - [Detection](#detection)
 - [Mitigation Playbook](#mitigation-playbook)
 - [Expected Outcome](#expected-outcome)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -152,6 +154,35 @@ Key indicators to capture:
 
 - Capture entries show exfiltration from the poisoned cached module when the testbench flag is enabled.
 - The detector highlights suspicious patterns in cache-sourced code and suggests clearing or validating the cache.
+
+## Straightforward Implementation
+
+### 1. Cache clearing
+
+```bash
+npm cache clean --force
+```
+
+### 2. CI cache key
+
+```yaml
+# .github/workflows/ci.yml
+- uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
+  with:
+    path: ~/.npm
+    key: npm-${{ hashFiles('package-lock.json') }}
+```
+
+### 3. GitHub Actions cache cleanup
+
+```bash
+gh actions-cache list -R org/repo
+gh actions-cache delete <key> -R org/repo --confirm
+```
+
+### 4. Trust boundary
+
+Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches.
 
 ## Validation Checklist
 

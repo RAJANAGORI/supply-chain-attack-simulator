@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -31,6 +32,9 @@ By the end of this guide, you will:
 - [Part 10: Incident Response & Mitigation (30 minutes)](#part-10-incident-response--mitigation-30-minutes)
 - [Part 11: Understanding the Complete Attack Chain (15 minutes)](#part-11-understanding-the-complete-attack-chain-15-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 12: Clean Up and Next Steps (5 minutes)](#part-12-clean-up-and-next-steps-5-minutes)
 - [🆘 Troubleshooting](#🆘-troubleshooting)
@@ -630,6 +634,53 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 06 code-level workflow: Shai-Hulud (Self-Replicating)](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-06.svg)
 
 *Code-level workflow for Scenario 06. Editable source: [`scas-codeflow-scenario-06.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-06.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/06-sha-hulud/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Require 2FA on all package maintainer and publishing accounts.
+- Restrict or monitor `postinstall` and other lifecycle scripts.
+- Run automated security scanning in CI on every dependency change.
+- Use secret management tools; never commit tokens or keys to repositories.
+- Enforce lockfiles with `npm ci --audit` in CI pipelines.
+- Rotate credentials immediately after suspected compromise.
+
+## Straightforward Implementation
+
+### 1. Default deny lifecycle scripts
+
+```bash
+npm ci --ignore-scripts
+```
+
+### 2. Allowlist required scripts
+
+```yaml
+# allowed-scripts.yml
+allowed:
+  - electron:postinstall
+  - esbuild:postinstall
+```
+
+### 3. Credential rotation
+
+```bash
+npm token list
+npm token revoke <token-id>
+gh ssh-key list
+gh ssh-key delete <id>
+```
+
+### 4. Cache clearing
+
+```bash
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm ci --ignore-scripts
+```
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

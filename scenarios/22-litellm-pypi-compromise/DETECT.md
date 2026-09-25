@@ -38,6 +38,11 @@ rule PyPI_PTH_Compromise_IOC {
 - Site-packages file integrity drift (`.pth` additions).
 - Detector findings from `litellm_pth_scanner.py` and mock capture output.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc22-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 22`.
+
 ## Mitigation
 
 - Contain: stop workloads using the compromised virtualenv; block egress from CI if needed.
@@ -46,6 +51,34 @@ rule PyPI_PTH_Compromise_IOC {
 - Rotate: API keys and PyPI maintainer tokens after confirmed incidents.
 - Scan `site-packages/*.pth` in CI after every `pip install`.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc22-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 22`.
+## Straightforward Implementation
+
+### 1. Hash pinning
+
+```bash
+# Generate requirements with hashes
+pip-compile --generate-hashes requirements.in
+pip install --require-hashes -r requirements.txt
+```
+
+### 2. .pth scan
+
+```bash
+find .venv -name "*.pth" -exec cat {} ;
+```
+
+### 3. CI gate
+
+```yaml
+# .github/workflows/python-security.yml
+- run: python -m venv .venv
+- run: .venv/bin/pip install --require-hashes -r requirements.txt
+- run: .venv/bin/python scripts/scan-pth-files.py .venv
+```
+
+### 4. Token rotation
+
+```bash
+# Revoke PyPI tokens via pypi.org/manage/account/
+pypi-token-revoke <token-id>
+```

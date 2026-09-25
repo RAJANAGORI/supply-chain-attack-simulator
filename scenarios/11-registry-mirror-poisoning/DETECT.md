@@ -46,6 +46,11 @@ rule Registry_Mirror_Poisoning_IOC {
 - Mirror validator flags `CRITICAL` postinstall drift vs `legitimate-packages/`.
 - Local capture output in `infrastructure/captured-data.json`.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc11-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 11`.
+
 ## Mitigation
 
 - Secure mirror access - limit who can publish or modify mirror storage.
@@ -54,6 +59,30 @@ rule Registry_Mirror_Poisoning_IOC {
 - Implement strict access controls and MFA on mirror admin paths.
 - Monitor mirror behavior and alert on unexpected package mutations.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc11-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 11`.
+## Straightforward Implementation
+
+### 1. Mirror config example (Verdaccio)
+
+```yaml
+# verdaccio/config.yaml
+uplinks:
+  npmjs:
+    url: https://registry.npmjs.org/
+    cache: true
+    integrity: true
+```
+
+### 2. Upstream digest check
+
+```bash
+npm view <pkg> dist.shasum
+sha1sum /path/to/mirror/cache/<pkg>/*.tgz
+```
+
+### 3. Admin hardening
+
+Require MFA on mirror admin accounts. Alert on package overwrites or deletions.
+
+### 4. Audit cadence
+
+Run a weekly job that compares a sample of mirrored packages against upstream metadata.

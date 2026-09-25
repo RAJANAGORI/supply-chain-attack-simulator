@@ -37,6 +37,11 @@ rule Container_Image_Compromise_IOC {
 - Immediate outbound request at container boot.
 - Evidence in `infrastructure/captured-data.json`.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc14-artifacts/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 14`.
+
 ## Mitigation
 
 - Enforce image provenance and signature verification in CI/CD.
@@ -45,6 +50,28 @@ rule Container_Image_Compromise_IOC {
 - Restrict outbound network from build and runtime where possible.
 - Require reproducible image builds and signed attestations.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc14-artifacts/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 14`.
+## Straightforward Implementation
+
+### 1. Digest pinning
+
+```dockerfile
+# Dockerfile
+FROM node:20.11.0-alpine@sha256:abcdef123...
+```
+
+### 2. Image signing and verification
+
+```bash
+cosign sign --yes registry.example/image@sha256:...
+cosign verify --key cosign.pub registry.example/image@sha256:...
+```
+
+### 3. BuildKit provenance
+
+```bash
+docker buildx build --provenance=true --sbom=true -t image:tag .
+```
+
+### 4. Admission control
+
+Use Kyverno or OPA Gatekeeper to reject pods that use images without signatures or digests.

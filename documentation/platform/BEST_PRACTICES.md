@@ -13,9 +13,9 @@ This guide outlines best practices for securing your software supply chain, lear
 
 ## Dependency Management
 
-### ✅ DO: Use Package Lock Files
+### Do: Use Package Lock Files
 
-**Why**: Ensures consistent installations and prevents automatic updates to malicious versions.
+Why: Ensures consistent installations and prevents automatic updates to malicious versions.
 
 ```bash
 # Generate and commit package-lock.json
@@ -27,15 +27,15 @@ npm ci --audit
 # NEVER use: npm install
 ```
 
-**Benefits**:
+Benefits:
 - Integrity verification via checksums
 - Deterministic builds
 - Protection against dependency confusion
 - Audit trail of dependency changes
 
-### ✅ DO: Pin Exact Versions
+### Do: Pin Exact Versions
 
-**Why**: Prevents automatic updates to compromised versions.
+Why: Prevents automatic updates to compromised versions.
 
 ```json
 {
@@ -47,11 +47,11 @@ npm ci --audit
 }
 ```
 
-**Recommendation**: Use exact versions for critical dependencies, ranges for development tools.
+Recommendation: Use exact versions for critical dependencies, ranges for development tools.
 
-### ✅ DO: Regular Dependency Audits
+### Do: Regular Dependency Audits
 
-**Why**: Identify and fix known vulnerabilities.
+Why: Identify and fix known vulnerabilities.
 
 ```bash
 # Run audit regularly
@@ -64,7 +64,7 @@ npm audit fix
 npm audit --json > audit-report.json
 ```
 
-**Automation**:
+Automation:
 ```yaml
 # .github/workflows/security.yml
 name: Security Audit
@@ -73,14 +73,14 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: npm ci
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=moderate
 ```
 
-### ✅ DO: Minimize Dependencies
+### Do: Minimize Dependencies
 
-**Why**: Each dependency is a potential attack vector.
+Why: Each dependency is a potential attack vector.
 
 ```bash
 # Analyze dependency tree
@@ -102,7 +102,21 @@ npx cost-of-modules
 - Does this package have many transitive dependencies?
 - Is this package actively maintained?
 
-### ❌ DON'T: Use Wildcards
+### Do: Pin Python Dependencies with Hashes
+
+Python packages are just as exposed to supply-chain attacks as npm. Use hash pinning so a compromised release cannot replace a known-good version.
+
+```bash
+# Generate a requirements file with hashes
+pip-compile --generate-hashes requirements.in
+
+# Install with strict verification
+pip install --require-hashes -r requirements.txt
+```
+
+Poetry and uv also support lockfiles and hash verification. Prefer them for applications.
+
+### Do not: Use Wildcards
 
 ```json
 {
@@ -115,9 +129,9 @@ npx cost-of-modules
 
 ## Package Verification
 
-### ✅ DO: Verify Package Source
+### Do: Verify Package Source
 
-**Why**: Ensure packages come from expected registries.
+Why: Ensure packages come from expected registries.
 
 ```bash
 # Check package source
@@ -131,9 +145,9 @@ npm view express dist.tarball
 @yourcompany:registry=https://private-registry.company.com/
 ```
 
-### ✅ DO: Review Package Before Installing
+### Do: Review Package Before Installing
 
-**Why**: Catch malicious packages before they enter your system.
+Why: Catch malicious packages before they enter your system.
 
 ```bash
 # Check package info
@@ -151,7 +165,7 @@ tar -xzf package-name-*.tgz
 cat package/index.js
 ```
 
-**Red flags**:
+Red flags:
 - Recently published (< 1 week old)
 - Few downloads
 - No GitHub repository
@@ -159,9 +173,9 @@ cat package/index.js
 - Unusual dependencies
 - Install scripts (pre/post install)
 
-### ✅ DO: Use Integrity Checking
+### Do: Use Integrity Checking
 
-**Why**: Verify package hasn't been tampered with.
+Why: Verify package hasn't been tampered with.
 
 ```bash
 # Verify integrity
@@ -171,9 +185,9 @@ npm install --integrity
 cat package-lock.json | grep integrity
 ```
 
-### ✅ DO: Implement Automated Scanning
+### Do: Implement Automated Scanning
 
-**Tools**:
+Tools:
 
 1. **Socket.dev** - Detects supply chain attacks
 ```bash
@@ -196,7 +210,28 @@ npm audit
 npx @ossf/scorecard
 ```
 
-### ❌ DON'T: Ignore Security Warnings
+### Do: Verify Provenance and Attestations
+
+Publish and verify npm provenance so consumers can trace packages back to a trusted CI run.
+
+```bash
+# Publish with provenance
+npm publish --provenance --access public
+
+# Verify npm signatures and provenance
+npm audit signatures
+```
+
+Use GitHub artifact attestations for build artifacts:
+
+```yaml
+# .github/workflows/build.yml
+- uses: actions/attest-build-provenance@766857f854e4f69bc6b834c5fdb5dfd3e7ad73e6
+  with:
+    subject-path: artifact.tgz
+```
+
+### Do not: Ignore Security Warnings
 
 ```bash
 # ❌ Bad
@@ -211,9 +246,9 @@ npm audit
 
 ## Secrets Management
 
-### ✅ DO: Use Environment Variables
+### Do: Use Environment Variables
 
-**Why**: Separate secrets from code.
+Why: Separate secrets from code.
 
 ```bash
 # .env (never commit!)
@@ -227,11 +262,11 @@ const apiKey = process.env.API_KEY;
 
 **⚠️ But remember**: Malicious packages can access `process.env`!
 
-### ✅ DO: Use Secrets Vaults
+### Do: Use Secrets Vaults
 
-**Why**: Centralized, encrypted secrets management.
+Why: Centralized, encrypted secrets management.
 
-**Options**:
+Options:
 - HashiCorp Vault
 - AWS Secrets Manager
 - Azure Key Vault
@@ -243,7 +278,7 @@ const vault = require('@hashicorp/vault-client');
 const secret = await vault.read('secret/data/api-key');
 ```
 
-### ✅ DO: Minimize Secret Exposure
+### Do: Minimize Secret Exposure
 
 **Principle**: Secrets should be:
 - Loaded just-in-time
@@ -269,7 +304,7 @@ async function makeSecureRequest() {
 }
 ```
 
-### ✅ DO: Rotate Secrets Regularly
+### Do: Rotate Secrets Regularly
 
 ```bash
 # Automate secret rotation
@@ -280,7 +315,7 @@ aws secretsmanager rotate-secret \
   --rotation-lambda-arn arn:aws:lambda:...
 ```
 
-### ❌ DON'T: Hardcode Secrets
+### Do not: Hardcode Secrets
 
 ```javascript
 // ❌ NEVER do this!
@@ -293,7 +328,7 @@ const API_KEY = process.env.API_KEY;
 
 ## Build Pipeline Security
 
-### ✅ DO: Use CI/CD Security Checks
+### Do: Use CI/CD Security Checks
 
 ```yaml
 # .github/workflows/security.yml
@@ -303,32 +338,35 @@ on: [push, pull_request]
 jobs:
   security:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v2
-      
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
       - name: Install dependencies
-        run: npm ci --audit
-      
+        run: npm ci --ignore-scripts
+
       - name: Audit dependencies
         run: npm audit --audit-level=moderate
-      
+
       - name: Scan packages
         run: npx socket-dev scan
-      
+
       - name: Check for secrets
-        uses: trufflesecurity/trufflehog@main
-      
+        uses: trufflesecurity/trufflehog@7cda3137a29f4a3f04da0b11c477a3125aeea169
+
       - name: SBOM generation
         run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json
-      
+
       - name: Upload SBOM
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@65462700fc825b256db5d6ff3bdc6cfb78f84717
         with:
           name: sbom
           path: sbom.json
 ```
 
-### ✅ DO: Verify Package Integrity in CI
+### Do: Verify Package Integrity in CI
 
 ```bash
 # In CI/CD script
@@ -346,9 +384,9 @@ if [ $? -ne 0 ]; then
 fi
 ```
 
-### ✅ DO: Generate Software Bill of Materials (SBOM)
+### Do: Generate Software Bill of Materials (SBOM)
 
-**Why**: Track all dependencies for vulnerability management.
+Why: Track all dependencies for vulnerability management.
 
 ```bash
 # Generate SBOM
@@ -358,15 +396,35 @@ npx @cyclonedx/cyclonedx-npm --output-file sbom.json
 npx @microsoft/sbom-tool generate -b ./output -bc . -pn MyApp -pv 1.0.0
 ```
 
-### ✅ DO: Isolate Build Environment
+### Do: Isolate Build Environment
 
-**Why**: Prevent compromised builds from affecting production.
+Why: Prevent compromised builds from affecting production.
 
 Use a dedicated build user / sandboxed environment and keep build and runtime environments separated.
 
+### Do: Pin and Sign Container Images
+
+Base images and scanner images are software dependencies too. Pin by digest and verify signatures before use.
+
+```dockerfile
+# Dockerfile
+FROM node:20.11.0-alpine@sha256:abcdef123...
+```
+
+```bash
+# Sign and verify with Sigstore/cosign
+cosign sign --yes registry.example/image@sha256:...
+cosign verify --key cosign.pub registry.example/image@sha256:...
+
+# Build with provenance and SBOM
+docker buildx build --provenance=true --sbom=true -t image:tag .
+```
+
+Use admission controllers such as Kyverno or OPA Gatekeeper to reject unsigned or digest-less images in Kubernetes.
+
 ## Runtime Protection
 
-### ✅ DO: Implement Runtime Monitoring
+### Do: Implement Runtime Monitoring
 
 ```javascript
 // Monitor module loading
@@ -388,7 +446,7 @@ Module.prototype.require = function(id) {
 };
 ```
 
-### ✅ DO: Use Security Headers
+### Do: Use Security Headers
 
 ```javascript
 // Implement security headers
@@ -404,7 +462,7 @@ app.use((req, res, next) => {
 });
 ```
 
-### ✅ DO: Monitor Network Activity
+### Do: Monitor Network Activity
 
 ```bash
 # Monitor outbound connections
@@ -417,7 +475,7 @@ tcpdump -i any port 443
 # Log all external API calls
 ```
 
-### ✅ DO: Implement Least Privilege
+### Do: Implement Least Privilege
 
 ```javascript
 // Run with minimal permissions
@@ -431,9 +489,9 @@ process.setuid('appuser');
 
 ## Incident Response
 
-### ✅ DO: Have an Incident Response Plan
+### Do: Have an Incident Response Plan
 
-**Steps**:
+Steps:
 
 1. **Detection**: Monitor for compromises
 2. **Containment**: Isolate affected systems
@@ -442,7 +500,7 @@ process.setuid('appuser');
 5. **Recovery**: Restore systems
 6. **Lessons Learned**: Update processes
 
-### ✅ DO: Maintain Package Inventory
+### Do: Maintain Package Inventory
 
 ```bash
 # Generate current package list
@@ -452,15 +510,15 @@ npm list --json > package-inventory.json
 git diff package-inventory.json
 ```
 
-### ✅ DO: Monitor Security Advisories
+### Do: Monitor Security Advisories
 
-**Sources**:
+Sources:
 - npm security advisories: https://www.npmjs.com/advisories
 - GitHub Security Advisories
 - Snyk Vulnerability Database
 - OSV (Open Source Vulnerabilities)
 
-**Automation**:
+Automation:
 ```bash
 # GitHub Dependabot (automatic)
 # Snyk monitoring
@@ -471,9 +529,9 @@ npx snyk monitor
 npm audit --json | jq '.vulnerabilities | length'
 ```
 
-### ✅ DO: Test Incident Response
+### Do: Test Incident Response
 
-**Regular drills**:
+Regular drills:
 1. Simulate package compromise
 2. Practice detection
 3. Test remediation procedures
@@ -497,6 +555,8 @@ npm audit --json | jq '.vulnerabilities | length'
 - [ ] Implement automated security scanning in CI/CD
 - [ ] Generate and maintain SBOM
 - [ ] Create incident response plan
+- [ ] Pin and sign container images by digest
+- [ ] Publish and verify npm provenance and attestations
 
 ### Advanced (Ongoing)
 

@@ -38,6 +38,11 @@ rule Version_Confusion_IOC {
 - Detector findings from `version-confusion-detector.js`.
 - Capture artifacts in scenario infrastructure.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc20-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 20`.
+
 ## Mitigation
 
 - Pin exact versions for critical dependencies and enforce lockfile usage.
@@ -46,6 +51,31 @@ rule Version_Confusion_IOC {
 - Require human review for dependency version changes above policy thresholds.
 - Prefer deterministic `npm ci` workflows in CI.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc20-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 20`.
+## Straightforward Implementation
+
+### 1. Dependabot config
+
+```yaml
+# .github/dependabot.yml
+ignore:
+  - dependency-name: "*"
+    update-types: ["version-update:semver-major"]
+```
+
+### 2. Semver policy
+
+Any dependency update that jumps more than one major version requires security review.
+
+### 3. Scoped registry
+
+```ini
+# .npmrc
+@myorg:registry=https://artifactory.example.com/api/npm/npm-internal/
+```
+
+### 4. CI gate
+
+```yaml
+- run: npm ci --ignore-scripts
+- run: node scripts/check-version-jumps.js --threshold 2
+```

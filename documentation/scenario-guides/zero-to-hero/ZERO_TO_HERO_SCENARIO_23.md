@@ -17,6 +17,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -25,11 +26,14 @@ By the end of this guide, you will:
 - [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
 - [Part 3: Setting Up Scenario 23 (10 minutes)](#part-3-setting-up-scenario-23-10-minutes)
 - [Part 4: Understanding the File Structure (15 minutes)](#part-4-understanding-the-file-structure-15-minutes)
-- [Part 5: The Attack - CI Secret Exfiltration (30 minutes)](#part-5-the-attack--ci-secret-exfiltration-30-minutes)
+- [Part 5: The Attack - CI Secret Exfiltration (30 minutes)](#part-5-the-attack---ci-secret-exfiltration-30-minutes)
 - [Part 6: Detection Methods (30 minutes)](#part-6-detection-methods-30-minutes)
 - [Part 7: Forensic Investigation (20 minutes)](#part-7-forensic-investigation-20-minutes)
 - [Part 8: Incident Response and Mitigation (25 minutes)](#part-8-incident-response-and-mitigation-25-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
 - [Part 10: Advanced Exercises](#part-10-advanced-exercises)
@@ -396,6 +400,48 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 23 code-level workflow: Trivy Supply Chain Attack (CVE-2026-33634)](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-23.svg)
 
 *Code-level workflow for Scenario 23. Editable source: [`scas-codeflow-scenario-23.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-23.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/23-trivy-supply-chain-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Contain: disable and re-queue all pipelines that ran `trivy-action@v0.34.x` or `setup-trivy@v0.2.5` or earlier after March 19 2026.
+- Eradicate: replace every mutable tag reference with an immutable commit SHA (`aquasecurity/trivy-action@<SHA>`).
+- Recover: rotate all CI secrets (GITHUB_TOKEN, AWS keys, registry credentials, database URLs) accessible to affected pipeline runs.
+- Hunt: scan every workflow YAML in the organization for compromised version strings; check Dockerfiles and container registries for `trivy:0.69.4/5/6`.
+- Harden: enforce SHA pinning for all third-party actions via policy (e.g. `step-security/harden-runner`, Allstar, or custom CI lint); alert on unexpected outbound network calls from action steps.
+
+## Straightforward Implementation
+
+### 1. Pin actions by SHA
+
+```yaml
+# .github/workflows/security.yml
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+- uses: aquasecurity/trivy-action@<full-sha>
+```
+
+### 2. Audit workflow files
+
+```bash
+grep -R "uses:.*@v" .github/workflows/ && exit 1
+```
+
+### 3. Harden runner
+
+```yaml
+- uses: step-security/harden-runner@<full-sha>
+  with:
+    egress-policy: block
+    allowed-endpoints: |
+      registry.npmjs.org:443
+```
+
+### 4. Credential rotation
+
+Rotate GITHUB_TOKEN, AWS keys, registry credentials, and database URLs accessible to affected pipeline runs. Use short-lived OIDC tokens where possible.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

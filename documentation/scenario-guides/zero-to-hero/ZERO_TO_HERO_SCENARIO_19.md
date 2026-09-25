@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,6 +29,9 @@ By the end of this guide, you will:
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
 - [Part 10: Advanced Exercises](#part-10-advanced-exercises)
@@ -570,6 +574,44 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 19 code-level workflow: SBOM Manipulation](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-19.svg)
 
 *Code-level workflow for Scenario 19. Editable source: [`scas-codeflow-scenario-19.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-19.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/19-sbom-manipulation-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Regenerate SBOM from lockfile/build artifacts in trusted CI only.
+- Require SBOM signing and provenance attestation.
+- Enforce fail-closed CI policy for SBOM-lockfile mismatches.
+- Keep truth-source and SBOM generation isolated from app code tampering.
+- Periodically diff production SBOM against runtime inventory scans.
+
+## Straightforward Implementation
+
+### 1. SBOM generation
+
+```bash
+npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/sbom.yml
+- run: npm ci --ignore-scripts
+- run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+- run: node scripts/validate-sbom.js --lockfile package-lock.json --sbom sbom.json
+- run: cosign sign-blob --yes sbom.json --output-signature sbom.json.sig
+```
+
+### 3. Policy enforcement
+
+Use OPA or Conftest to enforce that SBOMs contain required packages and no unexpected additions.
+
+### 4. Runtime diff
+
+Periodically compare the production SBOM against runtime inventory scans (Syft, Trivy).
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

@@ -37,6 +37,11 @@ rule Shai_Hulud_Replication_Indicator {
 - Multi-process behavior (harvester + CDN + victim app).
 - Credential capture evidence in `infrastructure/captured-credentials.json`.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc06-artifacts/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 06`.
+
 ## Mitigation
 
 - Require 2FA on all package maintainer and publishing accounts.
@@ -46,6 +51,36 @@ rule Shai_Hulud_Replication_Indicator {
 - Enforce lockfiles with `npm ci --audit` in CI pipelines.
 - Rotate credentials immediately after suspected compromise.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc06-artifacts/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 06`.
+## Straightforward Implementation
+
+### 1. Default deny lifecycle scripts
+
+```bash
+npm ci --ignore-scripts
+```
+
+### 2. Allowlist required scripts
+
+```yaml
+# allowed-scripts.yml
+allowed:
+  - electron:postinstall
+  - esbuild:postinstall
+```
+
+### 3. Credential rotation
+
+```bash
+npm token list
+npm token revoke <token-id>
+gh ssh-key list
+gh ssh-key delete <id>
+```
+
+### 4. Cache clearing
+
+```bash
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm ci --ignore-scripts
+```

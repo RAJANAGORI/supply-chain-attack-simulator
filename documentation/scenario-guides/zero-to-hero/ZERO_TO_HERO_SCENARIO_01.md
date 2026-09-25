@@ -14,6 +14,7 @@ By the end of this guide, you will:
 
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,6 +29,9 @@ By the end of this guide, you will:
 - [Part 8: Detecting the Attack (15 minutes)](#part-8-detecting-the-attack-15-minutes)
 - [Part 9: Prevention and Best Practices (10 minutes)](#part-9-prevention-and-best-practices-10-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 10: Clean Up and Next Steps (5 minutes)](#part-10-clean-up-and-next-steps-5-minutes)
 - [🆘 Troubleshooting](#🆘-troubleshooting)
@@ -562,6 +566,67 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 01 code-level workflow: Typosquatting](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-01.svg)
 
 *Code-level workflow for Scenario 01. Editable source: [`scas-codeflow-scenario-01.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-01.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/01-typosquatting/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Commit `package-lock.json` and use `npm ci` in production pipelines.
+- Configure registry scope restrictions and verify package signatures where supported.
+- Run automated dependency scanning (e.g. `npm audit`, Snyk, Socket.dev).
+- Require a code-review checklist for every new dependency (name, maintainer, reputation).
+- Prefer private registries and scope-based routing for internal package names.
+
+## Straightforward Implementation
+
+### 1. Prevention config
+
+Create or update ".npmrc" in the repo root:
+
+```ini
+# .npmrc
+@myorg:registry=https://internal.registry.example/
+ignore-scripts=true
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/dependency-review.yml
+name: Dependency Review
+on: [pull_request]
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/dependency-review-action@3b139cfc5fae8b618dfb3e11a0a753bf0c333854
+        with:
+          fail-on-severity: moderate
+      - uses: socket-security/action@latest
+        env:
+          SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_API_KEY }}
+```
+
+### 3. Pre-install verification
+
+```bash
+npm view <package> --json | jq '{name, version, maintainers, repository}'
+npm pack <package>
+tar -xzf <package>-*.tgz && cat package/index.js
+```
+
+### 4. Incident response
+
+```bash
+npm uninstall <typo-package>
+npm token list
+npm token revoke <token-id>
+```
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

@@ -6,7 +6,9 @@ const path = require('path');
 const {
   PLAYBOOKS,
   playbookBullets,
+  playbookImplementation,
   formatZeroToHeroPlaybook,
+  formatZeroToHeroImplementation,
 } = require('../lib/mitigation-playbooks');
 
 const ROOT = path.join(__dirname, '../..', 'documentation', 'scenario-guides', 'zero-to-hero');
@@ -23,13 +25,7 @@ for (const id of Object.keys(PLAYBOOKS)) {
     continue;
   }
 
-  const content = fs.readFileSync(file, 'utf8');
-  if (content.includes('## Mitigation Playbook')) {
-    console.log(`skip ${id}: already has Mitigation Playbook`);
-    skipped += 1;
-    continue;
-  }
-
+  let content = fs.readFileSync(file, 'utf8');
   const idx = content.indexOf(MARKER);
   if (idx === -1) {
     console.error(`Marker not found in scenario ${id}`);
@@ -37,7 +33,16 @@ for (const id of Object.keys(PLAYBOOKS)) {
     continue;
   }
 
-  const block = formatZeroToHeroPlaybook(id, playbookBullets(id));
+  if (content.includes('## Straightforward Implementation')) {
+    console.log(`skip ${id}: already has Straightforward Implementation`);
+    skipped += 1;
+    continue;
+  }
+
+  const bullets = playbookBullets(id);
+  const impl = playbookImplementation(id);
+  const block = formatZeroToHeroPlaybook(id, bullets).replace(/\n---\s*\n$/, '\n') +
+    formatZeroToHeroImplementation(impl);
   const next = content.slice(0, idx) + block + content.slice(idx);
   fs.writeFileSync(file, next);
   console.log(`updated ${id}`);

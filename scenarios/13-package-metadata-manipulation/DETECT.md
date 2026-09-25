@@ -38,6 +38,11 @@ rule Metadata_Manipulation_IOC {
 - Detector output from `metadata-validator.js` indicating mismatches.
 - Capture artifacts in `infrastructure/captured-data.json`.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc13-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 13`.
+
 ## Mitigation
 
 - Validate metadata against trusted allowlists for critical packages.
@@ -45,6 +50,26 @@ rule Metadata_Manipulation_IOC {
 - Pin exact versions for sensitive dependencies.
 - Mirror and sign internal-approved artifacts.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc13-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 13`.
+## Straightforward Implementation
+
+### 1. Metadata validation
+
+```bash
+npm view <pkg> --json | jq '{name, version, author, repository, maintainers}'
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/metadata-check.yml
+- run: npm ci --ignore-scripts
+- run: node scripts/validate-package-metadata.js --allowlist allowed-packages.json
+```
+
+### 3. Allowlist maintenance
+
+Store allowed package metadata in version control. Update only through pull request with security review.
+
+### 4. SBOM comparison
+
+Compare generated SBOM against the lockfile to detect omitted or altered dependencies.

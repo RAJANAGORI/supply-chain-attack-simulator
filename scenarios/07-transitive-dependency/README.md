@@ -7,6 +7,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -18,6 +19,7 @@
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [📊 Key Takeaways](#📊-key-takeaways)
 - [🔍 Real-World Impact](#🔍-real-world-impact)
 - [🎓 Advanced Exercises](#🎓-advanced-exercises)
@@ -472,6 +474,36 @@ npm audit fix
 3. **Package Replacement**: Find and install legitimate alternatives
 4. **Credential Rotation**: Rotate any potentially compromised credentials
 5. **Incident Documentation**: Document the attack and response
+
+## Straightforward Implementation
+
+### 1. SBOM generation
+
+```bash
+npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+# or
+npx syft dir:. -o cyclonedx-json > sbom.json
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/sbom.yml
+- run: npm ci --ignore-scripts
+- run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json
+- run: node scripts/validate-sbom-against-lockfile.js sbom.json package-lock.json
+```
+
+### 3. Full-tree review
+
+```bash
+npm ls --all > dependency-tree.txt
+# Review monthly or on every major dependency update
+```
+
+### 4. Note on limits
+
+"> npm audit" finds known CVEs, not novel malware in transitive packages. Pair it with supply-chain scanners and runtime monitoring.
 
 ## 📊 Key Takeaways
 

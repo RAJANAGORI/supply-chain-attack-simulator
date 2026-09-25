@@ -38,6 +38,11 @@ rule Dev_Tool_Compromise_IOC {
 - Unexpected executable behavior from developer tooling package.
 - Capture evidence in scenario infrastructure.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc15-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 15`.
+
 ## Mitigation
 
 - Enforce `--ignore-scripts` for untrusted tool installs by default.
@@ -46,6 +51,27 @@ rule Dev_Tool_Compromise_IOC {
 - Isolate tool installation to sandboxed CI runners with egress controls.
 - Rotate credentials after any install-time compromise.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc15-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 15`.
+## Straightforward Implementation
+
+### 1. Install policy
+
+```bash
+npm install --ignore-scripts --registry https://internal.registry.example/ <dev-tool>
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/dev-tool-check.yml
+- run: |
+    npm ci --ignore-scripts
+    grep -E '"registry": "https://registry.npmjs.org"' package-lock.json && exit 1 || true
+```
+
+### 3. Diff review
+
+Review every new "postinstall" or "preinstall" script in dependency update diffs. Use Socket or a custom PR check to flag them.
+
+### 4. Isolation
+
+Install dev tools in sandboxed CI runners with egress controls. Rotate CI credentials after any suspected install-time compromise.

@@ -38,6 +38,11 @@ rule Plugin_Attack_IOC {
 - Plugin execution preceding dependency tampering.
 - Detector evidence from `plugin-attack-detector.js`.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc18-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 18`.
+
 ## Mitigation
 
 - Enforce plugin allowlists with signed/approved plugin sources.
@@ -46,6 +51,34 @@ rule Plugin_Attack_IOC {
 - Review plugin code changes with the same rigor as build scripts.
 - Alert on hook-driven modifications outside expected paths.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc18-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 18`.
+## Straightforward Implementation
+
+### 1. Plugin allowlist
+
+```yaml
+# allowed-plugins.yml
+allowed:
+  - @yarnpkg/plugin-typescript
+  - @pnpm/plugin-engines
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/plugin-check.yml
+- run: |
+    ls .yarn/plugins .pnpmfile.cjs 2>/dev/null || true
+    node scripts/validate-plugins-against-allowlist.js
+```
+
+### 3. Integrity check
+
+```bash
+# Compare node_modules state against lockfile
+npm ci --ignore-scripts
+npm ls
+```
+
+### 4. Review policy
+
+Review plugin code changes with the same rigor as build scripts. Alert on hook-driven file changes outside expected paths.

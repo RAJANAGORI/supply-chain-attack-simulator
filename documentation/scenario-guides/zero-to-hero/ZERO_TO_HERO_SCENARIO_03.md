@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -29,6 +30,9 @@ By the end of this guide, you will:
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Part 9: Understanding the Attack Flow (10 minutes)](#part-9-understanding-the-attack-flow-10-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 10: Clean Up and Next Steps (5 minutes)](#part-10-clean-up-and-next-steps-5-minutes)
 - [🆘 Troubleshooting](#🆘-troubleshooting)
@@ -595,6 +599,55 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 03 code-level workflow: Compromised Package](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-03.svg)
 
 *Code-level workflow for Scenario 03. Editable source: [`scas-codeflow-scenario-03.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-03.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/03-compromised-package/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Enforce lockfiles in CI (`npm ci --audit`) instead of open-ended `npm install`.
+- Pin exact versions for packages with high trust or wide blast radius.
+- Run automated security scanning on dependency updates (`npm audit`, custom scanners).
+- Verify package integrity and signatures when the registry supports them.
+- Monitor runtime behavior and log package installation events in production.
+- Maintain maintainer-transfer and dependency-addition review policies.
+
+## Straightforward Implementation
+
+### 1. CI gate
+
+```yaml
+# .github/workflows/supply-chain-scan.yml
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+- name: Install dependencies without scripts
+  run: npm ci --ignore-scripts
+- name: Supply-chain scan
+  run: npx socket-dev scan
+- name: Snyk test
+  run: npx snyk test --severity-threshold=high
+  env:
+    SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+```
+
+### 2. Runtime monitoring
+
+```bash
+node -r ./security/module-load-logger.js app.js
+```
+
+### 3. Maintainer policy
+
+Require 2FA and admin approval for npm publishing roles. Alert on new maintainers via npm webhook or GitHub organization audit log.
+
+### 4. Incident response
+
+```bash
+npm install <package>@<known-good-version> --save-exact
+rm -rf node_modules package-lock.json
+npm ci
+npm token revoke <token-id>
+```
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

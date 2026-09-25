@@ -15,6 +15,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -29,6 +30,9 @@ By the end of this guide, you will:
 - [Part 8: Incident Response (30 minutes)](#part-8-incident-response-30-minutes)
 - [Part 9: Defense Strategies (20 minutes)](#part-9-defense-strategies-20-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 10: Key Takeaways (10 minutes)](#part-10-key-takeaways-10-minutes)
 - [🎓 Congratulations!](#🎓-congratulations)
@@ -340,6 +344,50 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 10 code-level workflow: Git Submodule Attack](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-10.svg)
 
 *Code-level workflow for Scenario 10. Editable source: [`scas-codeflow-scenario-10.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-10.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/10-git-submodule-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Review every submodule addition in pull requests.
+- Validate submodule repository URLs against an allowlist.
+- Limit who can add or modify submodules in protected branches.
+- Pin submodules to specific commits, not floating branch heads.
+- Scan submodule content and monitor submodule initialization behavior.
+
+## Straightforward Implementation
+
+### 1. Pin submodules to commits
+
+```bash
+git submodule add https://github.com/org/lib.git
+cd lib && git checkout <commit-sha>
+cd .. && git commit -am "Pin submodule to commit"
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/submodule-check.yml
+- run: |
+    git submodule foreach 'git log --oneline -1'
+    git config --file .gitmodules --get-regexp 'url' | grep -v 'allowed-github.example.com' && exit 1 || true
+```
+
+### 3. CODEOWNERS
+
+```text
+# .github/CODEOWNERS
+.gitmodules    @org/security-team
+```
+
+### 4. Git config
+
+```bash
+git config --global protocol.file.allow never
+```
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

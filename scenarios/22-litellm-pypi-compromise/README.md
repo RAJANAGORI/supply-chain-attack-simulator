@@ -11,6 +11,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -21,6 +22,7 @@
 - [Setup](#setup)
 - [Run the lab](#run-the-lab)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -120,6 +122,38 @@ Key indicators to capture:
 2. **Eradicate:** `pip uninstall litellm_like`; delete `.venv` and recreate from locked requirements; remove rogue `*.pth` under `site-packages` if any remain.
 3. **Recover:** pin **`litellm_like==1.82.6`** (or your verified hash / private mirror); enforce **hash pinning** or **vetting** for critical AI/ML stacks.
 4. **Rotate:** API keys and PyPI tokens for maintainers (real-world); this lab has no secrets.
+
+## Straightforward Implementation
+
+### 1. Hash pinning
+
+```bash
+# Generate requirements with hashes
+pip-compile --generate-hashes requirements.in
+pip install --require-hashes -r requirements.txt
+```
+
+### 2. .pth scan
+
+```bash
+find .venv -name "*.pth" -exec cat {} ;
+```
+
+### 3. CI gate
+
+```yaml
+# .github/workflows/python-security.yml
+- run: python -m venv .venv
+- run: .venv/bin/pip install --require-hashes -r requirements.txt
+- run: .venv/bin/python scripts/scan-pth-files.py .venv
+```
+
+### 4. Token rotation
+
+```bash
+# Revoke PyPI tokens via pypi.org/manage/account/
+pypi-token-revoke <token-id>
+```
 
 ## Validation Checklist
 

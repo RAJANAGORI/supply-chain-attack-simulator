@@ -9,6 +9,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -25,6 +26,7 @@
 - [Detection](#detection)
 - [Mitigation Playbook](#mitigation-playbook)
 - [Expected Outcome](#expected-outcome)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -156,6 +158,30 @@ Key indicators to capture:
 
 - Captures show distinct stage markers over the run.
 - The correlator reports a multi-stage chain (e.g. stage1 → stage2 → stage3) when evidence is present.
+
+## Straightforward Implementation
+
+### 1. Correlation rule (pseudo-Splunk)
+
+```spl
+| tstats `security` count from datamodel=Endpoint.Processes
+  where Processes.process="npm install" by _time host
+| join host [ search eventtype=network_traffic dest_port=443 ]
+| where relative_time(_time,"-5m") < first_event_time
+| where event_count >= 3
+```
+
+### 2. Segmentation
+
+Use separate CI service accounts per stage. A build runner must not be able to publish packages or deploy to production.
+
+### 3. Auto-containment
+
+Configure SOAR or CI webhooks to kill runners and revoke tokens when stage transitions occur within a short window.
+
+### 4. Tabletop exercises
+
+Run quarterly attack-chain exercises against your CI/CD architecture. Preserve artifacts per stage for timeline reconstruction.
 
 ## Validation Checklist
 

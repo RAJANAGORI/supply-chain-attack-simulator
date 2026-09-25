@@ -5,6 +5,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -16,6 +17,7 @@
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [✅ Success Criteria](#✅-success-criteria)
 - [🎁 Bonus Challenges](#🎁-bonus-challenges)
 - [📊 Attack Comparison](#📊-attack-comparison)
@@ -367,6 +369,41 @@ gpg --verify dist/app.js.asc
 - Use secret management tools - never hardcode secrets in build scripts.
 - Audit and log all build activities for forensic review.
 - Sign release artifacts and verify signatures before deployment.
+
+## Straightforward Implementation
+
+### 1. CI gate (OIDC, no long-lived secrets)
+
+```yaml
+# .github/workflows/build.yml
+permissions:
+  id-token: write
+  contents: read
+steps:
+  - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+  - uses: aws-actions/configure-aws-credentials@e3dd6a429a730001a79de495f50a554053c04fbc
+    with:
+      role-to-assume: arn:aws:iam::ACCOUNT:role/build-role
+  - run: npm ci --ignore-scripts
+  - run: npm run build
+```
+
+### 2. Artifact signing
+
+```bash
+cosign sign-blob --yes artifact.tgz --output-signature artifact.tgz.sig
+```
+
+### 3. SLSA provenance
+
+```yaml
+# Reusable workflow reference
+uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+```
+
+### 4. Build isolation
+
+Use ephemeral CI runners or containers. Never reuse a runner that has built a different repository without re-imaging.
 
 ## ✅ Success Criteria
 

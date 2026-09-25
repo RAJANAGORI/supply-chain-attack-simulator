@@ -48,6 +48,11 @@ rule Dependency_Confusion_Indicator {
 - Resolver behavior inconsistent with scoped registry policy in `.npmrc`.
 - Capture records in `infrastructure/captured-data.json` with `phase: postinstall`.
 
+
+## Floci (optional cloud track)
+- Unexpected `PutObject` under `s3://scas-sc02-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
+- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 02`.
+
 ## Mitigation
 
 - Configure scope-specific registry routing in `.npmrc` (e.g. `@org:registry=...`).
@@ -58,6 +63,34 @@ rule Dependency_Confusion_Indicator {
 - Verify package integrity hashes on install.
 - Add build-time validation to reject unexpected registry sources.
 
-## Floci (optional cloud track)
-- Unexpected `PutObject` under `s3://scas-sc02-artifacts/exfil/` when `SCAS_FLOCI_ENABLED=1`.
-- Verify: `./infrastructure/floci/verify.sh` or `detection-tools/floci/s3-exfil-check.sh 02`.
+## Straightforward Implementation
+
+### 1. Prevention config
+
+```ini
+# .npmrc
+@myorg:registry=https://artifactory.example.com/api/npm/npm-internal/
+//artifactory.example.com/api/npm/npm-internal/:_authToken=${NPM_TOKEN}
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/registry-validation.yml
+- name: Ensure private scopes never resolve from public npm
+  run: |
+    npm ci --ignore-scripts
+    npm ls @myorg --json | grep -q 'registry.npmjs.org' && exit 1 || true
+```
+
+### 3. Namespace reservation
+
+```bash
+# Reserve your org scope on public npm
+npm access public @myorg
+# or publish a placeholder package
+```
+
+### 4. Version policy
+
+Treat any resolved version above your internal threshold (for example, more than 10 major versions ahead of baseline) as a CI failure.

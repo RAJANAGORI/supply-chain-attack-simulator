@@ -7,6 +7,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -18,6 +19,7 @@
 - [Run the lab](#run-the-lab)
 - [📝 Lab Tasks](#📝-lab-tasks)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [✅ Success Criteria](#✅-success-criteria)
 - [🎁 Bonus Challenges](#🎁-bonus-challenges)
 - [📊 Attack Comparison](#📊-attack-comparison)
@@ -522,6 +524,40 @@ Implement preventive measures:
 - Use secret management tools; never commit tokens or keys to repositories.
 - Enforce lockfiles with `npm ci --audit` in CI pipelines.
 - Rotate credentials immediately after suspected compromise.
+
+## Straightforward Implementation
+
+### 1. Default deny lifecycle scripts
+
+```bash
+npm ci --ignore-scripts
+```
+
+### 2. Allowlist required scripts
+
+```yaml
+# allowed-scripts.yml
+allowed:
+  - electron:postinstall
+  - esbuild:postinstall
+```
+
+### 3. Credential rotation
+
+```bash
+npm token list
+npm token revoke <token-id>
+gh ssh-key list
+gh ssh-key delete <id>
+```
+
+### 4. Cache clearing
+
+```bash
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm ci --ignore-scripts
+```
 
 ## ✅ Success Criteria
 

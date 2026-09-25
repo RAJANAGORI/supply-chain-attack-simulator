@@ -12,6 +12,7 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -25,6 +26,9 @@ By the end of this guide, you will:
 - [Part 7: Detecting the Attack (25 minutes)](#part-7-detecting-the-attack-25-minutes)
 - [Part 8: Prevention and Mitigation (30 minutes)](#part-8-prevention-and-mitigation-30-minutes)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Code-level workflow](#code-level-workflow)
+- [Mitigation Playbook](#mitigation-playbook-1)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Clean Up and Next Steps (5 minutes)](#part-9-clean-up-and-next-steps-5-minutes)
 - [📚 Additional Resources](#📚-additional-resources)
@@ -405,6 +409,55 @@ Canonical prevention and mitigation controls (aligned with the [scenario README]
 ![Scenario 05 code-level workflow: Build System Compromise](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-05.svg)
 
 *Code-level workflow for Scenario 05. Editable source: [`scas-codeflow-scenario-05.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-05.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/05-build-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Verify build script integrity with checksums before each build.
+- Apply least privilege to CI/CD jobs and secret exposure.
+- Run builds in isolated environments with minimal credentials.
+- Verify build artifacts with checksums and signed attestations.
+- Use secret management tools - never hardcode secrets in build scripts.
+- Audit and log all build activities for forensic review.
+- Sign release artifacts and verify signatures before deployment.
+
+## Straightforward Implementation
+
+### 1. CI gate (OIDC, no long-lived secrets)
+
+```yaml
+# .github/workflows/build.yml
+permissions:
+  id-token: write
+  contents: read
+steps:
+  - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+  - uses: aws-actions/configure-aws-credentials@e3dd6a429a730001a79de495f50a554053c04fbc
+    with:
+      role-to-assume: arn:aws:iam::ACCOUNT:role/build-role
+  - run: npm ci --ignore-scripts
+  - run: npm run build
+```
+
+### 2. Artifact signing
+
+```bash
+cosign sign-blob --yes artifact.tgz --output-signature artifact.tgz.sig
+```
+
+### 3. SLSA provenance
+
+```yaml
+# Reusable workflow reference
+uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+```
+
+### 4. Build isolation
+
+Use ephemeral CI runners or containers. Never reuse a runner that has built a different repository without re-imaging.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 

@@ -9,6 +9,7 @@
 
 
 
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -24,6 +25,7 @@
 - [Attack Walkthrough](#attack-walkthrough)
 - [Detection Playbook](#detection-playbook)
 - [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
 - [Validation Checklist](#validation-checklist)
 - [Hints](#hints)
 - [Lab Report Prompts](#lab-report-prompts)
@@ -155,6 +157,30 @@ node detection-tools/metadata-validator.js victim-app/node_modules/clean-utils
 - Require lockfile and integrity verification in CI.
 - Pin exact versions for sensitive dependencies.
 - Mirror and sign internal-approved artifacts.
+
+## Straightforward Implementation
+
+### 1. Metadata validation
+
+```bash
+npm view <pkg> --json | jq '{name, version, author, repository, maintainers}'
+```
+
+### 2. CI gate
+
+```yaml
+# .github/workflows/metadata-check.yml
+- run: npm ci --ignore-scripts
+- run: node scripts/validate-package-metadata.js --allowlist allowed-packages.json
+```
+
+### 3. Allowlist maintenance
+
+Store allowed package metadata in version control. Update only through pull request with security review.
+
+### 4. SBOM comparison
+
+Compare generated SBOM against the lockfile to detect omitted or altered dependencies.
 
 ## Validation Checklist
 
