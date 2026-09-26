@@ -10,6 +10,9 @@
 
 
 
+
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -54,10 +57,10 @@ Developer tools are often installed from the same registries as application depe
 
 ## Scenario Description
 
-You explore a minimal "dev tool" delivered as a local package. A **legitimate** variant exists for comparison; the **malicious** variant runs a `postinstall` step that exfiltrates data to the scenario mock server when the testbench safety flag is on. Your tasks:
+You explore a minimal "dev tool" delivered as a local package. A legitimate variant exists for comparison; the malicious variant runs a `postinstall` step that exfiltrates data to the scenario mock server when the testbench safety flag is on. In the second stage, the tool also tampers with the lockfile or `.gitignore` so the compromise is not reviewed or committed cleanly. Your tasks:
 
-1. **Red team**: See how install-time execution leads to capture events.
-2. **Blue team**: Inspect the victim app and `node_modules` for suspicious scripts.
+1. **Red team**: See how install-time execution leads to capture events and stealth artifacts.
+2. **Blue team**: Inspect the victim app, `node_modules`, lockfile, and `.gitignore` for suspicious changes.
 3. **Defender**: Run the detector and interpret its recommendations.
 
 ## Setup
@@ -126,6 +129,8 @@ Follow **Run the lab** above first. The sections below provide reference layout,
 
 - HTTP capture: `http://localhost:3015/captured-data`
 - File: `infrastructure/captured-data.json`
+- Lockfile changes: unexpected registry sources, altered integrity hashes, or added transitive dependencies
+- `.gitignore` changes: new entries that hide tool artifacts, logs, or exfil payloads from version control
 
 ## Detection
 
@@ -140,19 +145,23 @@ Key indicators to capture:
 - `postinstall` script presence and obfuscated child-process/network calls
 - Unexpected outbound request attempts during install
 - Artifact creation in `infrastructure/captured-data.json`
+- Lockfile drift that hides malicious transitive dependencies or changes registry sources
+- `.gitignore` entries added during install that would keep tool artifacts out of version control
 
 ## Mitigation Playbook
 
-- Enforce `--ignore-scripts` for untrusted tool installs by default.
-- Pin dev tooling versions and source from an approved internal registry.
-- Require review/allowlist for new lifecycle scripts in dependency diffs.
-- Isolate tool installation to sandboxed CI runners with egress controls.
-- Rotate credentials after any install-time compromise simulation.
+- Install dev tools with `--ignore-scripts` by default and source only from approved registries.
+- Review lockfile and `.gitignore` diffs for hidden entries after any tool install or update.
+- Pin dev tool versions and verify checksums before distribution to developers.
+- Run tool installs in sandboxed CI runners with egress controls and no production secrets.
+- Require allowlist approval for new lifecycle scripts in dependency diffs.
+- Rotate credentials and re-audit workstations if a dev tool shows install-time network beacons.
 
 ## Expected Outcome
 
 - Entries appear in `infrastructure/captured-data.json` (and/or the mock `/captured-data` endpoint) after install/run with `TESTBENCH_MODE=enabled`.
 - The detector flags suspicious install-time behavior (e.g. `postinstall` / exfil-related patterns).
+- You can spot lockfile or `.gitignore` changes that the tool tried to hide.
 
 ## Straightforward Implementation
 
@@ -168,16 +177,22 @@ npm install --ignore-scripts --registry https://internal.registry.example/ <dev-
 # .github/workflows/dev-tool-check.yml
 - run: |
     npm ci --ignore-scripts
+    git diff --exit-code .gitignore || true
+- run: |
+    # Reject unexpected public registry sources for internal dev tools
     grep -E '"registry": "https://registry.npmjs.org"' package-lock.json && exit 1 || true
+- run: |
+    # Flag new postinstall/preinstall scripts
+    node scripts/scan-lifecycle-scripts.js --allowlist allowed-scripts.json
 ```
 
 ### 3. Diff review
 
-Review every new "postinstall" or "preinstall" script in dependency update diffs. Use Socket or a custom PR check to flag them.
+Review every new `postinstall` or `preinstall` script, lockfile integrity change, and `.gitignore` entry in dependency update diffs. Use Socket or a custom PR check to flag them.
 
 ### 4. Isolation
 
-Install dev tools in sandboxed CI runners with egress controls. Rotate CI credentials after any suspected install-time compromise.
+Install dev tools in sandboxed CI runners with egress controls and no production secrets. Rotate CI credentials and audit developer workstations after any suspected install-time compromise.
 
 ## Validation Checklist
 

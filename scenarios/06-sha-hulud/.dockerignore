@@ -1,5 +1,8 @@
 **/node_modules
 **/captured-data.json
 **/captured-credentials.json
+**/published-packages.json
+**/backdoor-prs.json
+**/repo-logs.json
 **/.venv
 **/.DS_Store

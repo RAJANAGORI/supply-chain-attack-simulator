@@ -15,7 +15,6 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
-
 ## Table of Contents
 
 <div class="doc-toc">
@@ -29,9 +28,8 @@ By the end of this guide, you will:
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response (30 minutes)](#part-8-incident-response-30-minutes)
 - [Part 9: Defense Strategies (20 minutes)](#part-9-defense-strategies-20-minutes)
-- [Mitigation Playbook](#mitigation-playbook)
 - [Code-level workflow](#code-level-workflow)
-- [Mitigation Playbook](#mitigation-playbook-1)
+- [Mitigation Playbook](#mitigation-playbook)
 - [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 10: Key Takeaways (10 minutes)](#part-10-key-takeaways-10-minutes)
@@ -339,19 +337,6 @@ npm cache clean --force
 
 ---
 
-## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/09-package-signing-bypass/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Protect signing keys with HSMs or hardened secret stores.
-- Require MFA for all key access and signing operations.
-- Rotate signing keys on a regular schedule and after incidents.
-- Limit who can sign packages with strict access controls.
-- Always verify signatures - but pair with behavioral and content analysis.
-- Monitor signing activity for anomalies (time, volume, key fingerprint).
-
----
-
 ## Code-level workflow
 
 ![Scenario 09 code-level workflow: Package Signing Bypass](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-09.svg)
@@ -398,6 +383,91 @@ Store signing keys in AWS KMS, GCP KMS, or Azure Key Vault. Rotate every 90 days
 ### 4. Behavioral analysis
 
 Pair signature checks with supply-chain scanners (Socket, Snyk Supply Chain) that inspect package behavior.
+
+---
+
+ls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+
+### End-to-end flow
+
+![Scenario 09 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-09.svg)
+
+*Swimlane diagram for Scenario 09. Editable source: [`scas-observability-scenario-09.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-09.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
+
+### Sequence diagram (Phase 1-5)
+
+Same flow as a participant sequence (expandable in the docs hub).
+
+### Scenario-specific attack steps (Phase 2)
+
+Same Phase-2 path as the diagrams above (for skimming / accessibility).
+
+| # | From | To | Action |
+|---|------|----|--------|
+| 1 | Learner | Victim | npm install secure-utils (forged signature accepted) |
+| 2 | Learner | Victim | npm start |
+| 3 | Victim | MalPkg | Load "signed" secure-utils module |
+| 4 | MalPkg | MalPkg | Execute compromised signed release |
+
+### Prerequisites
+
+From the repository root:
+
+```bash
+./scripts/observability/elasticsearch-up.sh
+./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
+```
+
+### Run this scenario with live Elasticsearch forwarding
+
+**Terminal A - mock collector** (from `scenarios/09-package-signing-bypass`):
+
+```bash
+cd scenarios/09-package-signing-bypass
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+node infrastructure/mock-server.js
+```
+
+**Terminal B - execute the lab:**
+
+```bash
+cd scenarios/09-package-signing-bypass
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+cd victim-app && npm install && npm start
+```
+
+### Verify locally (file-based evidence)
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+### Verify in Elasticsearch (API)
+
+```bash
+# Static runbook for this scenario
+curl -s "http://localhost:9200/scas-rules/_doc/09?pretty"
+
+# Latest runtime capture events
+curl -s "http://localhost:9200/scas-detections/_search?pretty" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": { "term": { "scenario_id": "09" } },
+    "sort": [{ "@timestamp": "desc" }],
+    "size": 5
+  }'
+```
+
+### Verify in Kibana (UI)
+
+1. Open [http://localhost:5601](http://localhost:5601)
+2. **Discover** → **SCAS Detections - Scenario 09** - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. **Discover** → **SCAS Rules - Scenario 09** - compare against `iocs`, `sigma`, and `yara` fields
+4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
+
+See [observability/README.md](../../../observability/README.md) for stack details.
 
 ---
 

@@ -1,11 +1,11 @@
-# Auto-generated local Docker lab — 06-sha-hulud (CDN + harvester)
+# Auto-generated local Docker lab - 06-sha-hulud (token-theft + re-publishing worm)
 # Floci via host.docker.internal:4566
 name: scas-06-sha-hulud
 
 services:
-  mock-cdn:
+  credential-harvester:
     image: node:20-alpine
-    container_name: scas-06-sha-hulud-mock-cdn
+    container_name: scas-06-sha-hulud-harvester
     working_dir: /scenarios/06-sha-hulud
     volumes:
       - ./:/scenarios/06-sha-hulud
@@ -15,35 +15,50 @@ services:
       SCAS_ES_URL: "${SCAS_ES_URL:-http://host.docker.internal:9200}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    command: ["node", "infrastructure/mock-cdn.js"]
+    command: ["node", "infrastructure/credential-harvester.js"]
     ports:
-      - "3000:3000"
       - "3001:3001"
+      - "3002:3002"
+      - "3003:3003"
     healthcheck:
       test:
         [
           "CMD",
           "node",
           "-e",
-          "require('http').get('http://127.0.0.1:3000/bundle.js',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))",
+          "require('http').get('http://127.0.0.1:3001/captured-credentials',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))",
         ]
       interval: 5s
       timeout: 3s
       retries: 12
       start_period: 8s
 
-  credential-harvester:
+  github-actions-simulator:
     image: node:20-alpine
-    container_name: scas-06-sha-hulud-harvester
+    container_name: scas-06-sha-hulud-github
     working_dir: /scenarios/06-sha-hulud
-    network_mode: "service:mock-cdn"
+    network_mode: "service:credential-harvester"
     volumes:
       - ./:/scenarios/06-sha-hulud
       - ../_shared:/scenarios/_shared:ro
       - ../../detection-tools:/detection-tools:ro
-    command: ["node", "infrastructure/credential-harvester.js"]
+    command: ["node", "infrastructure/github-actions-simulator.js"]
     depends_on:
-      mock-cdn:
+      credential-harvester:
+        condition: service_healthy
+
+  mock-registry:
+    image: node:20-alpine
+    container_name: scas-06-sha-hulud-registry
+    working_dir: /scenarios/06-sha-hulud
+    network_mode: "service:credential-harvester"
+    volumes:
+      - ./:/scenarios/06-sha-hulud
+      - ../_shared:/scenarios/_shared:ro
+      - ../../detection-tools:/detection-tools:ro
+    command: ["node", "infrastructure/mock-registry.js"]
+    depends_on:
+      credential-harvester:
         condition: service_healthy
 
   victim:
@@ -51,7 +66,7 @@ services:
       context: ..
       dockerfile: 06-sha-hulud/Dockerfile
     container_name: scas-06-sha-hulud-victim
-    network_mode: "service:mock-cdn"
+    network_mode: "service:credential-harvester"
     environment:
       TESTBENCH_MODE: enabled
       SCAS_FLOCI_ENABLED: "${SCAS_FLOCI_ENABLED:-1}"
@@ -66,9 +81,11 @@ services:
       - ../../detection-tools:/lab/detection-tools:ro
       - ../../scripts/floci:/lab/scripts/floci:ro
     depends_on:
-      mock-cdn:
-        condition: service_healthy
       credential-harvester:
+        condition: service_healthy
+      github-actions-simulator:
+        condition: service_started
+      mock-registry:
         condition: service_started
     tty: true
     stdin_open: true

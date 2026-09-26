@@ -2,7 +2,7 @@
 
 > [Documentation](../index.md) › [Integration guides](./index.md) › Floci
 
-Optional **local AWS emulator** track for **all 23 scenarios**. Uses [Floci](https://github.com/floci-io/floci) core on port **4566** (not floci-ui - avoids clashes with SCAS mock servers on 3000-3023).
+Optional **local AWS emulator** track for **all 25 scenarios**. Uses [Floci](https://github.com/floci-io/floci) core on port **4566** (not floci-ui - avoids clashes with SCAS mock servers on 3000-3023).
 
 **First-time install?** Start with [Full-stack setup](../getting-started/FULL_STACK_SETUP.md) (Parts 1-3 cover SCAS, Elasticsearch, and Floci together).
 

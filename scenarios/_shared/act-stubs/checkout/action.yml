@@ -1,0 +1,7 @@
+name: 'Checkout (SCAS act stub)'
+description: >-
+  Local stand-in so act never fetches actions/checkout from GitHub. The
+  workspace is already the victim-app tree on the host runner.
+runs:
+  using: node20
+  main: index.js

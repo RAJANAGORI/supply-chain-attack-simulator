@@ -1,0 +1,7 @@
+{
+  "name": "malicious-logger",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "Educational import-time payload for Scenario 18 (pnpm hook abuse)",
+  "license": "MIT"
+}

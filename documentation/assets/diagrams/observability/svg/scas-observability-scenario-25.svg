@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="1016" viewBox="0 0 1180 1016" role="img" aria-label="Scenario 25 detailed observability flow">
+<style>
+  .title { font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; fill: #0f172a; font-size: 20px; }
+  .badge { font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; fill: #ffffff; font-size: 12px; }
+  .caption { font-family: 'Segoe UI', system-ui, sans-serif; fill: #64748b; font-size: 12.5px; }
+  .phase { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 11px; font-weight: 700; fill: #64748b; letter-spacing: 0.04em; text-transform: uppercase; }
+  .label { font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 600; fill: #0f172a; font-size: 12.5px; }
+  .small { font-family: 'Segoe UI', system-ui, sans-serif; fill: #334155; font-size: 11.5px; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1e293b; font-size: 11px; }
+  .chip { font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; font-size: 10px; fill: #ffffff; }
+  .edge-pill { fill: #ffffff; stroke: #94a3b8; stroke-width: 1; }
+  .edge-label { font-family: 'Segoe UI', system-ui, sans-serif; fill: #0f172a; font-size: 12px; font-weight: 700; }
+  .box { stroke-width: 2; stroke-linejoin: round; }
+  .lane { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; }
+  .arrow { stroke: #334155; stroke-width: 1.75; fill: none; marker-end: url(#arrowhead); stroke-linecap: round; }
+  .arrow-opt { stroke: #64748b; stroke-width: 1.75; fill: none; stroke-dasharray: 5 4; marker-end: url(#arrowhead-muted); stroke-linecap: round; }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M1,1.2 L7,4 L1,6.8 z" fill="#334155"/>
+  </marker>
+  <marker id="arrowhead-muted" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+    <path d="M1,1.2 L7,4 L1,6.8 z" fill="#64748b"/>
+  </marker>
+  <filter id="soft" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="0" dy="1" stdDeviation="1.2" flood-opacity="0.10"/></filter>
+</defs>
+<rect width="1180" height="1016" fill="#ffffff"/>
+<rect x="24" y="18" width="72" height="28" rx="8" fill="#2563eb"/>
+<text class="badge" x="60" y="37" text-anchor="middle">SC 25</text>
+<text class="title" x="108" y="38">Scenario 25 — Compromised Reusable GitHub Action</text>
+<text class="caption" x="108" y="58">Folder: scenarios/25-compromised-github-action · Trigger: reusable action runs in CI workflow · Mock :3025</text>
+<text class="caption" x="24" y="78">Compromised reusable GitHub Action: force-pushed v3 tag runs malicious action code that harvests CI secrets.</text>
+<text class="phase" x="24" y="104">Actors (this lab)</text>
+<rect class="box" x="24" y="116" width="178" height="64" rx="12" fill="#dbeafe" stroke="#2563eb" filter="url(#soft)"/>
+<text class="label" x="113" y="138" text-anchor="middle">Learner (you)</text>
+<text class="caption" x="113" y="170" text-anchor="middle">Terminal A + B operator</text>
+<rect class="box" x="214" y="116" width="178" height="64" rx="12" fill="#ffedd5" stroke="#ea580c" filter="url(#soft)"/>
+<text class="label" x="303" y="138" text-anchor="middle">victim-app</text>
+<text class="caption" x="303" y="170" text-anchor="middle">./run-ci.sh</text>
+<rect class="box" x="404" y="116" width="178" height="64" rx="12" fill="#fee2e2" stroke="#dc2626" filter="url(#soft)"/>
+<text class="label" x="493" y="138" text-anchor="middle">example/actions/checkout@v3</text>
+<text class="caption" x="493" y="170" text-anchor="middle">Malicious package</text>
+<rect class="box" x="594" y="116" width="178" height="64" rx="12" fill="#dcfce7" stroke="#16a34a" filter="url(#soft)"/>
+<text class="label" x="683" y="138" text-anchor="middle">mock-server :3025</text>
+<text class="caption" x="683" y="170" text-anchor="middle">POST /collect · :3025</text>
+<rect class="box" x="784" y="116" width="178" height="64" rx="12" fill="#e0f2fe" stroke="#0284c7" filter="url(#soft)"/>
+<text class="label" x="873" y="138" text-anchor="middle">Elasticsearch</text>
+<text class="label" x="873" y="152" text-anchor="middle">:9200</text>
+<text class="caption" x="873" y="170" text-anchor="middle">scas-detections / scas-rules</text>
+<rect class="box" x="974" y="116" width="178" height="64" rx="12" fill="#e0e7ff" stroke="#4338ca" filter="url(#soft)"/>
+<text class="label" x="1063" y="138" text-anchor="middle">Kibana :5601</text>
+<text class="caption" x="1063" y="170" text-anchor="middle">Discover saved searches</text>
+<rect class="lane" x="24" y="208" width="340" height="460" rx="14"/>
+<text class="phase" x="40" y="232">Phase 1 — Collectors (Terminal A)</text>
+<rect class="box" x="40" y="246" width="308" height="100" rx="10" fill="#dbeafe" stroke="#2563eb" filter="url(#soft)"/>
+<text class="label" x="56" y="266">Boot the localhost collector</text>
+<text class="mono" x="56" y="286">cd scenarios/25-compromised-github-action</text>
+<text class="mono" x="56" y="302">export TESTBENCH_MODE=enabled</text>
+<text class="mono" x="56" y="318">export SCAS_ES_URL=http://localhost:9200  # optional</text>
+<text class="mono" x="56" y="334">node infrastructure/mock-server.js</text>
+<rect class="lane" x="420" y="208" width="736" height="460" rx="14"/>
+<text class="phase" x="436" y="232">Phase 2 — Lab execution (Terminal B) · scenario-specific</text>
+<rect class="box" x="436" y="248" width="704" height="56" rx="10" fill="#fff7ed" stroke="#ea580c" filter="url(#soft)"/>
+<circle cx="460" cy="276" r="12" fill="#ea580c"/>
+<text class="badge" x="460" y="280" text-anchor="middle">1</text>
+<rect x="482" y="256" width="78" height="18" rx="6" fill="#2563eb"/>
+<text class="chip" x="521" y="269" text-anchor="middle">Learner</text>
+<text class="small" x="568" y="269">→</text>
+<rect x="584" y="256" width="78" height="18" rx="6" fill="#ea580c"/>
+<text class="chip" x="623" y="269" text-anchor="middle">Victim</text>
+<text class="mono" x="482" y="284">./run-ci.sh (act runs ci.yml, else npm start)</text>
+<path class="arrow" d="M788 304 L788 352"/>
+<rect class="box" x="436" y="352" width="704" height="56" rx="10" fill="#fff7ed" stroke="#ea580c" filter="url(#soft)"/>
+<circle cx="460" cy="380" r="12" fill="#ea580c"/>
+<text class="badge" x="460" y="384" text-anchor="middle">2</text>
+<rect x="482" y="360" width="78" height="18" rx="6" fill="#ea580c"/>
+<text class="chip" x="521" y="373" text-anchor="middle">Victim</text>
+<text class="small" x="568" y="373">→</text>
+<rect x="584" y="360" width="78" height="18" rx="6" fill="#dc2626"/>
+<text class="chip" x="623" y="373" text-anchor="middle">MalPkg</text>
+<text class="mono" x="482" y="388">Workflow uses example/actions/checkout@v3 (force-pushed)</text>
+<path class="arrow" d="M788 408 L788 456"/>
+<rect class="box" x="436" y="456" width="704" height="56" rx="10" fill="#fff7ed" stroke="#ea580c" filter="url(#soft)"/>
+<circle cx="460" cy="484" r="12" fill="#ea580c"/>
+<text class="badge" x="460" y="488" text-anchor="middle">3</text>
+<rect x="482" y="464" width="78" height="18" rx="6" fill="#dc2626"/>
+<text class="chip" x="521" y="477" text-anchor="middle">MalPkg</text>
+<text class="small" x="568" y="477">→</text>
+<rect x="584" y="464" width="78" height="18" rx="6" fill="#dc2626"/>
+<text class="chip" x="623" y="477" text-anchor="middle">MalPkg</text>
+<text class="mono" x="482" y="492">Action entrypoint reads GITHUB_TOKEN + env secrets</text>
+<path class="arrow" d="M788 512 L788 560"/>
+<rect class="box" x="436" y="560" width="704" height="56" rx="10" fill="#fff7ed" stroke="#ea580c" filter="url(#soft)"/>
+<circle cx="460" cy="588" r="12" fill="#ea580c"/>
+<text class="badge" x="460" y="592" text-anchor="middle">4</text>
+<rect x="482" y="568" width="78" height="18" rx="6" fill="#dc2626"/>
+<text class="chip" x="521" y="581" text-anchor="middle">MalPkg</text>
+<text class="small" x="568" y="581">→</text>
+<rect x="584" y="568" width="78" height="18" rx="6" fill="#16a34a"/>
+<text class="chip" x="623" y="581" text-anchor="middle">Mock</text>
+<text class="mono" x="482" y="596">POST http://127.0.0.1:3025/collect - CI secrets exfiltrated</text>
+<path class="arrow" d="M364 288 L420 288"/>
+<rect class="edge-pill" x="366" y="258" width="52" height="22" rx="11"/>
+<text class="edge-label" x="392" y="273" text-anchor="middle">then</text>
+<rect class="lane" x="24" y="684" width="292" height="152" rx="14"/>
+<text class="phase" x="40" y="708">Phase 3 — Exfiltration (127.0.0.1 only)</text>
+<rect class="box" x="38" y="720" width="264" height="108" rx="10" fill="#dcfce7" stroke="#16a34a" filter="url(#soft)"/>
+<text class="small" x="52" y="740">Malicious package → Mock</text>
+<text class="small" x="52" y="758">POST /collect JSON payload</text>
+<text class="small" x="52" y="776">Append infrastructure/captured-data.json</text>
+<text class="small" x="52" y="794">Gated by TESTBENCH_MODE=enabled</text>
+<text class="small" x="52" y="812">No off-box C2 — localhost only</text>
+<rect class="lane" x="444" y="684" width="292" height="152" rx="14"/>
+<text class="phase" x="460" y="708">Phase 4 — Optional Elasticsearch</text>
+<rect class="box" x="458" y="720" width="264" height="108" rx="10" fill="#e0f2fe" stroke="#0284c7" filter="url(#soft)"/>
+<text class="small" x="472" y="740">If SCAS_ES_URL is set in Terminal A:</text>
+<text class="small" x="472" y="758">Mock → POST scas-detections</text>
+<text class="small" x="472" y="776">scenario_id=25 · event_type=exfil_capture</text>
+<text class="small" x="472" y="794">Else: file-only capture (default)</text>
+<text class="small" x="472" y="812">Runbook pre-seeded: scas-rules/_doc/25</text>
+<rect class="lane" x="864" y="684" width="292" height="152" rx="14"/>
+<text class="phase" x="880" y="708">Phase 5 — Blue-team review (Kibana)</text>
+<rect class="box" x="878" y="720" width="264" height="108" rx="10" fill="#e0e7ff" stroke="#4338ca" filter="url(#soft)"/>
+<text class="small" x="892" y="740">Open http://localhost:5601</text>
+<text class="small" x="892" y="758">Discover → SCAS Detections 25</text>
+<text class="small" x="892" y="776">Discover → SCAS Rules 25</text>
+<text class="small" x="892" y="794">Compare capture fields ↔ IOCs</text>
+<text class="small" x="892" y="812">Sigma / YARA / sample logs</text>
+<path class="arrow-opt" d="M316 774 L444 774"/>
+<rect class="edge-pill" x="323" y="744" width="115" height="22" rx="11"/>
+<text class="edge-label" x="380" y="759" text-anchor="middle">SCAS_ES_URL</text>
+<path class="arrow" d="M736 774 L864 774"/>
+<rect class="lane" x="24" y="852" width="1132" height="72" rx="14"/>
+<text class="phase" x="40" y="874">Verify locally (always works)</text>
+<text class="mono" x="40" y="896">curl -s http://127.0.0.1:3025/captured-data</text>
+<text class="caption" x="40" y="914">Lab run (Terminal B): export TESTBENCH_MODE=enabled &amp;&amp; ./run-ci.sh</text>
+<text class="caption" x="24" y="940">Solid arrows = always-on lab path · Dashed = optional live indexing when SCAS_ES_URL is set before the mock starts</text>
+<text class="caption" x="24" y="958">Safety: localhost / 127.0.0.1 only · malicious paths require TESTBENCH_MODE=enabled · educational test bench, not an exploit kit</text>
+</svg>

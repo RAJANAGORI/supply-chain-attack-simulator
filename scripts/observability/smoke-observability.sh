@@ -18,9 +18,9 @@ fi
 
 RULE_COUNT="$(curl -fsS "${ES_URL}/scas-rules/_count" | node -pe 'JSON.parse(fs.readFileSync(0,"utf8")).count')"
 if [[ "${RULE_COUNT}" -ge 23 ]]; then
-  ok "scas-rules has ${RULE_COUNT} documents (expected >= 23)"
+  ok "scas-rules has ${RULE_COUNT} documents (expected >= 25)"
 else
-  bad "scas-rules has ${RULE_COUNT} documents (expected >= 23)"
+  bad "scas-rules has ${RULE_COUNT} documents (expected >= 25)"
 fi
 
 export SCAS_ES_URL="${ES_URL}"

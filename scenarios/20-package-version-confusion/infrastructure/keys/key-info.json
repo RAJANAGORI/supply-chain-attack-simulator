@@ -1,0 +1,9 @@
+{
+  "keyId": "scas-lab-provenance-key-001",
+  "algorithm": "Ed25519",
+  "fingerprint": "45:92:C8:2F:32:27:24:67:19:FF:2C:A6:4F:4E:97:A4:96:E0:20:5F:8D:E9:10:0C:61:96:C6:56:35:B1:2A:23",
+  "owner": "octo-org CI/CD <security@octo-org.example>",
+  "createdAt": "2026-09-25T10:19:09.680Z",
+  "compromisedAt": null,
+  "note": "Lab key — stolen from CI/CD secrets in the attack scenario."
+}

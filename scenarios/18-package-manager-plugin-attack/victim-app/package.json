@@ -2,10 +2,13 @@
   "name": "victim-app",
   "version": "1.0.0",
   "private": true,
-  "description": "Victim app using a simulated package-manager plugin attack (Scenario 18)",
+  "description": "Victim app demonstrating pnpm .pnpmfile.cjs hook abuse (Scenario 18)",
   "main": "index.js",
   "scripts": {
     "start": "node -r ../../_shared/testbench-env.js index.js"
+  },
+  "dependencies": {
+    "target-lib": "file:../packages/target-lib"
   },
   "license": "MIT"
 }

@@ -1,10 +1,10 @@
 # Zero-to-hero scenario walkthroughs
 
-> **Which "Zero to Hero" is this?** These are the **23 step-by-step lab walkthroughs**.
+> **Which "Zero to Hero" is this?** These are the **25 step-by-step lab walkthroughs**.
 > - New here and just want to **run your first lab**? → [First lab in 10 minutes](../../getting-started/ZERO_TO_HERO.md)
 > - Want the **conceptual curriculum**? → [Curriculum overview](../../learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md)
 
-Step-by-step learner guides for all **23** scenarios. Each guide includes a **table of contents** (jump links to every major section), lab steps, detection notes, a **Mitigation Playbook** (aligned with the scenario README), and an optional **Elasticsearch + Kibana** sequence diagram.
+Step-by-step learner guides for all **25** scenarios. Each guide includes a **table of contents** (jump links to every major section), lab steps, detection notes, a **Mitigation Playbook** (aligned with the scenario README), and an optional **Elasticsearch + Kibana** sequence diagram.
 
 | # | Scenario | Guide |
 |---|----------|-------|
@@ -31,6 +31,8 @@ Step-by-step learner guides for all **23** scenarios. Each guide includes a **ta
 | 21 | Axios-style npm release | [ZERO_TO_HERO_SCENARIO_21.md](./ZERO_TO_HERO_SCENARIO_21.md) |
 | 22 | LiteLLM-style PyPI compromise | [ZERO_TO_HERO_SCENARIO_22.md](./ZERO_TO_HERO_SCENARIO_22.md) |
 | 23 | Trivy supply chain attack | [ZERO_TO_HERO_SCENARIO_23.md](./ZERO_TO_HERO_SCENARIO_23.md) |
+| 24 | Slopsquatting | [ZERO_TO_HERO_SCENARIO_24.md](./ZERO_TO_HERO_SCENARIO_24.md) |
+| 25 | Compromised reusable GitHub Action | [ZERO_TO_HERO_SCENARIO_25.md](./ZERO_TO_HERO_SCENARIO_25.md) |
 
 **New to the project?** Start with [ZERO_TO_HERO.md](../../getting-started/ZERO_TO_HERO.md) then Scenario 01.
 

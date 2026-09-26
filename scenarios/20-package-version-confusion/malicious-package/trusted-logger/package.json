@@ -1,0 +1,7 @@
+{
+  "name": "trusted-logger",
+  "version": "9.9.9",
+  "description": "Structured logging helper (educational simulation — compromised CI provenance)",
+  "main": "index.js",
+  "license": "MIT"
+}

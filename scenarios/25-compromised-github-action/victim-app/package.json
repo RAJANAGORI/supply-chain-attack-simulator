@@ -1,0 +1,14 @@
+{
+  "name": "victim-ci-pipeline",
+  "version": "1.0.0",
+  "description": "Simulated CI pipeline that uses a compromised reusable action",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r ../../_shared/testbench-env.js index.js",
+    "ci": "node -r ../../_shared/testbench-env.js index.js",
+    "build": "node -e \"console.log('Build successful')\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

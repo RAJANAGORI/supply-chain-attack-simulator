@@ -14,7 +14,6 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
-
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,9 +27,8 @@ By the end of this guide, you will:
 - [Part 7: Detecting the Attack (25 minutes)](#part-7-detecting-the-attack-25-minutes)
 - [Part 8: Prevention and Mitigation (30 minutes)](#part-8-prevention-and-mitigation-30-minutes)
 - [Part 9: Advanced Topics (20 minutes)](#part-9-advanced-topics-20-minutes)
-- [Mitigation Playbook](#mitigation-playbook)
 - [Code-level workflow](#code-level-workflow)
-- [Mitigation Playbook](#mitigation-playbook-1)
+- [Mitigation Playbook](#mitigation-playbook)
 - [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 10: Clean Up and Next Steps (5 minutes)](#part-10-clean-up-and-next-steps-5-minutes)
@@ -526,20 +524,6 @@ npm uses semantic versioning (semver) to resolve versions:
 
 ---
 
-## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/02-dependency-confusion/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Configure scope-specific registry routing in `.npmrc` (e.g. `@org:registry=...`).
-- Enforce package lock files and use `npm ci --audit` in CI/CD.
-- Isolate private registry traffic from public npm at the network layer.
-- Reserve internal namespaces on public registries where applicable.
-- Pin dependencies to exact versions for critical packages.
-- Verify package integrity hashes on install.
-- Add build-time validation to reject unexpected registry sources.
-
----
-
 ## Code-level workflow
 
 ![Scenario 02 code-level workflow: Dependency Confusion](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-02.svg)
@@ -589,6 +573,91 @@ npm access public @myorg
 ### 4. Version policy
 
 Treat any resolved version above your internal threshold (for example, more than 10 major versions ahead of baseline) as a CI failure.
+
+---
+
+nly when `TESTBENCH_MODE=enabled`.
+
+### End-to-end flow
+
+![Scenario 02 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-02.svg)
+
+*Swimlane diagram for Scenario 02. Editable source: [`scas-observability-scenario-02.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-02.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
+
+### Sequence diagram (Phase 1-5)
+
+Same flow as a participant sequence (expandable in the docs hub).
+
+### Scenario-specific attack steps (Phase 2)
+
+Same Phase-2 path as the diagrams above (for skimming / accessibility).
+
+| # | From | To | Action |
+|---|------|----|--------|
+| 1 | Learner | Victim | npm install in corporate-app (no .npmrc scope lock) |
+| 2 | Victim | MalPkg | Resolver picks @techcorp/auth-lib v999.999.999 |
+| 3 | Learner | Victim | npm start |
+| 4 | MalPkg | MalPkg | Run dependency-confusion payload on load |
+
+### Prerequisites
+
+From the repository root:
+
+```bash
+./scripts/observability/elasticsearch-up.sh
+./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
+```
+
+### Run this scenario with live Elasticsearch forwarding
+
+**Terminal A - mock collector** (from `scenarios/02-dependency-confusion`):
+
+```bash
+cd scenarios/02-dependency-confusion
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+node infrastructure/mock-server.js
+```
+
+**Terminal B - execute the lab:**
+
+```bash
+cd scenarios/02-dependency-confusion
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+cd corporate-app && npm install && npm start
+```
+
+### Verify locally (file-based evidence)
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+### Verify in Elasticsearch (API)
+
+```bash
+# Static runbook for this scenario
+curl -s "http://localhost:9200/scas-rules/_doc/02?pretty"
+
+# Latest runtime capture events
+curl -s "http://localhost:9200/scas-detections/_search?pretty" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": { "term": { "scenario_id": "02" } },
+    "sort": [{ "@timestamp": "desc" }],
+    "size": 5
+  }'
+```
+
+### Verify in Kibana (UI)
+
+1. Open [http://localhost:5601](http://localhost:5601)
+2. **Discover** → **SCAS Detections - Scenario 02** - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. **Discover** → **SCAS Rules - Scenario 02** - compare against `iocs`, `sigma`, and `yara` fields
+4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
+
+See [observability/README.md](../../../observability/README.md) for stack details.
 
 ---
 

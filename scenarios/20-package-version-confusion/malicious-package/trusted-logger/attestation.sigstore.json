@@ -1,0 +1,25 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "trusted-logger-9.9.9.tgz",
+      "digest": {
+        "sha512": "f1b718c8180b9ec78e5ffb5c92fd3e33b551ef86e27e16ece7e56c10a14aa139efacca421ceeb5eb289b557fd053e4554ea59cdae58d857ba35b07a11673a1ff"
+      }
+    }
+  ],
+  "predicateType": "https://github.com/attestation/v1",
+  "predicate": {
+    "issuer": "https://token.actions.githubusercontent.com",
+    "workflow": {
+      "repository": "https://github.com/octo-org/trusted-logger",
+      "ref": "refs/heads/main",
+      "path": ".github/workflows/publish.yml"
+    }
+  },
+  "signature": {
+    "sig": "Cie0nDjqcl50FnsPWm8e5W2yetaL5njlDa1x/8RfL+GfPofDMs1ejurbfoy98ba7rEZ4fvLjp49crqGToChoBg==",
+    "keyId": "scas-lab-provenance-key-001",
+    "algorithm": "Ed25519"
+  }
+}

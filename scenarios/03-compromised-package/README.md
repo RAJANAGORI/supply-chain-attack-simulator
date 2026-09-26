@@ -8,6 +8,9 @@
 
 
 
+
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -45,11 +48,11 @@ By completing this scenario, you will learn:
 
 ### Common Attack Vectors:
 
-1. **Credential Theft**: Stealing maintainer npm/PyPI credentials
-2. **Social Engineering**: Tricking maintainers into adding malicious maintainers
-3. **Account Takeover**: Exploiting weak passwords or no 2FA
-4. **Abandoned Packages**: Taking over unmaintained packages
-5. **Malicious Contributors**: Long-game infiltration
+1. **Maintainer Account Takeover**: Stolen npm/PyPI credentials, phishing, or reused passwords let an attacker publish as a trusted maintainer.
+2. **Social Engineering**: Tricking maintainers into adding malicious maintainers or transferring ownership.
+3. **Weak or Missing 2FA**: Account takeover via password spray, credential stuffing, or session hijacking.
+4. **Abandoned Packages**: Taking over unmaintained packages and publishing a "silent patch" that looks routine.
+5. **Malicious Contributors**: Long-game infiltration where a contributor earns publish rights and later backdoors a patch release.
 
 ### Real-World Examples:
 
@@ -77,11 +80,11 @@ By completing this scenario, you will learn:
 
 ## 🎯 Scenario Description
 
-**Scenario**: A popular npm package `secure-validator` (10M weekly downloads) has been compromised. You will:
+**Scenario**: A popular npm package `secure-validator` (10M weekly downloads) has been compromised through maintainer account takeover. The attacker did not push a noisy major release; instead they published a small, plausible patch - a silent patch that preserves all existing functionality while adding hidden exfiltration. You will:
 
-1. **Attacker Role**: Compromise the package and inject malicious code
+1. **Attacker Role**: Take over a maintainer account and inject malicious code into a silent patch
 2. **Forensic Role**: Investigate and identify the compromise
-3. **Responder Role**: Contain and remediate the incident
+3. **Responder Role**: Contain, rotate credentials, and remediate the incident
 
 ## 🔧 Setup
 
@@ -163,12 +166,14 @@ cat README.md
 - Note the version history
 - Identify potential injection points
 
-### Part 2: The Attack - Account Compromise (25 minutes)
+### Part 2: The Attack - Account Compromise and Silent Patch (25 minutes)
 
 **Scenario**: Attacker has obtained the maintainer's npm credentials through:
 - Phishing email with fake "npm security alert"
 - Credentials: `johndoe` / `weakpassword123`
 - No 2FA enabled on the account
+
+Once inside, the attacker publishes a **silent patch** - version `2.5.4` - that looks like a routine bug fix. This is different from a caret-range auto-update: the victim did not ask for a new feature; a trusted maintainer identity simply pushed a small, malicious release.
 
 **Your Mission**: Simulate the package compromise
 
@@ -219,11 +224,11 @@ if (process.cwd().includes('target-company-name')) {
 }
 ```
 
-#### Step 3: Version Bump and Publish
+#### Step 3: Version Bump and Publish the Silent Patch
 
 ```bash
-# Attacker publishes new "patch" version
-# Users expect patches to be safe, so less scrutiny
+# Attacker publishes a "patch" version that users expect to be safe.
+# Silent patches receive far less review than major or minor releases.
 
 # Edit package.json
 # Change version from 2.5.3 to 2.5.4 (patch version)
@@ -498,22 +503,32 @@ Implement preventive measures:
 
 ## Mitigation Playbook
 
-- Enforce lockfiles in CI (`npm ci --audit`) instead of open-ended `npm install`.
-- Pin exact versions for packages with high trust or wide blast radius.
-- Run automated security scanning on dependency updates (`npm audit`, custom scanners).
-- Verify package integrity and signatures when the registry supports them.
-- Monitor runtime behavior and log package installation events in production.
-- Maintain maintainer-transfer and dependency-addition review policies.
+- Require MFA and admin approval for maintainer role changes and publish tokens.
+- Pin exact versions and enforce lockfile-only installs (`npm ci --ignore-scripts`) in CI.
+- Alert on new maintainers, unexpected patch-version changes, and dependency additions in trusted packages.
+- Run supply-chain scanners and diff reviews on every dependency update before merge.
+- Segment CI permissions so a build job cannot publish packages or alter registry metadata.
+- Maintain a known-good artifact mirror and rotate credentials after any suspected maintainer compromise.
 
 ## Straightforward Implementation
 
-### 1. CI gate
+### 1. Prevention config
+
+```ini
+# .npmrc
+@myorg:registry=https://internal.registry.example/
+ignore-scripts=true
+```
+
+### 2. CI gate
 
 ```yaml
 # .github/workflows/supply-chain-scan.yml
 - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 - name: Install dependencies without scripts
   run: npm ci --ignore-scripts
+- name: Verify no unexpected patch drift
+  run: node scripts/check-version-jumps.js --allow-patch-review secure-validator
 - name: Supply-chain scan
   run: npx socket-dev scan
 - name: Snyk test
@@ -522,15 +537,13 @@ Implement preventive measures:
     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 ```
 
-### 2. Runtime monitoring
+### 3. Maintainer monitoring
 
 ```bash
-node -r ./security/module-load-logger.js app.js
+# Alert on new maintainers or publish events
+npm view secure-validator maintainers
+npm owner ls secure-validator
 ```
-
-### 3. Maintainer policy
-
-Require 2FA and admin approval for npm publishing roles. Alert on new maintainers via npm webhook or GitHub organization audit log.
 
 ### 4. Incident response
 
@@ -539,6 +552,7 @@ npm install <package>@<known-good-version> --save-exact
 rm -rf node_modules package-lock.json
 npm ci
 npm token revoke <token-id>
+# Rotate any CI or registry credentials the maintainer account could reach
 ```
 
 ## ✅ Success Criteria
@@ -589,7 +603,7 @@ You've completed this scenario when you can:
 - Trust but verify new maintainers
 - Monitor dependency additions
 - Automated scanning for suspicious code
-- Community vigilance is crucial
+- Community vigilance catches attacks that automated tools miss
 
 ## 💡 Key Takeaways
 

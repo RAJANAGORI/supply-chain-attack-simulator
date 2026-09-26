@@ -301,5 +301,31 @@
     "mock_start": "node infrastructure/mock-c2-server.js",
     "lab_run": "cd victim-ci && export TESTBENCH_MODE=enabled && node run-pipeline.js",
     "verify_cli": "curl -s http://127.0.0.1:3023/captured-data"
+  },
+  {
+    "scenario_id": "24",
+    "title": "Slopsquatting",
+    "folder": "24-slopsquatting",
+    "victim_label": "victim-app (npm start)",
+    "malicious_label": "array-sortify (LLM-hallucinated)",
+    "mock_label": "mock-server :3024",
+    "mock_endpoint": "POST /collect",
+    "trigger_action": "require/import hallucinated package",
+    "mock_start": "node infrastructure/mock-server.js",
+    "lab_run": "cd victim-app && npm install array-sortify && npm start",
+    "verify_cli": "curl -s http://127.0.0.1:3024/captured-data"
+  },
+  {
+    "scenario_id": "25",
+    "title": "Compromised Reusable GitHub Action",
+    "folder": "25-compromised-github-action",
+    "victim_label": "victim-app (./run-ci.sh)",
+    "malicious_label": "example/actions/checkout@v3 (force-pushed)",
+    "mock_label": "mock-server :3025",
+    "mock_endpoint": "POST /collect",
+    "trigger_action": "reusable action runs in CI workflow",
+    "mock_start": "node infrastructure/mock-server.js",
+    "lab_run": "export TESTBENCH_MODE=enabled && ./run-ci.sh",
+    "verify_cli": "curl -s http://127.0.0.1:3025/captured-data"
   }
 ]

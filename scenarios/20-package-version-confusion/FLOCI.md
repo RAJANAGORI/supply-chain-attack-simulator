@@ -12,4 +12,4 @@ cd scenarios/20-package-version-confusion
 ../../detection-tools/floci/s3-exfil-check.sh 20
 ```
 
-Dual-write: mock server (primary) + `s3://scas-sc20-artifacts/exfil/version-exfil-*.json`
+Dual-write: mock server (primary) + `s3://scas-sc20-artifacts/exfil/provenance-exfil-*.json`

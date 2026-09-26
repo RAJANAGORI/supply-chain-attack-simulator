@@ -10,7 +10,7 @@ How blue-team content, shared scanners, and the optional Elasticsearch + Kibana 
 | **Runtime captures** | `scenarios/*/infrastructure/captured-*.json` | JSON exfil events | Optional → `scas-detections` |
 | **Scanners** | `detection-tools/` + per-scenario tools | CLI output, JSON, SARIF | Via shipper → `scas-detections` |
 
-## DETECT.md runbooks (all 23 scenarios)
+## DETECT.md runbooks (all 25 scenarios)
 
 Each scenario includes a blue-team runbook at `scenarios/<folder>/DETECT.md`:
 
@@ -73,12 +73,12 @@ export SCAS_ES_URL=http://localhost:9200
 
 | Index | Contents | Kibana data view |
 |-------|----------|------------------|
-| `scas-rules` | 23 DETECT.md runbooks | **SCAS Rules** (`ingested_at`) |
+| `scas-rules` | 25 DETECT.md runbooks | **SCAS Rules** (`ingested_at`) |
 | `scas-detections` | Runtime captures + scanner findings | **SCAS Detections** (`@timestamp`) |
 
 ### Kibana saved searches
 
-One pair per scenario (01-23):
+One pair per scenario (01-25):
 
 - `SCAS Rules - Scenario NN`
 - `SCAS Detections - Scenario NN`

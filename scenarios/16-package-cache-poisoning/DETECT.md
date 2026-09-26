@@ -2,7 +2,8 @@
 
 ## IOCs
 - Repeated compromise after reinstall indicates cache persistence.
-- Dependency source originates from poisoned cache path.
+- Dependency source originates from poisoned cache path such as `~/.npm/_cacache`, `~/.cache/pnpm`, or a CI cache restore.
+- Unexpected tarball in Artifactory remote cache with mismatched integrity.
 - Exfil/capture events on `127.0.0.1:3016`.
 
 ## Sample Log Lines
@@ -45,18 +46,31 @@ rule Cache_Poisoning_IOC {
 
 ## Mitigation
 
-- Clear/rotate package cache during incident response and critical pipeline runs.
-- Enforce lockfile + integrity verification against trusted metadata.
-- Use deterministic installs in CI (`npm ci`) and immutable artifact mirrors.
-- Monitor for suspicious cache path mutations and postinstall behavior.
+- Clear npm, pnpm, Yarn, and CI caches during incident response and after any registry compromise.
+- Bind CI cache keys to `package-lock.json`/`pnpm-lock.yaml` hashes and revalidate integrity on restore.
+- Use immutable artifact mirrors and deterministic installs (`npm ci`) in production pipelines.
+- Monitor cache paths (`~/.npm`, `_cacache`, `~/.cache/pnpm`, `~/.yarn/cache`, GitHub Actions cache, Artifactory remote cache) for unauthorized mutations.
 - Separate developer cache trust from production build trust boundaries.
+- Document cache-invalidation playbooks for npm, pnpm, Yarn, GitHub Actions, and Artifactory.
 
 ## Straightforward Implementation
 
 ### 1. Cache clearing
 
 ```bash
+# npm
 npm cache clean --force
+rm -rf ~/.npm/_cacache
+
+# pnpm
+pnpm store prune
+
+# Yarn
+yarn cache clean
+
+# GitHub Actions
+gh actions-cache list -R org/repo
+gh actions-cache delete <key> -R org/repo --confirm
 ```
 
 ### 2. CI cache key
@@ -66,16 +80,18 @@ npm cache clean --force
 - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
   with:
     path: ~/.npm
-    key: npm-${{ hashFiles('package-lock.json') }}
+    key: npm-${{ hashFiles('package-lock.json') }}-${{ github.run_id }}
+    restore-keys: npm-${{ hashFiles('package-lock.json') }}
 ```
 
-### 3. GitHub Actions cache cleanup
+### 3. Remote cache invalidation (Artifactory example)
 
 ```bash
-gh actions-cache list -R org/repo
-gh actions-cache delete <key> -R org/repo --confirm
+# Remove a poisoned package from the remote/virtual cache
+jf rt del --quiet npm-remote-cache/clean-utils/-/clean-utils-1.2.3.tgz
+# Trigger metadata recalculation on the virtual repository
 ```
 
 ### 4. Trust boundary
 
-Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches.
+Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches. After any suspected registry incident, rotate cache keys and purge remote caches before rebuilding.

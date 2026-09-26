@@ -1,4 +1,4 @@
-# Auto-generated for 05-build-compromise — build context: scenarios/
+# Auto-generated for 05-build-compromise - build context: scenarios/
 FROM node:20-slim
 
 ENV TESTBENCH_MODE=enabled \

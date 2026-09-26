@@ -18,11 +18,11 @@ echo "===> Triggering lab (npm start)"
 docker compose -f "$COMPOSE_FILE" exec -T victim \
   bash -lc 'cd /lab/20-package-version-confusion/victim-app && npm start' || true
 
-echo "===> Waiting for capture (grep: version-confuser-lib)"
+echo "===> Waiting for capture (grep: npm-provenance-attestation-abuse)"
 ok=0
 for _ in $(seq 1 30); do
   DATA="$(curl -sf "$C2_URL/captured-data" 2>/dev/null || echo '{}')"
-  if echo "$DATA" | grep -q 'version-confuser-lib'; then
+  if echo "$DATA" | grep -q 'npm-provenance-attestation-abuse'; then
     ok=1
     break
   fi

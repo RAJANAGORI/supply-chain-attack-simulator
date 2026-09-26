@@ -5,9 +5,9 @@ Per-scenario instructor cards and the reusable module schema.
 | Document | Description |
 |----------|-------------|
 | [MODULE_TEMPLATE.md](./MODULE_TEMPLATE.md) | Reusable module schema for writing or teaching a scenario |
-| [MODULE_INSTANCES_INDEX.md](./MODULE_INSTANCES_INDEX.md) | Index of all 23 module cards by difficulty |
+| [MODULE_INSTANCES_INDEX.md](./MODULE_INSTANCES_INDEX.md) | Index of all 25 module cards by difficulty |
 
-## Module cards (01-23)
+## Module cards (01-25)
 
 | # | Scenario | Card |
 |---|----------|------|
@@ -34,5 +34,7 @@ Per-scenario instructor cards and the reusable module schema.
 | 21 | Axios-style npm release | [MODULE_INSTANCE_SCENARIO_21.md](./MODULE_INSTANCE_SCENARIO_21.md) |
 | 22 | LiteLLM-style PyPI compromise | [MODULE_INSTANCE_SCENARIO_22.md](./MODULE_INSTANCE_SCENARIO_22.md) |
 | 23 | Trivy supply chain attack | [MODULE_INSTANCE_SCENARIO_23.md](./MODULE_INSTANCE_SCENARIO_23.md) |
+| 24 | Slopsquatting | [MODULE_INSTANCE_SCENARIO_24.md](./MODULE_INSTANCE_SCENARIO_24.md) |
+| 25 | Compromised reusable GitHub Action | [MODULE_INSTANCE_SCENARIO_25.md](./MODULE_INSTANCE_SCENARIO_25.md) |
 
 **Related:** [Scenario catalog](../scenario-guides/CATALOG.md) · [Teaching delivery pack](../learning-path/TEACHING_DELIVERY_PACK.md) · [↑ Documentation index](../index.md)

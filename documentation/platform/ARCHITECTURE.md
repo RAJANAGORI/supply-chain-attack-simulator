@@ -13,7 +13,7 @@ How the Supply Chain Attack Simulator (SCAS) is organized and how data flows thr
 
 ```text
 supply-chain-attack-simulator/
-├── scenarios/              # 23 attack labs (01- ... 23-)
+├── scenarios/              # 25 attack labs (01- ... 23-)
 ├── detection-tools/        # Shared scanners + Elasticsearch shippers
 ├── observability/          # Optional Docker ES + Kibana stack
 ├── documentation/          # Canonical docs (YOU ARE HERE)
@@ -93,4 +93,4 @@ Forwarding runs only when `SCAS_ES_URL` is set (see [DETECTION_AND_OBSERVABILITY
 
 - [OPERATIONS.md](./OPERATIONS.md) - scripts, ports, teardown
 - [DETECTION_AND_OBSERVABILITY.md](./DETECTION_AND_OBSERVABILITY.md) - scanners, Elasticsearch, Kibana
-- [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md) - all 23 labs with links
+- [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md) - all 25 labs with links

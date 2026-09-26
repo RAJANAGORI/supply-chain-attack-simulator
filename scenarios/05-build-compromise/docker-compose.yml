@@ -1,4 +1,4 @@
-# Auto-generated local Docker lab — 05-build-compromise
+# Auto-generated local Docker lab - 05-build-compromise
 # Floci: victim uses host.docker.internal:4566 (extra_hosts on mock-c2 netns)
 # Usage:
 #   docker compose up -d --build

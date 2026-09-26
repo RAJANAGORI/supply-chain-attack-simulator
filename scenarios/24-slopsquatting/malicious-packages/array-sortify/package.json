@@ -1,0 +1,9 @@
+{
+  "name": "array-sortify",
+  "version": "1.0.0",
+  "description": "Sort arrays the way the LLM answer promised [MALICIOUS - EDUCATIONAL ONLY]",
+  "main": "index.js",
+  "keywords": ["sort", "array", "utility"],
+  "author": "Attacker (Educational Demo)",
+  "license": "MIT"
+}

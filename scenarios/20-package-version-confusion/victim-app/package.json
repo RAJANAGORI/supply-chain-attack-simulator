@@ -2,10 +2,10 @@
   "name": "victim-app",
   "version": "1.0.0",
   "private": true,
-  "description": "Victim app for version confusion simulation",
+  "description": "Victim app for npm provenance / attestation abuse simulation",
   "main": "index.js",
   "dependencies": {
-    "version-confuser-lib": "file:../registry/version-confuser-lib/1.0.1"
+    "trusted-logger": "file:../malicious-package/trusted-logger"
   },
   "scripts": {
     "start": "node -r ../../_shared/testbench-env.js index.js"

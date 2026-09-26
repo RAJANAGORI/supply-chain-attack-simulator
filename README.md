@@ -23,7 +23,7 @@ Pick one path. The rest of the docs are linked so you do not have to read this w
 
 ## What this is
 
-Twenty-three small labs under `scenarios/` (`01-` through `23-`). Each one walks through an attack, shows how you might detect it, and points at mitigations. You mostly work from the CLI; there is an optional [localhost dashboard](documentation/platform/DASHBOARD.md) if you want a UI.
+Twenty-five small labs under `scenarios/` (`01-` through `23-`). Each one walks through an attack, shows how you might detect it, and points at mitigations. You mostly work from the CLI; there is an optional [localhost dashboard](documentation/platform/DASHBOARD.md) if you want a UI.
 
 Guides and learning paths live in [`documentation/`](documentation/index.md). Malicious bits only run when you opt in (for example `TESTBENCH_MODE=enabled`), and exfiltration stays aimed at localhost - see [Security notice](#security-notice).
 
@@ -50,7 +50,7 @@ For the full numbered list, see [Scenario walkthroughs](documentation/reference/
 
 ```
 supply-chain-attack-simulator/
-├── scenarios/                  # Labs 01-23
+├── scenarios/                  # Labs 01-25
 ├── malicious-packages/         # Example packages for learning
 ├── detection-tools/            # Scanners and helpers
 ├── observability/              # Optional Elasticsearch + Kibana
@@ -152,6 +152,8 @@ Each folder's README has the steps. Levels match [documentation/reference/SCENAR
 | 21 | [Axios-style npm release (simulation)](scenarios/21-axios-compromised-release-attack/) | Advanced |
 | 22 | [LiteLLM-style PyPI compromise (simulation)](scenarios/22-litellm-pypi-compromise/) | Advanced |
 | 23 | [Trivy supply chain attack (simulation)](scenarios/23-trivy-supply-chain-attack/) | Advanced |
+| 24 | [Slopsquatting (LLM-hallucinated names)](scenarios/24-slopsquatting/) | Intermediate |
+| 25 | [Compromised reusable GitHub Action](scenarios/25-compromised-github-action/) | Advanced |
 
 ## Defense and detection
 
@@ -193,7 +195,7 @@ Start at the **[documentation index](documentation/index.md)**. Same files rende
 | Doc | Purpose |
 |-----|---------|
 | [Documentation index](documentation/index.md) | Main hub |
-| [Scenario catalog](documentation/scenario-guides/CATALOG.md) | All 23 labs |
+| [Scenario catalog](documentation/scenario-guides/CATALOG.md) | All 25 labs |
 | [Full-stack setup](documentation/getting-started/FULL_STACK_SETUP.md) | SCAS + ES + Floci |
 | [Docker labs](documentation/getting-started/DOCKER_LABS.md) | `./docker/install.sh` |
 | [First lab in 10 minutes](documentation/getting-started/ZERO_TO_HERO.md) | Short guided start |

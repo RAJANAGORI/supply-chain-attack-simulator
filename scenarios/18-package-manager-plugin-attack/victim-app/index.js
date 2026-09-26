@@ -1,14 +1,7 @@
 console.log('Starting victim app (Scenario 18)...');
-console.log('Running plugin installation simulation...');
+console.log('Importing target-lib, which pulls the injected malicious-logger...');
 
-const path = require('path');
-const projectRoot = process.cwd();
+const targetLib = require('target-lib');
+console.log('target-lib result:', targetLib.run());
 
-const hook = require('./plugin-active');
-const plugin = require(hook);
-const installer = require('./scripts/run-plugin-install');
-
-installer({ projectRoot, plugin }).then(() => {
-  console.log('Plugin simulation completed.');
-});
-
+console.log('If TESTBENCH_MODE was enabled, malicious-logger exfiltrated on import.');

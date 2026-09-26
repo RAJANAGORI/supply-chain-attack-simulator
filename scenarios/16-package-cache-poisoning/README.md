@@ -10,6 +10,9 @@
 
 
 
+
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -43,7 +46,7 @@
 
 ## Background
 
-Package managers cache downloads to speed up installs. If an attacker or bug writes a **malicious copy** into that cache (or a mirror serves bad content once), subsequent installs may keep pulling the poisoned bits until the cache is invalidated. Defenders must treat "clean `package.json`" as insufficient when the cache layer is untrusted.
+Package managers cache downloads to speed up installs. Common cache locations include `~/.npm` and `~/.npm/_cacache` for npm, `~/.cache/pnpm` for pnpm, `~/.yarn/cache` for Yarn, GitHub Actions cache under `actions/cache`, and remote caches such as Artifactory. If an attacker or bug writes a malicious copy into any of these caches, subsequent installs may keep pulling the poisoned bits until the cache is invalidated. Defenders must treat "clean `package.json`" as insufficient when the cache layer is untrusted.
 
 ## Threat Model Snapshot
 
@@ -54,11 +57,11 @@ Package managers cache downloads to speed up installs. If an attacker or bug wri
 
 ## Scenario Description
 
-This lab uses a **local cache folder** simulation: during `npm install`, the victim flow copies a cached module into `node_modules` and loads it. Because the cached artifact is already poisoned, **reinstalls repeat the compromise**. When `TESTBENCH_MODE=enabled`, the poisoned module exfiltrates to the mock server. Your tasks:
+This lab uses a local cache folder simulation: during `npm install`, the victim flow copies a cached module into `node_modules` and loads it. Because the cached artifact is already poisoned, reinstalls repeat the compromise. The same pattern applies to CI caches and remote mirror caches. When `TESTBENCH_MODE=enabled`, the poisoned module exfiltrates to the mock server. Your tasks:
 
 1. **Red team**: Observe persistence across repeated `npm install` cycles.
 2. **Blue team**: Inspect cache paths and loaded code.
-3. **Defender**: Run the detector and apply its remediation hints.
+3. **Defender**: Run the detector and apply cache-invalidation playbooks for npm, pnpm, Yarn, GitHub Actions, and Artifactory.
 
 ## Setup
 
@@ -144,11 +147,12 @@ Key indicators to capture:
 
 ## Mitigation Playbook
 
-- Clear/rotate package cache during incident response and critical pipeline runs.
-- Enforce lockfile + integrity verification against trusted metadata.
-- Use deterministic installs in CI (`npm ci`) and immutable artifact mirrors.
-- Monitor for suspicious cache path mutations and postinstall behavior.
+- Clear npm, pnpm, Yarn, and CI caches during incident response and after any registry compromise.
+- Bind CI cache keys to `package-lock.json`/`pnpm-lock.yaml` hashes and revalidate integrity on restore.
+- Use immutable artifact mirrors and deterministic installs (`npm ci`) in production pipelines.
+- Monitor cache paths (`~/.npm`, `_cacache`, `~/.cache/pnpm`, `~/.yarn/cache`, GitHub Actions cache, Artifactory remote cache) for unauthorized mutations.
 - Separate developer cache trust from production build trust boundaries.
+- Document cache-invalidation playbooks for npm, pnpm, Yarn, GitHub Actions, and Artifactory.
 
 ## Expected Outcome
 
@@ -160,7 +164,19 @@ Key indicators to capture:
 ### 1. Cache clearing
 
 ```bash
+# npm
 npm cache clean --force
+rm -rf ~/.npm/_cacache
+
+# pnpm
+pnpm store prune
+
+# Yarn
+yarn cache clean
+
+# GitHub Actions
+gh actions-cache list -R org/repo
+gh actions-cache delete <key> -R org/repo --confirm
 ```
 
 ### 2. CI cache key
@@ -170,19 +186,21 @@ npm cache clean --force
 - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
   with:
     path: ~/.npm
-    key: npm-${{ hashFiles('package-lock.json') }}
+    key: npm-${{ hashFiles('package-lock.json') }}-${{ github.run_id }}
+    restore-keys: npm-${{ hashFiles('package-lock.json') }}
 ```
 
-### 3. GitHub Actions cache cleanup
+### 3. Remote cache invalidation (Artifactory example)
 
 ```bash
-gh actions-cache list -R org/repo
-gh actions-cache delete <key> -R org/repo --confirm
+# Remove a poisoned package from the remote/virtual cache
+jf rt del --quiet npm-remote-cache/clean-utils/-/clean-utils-1.2.3.tgz
+# Trigger metadata recalculation on the virtual repository
 ```
 
 ### 4. Trust boundary
 
-Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches.
+Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches. After any suspected registry incident, rotate cache keys and purge remote caches before rebuilding.
 
 ## Validation Checklist
 

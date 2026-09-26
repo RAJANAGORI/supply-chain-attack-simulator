@@ -86,25 +86,23 @@ export const SCENARIOS: ScenarioDefinition[] = [
     victimStep('install', 'Install malicious update', 'npm', ['install', '../malicious-update/utils-helper'], 'victim-app'),
     victimStep('run', 'Run victim app', 'npm', ['start'], 'victim-app'),
   ]),
-  baseScenario('05', '05-build-compromise', 'Build system compromise', 'Advanced', 3000, [
-    victimStep('install', 'Install compromised build artifact', 'npm', ['install', '../compromised-build/dist/'], 'victim-app'),
-    victimStep('run', 'Run victim app', 'npm', ['start'], 'victim-app'),
+  baseScenario('05', '05-build-compromise', 'GitHub Actions workflow injection', 'Advanced', 3000, [
+    victimStep('run-ci', 'Run compromised CI pipeline', 'bash', ['../run-ci.sh'], 'victim-app'),
   ], { floci: { seed: 'infrastructure/floci/seed.sh', verify: 'infrastructure/floci/verify.sh' } }),
   {
     id: '06',
     slug: '06-sha-hulud',
-    title: 'Shai-Hulud (self-replicating)',
+    title: 'Token-theft and re-publishing worm (Shai-Hulud)',
     level: 'Advanced',
-    ports: [3000, 3001, 3002, 3003],
+    ports: [3001, 3002, 3003],
     setup: { command: './setup.sh', cwd: scenarioPath('06-sha-hulud') },
     services: [
-      { id: 'cdn', label: 'Mock CDN :3000', command: 'node', args: ['mock-cdn.js'], cwd: 'infrastructure', port: 3000 },
-      { id: 'harvester', label: 'Credential harvester :3001', command: 'node', args: ['credential-harvester.js'], cwd: 'infrastructure', port: 3001 },
-      { id: 'gha', label: 'GitHub Actions sim :3002', command: 'node', args: ['github-actions-simulator.js'], cwd: 'infrastructure', port: 3002 },
-      { id: 'replication', label: 'Replication sim :3003', command: 'node', args: ['replication-simulator.js'], cwd: 'infrastructure', port: 3003 },
+      { id: 'harvester', label: 'Credential harvester :3001', command: 'node', args: ['infrastructure/credential-harvester.js'], cwd: '.', port: 3001 },
+      { id: 'gha', label: 'GitHub Actions sim :3002', command: 'node', args: ['infrastructure/github-actions-simulator.js'], cwd: '.', port: 3002 },
+      { id: 'registry', label: 'Mock registry :3003', command: 'node', args: ['infrastructure/mock-registry.js'], cwd: '.', port: 3003 },
     ],
     steps: [
-      victimStep('install', 'Install compromised data-processor', 'npm', ['install', '../compromised-package/data-processor'], 'victim-app'),
+      victimStep('install', 'Install compromised shai-hulud package', 'npm', ['install'], 'victim-app'),
       victimStep('run', 'Run victim app', 'npm', ['start'], 'victim-app'),
     ],
     captures: [
@@ -220,6 +218,13 @@ export const SCENARIOS: ScenarioDefinition[] = [
     services: [{ id: 'mock-c2', label: 'Mock C2 server :3023', command: 'node', args: ['infrastructure/mock-c2-server.js'], cwd: '.', port: 3023 }],
     floci: { seed: 'infrastructure/floci/seed.sh', verify: 'infrastructure/floci/verify.sh' },
   }),
+  baseScenario('24', '24-slopsquatting', 'Slopsquatting', 'Intermediate', 3024, [
+    victimStep('install', 'Install hallucinated package', 'npm', ['install', 'array-sortify'], 'victim-app'),
+    victimStep('run', 'Run victim app', 'npm', ['start'], 'victim-app'),
+  ], { ports: [3024] }),
+  baseScenario('25', '25-compromised-github-action', 'Compromised reusable GitHub Action', 'Advanced', 3025, [
+    victimStep('run', 'Run compromised workflow', 'bash', ['../run-ci.sh'], 'victim-app'),
+  ], { ports: [3025] }),
 ];
 
 export function getScenario(id: string): ScenarioDefinition | undefined {

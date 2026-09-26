@@ -10,6 +10,9 @@
 
 
 
+
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -54,17 +57,17 @@ Single alerts are easy to dismiss. Real campaigns often include **initial access
 
 ## Scenario Description
 
-This lab simulates three stages with staged packages and a victim app:
+This lab simulates a realistic three-stage supply-chain campaign:
 
-1. **Stage 1** - initial access; writes local artifacts and emits stage-1 evidence.
-2. **Stage 2** - uses prior artifacts, emits stage-2 evidence.
-3. **Stage 3** - replication-style behavior and stage-3 evidence.
+1. **Stage 1 - Initial access via dependency**: a compromised or malicious dependency installs a foothold when the victim runs `npm install`.
+2. **Stage 2 - Lateral movement via stolen CI token**: the foothold reads available CI secrets (for example, a registry publish token) and beacons them to the attacker.
+3. **Stage 3 - Impact via registry publish**: the attacker uses the stolen token to publish a malicious version of an internal package, spreading the compromise downstream.
 
 Unified evidence is written to `infrastructure/captured-data.json`. Your tasks:
 
-1. **Red team**: Run the victim flow and observe ordering of stages.
-2. **Blue team**: Read capture files and map events to stages.
-3. **Defender**: Run the correlator and verify it ties stages together.
+1. **Red team**: Run the victim flow and observe the three stages in order.
+2. **Blue team**: Read capture files and map events to initial access, lateral movement, and impact.
+3. **Defender**: Run the correlator and verify it ties the stages into one chain.
 
 ## Setup
 
@@ -142,22 +145,25 @@ node detection-tools/multi-stage-correlator.js .
 
 Key indicators to capture:
 
-- Ordered stage markers in capture payloads
+- Stage 1: dependency install event followed by unexpected file writes or network beacons
+- Stage 2: secret/token access (for example, `.npmrc` or CI env read) and exfiltration of a registry token
+- Stage 3: publish event to the registry using the stolen token
 - Shared identifiers across stage events (host/run/time adjacency)
 - Correlator output tying stage1 -> stage2 -> stage3
 
 ## Mitigation Playbook
 
-- Add correlation rules that require cross-stage context before closing alerts.
-- Segment credentials and permissions to block stage progression.
-- Trigger automated containment when stage transitions occur in short windows.
-- Preserve forensic artifacts per stage for post-incident timeline reconstruction.
-- Run attack-chain tabletop exercises against your CI/CD architecture.
+- Correlate initial dependency access, lateral CI token abuse, and registry publish events before closing alerts.
+- Segment CI service accounts so build runners cannot publish packages or deploy to production.
+- Trigger auto-containment when dependency install, secret access, and publish events occur in short windows.
+- Preserve per-stage forensic artifacts and run attack-chain tabletop exercises quarterly.
+- Enforce least privilege on CI tokens and require approval gates for registry publishes.
+- Maintain dependency allowlists and anomaly thresholds for first-seen packages or rapid version jumps.
 
 ## Expected Outcome
 
-- Captures show distinct stage markers over the run.
-- The correlator reports a multi-stage chain (e.g. stage1 → stage2 → stage3) when evidence is present.
+- Captures show distinct stage markers over the run: initial access, token theft, and registry publish.
+- The correlator reports a multi-stage chain (stage1 → stage2 → stage3) when evidence is present.
 
 ## Straightforward Implementation
 
@@ -173,11 +179,11 @@ Key indicators to capture:
 
 ### 2. Segmentation
 
-Use separate CI service accounts per stage. A build runner must not be able to publish packages or deploy to production.
+Use separate CI service accounts per stage. A build runner must not be able to publish packages or deploy to production. Store publish tokens in a dedicated secure vault, not in general build variables.
 
 ### 3. Auto-containment
 
-Configure SOAR or CI webhooks to kill runners and revoke tokens when stage transitions occur within a short window.
+Configure SOAR or CI webhooks to kill runners and revoke tokens when the sequence dependency install → secret access → registry publish occurs within a short window.
 
 ### 4. Tabletop exercises
 

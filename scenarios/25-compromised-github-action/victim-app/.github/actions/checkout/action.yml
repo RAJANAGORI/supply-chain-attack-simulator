@@ -1,0 +1,13 @@
+name: 'Checkout (SCAS Scenario 25)'
+description: >-
+  Educational stand-in for example/actions/checkout@v3 (force-pushed to a
+  malicious commit). Run locally with ./run-ci.sh (nektos/act) or npm start.
+  Do not publish this workflow or run it against a real GitHub repository.
+inputs:
+  repository:
+    description: 'Repository to checkout (reference only)'
+    required: false
+    default: '.'
+runs:
+  using: node20
+  main: index.js

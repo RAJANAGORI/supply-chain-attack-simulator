@@ -17,7 +17,7 @@ export const site = {
     brand: 'SCAS',
     headline: 'Break the chain. Learn to defend it.',
     support:
-      'Twenty-three localhost-only labs for modeling, detecting, and mitigating software supply chain attacks.',
+      'Twenty-five localhost-only labs for modeling, detecting, and mitigating software supply chain attacks.',
     primaryCta: 'Start Dashboard',
     secondaryCta: 'Learn More',
     orbitLabel: 'localhost only',
@@ -47,6 +47,8 @@ export const site = {
     { id: '21', title: 'Axios-style npm Release', level: 'Advanced' },
     { id: '22', title: 'LiteLLM-style PyPI', level: 'Advanced' },
     { id: '23', title: 'Trivy CI Compromise', level: 'Advanced' },
+    { id: '24', title: 'Slopsquatting', level: 'Intermediate' },
+    { id: '25', title: 'Compromised GitHub Action', level: 'Advanced' },
   ],
 
   killChain: {
@@ -85,7 +87,7 @@ export const site = {
     eyebrow: 'Built for workshops',
     headline: 'A full test bench, not a slide deck.',
     items: [
-      { value: 23, label: 'Attack labs', suffix: '' },
+      { value: 25, label: 'Attack labs', suffix: '' },
       { value: 3, label: 'Optional tracks', suffix: '' },
       { value: 1, label: 'Safety gate', suffix: '' },
     ],

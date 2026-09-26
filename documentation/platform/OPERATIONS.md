@@ -11,6 +11,7 @@ Day-two operations for running, cleaning up, and validating the test bench.
 | Python 3.8+ (scenarios 22+) | `python3 --version` |
 | Docker (Elasticsearch, Kibana, Floci) | `docker --version` |
 | Git | `git --version` |
+| nektos/act (optional, labs 05 and 25) | `act --version` |
 
 **Full install walkthrough:** [Full-stack setup](../getting-started/FULL_STACK_SETUP.md)
 
@@ -56,7 +57,7 @@ source .testbench.env
 | [`scripts/setup/setup.sh`](../../scripts/setup/setup.sh) | Repo-wide setup, creates `.testbench.env` |
 | [`scripts/setup/teardown.sh`](../../scripts/setup/teardown.sh) | Kill scenario ports, remove captures & node_modules |
 | [`scripts/setup/kill-port.sh`](../../scripts/setup/kill-port.sh) | Free one port or all ports from `ports.env` |
-| [`scripts/smoke/smoke-all-scenarios.sh`](../../scripts/smoke/smoke-all-scenarios.sh) | End-to-end smoke for all 23 scenarios |
+| [`scripts/smoke/smoke-all-scenarios.sh`](../../scripts/smoke/smoke-all-scenarios.sh) | End-to-end smoke for all 25 scenarios |
 | [`scripts/docs/check-info-consistency.js`](../../scripts/docs/check-info-consistency.js) | Fail CI if public lab counts / indexes drift from on-disk scenarios |
 | [`scripts/diagrams/check-diagram-assets.js`](../../scripts/diagrams/check-diagram-assets.js) | Fail CI if Excalidraw/SVG diagram contract drifts |
 | [`scripts/observability/elasticsearch-up.sh`](../../scripts/observability/elasticsearch-up.sh) | Start ES + Kibana, seed runbooks |
@@ -80,7 +81,7 @@ Source of truth: [`scripts/setup/ports.env`](../../scripts/setup/ports.env)
 | 3001 | Scenario 06 (credential harvester), 13 (mock-server) |
 | 3002 | Scenario 14 (container mock), 06 (GitHub Actions sim) |
 | 3003 | Scenario 06 (replication simulator) |
-| 3015-3022 | Scenarios 15-22 (dedicated mock servers) |
+| 3015-3025 | Scenarios 15-25 (dedicated mock servers) |
 | 9200 | Elasticsearch (optional) |
 | 5601 | Kibana (optional) |
 | 4566 | Floci AWS emulator (optional; all scenarios - S3 universal; extended on 05, 06, 11, 14, 17, 19, 23) |

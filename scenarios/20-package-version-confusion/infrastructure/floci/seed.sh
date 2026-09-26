@@ -5,7 +5,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
 source "${REPO_ROOT}/scripts/floci/floci-bridge.sh"
 
 BUCKET="$(scas_floci_seed_scenario 20)"
-scas_floci_s3_put_string "$BUCKET" "baseline/status.txt" <<< "npm/version-confuser baseline"
+scas_floci_s3_put_string "$BUCKET" "baseline/status.txt" <<< "npm/provenance-attestation baseline"
 
 echo "✅ Floci seeded for scenario 20"
 echo "   Bucket: s3://${BUCKET}"

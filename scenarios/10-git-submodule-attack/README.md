@@ -8,6 +8,9 @@
 
 
 
+
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -40,6 +43,8 @@ By completing this scenario, you will learn:
 ## 📖 Background
 
 **Git Submodule Attack** occurs when an attacker adds a malicious git submodule to a legitimate repository. When developers clone the repository or update submodules, the malicious submodule executes code, potentially compromising their systems.
+
+The same risks apply to modern alternatives such as git subtrees and vendored packages. Any mechanism that pulls external code into a build - whether through `.gitmodules`, `git subtree`, or a copied `vendor/` directory - can hide malicious initialization scripts or modified source files.
 
 ### Why This Attack is Dangerous
 
@@ -179,38 +184,25 @@ See detection tools and README for detailed detection methods.
 
 ## Mitigation Playbook
 
-### Prevention
-
-1. **Submodule Review**: Review all submodule additions
-2. **URL Validation**: Verify submodule repository URLs
-3. **Access Controls**: Limit who can add submodules
-4. **Submodule Pinning**: Pin submodules to specific commits
-5. **Automated Scanning**: Scan for suspicious submodules
-
-### Detection
-
-1. **`.gitmodules` Review**: Regular review of submodule configuration
-2. **URL Verification**: Verify submodule repository URLs are legitimate
-3. **Content Analysis**: Analyze submodule content for malicious code
-4. **Execution Monitoring**: Monitor submodule execution
-5. **Integrity Checking**: Verify submodule integrity
-
-### Response
-
-1. **Immediate Removal**: Remove malicious submodule immediately
-2. **Repository Cleanup**: Clean submodule cache and references
-3. **User Notification**: Notify users of the compromise
-4. **Access Review**: Review who added the submodule
-5. **Incident Documentation**: Document the attack and response
+- Review every submodule, subtree, or vendored dependency addition in pull requests.
+- Validate embedded repository URLs against an allowlist; reject local `file://` and relative paths.
+- Pin embedded dependencies to verified commits; do not track floating branch heads.
+- Set `protocol.file.allow=never` globally and in CI runners to block CVE-2022-39253-style local protocol abuse.
+- Scan subtree and vendored code with the same rules as git submodule code.
+- Monitor initialization behavior and lifecycle scripts in build pipelines.
 
 ## Straightforward Implementation
 
-### 1. Pin submodules to commits
+### 1. Pin submodules, subtrees, and vendored code to commits
 
 ```bash
+# git submodule
 git submodule add https://github.com/org/lib.git
 cd lib && git checkout <commit-sha>
 cd .. && git commit -am "Pin submodule to commit"
+
+# git subtree
+git subtree add --prefix=vendor/lib https://github.com/org/lib.git <commit-sha> --squash
 ```
 
 ### 2. CI gate
@@ -220,6 +212,10 @@ cd .. && git commit -am "Pin submodule to commit"
 - run: |
     git submodule foreach 'git log --oneline -1'
     git config --file .gitmodules --get-regexp 'url' | grep -v 'allowed-github.example.com' && exit 1 || true
+- run: |
+    # Block local file-protocol abuse for submodules, subtrees, and vendored fetches
+    git config --global protocol.file.allow never
+    test -d vendor && find vendor -type f -name '*.sh' -print | xargs -r grep -E 'curl|wget|nc ' && exit 1 || true
 ```
 
 ### 3. CODEOWNERS
@@ -227,6 +223,7 @@ cd .. && git commit -am "Pin submodule to commit"
 ```text
 # .github/CODEOWNERS
 .gitmodules    @org/security-team
+vendor/        @org/security-team
 ```
 
 ### 4. Git config

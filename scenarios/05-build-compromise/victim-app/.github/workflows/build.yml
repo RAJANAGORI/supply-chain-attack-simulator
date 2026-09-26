@@ -1,0 +1,71 @@
+# Scenario 5: GitHub Actions workflow injection reference
+#
+# This workflow shows a victim repository that trusts a reusable action
+# referenced by a mutable tag. An attacker force-pushed a malicious version
+# of vendor/build-action@v1, so every CI run now executes the payload.
+#
+# DO NOT RUN THIS WORKFLOW AGAINST A REAL GITHUB REPOSITORY.
+# Local only: ./run-ci.sh (nektos/act maps vendor/build-action@v1 to malicious-action/).
+
+name: Build and publish
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Set up Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts --no-audit --no-fund
+          elif [ -f package.json ]; then
+            npm install --ignore-scripts --no-audit --no-fund
+          else
+            echo "npm ci"
+          fi
+
+      - name: Build application
+        run: |
+          if [ -f package.json ]; then
+            npm run build
+          else
+            echo "npm run build"
+          fi
+
+      # -----------------------------------------------------------------------
+      # VULNERABLE version - DO NOT USE in production
+      # vendor/build-action@v1 was force-pushed with a malicious version.
+      # -----------------------------------------------------------------------
+      - name: Publish artifact
+        uses: vendor/build-action@v1
+        with:
+          artifact-path: dist/app.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+
+      # -----------------------------------------------------------------------
+      # REMEDIATED version - pin to an immutable commit SHA.
+      # -----------------------------------------------------------------------
+      # - name: Publish artifact (SAFE)
+      #   uses: vendor/build-action@a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c
+      #   with:
+      #     artifact-path: dist/app.js

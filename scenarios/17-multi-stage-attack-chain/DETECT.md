@@ -1,7 +1,9 @@
 # Detection Runbook: Scenario 17 (Multi-Stage Attack Chain)
 
 ## IOCs
-- Ordered stage indicators (`stage1` -> `stage2` -> `stage3`).
+- Stage 1 indicator: dependency install followed by unexpected outbound beacon or file write.
+- Stage 2 indicator: CI token or `.npmrc` secret read and exfiltrated.
+- Stage 3 indicator: registry publish event using the stolen token.
 - Correlated events in short time window from same host/run context.
 - Capture events to `127.0.0.1:3017`.
 
@@ -48,11 +50,12 @@ rule Multi_Stage_Attack_IOC {
 
 ## Mitigation
 
-- Add correlation rules that require cross-stage context before closing alerts.
-- Segment credentials and permissions to block stage progression.
-- Trigger automated containment when stage transitions occur in short windows.
-- Preserve forensic artifacts per stage for post-incident timeline reconstruction.
-- Run attack-chain tabletop exercises against your CI/CD architecture.
+- Correlate initial dependency access, lateral CI token abuse, and registry publish events before closing alerts.
+- Segment CI service accounts so build runners cannot publish packages or deploy to production.
+- Trigger auto-containment when dependency install, secret access, and publish events occur in short windows.
+- Preserve per-stage forensic artifacts and run attack-chain tabletop exercises quarterly.
+- Enforce least privilege on CI tokens and require approval gates for registry publishes.
+- Maintain dependency allowlists and anomaly thresholds for first-seen packages or rapid version jumps.
 
 ## Straightforward Implementation
 
@@ -68,11 +71,11 @@ rule Multi_Stage_Attack_IOC {
 
 ### 2. Segmentation
 
-Use separate CI service accounts per stage. A build runner must not be able to publish packages or deploy to production.
+Use separate CI service accounts per stage. A build runner must not be able to publish packages or deploy to production. Store publish tokens in a dedicated secure vault, not in general build variables.
 
 ### 3. Auto-containment
 
-Configure SOAR or CI webhooks to kill runners and revoke tokens when stage transitions occur within a short window.
+Configure SOAR or CI webhooks to kill runners and revoke tokens when the sequence dependency install -> secret access -> registry publish occurs within a short window.
 
 ### 4. Tabletop exercises
 

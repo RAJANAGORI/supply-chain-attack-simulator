@@ -6,6 +6,7 @@
 - `crypto.verify()` returns valid for both packages - signature check alone does not flag compromise.
 - Detection tool reports `MALICIOUS_POSTINSTALL` / `CRITICAL` despite `VALID_SIGNATURE`.
 - Runtime callbacks to `127.0.0.1:3000` with `signatureStatus: VALID` and `keyCompromised: true`.
+- Provenance or attestation record exists but the CI identity or repository that produced it is compromised.
 - Signing key material in `infrastructure/keys/` (lab only; in production, monitor HSM/signing audit logs).
 
 ## Sample Log Lines
@@ -53,19 +54,21 @@ rule Signing_Bypass_Indicator {
 
 ## Mitigation
 
-- Protect signing keys with HSMs or hardened secret stores.
-- Require MFA for all key access and signing operations.
-- Rotate signing keys on a regular schedule and after incidents.
-- Limit who can sign packages with strict access controls.
-- Always verify signatures - but pair with behavioral and content analysis.
-- Monitor signing activity for anomalies (time, volume, key fingerprint).
+- Treat signatures and provenance as identity and integrity signals, not safety guarantees; pair with behavioral scanning.
+- Publish npm packages with `--provenance` and verify with `npm audit signatures` or `gh attestation verify`.
+- Store signing keys in HSMs or KMS with MFA, strict ACLs, and signing audit logs.
+- Rotate keys on schedule and after maintainer departure or suspected compromise.
+- Monitor CI workflow changes and signing-credential usage for unexpected events.
+- Segment CI jobs so build runners cannot sign arbitrary artifacts or access signing keys.
+- Verify artifact attestations from trusted CI identities before deployment.
 
 ## Straightforward Implementation
 
-### 1. Signature verification
+### 1. Signature and attestation verification
 
 ```bash
 npm audit signatures
+gh attestation verify <package>.tgz --repository org/secure-utils
 ```
 
 ### 2. Publish with provenance
@@ -84,8 +87,8 @@ npm audit signatures
 
 ### 3. Key management
 
-Store signing keys in AWS KMS, GCP KMS, or Azure Key Vault. Rotate every 90 days or on maintainer departure.
+Store signing keys in AWS KMS, GCP KMS, or Azure Key Vault. Rotate every 90 days or on maintainer departure. Require MFA for every signing operation.
 
-### 4. Behavioral analysis
+### 4. CI hardening and behavioral analysis
 
-Pair signature checks with supply-chain scanners (Socket, Snyk Supply Chain) that inspect package behavior.
+Pin third-party actions by SHA, restrict workflow permissions to `id-token: write` and `contents: read`, and pair signature checks with supply-chain scanners (Socket, Snyk Supply Chain) that inspect package behavior.

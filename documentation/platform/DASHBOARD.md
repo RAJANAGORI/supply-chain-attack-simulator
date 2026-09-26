@@ -61,7 +61,7 @@ curl http://0.0.0.0:3101/api/health
 ## What the dashboard can do
 
 - **Labs workspace** - scenario controls and a pinned live terminal on the same page (run Prepare / Execute while watching stdout/stderr)
-- List and run all **23** scenarios (setup, start mocks/registries, attack steps, full lab)
+- List and run all **25** scenarios (setup, start mocks/registries, attack steps, full lab)
 - Stream stdout/stderr over WebSocket in the Labs dock (legacy `/console` and `/output` redirect here)
 - Display capture JSON from mock servers on the Observe tab
 - Start/stop Elasticsearch, Kibana (via existing scripts), Floci

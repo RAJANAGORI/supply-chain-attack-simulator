@@ -1,0 +1,31 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+pnpmfileChecksum: 4djugtq72pkxlpdy3glbwexp3y
+
+importers:
+
+  .:
+    dependencies:
+      target-lib:
+        specifier: file:../packages/target-lib
+        version: file:../packages/target-lib
+
+packages:
+
+  malicious-logger@file:../packages/malicious-logger:
+    resolution: {directory: ../packages/malicious-logger, type: directory}
+
+  target-lib@file:../packages/target-lib:
+    resolution: {directory: ../packages/target-lib, type: directory}
+
+snapshots:
+
+  malicious-logger@file:../packages/malicious-logger: {}
+
+  target-lib@file:../packages/target-lib:
+    dependencies:
+      malicious-logger: file:../packages/malicious-logger

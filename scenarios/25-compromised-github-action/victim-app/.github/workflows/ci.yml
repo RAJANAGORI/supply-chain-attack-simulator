@@ -1,0 +1,49 @@
+# Scenario 25: Compromised Reusable GitHub Action — Reference CI Workflow
+#
+# This workflow shows what a typical victim's pipeline looked like BEFORE
+# remediation. The mutable tag below was force-pushed to a malicious commit.
+#
+# DO NOT RUN THIS WORKFLOW AGAINST A REAL GITHUB REPOSITORY.
+# Local only: ./run-ci.sh (nektos/act maps @v3 to .github/actions/checkout).
+
+name: CI Pipeline (Scenario 25 Reference)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        # COMPROMISED: example/actions/checkout@v3 tag was force-pushed by the attacker
+        uses: example/actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm install --ignore-scripts --no-audit --no-fund
+          else
+            echo "npm ci --ignore-scripts"
+          fi
+          echo "Dependencies installed"
+
+      - name: Build application
+        run: |
+          if [ -f package.json ]; then
+            npm run build
+          else
+            echo "npm run build"
+          fi
+          echo "Build successful"
+
+      # -----------------------------------------------------------------------
+      # REMEDIATED version - pin to an immutable commit SHA instead of a tag
+      # -----------------------------------------------------------------------
+      # - name: Checkout (SAFE)
+      #   uses: example/actions/checkout@a1b2c3d4e5f6789012345678901234567890abcd

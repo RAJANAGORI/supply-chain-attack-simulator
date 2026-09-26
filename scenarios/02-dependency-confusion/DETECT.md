@@ -7,6 +7,8 @@
 - `package-lock.json` `resolved` URL references non-internal registry host for scoped packages.
 - `postinstall` script execution immediately after `npm install` (phase: `postinstall`).
 - Local beacon activity to `127.0.0.1:3000` during install (not only at app runtime).
+- Resolved version for an internal-scope package jumps more than one major version above the approved baseline.
+- Maintainer publishing an internal-scope package has not been seen in previous releases.
 
 ## Sample Log Lines
 ```json
@@ -28,6 +30,20 @@ detection:
 level: high
 ```
 
+## Sigma: Semver Jump / First-Seen Maintainer (example)
+```yaml
+title: Internal Scope Package With Unusual Semver Jump Or New Maintainer
+detection:
+  selection_scope:
+    package.name|startswith: "@techcorp/"
+  selection_jump:
+    package.version_diff|gt: 1
+  selection_new_maintainer:
+    package.maintainer_is_new: "true"
+  condition: selection_scope and (selection_jump or selection_new_maintainer)
+level: high
+```
+
 ## YARA-like Text Rule (example)
 ```text
 rule Dependency_Confusion_Indicator {
@@ -36,8 +52,10 @@ rule Dependency_Confusion_Indicator {
     $b = "999.999.999"
     $c = "127.0.0.1:3000"
     $d = "dependency-confusion"
+    $e = "version-jump"
+    $f = "first-seen-maintainer"
   condition:
-    ($a and $b) or ($a and $c) or ($a and $d)
+    ($a and $b) or ($a and $c) or ($a and $d) or ($a and ($e or $f))
 }
 ```
 
@@ -47,6 +65,8 @@ rule Dependency_Confusion_Indicator {
 - `postinstall` child process spawned from `node_modules/@techcorp/auth-lib/` during install.
 - Resolver behavior inconsistent with scoped registry policy in `.npmrc`.
 - Capture records in `infrastructure/captured-data.json` with `phase: postinstall`.
+- Dependency resolution telemetry showing a scoped package resolving more than one major version above baseline.
+- New maintainer identity on a scoped package that historically shipped from an internal registry.
 
 
 ## Floci (optional cloud track)
@@ -62,6 +82,7 @@ rule Dependency_Confusion_Indicator {
 - Pin dependencies to exact versions for critical packages.
 - Verify package integrity hashes on install.
 - Add build-time validation to reject unexpected registry sources.
+- Alert on unusual semver jumps and first-seen maintainers.
 
 ## Straightforward Implementation
 
@@ -81,6 +102,8 @@ rule Dependency_Confusion_Indicator {
   run: |
     npm ci --ignore-scripts
     npm ls @myorg --json | grep -q 'registry.npmjs.org' && exit 1 || true
+- name: Alert on unusual semver jumps
+  run: node scripts/check-version-jumps.js --threshold 2
 ```
 
 ### 3. Namespace reservation
@@ -93,4 +116,4 @@ npm access public @myorg
 
 ### 4. Version policy
 
-Treat any resolved version above your internal threshold (for example, more than 10 major versions ahead of baseline) as a CI failure.
+Treat any resolved version above your internal threshold (for example, more than two major versions ahead of baseline or a first-seen maintainer) as a CI failure.

@@ -1,12 +1,8 @@
-# Scenario 18: Package Manager Plugin Attack
+# Scenario 18: Package Manager Hook Abuse (pnpm `.pnpmfile.cjs`)
 
 - **Level**: Advanced
 - **Estimated Time**: 45-60 minutes
-- **Primary Attack Surface**: Package-manager plugin/hook execution
-
-
-
-
+- **Primary Attack Surface**: pnpm hook file execution during install
 
 
 
@@ -20,7 +16,7 @@
 - [Scenario Description](#scenario-description)
 - [Setup](#setup)
 - [Run the lab](#run-the-lab)
-- [📝 Lab Tasks](#📝-lab-tasks)
+- [Lab Tasks](#lab-tasks)
 - [Structure](#structure)
 - [Evidence](#evidence)
 - [Detection](#detection)
@@ -35,36 +31,67 @@
 </div>
 
 ---
+## Table of Contents
+
+- [Learning Objectives](#learning-objectives)
+- [Background](#background)
+- [Threat Model Snapshot](#threat-model-snapshot)
+- [Scenario Description](#scenario-description)
+- [Setup](#setup)
+- [Run the lab](#run-the-lab)
+- [Lab Tasks](#lab-tasks)
+- [Structure](#structure)
+- [Evidence](#evidence)
+- [Detection](#detection)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Expected Outcome](#expected-outcome)
+- [Straightforward Implementation](#straightforward-implementation)
+- [Validation Checklist](#validation-checklist)
+- [Hints](#hints)
+- [Lab Report Prompts](#lab-report-prompts)
+- [Safety](#safety)
+
+---
+
 ## Learning Objectives
 
-- Understand how **package-manager plugins** (hooks that run during install) can alter projects or inject payloads.
-- Practice detecting hook surfaces and injection markers on disk.
-- Learn mitigations: allowlist plugins, review hook code, run installs in isolated CI, and verify `node_modules` integrity.
+- Understand how pnpm `.pnpmfile.cjs` hook files execute during every `pnpm install`.
+- See how the `readPackage` hook can silently inject dependencies into the dependency tree.
+- Practice detecting hook files, lockfile drift, and import-time payloads.
+- Learn mitigations: hook allowlists, lockfile verification, CI isolation, and dependency review.
 
 ## Background
 
-Many ecosystems support plugins or hooks that execute when dependencies are installed. A malicious plugin can **intercept** installs, patch files under `node_modules`, or phone home. Unlike a single bad package, the plugin may affect **every** install in a repo.
+pnpm loads `.pnpmfile.cjs` from the project root automatically. The file exports hooks such as `readPackage(pkg, context)`, which runs for every package during install and can mutate the manifest before pnpm resolves dependencies.
+
+A malicious `.pnpmfile.cjs` can:
+
+- Add, remove, or replace dependencies without touching `package.json`.
+- Downgrade packages to vulnerable versions.
+- Inject a dependency that exfiltrates data at import time.
+
+Because the change happens in the hook, it appears in `pnpm-lock.yaml` but not in the committed `package.json`. Teams that only review `package.json` diffs will miss it.
 
 ## Threat Model Snapshot
 
-- **Asset at risk**: install pipeline integrity and dependency tree trust
-- **Trust edge abused**: plugin hooks executing with project-level permissions
-- **Attacker objective**: inject malicious changes broadly across installs
-- **Blast radius**: all installs using the compromised plugin configuration
+- **Asset at risk**: dependency tree integrity and source-of-truth in lockfiles.
+- **Trust edge abused**: pnpm automatically executes `.pnpmfile.cjs` with project-level permissions.
+- **Attacker objective**: persist a malicious dependency through installs without modifying `package.json`.
+- **Blast radius**: every developer and CI runner that runs `pnpm install` in the repo.
 
 ## Scenario Description
 
-This lab models a plugin as a Node module exporting `installHook({ projectRoot })`. The victim loads an **active** plugin configuration, invokes the hook, and the malicious plugin injects markers and exfiltrates to the mock server when `TESTBENCH_MODE=enabled`. Your tasks:
+A repository contains a hidden `.pnpmfile.cjs`. The `readPackage` hook detects when `TESTBENCH_MODE=enabled` and injects `malicious-logger` as a dependency of `target-lib`. When the victim app starts, it imports `target-lib`, which pulls in `malicious-logger`. The logger exfiltrates selected environment variables to the mock server at `127.0.0.1:3018` on import.
 
-1. **Red team**: Trace hook execution from `victim-app` into `plugins/`.
-2. **Blue team**: Find injected artifacts next to the targeted library.
-3. **Defender**: Run the detector and review isolation recommendations.
+Your tasks:
+
+1. **Red team**: Confirm that `.pnpmfile.cjs` injects the dependency and that the app exfiltrates on import.
+2. **Blue team**: Find the hook file, the lockfile drift, and the injected `node_modules` entry.
+3. **Defender**: Run the detector and review the mitigation controls.
 
 ## Setup
 
-**Prerequisites:** Node.js 16+, npm
-
-**Environment:**
+**Prerequisites:** Node.js 16+, npm (pnpm is invoked via `npx`).
 
 ```bash
 cd scenarios/18-package-manager-plugin-attack
@@ -72,7 +99,7 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-`./setup.sh` prepares `infrastructure/` (mock server on port **3018**), capture storage, clears `victim-app/node_modules`, and prints the same numbered steps as **Run the lab** below.
+`./setup.sh` prepares `infrastructure/` (mock server on port **3018**), capture storage, clears `victim-app/node_modules`, and prints the numbered steps below.
 
 ## Run the lab
 
@@ -82,14 +109,18 @@ export TESTBENCH_MODE=enabled
 node infrastructure/mock-server.js
 ```
 
-### Terminal B - run victim (triggers plugin hook)
+Leave this running.
+
+### Terminal B - install with pnpm and run the victim app
 
 ```bash
 cd victim-app
-rm -rf node_modules
 export TESTBENCH_MODE=enabled
+npx pnpm@9.15.9 install
 npm start
 ```
+
+The `npx pnpm install` step loads `.pnpmfile.cjs`. The hook injects `malicious-logger` into `target-lib`'s dependencies. When `npm start` imports `target-lib`, `malicious-logger` runs its import-time payload.
 
 ### Detection (from scenario root)
 
@@ -109,22 +140,29 @@ curl -s http://127.0.0.1:3018/captured-data
 ../../scripts/setup/kill-port.sh 3018
 ```
 
-## 📝 Lab Tasks
+## Lab Tasks
 
-Follow **Run the lab** above first. The sections below provide reference layout, evidence locations, detection notes, and reporting prompts.
+1. Read `.pnpmfile.cjs` and identify the `readPackage` hook.
+2. Compare `victim-app/package.json` with `victim-app/pnpm-lock.yaml`. Where does `malicious-logger` appear?
+3. Check `node_modules/malicious-logger/index.js`. Why does it exfiltrate on import instead of using a lifecycle script?
+4. Run the detector and explain each finding.
 
 ## Structure
 
-- `plugins/legitimate-plugin/`, `plugins/malicious-plugin/` - reference vs malicious hook implementations
-- `packages/target-lib/` - library the hook targets
-- `victim-app/` - loads plugin and runs the scenario (`plugin-active.js`, scripts)
-- `infrastructure/` - mock server (port **3018**), `captured-data.json`
-- `detection-tools/` - `plugin-attack-detector.js`
+- `packages/target-lib/` - benign library imported by the victim app.
+- `packages/malicious-logger/` - import-time payload injected by the hook.
+- `victim-app/.pnpmfile.cjs` - malicious pnpm hook file.
+- `victim-app/package.json` - declares only `target-lib`; the hook adds `malicious-logger`.
+- `infrastructure/` - mock server (port **3018**), `captured-data.json`.
+- `detection-tools/plugin-attack-detector.js` - flags hook files and injected dependencies.
 
 ## Evidence
 
 - `http://localhost:3018/captured-data`
 - `infrastructure/captured-data.json`
+- `victim-app/.pnpmfile.cjs`
+- `victim-app/pnpm-lock.yaml`
+- `victim-app/node_modules/malicious-logger/`
 
 ## Detection
 
@@ -132,80 +170,92 @@ Follow **Run the lab** above first. The sections below provide reference layout,
 node detection-tools/plugin-attack-detector.js victim-app
 ```
 
-Key indicators to capture:
+Key indicators:
 
-- Presence of non-baseline plugin hooks in active config
-- File modifications under target dependency after install
-- Beacon evidence in `infrastructure/captured-data.json`
+- Presence of `.pnpmfile.cjs` in the project root.
+- `readPackage` hook that mutates `dependencies`.
+- `pnpm-lock.yaml` contains packages not declared in `package.json`.
+- Import-time exfiltration in `node_modules` payload files.
 
 ## Mitigation Playbook
 
-- Enforce plugin allowlists with signed/approved plugin sources.
-- Block arbitrary plugin execution in CI and controlled developer images.
-- Run integrity checks on `node_modules` and generated lockfile state.
-- Review plugin code changes with same rigor as build scripts.
-- Alert on hook-driven modifications outside expected paths.
+- Treat `.pnpmfile.cjs` and `.yarn/plugins/*` as code requiring the same review as build scripts.
+- Require CODEOWNERS approval for any hook file or plugin change.
+- Run `pnpm install --frozen-lockfile` in CI and fail if `pnpm-lock.yaml` changes unexpectedly.
+- Compare resolved dependencies against `package.json` declared dependencies in CI.
+- Use isolated CI runners with restricted egress for install steps.
+- Pin pnpm version and validate its checksum in CI.
 
 ## Expected Outcome
 
-- Captures reflect plugin-driven exfiltration when the testbench flag is on.
-- The detector flags hook-related patterns and suspicious changes under the project tree.
+- `pnpm install` silently adds `malicious-logger` to the lockfile and node_modules.
+- `npm start` triggers import-time exfiltration captured by the mock server.
+- The detector flags the hook file, lockfile drift, and injected dependency.
 
 ## Straightforward Implementation
 
-### 1. Plugin allowlist
+### 1. CODEOWNERS for hook files
 
-```yaml
-# allowed-plugins.yml
-allowed:
-  - @yarnpkg/plugin-typescript
-  - @pnpm/plugin-engines
+```text
+# .github/CODEOWNERS
+.pnpmfile.cjs    @org/security-team
+.yarn/plugins/*  @org/security-team
 ```
 
-### 2. CI gate
+### 2. CI gate - fail on frozen lockfile changes
 
 ```yaml
-# .github/workflows/plugin-check.yml
-- run: |
-    ls .yarn/plugins .pnpmfile.cjs 2>/dev/null || true
-    node scripts/validate-plugins-against-allowlist.js
+# .github/workflows/ci.yml
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+- name: Install with frozen lockfile
+  run: npx pnpm install --frozen-lockfile
+- name: Verify no unexpected lockfile changes
+  run: git diff --exit-code pnpm-lock.yaml
 ```
 
-### 3. Integrity check
+### 3. Detect injected dependencies
 
 ```bash
-# Compare node_modules state against lockfile
-npm ci --ignore-scripts
-npm ls
+# Compare package.json deps to lockfile
+npx pnpm list --json | jq '.dependencies | keys'
+# Review any package in the lockfile that is not in package.json
 ```
 
-### 4. Review policy
+### 4. Isolate install in CI
 
-Review plugin code changes with the same rigor as build scripts. Alert on hook-driven file changes outside expected paths.
+```yaml
+- name: Install in sandbox
+  run: npx pnpm install --frozen-lockfile
+  env:
+    NODE_ENV: production
+```
 
 ## Validation Checklist
 
-- [ ] I reproduced plugin-driven compromise in testbench mode.
-- [ ] I captured both configuration and runtime indicators.
-- [ ] I confirmed detector findings against observed injected artifacts.
-- [ ] I documented at least three controls for plugin governance.
+- [ ] I reproduced `.pnpmfile.cjs` injecting a dependency during install.
+- [ ] I observed import-time exfiltration when the victim app started.
+- [ ] I identified the injected package in `pnpm-lock.yaml` and `node_modules`.
+- [ ] I confirmed detector findings against the hook file and lockfile drift.
+- [ ] I documented at least three controls for hook-file governance.
 
 ## Hints
 
-- Start by reading active plugin wiring in `victim-app` before execution.
-- If no captures appear, verify mock server on `3018`.
-- Cleanup fast with `../../scripts/setup/kill-port.sh 3018`.
+- Start by reading `.pnpmfile.cjs` before running `pnpm install`.
+- Use `git diff` on `pnpm-lock.yaml` after install to see the injected dependency.
+- If no capture appears, verify the mock server is running on port **3018** and `TESTBENCH_MODE=enabled` is set.
 
 ## Lab Report Prompts
 
-- Which policy should be mandatory first: allowlist, signature, or runtime isolation?
-- How would you detect unauthorized plugin introduction in pull requests?
-- What would a safe plugin review checklist include?
+1. How does `.pnpmfile.cjs` differ from a malicious `postinstall` script in terms of visibility and persistence?
+2. Why is reviewing only `package.json` diffs insufficient for pnpm projects?
+3. What CI controls would prevent a malicious hook file from reaching production?
+4. How would you detect this attack in an environment without pnpm (for example, a team migrating from npm)?
 
 ## Safety
 
-Localhost-only exfiltration; requires `TESTBENCH_MODE=enabled`.
+This lab contains intentionally vulnerable code for education only.
 
----
-
-Happy learning!
+- Run only in isolated environments.
+- Exfiltration targets `127.0.0.1:3018` only.
+- The payload gates on `TESTBENCH_MODE=enabled`.
+- Do not publish `malicious-logger` or `.pnpmfile.cjs` outside this lab.

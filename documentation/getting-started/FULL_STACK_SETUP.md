@@ -46,9 +46,9 @@ Manual step-by-step remains below if you prefer to install piece by piece.
 
 | Component | Purpose | Required? |
 |-----------|---------|-----------|
-| **SCAS core** | 23 hands-on supply-chain attack labs | Yes |
+| **SCAS core** | 25 hands-on supply-chain attack labs | Yes |
 | **Elasticsearch + Kibana** | Index detection runbooks and lab events for blue-team practice | Optional (recommended for workshops) |
-| **Floci** | Local AWS emulator (S3 universal; ECR/IAM/pipeline on select labs) | Optional (all **23** scenarios; extended **05, 06, 11, 14, 17, 19, 23**) |
+| **Floci** | Local AWS emulator (S3 universal; ECR/IAM/pipeline on select labs) | Optional (all **25** scenarios; extended **05, 06, 11, 14, 17, 19, 23**) |
 
 ### Safety rules (non-negotiable)
 
@@ -154,7 +154,7 @@ This will:
 1. Start Elasticsearch on **http://localhost:9200**
 2. Start Kibana on **http://localhost:5601**
 3. Create indices `scas-rules` and `scas-detections`
-4. Load all 23 scenario `DETECT.md` runbooks into Elasticsearch
+4. Load all 25 scenario `DETECT.md` runbooks into Elasticsearch
 5. Set up Kibana data views (when Kibana is ready)
 
 First run can take **2-5 minutes** while Docker pulls images.

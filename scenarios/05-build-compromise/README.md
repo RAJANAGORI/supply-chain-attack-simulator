@@ -1,8 +1,4 @@
-# Scenario 5: Build System Compromise 🎯
-
-
-
-
+# Scenario 5: GitHub Actions Workflow Injection
 
 
 
@@ -10,80 +6,96 @@
 
 <div class="doc-toc">
 
-- [🎓 Learning Objectives](#🎓-learning-objectives)
-- [📖 Background](#📖-background)
-- [🎯 Scenario Description](#🎯-scenario-description)
-- [🔧 Setup](#🔧-setup)
-- [Run the lab](#run-the-lab)
-- [📝 Lab Tasks](#📝-lab-tasks)
+- [Learning Objectives](#learning-objectives)
+- [Background](#background)
+- [Scenario Description](#scenario-description)
+- [Setup](#setup)
+- [Run the Lab](#run-the-lab)
+- [Lab Tasks](#lab-tasks)
 - [Mitigation Playbook](#mitigation-playbook)
 - [Straightforward Implementation](#straightforward-implementation)
-- [✅ Success Criteria](#✅-success-criteria)
-- [🎁 Bonus Challenges](#🎁-bonus-challenges)
-- [📊 Attack Comparison](#📊-attack-comparison)
-- [🔍 Real-World Lessons](#🔍-real-world-lessons)
-- [💡 Key Takeaways](#💡-key-takeaways)
-- [📚 Additional Resources](#📚-additional-resources)
-- [🔗 Related Scenarios](#🔗-related-scenarios)
+- [Success Criteria](#success-criteria)
+- [Bonus Challenges](#bonus-challenges)
+- [Additional Resources](#additional-resources)
+- [Related Scenarios](#related-scenarios)
 
 </div>
 
 ---
-## 🎓 Learning Objectives
+## Table of Contents
+
+- [Learning Objectives](#learning-objectives)
+- [Background](#background)
+- [Scenario Description](#scenario-description)
+- [Setup](#setup)
+- [Run the Lab](#run-the-lab)
+- [Lab Tasks](#lab-tasks)
+- [Mitigation Playbook](#mitigation-playbook)
+- [Straightforward Implementation](#straightforward-implementation)
+- [Success Criteria](#success-criteria)
+- [Bonus Challenges](#bonus-challenges)
+- [Additional Resources](#additional-resources)
+- [Related Scenarios](#related-scenarios)
+
+---
+
+## Learning Objectives
 
 By completing this scenario, you will learn:
-- How CI/CD pipelines get compromised
-- Techniques attackers use to inject malicious code during builds
-- Methods to detect build-time attacks
-- Strategies to secure CI/CD pipelines
-- Best practices for build system security
 
-## 📖 Background
+- How reusable GitHub Actions can become a supply-chain attack surface
+- Why mutable action tags (`@v1`) let an attacker force-push malicious code
+- How a compromised action steals `GITHUB_TOKEN`, secrets, and build artifacts
+- How to detect workflow injection in CI/CD pipelines
+- How to harden workflows with SHA pinning, least-privilege permissions, and runner isolation
 
-**Build System Compromise** occurs when attackers gain access to CI/CD pipelines, build servers, or deployment systems. This allows them to:
-- Inject malicious code during the build process
-- Modify build artifacts
-- Compromise deployment pipelines
-- Access sensitive build-time secrets
+## Background
 
-### Why It's Dangerous
+**GitHub Actions workflow injection** occurs when an attacker compromises a reusable workflow or action that a victim pipeline trusts. The attacker can:
 
-- **High Privileges**: Build systems often have access to production secrets
-- **Wide Impact**: Compromised builds affect all deployments
-- **Stealth**: Malicious code injected during build appears legitimate
-- **Persistence**: Can persist across multiple deployments
+- Force-push a malicious version to a mutable tag
+- Read repository and organization secrets available to the job
+- Exfiltrate `GITHUB_TOKEN` and build artifacts
+- Modify later pipeline steps or published artifacts
 
-### Real-World Examples:
+### Why It Is Dangerous
 
-- **CodeCov (2021)**:
-  - CI/CD system compromised
-  - Bash uploader script modified
-  - Stole environment variables from thousands of projects
-  - Affected GitHub, Atlassian, and many others
+- **High privileges**: CI jobs often receive `GITHUB_TOKEN` and cloud credentials
+- **Wide impact**: One compromised reusable action can affect every repository that calls it
+- **Stealth**: The malicious step runs inside a trusted CI context
+- **Persistence**: The attacker controls the action repository and can update the payload repeatedly
 
-- **SolarWinds (2020)**:
-  - Build system compromised
-  - Malicious code injected into software updates
-  - Affected thousands of organizations worldwide
+### Real-World Examples
 
-- **CircleCI (2023)**:
-  - CI/CD platform compromised
-  - Stolen API tokens used to access customer environments
-  - Affected multiple organizations
+- **Codecov (2021)**: A modified CI bash uploader harvested environment variables from thousands of pipelines.
+- **SolarWinds (2020)**: Build tooling was compromised and malicious code was inserted into shipped updates.
+- **Trivy action campaign (2026)**: A force-pushed tag on a popular security action stole CI secrets before the legitimate scan ran (see Scenario 23).
 
-## 🎯 Scenario Description
+## Scenario Description
 
-**Scenario**: A development team uses a CI/CD pipeline to build and deploy their application. An attacker has:
-1. Gained access to the CI/CD system (through compromised credentials)
-2. Modified the build script to inject malicious code
-3. The malicious code gets compiled into the final build artifact
+A development team references a reusable action in their build workflow:
+
+```yaml
+- uses: vendor/build-action@v1
+```
+
+An attacker compromises the `vendor/build-action` repository and force-pushes a malicious version to the `v1` tag. When the victim's CI runs, the action:
+
+1. Collects `GITHUB_TOKEN` and environment secrets
+2. Reads the build artifact
+3. POSTs the harvested data to an attacker-controlled endpoint
+
+In this lab the endpoint is a mock server on `127.0.0.1:3000` and the payload is gated by `TESTBENCH_MODE=enabled`.
 
 You will:
-1. **Attacker Role**: Understand how build systems get compromised
-2. **Victim Role**: Experience a compromised build
-3. **Defender Role**: Detect and prevent build-time attacks
 
-## 🔧 Setup
+1. Review the victim workflow and the compromised action
+2. Run `build.yml` locally (act when installed, otherwise `npm run ci`)
+3. Verify the captured data
+4. Detect the workflow injection
+5. Apply mitigation controls
+
+## Setup
 
 ```bash
 cd scenarios/05-build-compromise
@@ -91,9 +103,9 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-`./setup.sh` creates `legitimate-build/`, `compromised-build/`, `victim-app/`, `infrastructure/mock-server.js`, `detection-tools/secret-monitor.js`, and capture storage. When setup finishes, it prints the same numbered flow as **Run the lab** below.
+`setup.sh` creates `victim-app/`, `malicious-action/`, `infrastructure/mock-server.js`, `detection-tools/workflow-injection-scanner.js`, and a lookalike secrets file. When setup finishes, it prints the same numbered flow as **Run the lab** below.
 
-## Run the lab
+## Run the Lab
 
 Use two terminals (or background the mock server). All paths are relative to `scenarios/05-build-compromise`.
 
@@ -103,32 +115,23 @@ Use two terminals (or background the mock server). All paths are relative to `sc
 node infrastructure/mock-server.js
 ```
 
-### Terminal B - compare builds and exercise compromise
+### Terminal B - run the compromised workflow
 
 ```bash
-cat legitimate-build/build.sh
-cat compromised-build/build.sh
-cd legitimate-build
-npm run build
-cd ../compromised-build
 export TESTBENCH_MODE=enabled
-set -a && source .env.lab 2>/dev/null || source ../../_shared/lookalike-secrets.env; set +a
-npm run build
+./run-ci.sh
 ```
+
+`run-ci.sh` sources `victim-app/.env.lab` and prefers [nektos/act](https://github.com/nektos/act). `vendor/build-action@v1` maps to `malicious-action/`. SHA-pinned `actions/checkout` and `actions/setup-node` map to local no-op stubs so act never talks to GitHub. Docker is not required. If act is missing, you get `npm run ci` (the Node stand-in).
+
+Do not push this workflow to a real GitHub repo.
+
+To force the Node stand-in: `SCAS_SKIP_ACT=1 ./run-ci.sh`.
 
 ### Verify capture
 
 ```bash
-curl -s http://localhost:3000/captured-data
-```
-
-### Optional - load compromised artifacts into victim app
-
-```bash
-cp compromised-build/dist/* victim-app/dist/
-cd victim-app
-export TESTBENCH_MODE=enabled
-npm start
+curl -s http://127.0.0.1:3000/captured-data
 ```
 
 ### Blue team (optional)
@@ -136,340 +139,199 @@ npm start
 From the scenario root:
 
 ```bash
-node detection-tools/secret-monitor.js compromised-build
+node detection-tools/workflow-injection-scanner.js victim-app
 ```
 
-## 📝 Lab Tasks
+## Lab Tasks
 
-The sections below expand on **Run the lab** with analysis, detection, and prevention exercises.
+### Part 1: Understand the Victim Workflow (15 minutes)
 
-### Part 1: Understanding the Build System (15 minutes)
-
-Examine the legitimate build setup:
+Review the workflow file:
 
 ```bash
-cd legitimate-build
-cat package.json
-cat build.sh
-cat .github/workflows/build.yml  # If using GitHub Actions
+cat victim-app/.github/workflows/build.yml
 ```
 
-**Build System Details**:
-- Build Tool: npm scripts / shell scripts
-- CI/CD: Simulated with local scripts
-- Artifacts: Compiled JavaScript bundles
-- Secrets: Environment variables, API keys
+Look for:
 
-**Your Tasks**:
-- Understand the build process
-- Review build scripts
-- Identify where secrets are used
-- Note the build artifacts
+- A third-party action referenced by a mutable tag (`@v1`)
+- Repository secrets passed into the action's `env` block
+- Broad job permissions
 
-### Part 2: The Attack - Build Compromise (25 minutes)
+### Part 2: Inspect the Compromised Action (15 minutes)
 
-**Scenario**: Attacker has obtained CI/CD credentials and modified the build process.
-
-#### Step 1: Examine the Compromised Build
+Review the action metadata and entrypoint:
 
 ```bash
-cd ../compromised-build
-cat package.json
-cat build.sh
+cat malicious-action/action.yml
+cat malicious-action/index.js
 ```
 
-**Key Changes**:
-1. **Build Script Modified**: Injects malicious code during build
-2. **Post-Build Hook**: Executes malicious code after build
-3. **Secret Exfiltration**: Steals build-time secrets
-4. **Artifact Poisoning**: Malicious code in final artifact
+Note how the payload is gated on `TESTBENCH_MODE=enabled` and exfiltrates only to `127.0.0.1:3000`.
 
-#### Step 2: Understand the Attack Vector
+### Part 3: Simulate the Attack (20 minutes)
 
-**Attack Methods**:
-- **Build Script Injection**: Modify build scripts to inject code
-- **Dependency Poisoning**: Compromise build dependencies
-- **Secret Theft**: Access build-time environment variables
-- **Artifact Modification**: Modify compiled output
-
-#### Step 3: Review the Malicious Template
+Run the workflow:
 
 ```bash
-cat ../templates/build-compromise-template.js
-```
-
-**Techniques Used**:
-- Code injection during compilation
-- Secret harvesting from environment
-- Post-build exfiltration
-- Artifact poisoning
-
-### Part 3: Simulating the Compromised Build (20 minutes)
-
-#### Step 1: Run the Compromised Build
-
-```bash
-cd compromised-build
 export TESTBENCH_MODE=enabled
-set -a && source .env.lab 2>/dev/null || source ../../_shared/lookalike-secrets.env; set +a
-
-# Run the build
-npm run build
+./run-ci.sh
 ```
 
-**What happens**:
-- Build process executes
-- Malicious code injects during build
-- Secrets are collected
-- Data is exfiltrated
-- Final artifact contains malicious code
+What happens:
 
-#### Step 2: Verify the Compromise
+- The pipeline builds the application
+- The compromised action runs during the "Publish artifact" step
+- `GITHUB_TOKEN`, AWS credentials, and the database password are harvested
+- The build artifact is read and hashed
+- A JSON payload is POSTed to `127.0.0.1:3000/collect`
+
+### Part 4: Verify Exfiltration (10 minutes)
 
 ```bash
-# Check build artifacts
-ls -la dist/
-
-# Check captured data
-curl http://localhost:3000/captured-data
+curl -s http://127.0.0.1:3000/captured-data
 ```
 
-#### Step 3: Run the Compromised Application
+Inspect the captured JSON. You should see the redacted secrets, repository metadata, artifact preview, and SHA-256 hash.
+
+### Part 5: Detection (20 minutes)
+
+Run the scanner:
 
 ```bash
-cd ../victim-app
-npm install ../compromised-build/dist/
-
-# Run the application
-export TESTBENCH_MODE=enabled
-npm start
+node detection-tools/workflow-injection-scanner.js victim-app
 ```
 
-### Part 4: Detection Methods (25 minutes)
+It flags:
 
-**Your Task**: Detect the build compromise
+- Mutable action tags
+- Secret references in workflow `env` blocks
+- Action code that accesses `process.env` and makes HTTP requests
 
-#### Detection Method 1: Build Script Review
+Also look for these IOCs in your SIEM:
 
-```bash
-# Compare build scripts
-diff legitimate-build/build.sh compromised-build/build.sh
+- `GITHUB_TOKEN` accessed by a step that does not need it
+- Outbound HTTP from a build step to an unexpected IP or domain
+- Unexpected `git push --force` events on action repositories
 
-# Check for suspicious commands
-grep -n "curl\|wget\|http\|eval" compromised-build/build.sh
-```
+### Part 6: Prevention and Mitigation (20 minutes)
 
-#### Detection Method 2: Artifact Analysis
-
-```bash
-# Compare build artifacts
-diff legitimate-build/dist/ compromised-build/dist/
-
-# Check for suspicious code
-grep -r "http\|process.env\|eval" compromised-build/dist/
-```
-
-#### Detection Method 3: Secret Monitoring
-
-```bash
-# Monitor secret access during build
-cd detection-tools
-node secret-monitor.js ../compromised-build
-```
-
-#### Detection Method 4: Build Log Analysis
-
-```bash
-# Review build logs
-cat build.log | grep -i "error\|warning\|suspicious"
-
-# Check for unexpected network requests
-cat build.log | grep -i "http\|curl\|wget"
-```
-
-### Part 5: Prevention & Mitigation (30 minutes)
-
-Implement multiple layers of defense:
-
-#### Prevention Strategy 1: Build Script Integrity
-
-```bash
-# Use checksums for build scripts
-sha256sum build.sh > build.sh.sha256
-
-# Verify before build
-sha256sum -c build.sh.sha256
-```
-
-#### Prevention Strategy 2: Least Privilege
-
-```yaml
-# CI/CD configuration
-env:
-  # Only provide necessary secrets
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_KEY }}
-  # Don't expose all environment variables
-```
-
-#### Prevention Strategy 3: Build Isolation
-
-```bash
-# Run builds in an isolated environment (dedicated build user + clean working directory)
-# and only pass the minimum required secrets.
-```
-
-#### Prevention Strategy 4: Artifact Verification
-
-```bash
-# Verify build artifacts
-npm run build
-npm run verify-artifacts
-
-# Compare checksums
-sha256sum dist/* > artifacts.sha256
-```
-
-#### Prevention Strategy 5: Secret Management
-
-```bash
-# Use secret management tools
-# HashiCorp Vault, AWS Secrets Manager, etc.
-
-# Never hardcode secrets in build scripts
-# Use environment variables or secret stores
-```
-
-#### Prevention Strategy 6: Build Auditing
-
-```yaml
-# CI/CD audit logging
-- name: Audit Build
-  run: |
-    npm run build
-    npm run audit-build
-    # Log all build activities
-```
-
-#### Prevention Strategy 7: Code Signing
-
-```bash
-# Sign build artifacts
-gpg --sign dist/app.js
-
-# Verify signatures before deployment
-gpg --verify dist/app.js.asc
-```
+Apply the controls in the [Mitigation Playbook](#mitigation-playbook) and [Straightforward Implementation](#straightforward-implementation) sections.
 
 ## Mitigation Playbook
 
-- Verify build script integrity with checksums before each build.
-- Apply least privilege to CI/CD jobs and secret exposure.
-- Run builds in isolated environments with minimal credentials.
-- Verify build artifacts with checksums and signed attestations.
-- Use secret management tools - never hardcode secrets in build scripts.
-- Audit and log all build activities for forensic review.
-- Sign release artifacts and verify signatures before deployment.
+- Pin every third-party action to an immutable commit SHA and verify it with an allowlist check.
+- Set the minimum `permissions` on each workflow job and avoid granting `contents: write` when only read is needed.
+- Do not pass repository secrets into third-party or reusable actions unless absolutely necessary; prefer OIDC and short-lived tokens.
+- Protect reusable workflows and actions with branch rules, tag protection, CODEOWNERS, and signed tags.
+- Monitor CI runner process trees and egress for unexpected secret access or outbound connections.
+- Require security review of every workflow diff, especially new `uses` lines and mutable tag changes.
+- Rotate CI secrets and revoke `GITHUB_TOKEN` after any suspected workflow injection incident.
 
 ## Straightforward Implementation
 
-### 1. CI gate (OIDC, no long-lived secrets)
+### 1. Prevention config
+
+Replace mutable tags with SHA-pinned references and tighten permissions:
 
 ```yaml
 # .github/workflows/build.yml
+name: Build and publish
+on:
+  push:
+    branches: [main]
+
 permissions:
-  id-token: write
   contents: read
-steps:
-  - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-  - uses: aws-actions/configure-aws-credentials@e3dd6a429a730001a79de495f50a554053c04fbc
-    with:
-      role-to-assume: arn:aws:iam::ACCOUNT:role/build-role
-  - run: npm ci --ignore-scripts
-  - run: npm run build
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        with:
+          node-version: 20
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - uses: vendor/build-action@a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c
+        with:
+          artifact-path: dist/app.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### 2. Artifact signing
+### 2. CI gate
 
-```bash
-cosign sign-blob --yes artifact.tgz --output-signature artifact.tgz.sig
-```
-
-### 3. SLSA provenance
+Fail the build if a workflow uses a mutable tag:
 
 ```yaml
-# Reusable workflow reference
-uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+# .github/workflows/lint-actions.yml
+name: Lint action references
+on: [pull_request]
+jobs:
+  lint-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Reject mutable action tags
+        run: |
+          grep -R "uses:.*@v[0-9]" .github/workflows/ && exit 1 || true
 ```
 
-### 4. Build isolation
+Or use a policy tool such as `step-security/harden-runner` or Allstar to enforce SHA pinning.
 
-Use ephemeral CI runners or containers. Never reuse a runner that has built a different repository without re-imaging.
+### 3. Detection rule location
 
-## ✅ Success Criteria
+Deploy the Sigma rule from `DETECT.md` to your SIEM under the supply-chain detection folder. Alert on:
 
-You've completed this scenario when you can:
-- [ ] Understand how build systems get compromised
-- [ ] Successfully simulate a build compromise
-- [ ] Detect build-time attacks using multiple methods
-- [ ] Implement at least 5 preventive measures
-- [ ] Explain build security to a colleague
+- A CI step that reads `GITHUB_TOKEN` and then makes an outbound HTTP request
+- `process.env` enumeration inside an action entrypoint
+- New `uses` references or tag changes in workflow pull requests
 
-## 🎁 Bonus Challenges
+### 4. Incident response
 
-1. **Multi-Stage Builds**: Exploit multi-stage Docker builds
-2. **Dependency Injection**: Compromise build dependencies
-3. **Secret Rotation**: Implement automated secret rotation
-4. **Build Verification**: Create comprehensive build verification
-5. **CI/CD Hardening**: Harden a complete CI/CD pipeline
+```bash
+# 1. Stop current runs and remove the malicious action reference
+# 2. Rotate all secrets the workflow could access
+gh workflow disable build.yml
+gh secret set AWS_ACCESS_KEY_ID --body "<new-key>"
+# 3. Pin to the last known-good SHA
+sed -i 's/vendor\/build-action@v1/vendor\/build-action@<clean-sha>/' .github/workflows/build.yml
+# 4. Audit recent runs for unexpected egress or artifact changes
+```
 
-## 📊 Attack Comparison
+## Success Criteria
 
-| Aspect | Build Compromise | Other Attacks |
-|--------|-----------------|---------------|
-| Target | CI/CD Pipeline | Packages |
-| Mechanism | Build Script Injection | Package Modification |
-| Detection | Very Hard | Hard |
-| Impact | All Deployments | Package Users |
-| Persistence | High | Medium |
+You have completed this scenario when you can:
 
-## 🔍 Real-World Lessons
+- Explain how a force-pushed action tag compromises every consumer
+- Simulate the attack and observe captured secrets and artifacts
+- Detect mutable tags, secret exposure, and suspicious action code
+- Rewrite the workflow to use SHA pinning and least-privilege permissions
+- List the incident response steps for a compromised reusable action
 
-### Case Study: CodeCov (2021)
+## Bonus Challenges
 
-**What Happened**:
-- CI/CD system compromised
-- Bash uploader script modified
-- Stole environment variables from thousands of projects
-- Affected GitHub, Atlassian, and many others
+1. **Artifact signing**: Add a step that signs `dist/app.js` with `cosign` and verifies the signature before deployment.
+2. **Runner hardening**: Use `step-security/harden-runner` to block unexpected egress from the build job.
+3. **Action allowlist**: Configure a GitHub organization policy that only permits actions from trusted owners.
+4. **Reusable workflow provenance**: Generate SLSA provenance for the build and compare artifact hashes.
+5. **Detection engineering**: Write a Sigma rule that fires when a GitHub Actions step accesses `GITHUB_TOKEN` and then calls an external IP.
 
-**Lessons Learned**:
-- Build systems are high-value targets
-- Secret management is critical
-- Build script integrity must be verified
-- Monitoring is essential
+## Additional Resources
 
-## 💡 Key Takeaways
-
-- **Build systems are high-value targets** - Protect them!
-- **Secrets in builds are dangerous** - Use secret management
-- **Build script integrity matters** - Verify checksums
-- **Artifact verification is essential** - Sign and verify
-- **Isolation prevents attacks** - Use containers
-- **Auditing catches issues** - Log everything
-- **Least privilege reduces risk** - Only necessary secrets
-
-## 📚 Additional Resources
-
+- [GitHub Actions Security Best Practices](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions)
 - [OWASP CI/CD Security](https://owasp.org/www-project-cicd-security/)
 - [CISA Secure Software Development](https://www.cisa.gov/secure-software-development)
-- [GitHub Actions Security](https://docs.github.com/en/actions/security)
 
-## 🔗 Related Scenarios
+## Related Scenarios
 
-**Prerequisites**: Scenarios 1, 2, 3, 4  
-**Next**: Review all scenarios to understand the complete attack landscape
+- **Scenario 23**: Trivy supply-chain attack - another force-pushed GitHub Action tag
+- **Scenario 1**: Typosquatting - malicious package names
+- **Scenario 4**: Malicious update - compromised dependency updates
 
 ---
 
-**Complete**: You've now covered all major supply chain attack vectors!
-
+Complete: you have seen how a trusted CI action can become a supply-chain payload.

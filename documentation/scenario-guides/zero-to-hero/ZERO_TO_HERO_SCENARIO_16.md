@@ -15,7 +15,6 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
-
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,9 +27,8 @@ By the end of this guide, you will:
 - [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
-- [Mitigation Playbook](#mitigation-playbook)
 - [Code-level workflow](#code-level-workflow)
-- [Mitigation Playbook](#mitigation-playbook-1)
+- [Mitigation Playbook](#mitigation-playbook)
 - [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
@@ -571,18 +569,6 @@ node detection-tools/cache-poisoning-detector.js .
 
 ---
 
-## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/16-package-cache-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Clear/rotate package cache during incident response and critical pipeline runs.
-- Enforce lockfile + integrity verification against trusted metadata.
-- Use deterministic installs in CI (`npm ci`) and immutable artifact mirrors.
-- Monitor for suspicious cache path mutations and postinstall behavior.
-- Separate developer cache trust from production build trust boundaries.
-
----
-
 ## Code-level workflow
 
 ![Scenario 16 code-level workflow: Package Cache Poisoning](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-16.svg)
@@ -627,6 +613,94 @@ gh actions-cache delete <key> -R org/repo --confirm
 ### 4. Trust boundary
 
 Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches.
+
+---
+
+nario_id` and `event_type=exfil_capture`. |
+| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+
+> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+
+### End-to-end flow
+
+![Scenario 16 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-16.svg)
+
+*Swimlane diagram for Scenario 16. Editable source: [`scas-observability-scenario-16.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-16.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
+
+### Sequence diagram (Phase 1-5)
+
+Same flow as a participant sequence (expandable in the docs hub).
+
+### Scenario-specific attack steps (Phase 2)
+
+Same Phase-2 path as the diagrams above (for skimming / accessibility).
+
+| # | From | To | Action |
+|---|------|----|--------|
+| 1 | Learner | Victim | npm install (first pass - seeds poisoned cache-lib) |
+| 2 | Learner | Victim | rm node_modules && npm install again (cache hit) |
+| 3 | Victim | MalPkg | Load cache-lib from poisoned local cache/ |
+| 4 | Learner | Victim | npm start - same bad bits reinstalled |
+
+### Prerequisites
+
+From the repository root:
+
+```bash
+./scripts/observability/elasticsearch-up.sh
+./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
+```
+
+### Run this scenario with live Elasticsearch forwarding
+
+**Terminal A - mock collector** (from `scenarios/16-package-cache-poisoning`):
+
+```bash
+cd scenarios/16-package-cache-poisoning
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+node infrastructure/mock-server.js
+```
+
+**Terminal B - execute the lab:**
+
+```bash
+cd scenarios/16-package-cache-poisoning
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+cd victim-app && npm install && npm install && npm start
+```
+
+### Verify locally (file-based evidence)
+
+```bash
+curl -s http://127.0.0.1:3016/captured-data
+```
+
+### Verify in Elasticsearch (API)
+
+```bash
+# Static runbook for this scenario
+curl -s "http://localhost:9200/scas-rules/_doc/16?pretty"
+
+# Latest runtime capture events
+curl -s "http://localhost:9200/scas-detections/_search?pretty" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": { "term": { "scenario_id": "16" } },
+    "sort": [{ "@timestamp": "desc" }],
+    "size": 5
+  }'
+```
+
+### Verify in Kibana (UI)
+
+1. Open [http://localhost:5601](http://localhost:5601)
+2. **Discover** → **SCAS Detections - Scenario 16** - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. **Discover** → **SCAS Rules - Scenario 16** - compare against `iocs`, `sigma`, and `yara` fields
+4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
+
+See [observability/README.md](../../../observability/README.md) for stack details.
 
 ---
 

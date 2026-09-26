@@ -38,10 +38,10 @@ Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) folder
 | Section | Index | What's inside |
 |---------|-------|---------------|
 | Getting started | [getting-started/](./getting-started/index.md) | Full-stack setup, first lab, quick start, SCAS-only setup |
-| Scenario guides | [scenario-guides/](./scenario-guides/index.md) | The 23-lab [catalog](./scenario-guides/CATALOG.md), zero-to-hero walkthroughs, quick-reference cards |
+| Scenario guides | [scenario-guides/](./scenario-guides/index.md) | The 25-lab [catalog](./scenario-guides/CATALOG.md), zero-to-hero walkthroughs, quick-reference cards |
 | Platform & operations | [platform/](./platform/index.md) | Architecture, operations, detection, best practices, tooling, FAQ, quick reference |
 | Learning path | [learning-path/](./learning-path/index.md) | Curriculum, tracks, teaching delivery, capstone rubric |
-| Teaching modules | [modules/](./modules/index.md) | Instructor cards for all 23 scenarios + reusable template |
+| Teaching modules | [modules/](./modules/index.md) | Instructor cards for all 25 scenarios + reusable template |
 | Integration guides | [guides/](./guides/index.md) | Optional integrations (Floci local-AWS cloud track) |
 | Reference | [reference/](./reference/index.md) | Scenario summaries and external resources |
 | Governance | [LEGAL](../LEGAL.md) · [ATTRIBUTION](../ATTRIBUTION.md) · [AUTHORS](../AUTHORS.md) | Copyright, licensing, attribution |
@@ -56,12 +56,12 @@ documentation/
 ├── README.md                 Thin pointer for GitHub folder view → this index
 ├── getting-started/          Onboarding: full-stack setup, first lab, quick start
 ├── scenario-guides/
-│   ├── CATALOG.md            All 23 scenarios - full link matrix
-│   ├── zero-to-hero/         23 learner walkthroughs (TOC + Mitigation Playbook)
-│   └── quick-reference/      23 command cheat sheets (TOC)
+│   ├── CATALOG.md            All 25 scenarios - full link matrix
+│   ├── zero-to-hero/         25 learner walkthroughs (TOC + Mitigation Playbook)
+│   └── quick-reference/      25 command cheat sheets (TOC)
 ├── platform/                 Architecture, operations, detection, tooling, FAQ
 ├── learning-path/            Curriculum, tracks, teaching delivery, capstone
-├── modules/                  Teaching cards (template + index + 23 instances)
+├── modules/                  Teaching cards (template + index + 25 instances)
 ├── guides/                   Optional integrations (Floci cloud track)
 └── reference/                Scenario summaries and external resources
 ```
