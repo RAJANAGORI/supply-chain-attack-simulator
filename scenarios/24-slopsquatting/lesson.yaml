@@ -1,0 +1,46 @@
+id: "24"
+etaMinutes: 35
+category: package-registry
+incidents:
+  - "AI-hallucinated package names"
+  - "Slopsquatting installs"
+objectives:
+  - "Install a package name that looks plausible but is attacker-controlled"
+  - "Run the victim and capture exfil"
+  - "Validate AI-suggested deps before install"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare the lab
+    teaching: "Run setup to create victim, packages, and mock infrastructure for this scenario."
+    hint: "Node 18+ (or the language this lab needs). Dashboard Setup runs ./setup.sh for you."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start mock collectors
+    teaching: "Start the localhost mock server(s). Exfil only targets 127.0.0.1 when TESTBENCH_MODE is enabled."
+    hint: "If a port is busy, free it from Teardown or scripts/setup/kill-port.sh."
+    verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: Install the hallucinated package
+    teaching: "array-sortify is the lab stand-in for a name an LLM might invent. The install resolves to the malicious local package."
+    hint: "Never install a model-suggested package name without checking the registry and downloads."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the victim
+    teaching: "Victim start loads the slopsquat and posts to localhost:3024."
+    hint: "Confirm the inspector shows at least one capture."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Read captures and DETECT.md
+    teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
+    hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
+    verify: { type: capture-count, min: 1 }

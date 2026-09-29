@@ -1,0 +1,46 @@
+id: "04"
+etaMinutes: 35
+category: package-compromise
+incidents:
+  - "coa and rc malicious updates (2021)"
+  - "ua-parser-js crypto-miner releases (2021)"
+objectives:
+  - "Explain how caret and tilde ranges pull in a bad patch"
+  - "Install a malicious update that still looks like a bugfix"
+  - "Detect the update with scanner output and capture data"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare legitimate and malicious update trees
+    teaching: "Setup creates legitimate utils-helper, the malicious 2.1.1-style update, victim-app, and the mock collector scaffolding."
+    hint: "Open both package trees and note how little the public API changed between versions."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start the mock collector
+    teaching: "The update posts exfil to localhost:3000 when the victim loads the bad package under TESTBENCH_MODE."
+    hint: "Leave the collector running for install and start."
+    verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: Install the malicious update
+    teaching: "The lab models an automatic update by installing the malicious utils-helper from a local path. In the wild, a loose version range would have pulled this patch from a registry."
+    hint: "Watch for postinstall or first-load hooks in the live terminal."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the victim after the update
+    teaching: "The app still works. The malicious update hides exfil behind normal helper functions."
+    hint: "Confirm at least one capture entry before you move to detection."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Review the update trail
+    teaching: "Inspector data plus detection-tools/update-scanner.js show what changed. Pin versions and review diffs before you trust an update in production."
+    hint: "From the scenario root: node detection-tools/update-scanner.js victim-app"
+    verify: { type: capture-count, min: 1 }

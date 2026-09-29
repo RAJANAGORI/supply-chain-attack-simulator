@@ -148,3 +148,6 @@ documentation/product/
 research/
 
 documentation/talks
+
+# Local tool installs (nektos/act from ensure-act.sh)
+.tools/

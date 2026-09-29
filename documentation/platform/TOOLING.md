@@ -16,8 +16,9 @@ Every maintainer-facing script in [`scripts/`](../../scripts/), grouped by purpo
 | [`install.sh`](../../install.sh) | Same installer. `-y` is workshop stack (prereqs, npm, ES/Kibana, Floci; writes `.scas.env`) |
 | [`install-external.sh`](../../install-external.sh) | **Optional** external-disk wrapper - storage on USB HDD/SSD, then calls `install.sh` |
 | [`scripts/setup/setup-external-storage.sh`](../../scripts/setup/setup-external-storage.sh) | Low-level: Docker `data-root` + repo/npm cache onto an external disk (no stack install) |
-| [`scripts/setup/setup.sh`](../../scripts/setup/setup.sh) | Repo-wide setup; creates `.testbench.env` |
+| [`scripts/setup/setup.sh`](../../scripts/setup/setup.sh) | Repo-wide setup; creates `.testbench.env`. Skips y/N when `CI=1`, `SCAS_YES=1`, or no TTY |
 | [`scripts/setup/teardown.sh`](../../scripts/setup/teardown.sh) | Kill scenario ports, remove captures & `node_modules` |
+| [`scripts/setup/ensure-act.sh`](../../scripts/setup/ensure-act.sh) | Install nektos/act into `.tools/bin` (labs 05/25) |
 | [`scripts/setup/kill-port.sh`](../../scripts/setup/kill-port.sh) | Free one port, or `--all` ports from `ports.env` |
 | [`scripts/smoke/smoke-all-scenarios.sh`](../../scripts/smoke/smoke-all-scenarios.sh) | End-to-end smoke test across all 25 scenarios |
 | [`scripts/docs/check-info-consistency.js`](../../scripts/docs/check-info-consistency.js) | **CI harness** - fail if public lab counts / indexes / ranges drift from on-disk `scenarios/NN-*` |
@@ -28,6 +29,17 @@ Every maintainer-facing script in [`scripts/`](../../scripts/), grouped by purpo
 | [`scripts/diagrams/generate-scenario-codeflow-diagrams.js`](../../scripts/diagrams/generate-scenario-codeflow-diagrams.js) | Generate dense `scas-codeflow-scenario-NN.{excalidraw,svg}` for all 25 labs (Panel A-E code-level workflow) |
 | [`scripts/setup/ports.env`](../../scripts/setup/ports.env) | Source-of-truth port allow-list (see [Operations → port matrix](./OPERATIONS.md#port-matrix)) |
 | [`scenarios/_shared/run-act.sh`](../../scenarios/_shared/run-act.sh) | Optional [nektos/act](https://github.com/nektos/act) runner for GHA labs (05, 25). Maps remote `uses:` refs to local folders, host runner, Node fallback |
+
+### Dashboard / workshop UI
+
+| Script | Purpose |
+|--------|---------|
+| [`run.sh`](../../run.sh) | Thin alias → `scripts/ui/run-everything.sh` (ES + Floci + act + dashboard) |
+| [`scripts/ui/run-everything.sh`](../../scripts/ui/run-everything.sh) | Full stack; writes `.scas.env`; flags `--core-only`, `--skip-es`, `--skip-floci`, `--skip-act`, `--no-ui`, `--skip-setup` |
+| [`scripts/ui/start-dashboard.sh`](../../scripts/ui/start-dashboard.sh) | Control plane + Next dashboard + Vite landing |
+| [`scripts/ui/conference-demo-up.sh`](../../scripts/ui/conference-demo-up.sh) | Remote lab host smoke: prereqs, stack, health, lab 01 verify |
+
+Learner-facing write-up: [DASHBOARD.md](./DASHBOARD.md).
 
 ### Observability (Elasticsearch + Kibana)
 

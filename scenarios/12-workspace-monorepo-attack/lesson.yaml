@@ -1,0 +1,53 @@
+id: "12"
+etaMinutes: 40
+category: package-compromise
+incidents:
+  - "Workspace package substitution"
+  - "Monorepo trust boundaries"
+objectives:
+  - "Install across workspace packages safely vs maliciously"
+  - "See how one bad workspace package infects the victim app"
+  - "Review workspace lock and publish controls"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare the monorepo
+    teaching: "Setup wires root workspace, packages/api, packages/utils, and the victim app that consumes them."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start the mock collector
+    teaching: "Compromised workspace code posts to localhost:3000 under TESTBENCH_MODE."
+    verify: { type: service-listening }
+  - id: install-root
+    registry: install-root
+    audience: attack
+    title: Install workspace root
+    teaching: "Root install links the workspace graph. Later package installs refine what the victim resolves."
+    verify: { type: exit-zero }
+  - id: install-api
+    registry: install-api
+    audience: attack
+    title: Install api package
+    teaching: "Install packages/api as part of the monorepo attack path."
+    verify: { type: exit-zero }
+  - id: install-utils
+    registry: install-utils
+    audience: attack
+    title: Install utils package
+    teaching: "The utils package is where the compromise often hides in this lab."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the victim app
+    teaching: "victim-app loads the workspace packages and triggers exfil if the compromised utils path is in play."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Review workspace trust
+    teaching: "Treat internal packages like third-party deps. DETECT.md lists review gates for workspace publishes."
+    verify: { type: capture-count, min: 1 }

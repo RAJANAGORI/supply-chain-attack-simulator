@@ -1,0 +1,46 @@
+id: "06"
+etaMinutes: 50
+category: worm-propagation
+incidents:
+  - "Shai-Hulud npm worm campaigns"
+  - "Token theft and package re-publishing"
+objectives:
+  - "See how stolen tokens enable re-publishing worms"
+  - "Trace harvester + Actions sim + registry together"
+  - "Practice containment using DETECT.md"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare the worm lab
+    teaching: "Setup builds the compromised package, victim app, credential harvester, Actions simulator, and mock registry."
+    hint: "Read the victim package.json before you install. Note which tokens the lab will simulate."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start harvester, Actions sim, registry
+    teaching: "Port 3001 harvests credentials. 3002 simulates GitHub Actions. 3003 is the mock registry the worm would republish to."
+    hint: "All three services should show Running before install."
+    verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: Install the compromised package
+    teaching: "npm install in victim-app pulls the wormed package and runs its install-time theft logic under TESTBENCH_MODE."
+    hint: "Watch the harvester and terminal for token-like fields hitting localhost."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the victim app
+    teaching: "Runtime behavior continues the chain. Captures land on the credential harvester, not the usual /captured-data port."
+    hint: "Inspector reads http://127.0.0.1:3001/captured-credentials."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Contain the worm signals
+    teaching: "Use DETECT.md for rotation, publish freeze, and registry monitoring. Optional Floci seed/verify covers the cloud track."
+    hint: "Compare harvested credentials against what a real CI token grant would look like."
+    verify: { type: capture-count, min: 1 }

@@ -4,6 +4,7 @@ Technical reference for how SCAS is built, how to run labs, and how to detect at
 
 | Document | Description |
 |----------|-------------|
+| [DASHBOARD.md](./DASHBOARD.md) | Optional browser UI - labs dock, Observatory, LAN links, teardown clears logs |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Repo layout, mock-server contract, safety gates, and data flow |
 | [OPERATIONS.md](./OPERATIONS.md) | Scripts, ports, teardown, and standard lab workflow |
 | [DETECTION_AND_OBSERVABILITY.md](./DETECTION_AND_OBSERVABILITY.md) | DETECT.md runbooks, scanners, Elasticsearch + Kibana integration |

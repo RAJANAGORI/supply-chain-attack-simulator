@@ -1,0 +1,46 @@
+id: "01"
+etaMinutes: 30
+category: package-registry
+incidents:
+  - "crossenv vs cross-env"
+  - "python3-dateutil vs python-dateutil"
+objectives:
+  - "Tell a typosquat apart from the real package name"
+  - "See how a postinstall script can exfiltrate env vars on localhost"
+  - "Use the mock collector and DETECT.md as a blue-team starting point"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare the lab
+    teaching: "Setup builds the legitimate requests-lib package, the typo package request-lib, and the victim app. Everything stays under scenarios/01-typosquatting."
+    hint: "Need Node 18+. Run from the scenario directory; the dashboard Setup button does that for you."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start the mock collector
+    teaching: "The mock server on port 3000 is the only place exfil is allowed to go. Leave it running while you install and start the victim."
+    hint: "If the port is busy, free it with scripts/setup/kill-port.sh 3000 or Reset on the Teardown page."
+    verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: Install the typosquat
+    teaching: "request-lib is missing the s in requests-lib. npm will happily install the local path into victim-app and run any install scripts."
+    hint: "The registry step already sets cwd to victim-app. Watch the live terminal for postinstall output."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the victim app
+    teaching: "npm start loads the typo package. The payload posts to 127.0.0.1:3000 only when TESTBENCH_MODE is enabled (the control plane injects that for you)."
+    hint: "If you see no capture, confirm the mock server is still up and re-run this step."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Read what the collector stored
+    teaching: "Open the inspector. You should see environment fields the malicious package sent. DETECT.md in this folder is the blue-team runbook."
+    hint: "From the repo root you can also run node detection-tools/package-scanner.js scenarios/01-typosquatting/victim-app."
+    verify: { type: capture-count, min: 1 }

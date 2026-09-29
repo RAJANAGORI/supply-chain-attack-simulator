@@ -104,10 +104,22 @@ if [[ "${SCAS_SKIP_ACT:-}" == "1" ]]; then
   exit $?
 fi
 
+# Prefer repo-local act from ensure-act.sh
+if [[ -n "${SCAS_REPO_ROOT:-}" && -x "${SCAS_REPO_ROOT}/.tools/bin/act" ]]; then
+  export PATH="${SCAS_REPO_ROOT}/.tools/bin:${PATH}"
+elif [[ -x "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/.tools/bin/act" ]]; then
+  export PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/.tools/bin:${PATH}"
+fi
+
 if ! act_ready; then
   echo "nektos/act not found, or too old for --local-repository."
-  echo "Optional install: brew install act"
+  echo "Install: ./scripts/setup/ensure-act.sh"
+  echo "  or: brew install act"
   echo "  https://github.com/nektos/act#installation"
+  if [[ "${SCAS_ACT_REQUIRED:-}" == "1" ]]; then
+    echo "SCAS_ACT_REQUIRED=1: refusing npm fallback. Fix act, or unset SCAS_ACT_REQUIRED / set SCAS_SKIP_ACT=1." >&2
+    exit 1
+  fi
   run_fallback
   exit $?
 fi

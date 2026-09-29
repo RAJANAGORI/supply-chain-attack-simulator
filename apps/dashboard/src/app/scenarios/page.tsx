@@ -4,22 +4,23 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Alert, Btn, LevelBadge, PageHeader, StatusPill } from '@/components/ui';
-import { cp, type ScenarioSummary } from '@/lib/api';
+import { cp, type ProgressState, type ScenarioSummary } from '@/lib/api';
 
 const levels = ['All', 'Beginner', 'Intermediate', 'Advanced'] as const;
 
 export default function ScenariosPage() {
   const router = useRouter();
   const [scenarios, setScenarios] = useState<ScenarioSummary[]>([]);
+  const [progress, setProgress] = useState<ProgressState | null>(null);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [level, setLevel] = useState<(typeof levels)[number]>('All');
 
   useEffect(() => {
-    cp.getScenarios()
-      .then((list) => {
+    Promise.all([cp.getScenarios(), cp.getProgress().catch(() => null)])
+      .then(([list, prog]) => {
         setScenarios(list);
-        // Prefetch detail entries — [id] page is one shared compile for every lab.
+        setProgress(prog);
         for (const s of list) {
           router.prefetch(`/scenarios/${s.id}`);
         }
@@ -35,7 +36,8 @@ export default function ScenariosPage() {
         !q ||
         s.title.toLowerCase().includes(q) ||
         s.id.includes(q) ||
-        s.slug.toLowerCase().includes(q);
+        s.slug.toLowerCase().includes(q) ||
+        (s.lesson?.category ?? '').toLowerCase().includes(q);
       return matchLevel && matchQuery;
     });
   }, [scenarios, query, level]);
@@ -54,13 +56,13 @@ export default function ScenariosPage() {
       <PageHeader
         eyebrow="Labs"
         title="Run labs with live output"
-        description="Open a scenario, run Prepare / Execute — the terminal dock below streams backend logs the whole time."
+        description="Every lab opens as a guided storyboard. Live terminal stays pinned below."
       />
 
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <input
           type="search"
-          placeholder="Search by name or number…"
+          placeholder="Search by name, number, or category…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="focus-ring w-full max-w-md rounded-full liquid-glass px-4 py-2.5 text-sm text-ink-primary placeholder:text-ink-faint sm:w-80"
@@ -88,30 +90,48 @@ export default function ScenariosPage() {
       </p>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((s) => (
-          <Link
-            key={s.id}
-            href={`/scenarios/${s.id}`}
-            prefetch
-            className="group glass-panel block p-5 transition hover:shadow-glow"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <span className="font-mono text-xs text-ink-faint">#{s.id.padStart(2, '0')}</span>
-              <LevelBadge level={s.level} />
-            </div>
-            <h2 className="mt-3 text-base font-semibold text-ink-primary transition group-hover:text-brand">
-              {s.title}
-            </h2>
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              {(s.activeProcesses ?? 0) > 0 ? (
-                <StatusPill status="busy" label={`${s.activeProcesses} active`} />
-              ) : (
-                <StatusPill status="offline" label="Idle" />
-              )}
-              <span className="text-[11px] text-ink-faint">ports {s.ports.join(', ')}</span>
-            </div>
-          </Link>
-        ))}
+        {filtered.map((s) => {
+          const entry = progress?.scenarios[s.id];
+          const stepCount = s.lesson?.stepCount ?? 0;
+          const doneSteps = entry?.completedSteps?.length ?? 0;
+          const guidedDone = stepCount > 0 && doneSteps >= stepCount;
+          const inProgress = stepCount > 0 && doneSteps > 0 && !guidedDone;
+
+          return (
+            <Link
+              key={s.id}
+              href={`/scenarios/${s.id}`}
+              prefetch
+              className="group glass-panel block p-5 transition hover:shadow-glow"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <span className="font-mono text-xs text-ink-faint">#{s.id.padStart(2, '0')}</span>
+                <LevelBadge level={s.level} />
+              </div>
+              <h2 className="mt-3 text-base font-semibold text-ink-primary transition group-hover:text-brand">
+                {s.title}
+              </h2>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                {(s.activeProcesses ?? 0) > 0 ? (
+                  <StatusPill status="busy" label={`${s.activeProcesses} active`} />
+                ) : guidedDone ? (
+                  <StatusPill status="online" label="Done" />
+                ) : inProgress ? (
+                  <StatusPill status="busy" label={`${doneSteps}/${stepCount}`} />
+                ) : (
+                  <StatusPill status="offline" label="Idle" />
+                )}
+                {s.lesson ? (
+                  <span className="text-[11px] text-ink-faint">
+                    ~{s.lesson.etaMinutes} min · {s.lesson.category}
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-ink-faint">ports {s.ports.join(', ')}</span>
+                )}
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       {filtered.length === 0 && scenarios.length > 0 && (

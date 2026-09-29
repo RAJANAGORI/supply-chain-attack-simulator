@@ -54,8 +54,12 @@ source .testbench.env
 
 | Script | Purpose |
 |--------|---------|
-| [`scripts/setup/setup.sh`](../../scripts/setup/setup.sh) | Repo-wide setup, creates `.testbench.env` |
+| [`scripts/setup/setup.sh`](../../scripts/setup/setup.sh) | Repo-wide setup, creates `.testbench.env` (`SCAS_YES=1` / `CI=1` / no TTY skips confirm) |
 | [`scripts/setup/teardown.sh`](../../scripts/setup/teardown.sh) | Kill scenario ports, remove captures & node_modules |
+| [`scripts/setup/ensure-act.sh`](../../scripts/setup/ensure-act.sh) | Install nektos/act for labs 05/25 |
+| [`run.sh`](../../run.sh) / [`scripts/ui/run-everything.sh`](../../scripts/ui/run-everything.sh) | Full UI stack (ES, Floci, act, dashboard) |
+| [`scripts/ui/start-dashboard.sh`](../../scripts/ui/start-dashboard.sh) | Dashboard only |
+| [`scripts/ui/conference-demo-up.sh`](../../scripts/ui/conference-demo-up.sh) | Conference / remote host smoke + lab 01 check |
 | [`scripts/setup/kill-port.sh`](../../scripts/setup/kill-port.sh) | Free one port or all ports from `ports.env` |
 | [`scripts/smoke/smoke-all-scenarios.sh`](../../scripts/smoke/smoke-all-scenarios.sh) | End-to-end smoke for all 25 scenarios |
 | [`scripts/docs/check-info-consistency.js`](../../scripts/docs/check-info-consistency.js) | Fail CI if public lab counts / indexes drift from on-disk scenarios |
@@ -82,6 +86,9 @@ Source of truth: [`scripts/setup/ports.env`](../../scripts/setup/ports.env)
 | 3002 | Scenario 14 (container mock), 06 (GitHub Actions sim) |
 | 3003 | Scenario 06 (replication simulator) |
 | 3015-3025 | Scenarios 15-25 (dedicated mock servers) |
+| 3100 | Dashboard (optional UI) |
+| 3101 | Control plane (optional UI; often loopback-only behind :3100 proxy) |
+| 5173 | Landing site (optional) |
 | 9200 | Elasticsearch (optional) |
 | 5601 | Kibana (optional) |
 | 4566 | Floci AWS emulator (optional; all scenarios - S3 universal; extended on 05, 06, 11, 14, 17, 19, 23) |

@@ -60,7 +60,12 @@ wss.on('connection', (ws, req) => {
   };
 
   processManager.on('log', onLog);
-  ws.on('close', () => processManager.off('log', onLog));
+  const onCleared = () => send({ type: 'logs-cleared' });
+  processManager.on('logs-cleared', onCleared);
+  ws.on('close', () => {
+    processManager.off('log', onLog);
+    processManager.off('logs-cleared', onCleared);
+  });
 });
 
 server.listen(PORT, HOST, () => {

@@ -39,15 +39,23 @@ const server = http.createServer((req, res) => {
         
         // Save to file
         const captures = JSON.parse(fs.readFileSync(logFile, 'utf8'));
-        captures.captures.push({
+        const captureEntry = {
           timestamp: new Date().toISOString(),
           attackType: 'registry-mirror-poisoning',
           data: data
-        });
+        };
+        captures.captures.push(captureEntry);
         fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
-        
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'success', message: 'Data received' }));
+        try {
+          require('../../../detection-tools/es/forward-capture')
+            .forwardCaptureIfEnabled(__dirname, captureEntry)
+            .catch(() => {});
+        } catch (_) {
+          /* optional ES forwarding; capture already persisted */
+        }
       } catch (e) {
         console.error('Error processing data:', e);
         res.writeHead(400);

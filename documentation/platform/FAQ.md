@@ -77,6 +77,29 @@ Stop the mock server before `npm start` on the victim Express app (documented in
 
 ---
 
+## Dashboard / UI
+
+### How do I start the guided learning UI?
+
+```bash
+./run.sh
+# or UI only after setup:
+./scripts/ui/start-dashboard.sh
+```
+
+Details: [DASHBOARD.md](./DASHBOARD.md). Conference smoke on a remote lab host: `./scripts/ui/conference-demo-up.sh`.
+
+### setup.sh asks y/N and hangs over SSH
+
+Automation skips the prompt when `CI=1`, `SCAS_YES=1`, or stdin is not a TTY:
+
+```bash
+SCAS_YES=1 ./scripts/setup/setup.sh
+# ./run.sh inherits the same when you export SCAS_YES=1
+```
+
+---
+
 ## Detection and blue team
 
 ### Where are IOCs and detection rules?
@@ -95,6 +118,20 @@ node detection-tools/package-scanner.js scenarios/01-typosquatting/victim-app --
 ### How do I use Elasticsearch and Kibana?
 
 See [DETECTION_AND_OBSERVABILITY.md](./DETECTION_AND_OBSERVABILITY.md) and [observability/README.md](../../observability/README.md).
+
+From the dashboard Overview or Observatory, Open Kibana / service links use the hostname in your browser address bar (LAN demos). Health checks on the lab host still use loopback.
+
+### Open Kibana / ES links show 127.0.0.1 and fail from my laptop
+
+You are browsing the UI on a remote lab host. Open the dashboard as `http://<lab-ip>:3100` (not only via SSH tunnel to localhost unless you also forward 5601/9200). Recent UI builds rewrite those links to `<lab-ip>`. Hard-refresh after updating. Payload JSON that shows `c2: 127.0.0.1:3000` is intentional TESTBENCH exfil, not a broken UI link.
+
+### Check inspector does nothing
+
+Detect steps (`registry: null`) re-verify captures and scroll to Live inspector. If the step is already verified, you should still see a short status note. Update the dashboard if you are on an older build.
+
+### Reset lab left old lines in the live terminal
+
+After teardown finishes, the control plane clears the log buffer and open docks wipe over WebSocket. Use Clear in the dock header to force the same wipe. Upgrade control plane + dashboard if clear-on-teardown is missing.
 
 ---
 

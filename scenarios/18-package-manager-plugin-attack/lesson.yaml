@@ -1,0 +1,35 @@
+id: "18"
+etaMinutes: 40
+category: package-manager
+incidents:
+  - "npm/lifecycle plugin hooks"
+  - "Package manager extension abuse"
+objectives:
+  - "Trigger malicious plugin hooks via npm start"
+  - "Inspect hook-driven exfil"
+  - "Restrict plugin and hook surfaces"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare plugin lab packages
+    teaching: "Setup wires victim-app and packages that register malicious package-manager hooks."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start the mock collector
+    teaching: "Hook payloads post to localhost:3018."
+    verify: { type: service-listening }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run victim so plugin hooks fire
+    teaching: "npm start is enough for this lab. Plugin hooks fire without a separate install step in the registry."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Audit hooks and plugins
+    teaching: "DETECT.md lists hook review, ignore-scripts policies, and allowlisted plugins."
+    verify: { type: capture-count, min: 1 }

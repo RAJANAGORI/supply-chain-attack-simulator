@@ -4,7 +4,7 @@
 
 Install SCAS on an isolated lab machine (macOS, Linux, or WSL2): the core labs, optional Elasticsearch/Kibana, and Floci for the cloud-track labs.
 
-**Shorter paths:** [Quick start](./QUICK_START.md) (SCAS only, ~5 min) · [Complete setup](./SETUP.md) (install detail) · [Floci integration](../guides/FLOCI_INTEGRATION.md) (cloud track only)
+Shorter paths: [Quick start](./QUICK_START.md) (SCAS only, ~5 min) · [Complete setup](./SETUP.md) (install detail) · [Floci integration](../guides/FLOCI_INTEGRATION.md) (cloud track only)
 
 ### One-shot installer
 
@@ -23,8 +23,12 @@ USB HDD / Raspberry Pi only: use [`install-external.sh`](../../install-external.
 
 ```bash
 source .scas.env                 # every session
-./scripts/ui/start-dashboard.sh    # optional UI
+./run.sh                         # recommended: ES + Floci + act + dashboard
+# or UI only:
+./scripts/ui/start-dashboard.sh
 ```
+
+On a remote demo host after pull: `./scripts/ui/conference-demo-up.sh` (see [DASHBOARD.md](../platform/DASHBOARD.md)).
 
 | Flag | Effect |
 |------|--------|
@@ -46,16 +50,16 @@ Manual step-by-step remains below if you prefer to install piece by piece.
 
 | Component | Purpose | Required? |
 |-----------|---------|-----------|
-| **SCAS core** | 25 hands-on supply-chain attack labs | Yes |
-| **Elasticsearch + Kibana** | Index detection runbooks and lab events for blue-team practice | Optional (recommended for workshops) |
-| **Floci** | Local AWS emulator (S3 universal; ECR/IAM/pipeline on select labs) | Optional (all **25** scenarios; extended **05, 06, 11, 14, 17, 19, 23**) |
+| SCAS core | 25 hands-on supply-chain attack labs | Yes |
+| Elasticsearch + Kibana | Index detection runbooks and lab events for blue-team practice | Optional (recommended for workshops) |
+| Floci | Local AWS emulator (S3 universal; ECR/IAM/pipeline on select labs) | Optional (all 25 scenarios; extended 05, 06, 11, 14, 17, 19, 23) |
 
 ### Safety rules (non-negotiable)
 
-- Use only on an **isolated VM or lab machine** - never production.
-- All malicious behavior targets **localhost only**.
+- Use only on an isolated VM or lab machine - never production.
+- All malicious behavior targets localhost only.
 - Set `TESTBENCH_MODE=enabled` before running attack payloads (`source .testbench.env`).
-- Do not expose ports **9200**, **5601**, or **4566** to the public internet.
+- Do not expose ports 9200, 5601, or 4566 to the public internet.
 
 ---
 
@@ -65,20 +69,20 @@ Manual step-by-step remains below if you prefer to install piece by piece.
 
 | Tool | Version | Used for |
 |------|---------|----------|
-| **Git** | any recent | clone the repo |
-| **Node.js** | 16+ (20 recommended) | scenarios, mock servers, detection tools |
-| **npm** | 7+ | package installs in labs |
-| **Python 3** | 3.8+ (3.11 recommended) | scenario 22 and some tooling |
-| **Docker Desktop** (or Docker Engine + Compose v2) | recent | Elasticsearch, Kibana, Floci |
+| Git | any recent | clone the repo |
+| Node.js | 16+ (20 recommended) | scenarios, mock servers, detection tools |
+| npm | 7+ | package installs in labs |
+| Python 3 | 3.8+ (3.11 recommended) | scenario 22 and some tooling |
+| Docker Desktop (or Docker Engine + Compose v2) | recent | Elasticsearch, Kibana, Floci |
 
-**macOS (Homebrew example)**
+macOS (Homebrew example)
 
 ```bash
 brew install git node python@3.11
 brew install --cask docker   # open Docker Desktop; wait until "running"
 ```
 
-**Verify**
+Verify
 
 ```bash
 git --version
@@ -95,7 +99,7 @@ docker compose version
 |-------|-----|------|
 | SCAS only | 4 GB+ | ~2 GB |
 | SCAS + Elasticsearch + Kibana | 8 GB+ | ~5 GB |
-| **Full stack** (SCAS + ES + Floci) | **12-16 GB recommended** | ~8 GB+ |
+| Full stack (SCAS + ES + Floci) | 12-16 GB recommended | ~8 GB+ |
 
 ---
 
@@ -120,7 +124,7 @@ source .scas.env
 
 ### Step 3: Load the testbench environment (every new terminal)
 
-From the **repo root**:
+From the repo root:
 
 ```bash
 source .testbench.env
@@ -141,7 +145,7 @@ Do this once per machine; start/stop per lab session. Full reference: [Detection
 
 ### Step 1: Start the stack
 
-From **repo root**:
+From repo root:
 
 ```bash
 chmod +x scripts/observability/elasticsearch-up.sh scripts/observability/elasticsearch-down.sh \
@@ -151,22 +155,22 @@ chmod +x scripts/observability/elasticsearch-up.sh scripts/observability/elastic
 
 This will:
 
-1. Start Elasticsearch on **http://localhost:9200**
-2. Start Kibana on **http://localhost:5601**
+1. Start Elasticsearch on http://localhost:9200
+2. Start Kibana on http://localhost:5601
 3. Create indices `scas-rules` and `scas-detections`
 4. Load all 25 scenario `DETECT.md` runbooks into Elasticsearch
 5. Set up Kibana data views (when Kibana is ready)
 
-First run can take **2-5 minutes** while Docker pulls images.
+First run can take 2-5 minutes while Docker pulls images.
 
 ### Step 2: Open Kibana
 
 On the same machine:
 
-- **Kibana:** http://localhost:5601
-- **Elasticsearch health:** http://localhost:9200/_cluster/health
+- Kibana: http://localhost:5601
+- Elasticsearch health: http://localhost:9200/_cluster/health
 
-In Kibana → **Discover**, you should see data views **SCAS Rules** and **SCAS Detections**.
+In Kibana → Discover, you should see data views SCAS Rules and SCAS Detections.
 
 If data views are missing:
 
@@ -203,13 +207,13 @@ Expect `PASS` for rules count and detections after shipping.
 
 ## Part 3 - Floci (AWS emulator)
 
-Required for the optional cloud track on **all 23** scenarios (S3 mirror); extended primitives on **05, 06, 11, 14, 17, 19, 23**. Per-scenario detail: [Floci integration guide](../guides/FLOCI_INTEGRATION.md).
+Required for the optional cloud track on all 23 scenarios (S3 mirror); extended primitives on 05, 06, 11, 14, 17, 19, 23. Per-scenario detail: [Floci integration guide](../guides/FLOCI_INTEGRATION.md).
 
 ### Step 1: One-time Floci setup
 
-From **repo root**, pick one option:
+From repo root, pick one option:
 
-**Option A - Fast (recommended)**
+Option A - Fast (recommended)
 
 Published Docker image; no Java build.
 
@@ -217,7 +221,7 @@ Published Docker image; no Java build.
 ./scripts/floci/floci-setup.sh --image
 ```
 
-**Option B - Build from source**
+Option B - Build from source
 
 Clones `floci-io/floci` into `vendor/floci-aws` (~5-15 min first time).
 
@@ -238,7 +242,7 @@ This creates:
 ./scripts/floci/floci-status.sh
 ```
 
-Floci listens on **http://127.0.0.1:4566** (container name: `scas-floci`).
+Floci listens on http://127.0.0.1:4566 (container name: `scas-floci`).
 
 ### Step 3: Load Floci environment
 
@@ -251,15 +255,15 @@ echo $SCAS_FLOCI_ENABLED   # must print: 1
 
 ## Part 4 - "Everything on" session layout
 
-Use **three terminals** for the full workshop stack:
+Use three terminals for the full workshop stack:
 
 | Terminal | Role | Commands |
 |----------|------|----------|
-| **T1 - Infrastructure** | Long-running services | ES (if not up), Floci, scenario mock servers |
-| **T2 - Lab work** | Run attacks, npm, scripts | Scenario steps per README |
-| **T3 - Blue team** (optional) | curl, detectors, Kibana | Verification |
+| T1 - Infrastructure | Long-running services | ES (if not up), Floci, scenario mock servers |
+| T2 - Lab work | Run attacks, npm, scripts | Scenario steps per README |
+| T3 - Blue team (optional) | curl, detectors, Kibana | Verification |
 
-**T1 - Start everything (repo root)**
+T1 - Start everything (repo root)
 
 ```bash
 source .testbench.env
@@ -275,9 +279,9 @@ export SCAS_ES_URL=http://localhost:9200
 
 ## Part 5 - Prove it works: Scenario 01 (no Floci)
 
-Best first lab - typosquatting. Mock server on port **3000** only.
+Best first lab - typosquatting. Mock server on port 3000 only.
 
-**T1 - Mock server**
+T1 - Mock server
 
 ```bash
 cd scenarios/01-typosquatting
@@ -287,7 +291,7 @@ node infrastructure/mock-server.js
 
 Leave this running.
 
-**T2 - Run the attack**
+T2 - Run the attack
 
 ```bash
 cd supply-chain-attack-simulator   # repo root
@@ -299,7 +303,7 @@ npm install ../malicious-packages/request-lib
 npm start
 ```
 
-**T3 - Verify**
+T3 - Verify
 
 ```bash
 curl http://localhost:3000/captured-data
@@ -311,7 +315,7 @@ node detection-tools/es/ship-captures.js
 node detection-tools/package-scanner.js scenarios/01-typosquatting/victim-app
 ```
 
-In Kibana → Discover → **SCAS Detections**, filter `scenario_id: "01"`.
+In Kibana → Discover → SCAS Detections, filter `scenario_id: "01"`.
 
 Walkthrough: [Zero to Hero - Scenario 01](../scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md)
 
@@ -319,7 +323,7 @@ Walkthrough: [Zero to Hero - Scenario 01](../scenario-guides/zero-to-hero/ZERO_T
 
 ## Part 6 - Prove Floci works: Scenario 05 (build compromise)
 
-**T1 - Services**
+T1 - Services
 
 ```bash
 cd supply-chain-attack-simulator   # repo root
@@ -336,7 +340,7 @@ chmod +x infrastructure/floci/*.sh
 ./infrastructure/floci/seed.sh
 ```
 
-**T2 - Run build attack**
+T2 - Run build attack
 
 ```bash
 cd scenarios/05-build-compromise/compromised-build
@@ -344,7 +348,7 @@ set -a && source .env.lab 2>/dev/null || source ../../_shared/lookalike-secrets.
 npm run build
 ```
 
-**T3 - Verify both tracks**
+T3 - Verify both tracks
 
 ```bash
 # HTTP mock (port 3000)
@@ -370,7 +374,7 @@ More: `scenarios/05-build-compromise/FLOCI.md` · [Floci integration guide](../g
 | 4566 | Floci (AWS emulator) |
 | 3000-3023 | Scenario mock servers (see [`scripts/setup/ports.env`](../../scripts/setup/ports.env)) |
 
-Floci uses **4566 only** - it does not start floci-ui on 3000/3001, so it will not conflict with SCAS mock servers.
+Floci uses 4566 only - it does not start floci-ui on 3000/3001, so it will not conflict with SCAS mock servers.
 
 Full matrix: [Operations runbook](../platform/OPERATIONS.md#port-matrix)
 
@@ -378,13 +382,13 @@ Full matrix: [Operations runbook](../platform/OPERATIONS.md#port-matrix)
 
 ## Part 8 - Stop and clean up
 
-**Stop Floci**
+Stop Floci
 
 ```bash
 ./scripts/floci/floci-down.sh
 ```
 
-**Stop Elasticsearch**
+Stop Elasticsearch
 
 ```bash
 ./scripts/observability/elasticsearch-down.sh
@@ -392,13 +396,13 @@ Full matrix: [Operations runbook](../platform/OPERATIONS.md#port-matrix)
 ./scripts/observability/elasticsearch-down.sh --volumes
 ```
 
-**Reset lab artifacts (ports, captures, node_modules)**
+Reset lab artifacts (ports, captures, node_modules)
 
 ```bash
 ./scripts/setup/teardown.sh
 ```
 
-**Free a single port**
+Free a single port
 
 ```bash
 ./scripts/setup/kill-port.sh 3000
@@ -465,4 +469,4 @@ More: [FAQ](../platform/FAQ.md) · [Operations](../platform/OPERATIONS.md)
 
 ---
 
-**Related:** [Getting started index](./index.md) · [Operations](../platform/OPERATIONS.md) · [Tooling](../platform/TOOLING.md) · [↑ Documentation index](../index.md)
+Related: [Getting started index](./index.md) · [Operations](../platform/OPERATIONS.md) · [Tooling](../platform/TOOLING.md) · [↑ Documentation index](../index.md)

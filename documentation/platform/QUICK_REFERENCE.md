@@ -14,6 +14,7 @@ Authoritative content lives under **`documentation/`**. The **`docs/`** director
 | [QUICK_START.md](../getting-started/QUICK_START.md) | Fast setup |
 | [SETUP.md](../getting-started/SETUP.md) | Detailed setup |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Platform design |
+| [DASHBOARD.md](./DASHBOARD.md) | Optional browser UI |
 | [OPERATIONS.md](./OPERATIONS.md) | Scripts, ports, teardown |
 | [DETECTION_AND_OBSERVABILITY.md](./DETECTION_AND_OBSERVABILITY.md) | Blue team + Elasticsearch/Kibana |
 | [BEST_PRACTICES.md](./BEST_PRACTICES.md) | Defensive patterns |
@@ -23,7 +24,7 @@ Authoritative content lives under **`documentation/`**. The **`docs/`** director
 
 | Type | Index |
 | --- | --- |
-| **Full catalog (23 scenarios)** | [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md) |
+| Full catalog (25 scenarios) | [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md) |
 | Zero-to-hero walkthroughs | [scenario-guides/zero-to-hero/README.md](../scenario-guides/zero-to-hero/README.md) |
 | Quick reference cards | [scenario-guides/quick-reference/README.md](../scenario-guides/quick-reference/README.md) |
 
@@ -33,6 +34,8 @@ Authoritative content lives under **`documentation/`**. The **`docs/`** director
 ./START_HERE.sh         # menu: labs / workshop / docker (same as ./install.sh)
 source .scas.env        # written by the installer
 export TESTBENCH_MODE=enabled
+./run.sh                # full stack UI (ES + Floci + act + dashboard)
+# ./scripts/ui/conference-demo-up.sh   # remote / conference smoke
 cd scenarios/01-typosquatting && ./setup.sh
 ./scripts/setup/kill-port.sh 3000
 ./scripts/setup/kill-port.sh --all

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { controlPlaneDisplayHost } from './hosts';
+import { browserFacingUrl, controlPlaneDisplayHost } from './hosts';
 
 const CP_PORT = process.env.NEXT_PUBLIC_CONTROL_PLANE_PORT ?? '3101';
 
@@ -14,4 +14,23 @@ export function useControlPlaneDisplayHost(): string {
   }, []);
 
   return host;
+}
+
+/** Loopback → current page hostname (for Kibana / ES / Floci links on LAN demos). */
+export function useBrowserFacingUrl(urlOrPort: string | number | undefined): string {
+  const [href, setHref] = useState(() => {
+    if (urlOrPort == null) return '';
+    if (typeof urlOrPort === 'number') return `http://127.0.0.1:${urlOrPort}`;
+    return urlOrPort;
+  });
+
+  useEffect(() => {
+    if (urlOrPort == null) {
+      setHref('');
+      return;
+    }
+    setHref(browserFacingUrl(urlOrPort));
+  }, [urlOrPort]);
+
+  return href;
 }
