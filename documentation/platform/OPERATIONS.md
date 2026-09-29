@@ -88,7 +88,6 @@ Source of truth: [`scripts/setup/ports.env`](../../scripts/setup/ports.env)
 | 3015-3025 | Scenarios 15-25 (dedicated mock servers) |
 | 3100 | Dashboard (optional UI) |
 | 3101 | Control plane (optional UI; often loopback-only behind :3100 proxy) |
-| 5173 | Landing site (optional) |
 | 9200 | Elasticsearch (optional) |
 | 5601 | Kibana (optional) |
 | 4566 | Floci AWS emulator (optional; all scenarios - S3 universal; extended on 05, 06, 11, 14, 17, 19, 23) |

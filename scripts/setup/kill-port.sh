@@ -19,8 +19,8 @@ if [[ -z "${PORT}" ]]; then
   exit 1
 fi
 
-# Never kill the Control Center stack (dashboard / control plane / landing).
-PROTECTED_PORTS=(3100 3101 5173)
+# Never kill the Control Center stack (dashboard / control plane).
+PROTECTED_PORTS=(3100 3101)
 
 is_protected_port() {
   local p="$1"

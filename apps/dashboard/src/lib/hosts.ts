@@ -54,10 +54,7 @@ export function controlPlaneWsUrl(): string {
   return `ws://127.0.0.1:${port}/ws/logs`;
 }
 
+/** Public marketing site (not started with the local control center). */
 export function landingUrl(): string {
-  const port = '5173';
-  if (typeof window !== 'undefined') {
-    return `http://${window.location.hostname}:${port}`;
-  }
-  return `http://${DEFAULT_HOST}:${port}`;
+  return 'https://simulator.rajanagori.in/';
 }

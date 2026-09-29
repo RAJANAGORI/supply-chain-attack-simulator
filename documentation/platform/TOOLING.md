@@ -36,7 +36,7 @@ Every maintainer-facing script in [`scripts/`](../../scripts/), grouped by purpo
 |--------|---------|
 | [`run.sh`](../../run.sh) | Thin alias → `scripts/ui/run-everything.sh` (ES + Floci + act + dashboard) |
 | [`scripts/ui/run-everything.sh`](../../scripts/ui/run-everything.sh) | Full stack; writes `.scas.env`; flags `--core-only`, `--skip-es`, `--skip-floci`, `--skip-act`, `--no-ui`, `--skip-setup` |
-| [`scripts/ui/start-dashboard.sh`](../../scripts/ui/start-dashboard.sh) | Control plane + Next dashboard + Vite landing |
+| [`scripts/ui/start-dashboard.sh`](../../scripts/ui/start-dashboard.sh) | Control plane + Next dashboard (marketing: https://simulator.rajanagori.in/) |
 | [`scripts/ui/conference-demo-up.sh`](../../scripts/ui/conference-demo-up.sh) | Remote lab host smoke: prereqs, stack, health, lab 01 verify |
 
 Learner-facing write-up: [DASHBOARD.md](./DASHBOARD.md).

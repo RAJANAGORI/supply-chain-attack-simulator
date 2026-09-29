@@ -6,11 +6,11 @@ The CLI remains the canonical way to run labs. The dashboard is an optional cont
 
 | Service | URL | Role |
 |---------|-----|------|
-| Landing (Vite) | http://0.0.0.0:5173 | Multi-section motion marketing site + Start Dashboard CTA (editable copy in `apps/landing/src/content/site.ts`) |
+| Public marketing | https://simulator.rajanagori.in/ | Product / docs landing (not started by local UI scripts) |
 | Dashboard (Next.js) | http://0.0.0.0:3100 | Scenario catalog, service controls, live logs |
 | Control plane | http://0.0.0.0:3101 | Process supervisor, WebSocket logs, capture proxy |
 
-Landing and dashboard share the public docs theme (`apps/design-tokens/`) with a light/dark toggle (same `localStorage` key as docs: `scas-theme`). Control plane is API-only and has no UI chrome.
+Dashboard uses the shared public docs theme (`apps/design-tokens/`) with a light/dark toggle (same `localStorage` key as docs: `scas-theme`). Control plane is API-only and has no UI chrome.
 
 ## LAN access
 
@@ -59,14 +59,16 @@ Or run components separately:
 npm install
 npm run dev:control-plane   # terminal 1 - 0.0.0.0:3101
 npm run dev:dashboard       # terminal 2 - 0.0.0.0:3100
-npm run dev:landing         # terminal 3 - 0.0.0.0:5173
 ```
 
 Then open:
 
-- Landing: http://0.0.0.0:5173 (or http://localhost:5173)
-- Dashboard: http://0.0.0.0:3100
-- Control plane health: http://0.0.0.0:3101/api/health
+- Dashboard: http://0.0.0.0:3100 (or http://localhost:3100)
+- Welcome: http://localhost:3100/welcome
+- Control plane health: http://127.0.0.1:3101/api/health
+- Marketing (public): https://simulator.rajanagori.in/
+
+The Vite app under `apps/landing` is optional local packaging only (`npm run dev:landing`). Default stacks do not start port 5173.
 
 Control plane not loading? Verify:
 
@@ -84,7 +86,7 @@ curl http://127.0.0.1:3101/api/health
 
 ## What the dashboard can do
 
-- Welcome - product pitch and safety model inside the dashboard (`/welcome`) so the Vite landing site is optional
+- Welcome - product pitch and safety model inside the dashboard (`/welcome`)
 - Labs workspace - guided storyboard for all 25 scenarios via `lesson.yaml` (Red / Blue / Purple roles, hints, verify gates, live inspector)
 - Live terminal - side-by-side by default (drag the splitter to resize; Side / Bottom toggle; SM/MD/LG presets). Collapses to a thin bar when you do not need logs
 - Observatory (`/observe`) - Elasticsearch `scas-detections` timeline when the stack is up
@@ -119,7 +121,7 @@ Every lab under `scenarios/NN-slug/` ships `lesson.yaml`. Teaching metadata only
 |-------|------|
 | Dashboard (Next.js :3100) | Primary learner UI (welcome, labs, observe, skills, briefing, classroom) |
 | Control plane (Express :3101) | Process supervisor, lessons, progress, classroom, assistant, ES proxy |
-| Landing (Vite :5173) | Optional marketing shell; CTA still points at the dashboard |
+| Public site | https://simulator.rajanagori.in/ (marketing / docs hub; not part of `./run.sh`) |
 
 Full process merge (Next API routes spawning labs) is intentionally not done - the supervisor stays in the control plane for safety and WebSocket log streaming.
 
@@ -128,7 +130,7 @@ Full process merge (Next API routes spawning labs) is intentionally not done - t
 ```
 apps/
 ├── design-tokens/    # Shared SCAS brand tokens (Realtime Colors palette)
-├── landing/          # Optional Vite marketing site
+├── landing/          # Optional local Vite packaging (not started by default)
 ├── dashboard/        # Next.js learning platform UI
 └── control-plane/    # Express + WS + registry + lesson/classroom/skills APIs
 ```

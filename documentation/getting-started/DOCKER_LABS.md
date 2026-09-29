@@ -51,9 +51,9 @@ Run **one scenario lab at a time** - many share host port 3000.
 
 | Service | URL |
 |---------|-----|
-| Landing | http://localhost:5173 |
 | Dashboard | http://localhost:3100 |
 | Control plane | http://localhost:3101/api/health |
+| Public marketing | https://simulator.rajanagori.in/ |
 
 With Docker, the control plane starts labs via `docker compose` (`SCAS_LAB_BACKEND=docker`) and the mounted Docker socket.
 

@@ -40,7 +40,7 @@ SCAS Docker install hub
   ./docker/install.sh                     Interactive menu
   ./docker/install.sh --oneshot           ES + Kibana + Floci + Scenario 01
   ./docker/install.sh --oneshot --with-ui … + Command Center (apps/)
-  ./docker/install.sh --ui-only           Landing :5173 + Dashboard :3100 + Control plane :3101
+  ./docker/install.sh --ui-only           Dashboard :3100 + Control plane :3101
   ./docker/install.sh --platform-only     ES + Kibana + Floci only
   ./docker/install.sh --scenario NN       Start one compose lab
   ./docker/install.sh --scenario NN --with-platform --with-ui

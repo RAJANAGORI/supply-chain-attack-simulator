@@ -45,9 +45,9 @@ docker compose down -v
 ./docker/install.sh --ui-only
 ```
 
-- Landing http://localhost:5173
 - Dashboard http://localhost:3100
 - Control plane http://localhost:3101
+- Marketing https://simulator.rajanagori.in/
 
 Control plane uses `SCAS_LAB_BACKEND=docker` to start scenario compose stacks via the Docker socket.
 

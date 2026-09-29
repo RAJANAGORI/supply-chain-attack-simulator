@@ -34,7 +34,7 @@ app.get('/', (_req, res) => {
       logs: '/ws/logs',
     },
     dashboard: `http://${PUBLIC_HOST}:3100`,
-    landing: `http://${PUBLIC_HOST}:5173`,
+    publicSite: 'https://simulator.rajanagori.in/',
   });
 });
 
