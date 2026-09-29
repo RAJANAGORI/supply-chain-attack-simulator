@@ -33,8 +33,12 @@ export function LogConsole({
     ws.onclose = () => setConnected(false);
     ws.onmessage = (ev) => {
       try {
-        const entry = JSON.parse(ev.data) as LogEntry;
-        setLines((prev) => [...prev.slice(-799), entry]);
+        const msg = JSON.parse(ev.data) as LogEntry & { type?: string };
+        if (msg.type === 'logs-cleared') {
+          setLines([]);
+          return;
+        }
+        setLines((prev) => [...prev.slice(-799), msg]);
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
       } catch {
         /* ignore */
@@ -73,8 +77,8 @@ export function LogConsole({
         </div>
       )}
       <div
-        className={`min-h-0 overflow-y-auto p-4 font-mono text-[11px] leading-5 ${
-          fill ? 'flex-1' : tall ? 'h-[420px]' : 'h-56'
+        className={`min-h-0 overflow-x-auto overflow-y-auto px-3 py-3 font-mono leading-relaxed sm:px-4 ${
+          fill ? 'flex-1 text-xs sm:text-[13px] sm:leading-6' : tall ? 'h-[420px] text-[11px] leading-5' : 'h-56 text-[11px] leading-5'
         }`}
       >
         {lines.length === 0 ? (

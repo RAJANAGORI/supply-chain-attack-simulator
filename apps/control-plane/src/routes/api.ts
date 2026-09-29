@@ -560,7 +560,39 @@ export function createApiRouter(): Router {
         processManager.stopSession(proc.id);
       }
     }
-    return startPlatformScript(res, 'Lab teardown', 'scripts/setup/teardown.sh');
+    const scriptPath = resolve(REPO, 'scripts/setup/teardown.sh');
+    const record = processManager.startDetached({
+      label: 'Lab teardown',
+      command: 'bash',
+      args: [scriptPath],
+      cwd: REPO,
+      scenarioId: 'platform',
+      serviceId: 'Lab teardown',
+    });
+    const onEnd = (ended: { id: string }) => {
+      if (ended.id !== record.id) return;
+      processManager.off('process-end', onEnd);
+      // Fresh terminal after reset — drop teardown + lab history.
+      processManager.clearLogs('Environment reset. Terminal is clear — start a lab when ready.');
+    };
+    processManager.on('process-end', onEnd);
+    return res.json({
+      started: true,
+      async: true,
+      sessionId: record.id,
+      label: record.label,
+      message: 'Lab teardown started. The live terminal clears when reset finishes.',
+    });
+  });
+
+  router.delete('/logs', (_req, res) => {
+    const result = processManager.clearLogs();
+    res.json({ ok: true, ...result });
+  });
+
+  router.post('/logs/clear', (_req, res) => {
+    const result = processManager.clearLogs();
+    res.json({ ok: true, ...result });
   });
 
   router.get('/logs', (req, res) => {
@@ -568,9 +600,7 @@ export function createApiRouter(): Router {
     if (sessionId) {
       return res.json(processManager.getLogs(sessionId));
     }
-    const all = processManager.list().flatMap((p) => processManager.getLogs(p.id));
-    all.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-    res.json(all.slice(-500));
+    res.json(processManager.getAllLogs());
   });
 
   router.get('/processes', (_req, res) => {

@@ -98,8 +98,14 @@ echo -e "${YELLOW}   for educational purposes only.${NC}"
 echo "========================================================="
 echo ""
 
-read -p "Do you want to continue? (y/N): " -n 1 -r
-echo ""
+# Noninteractive: CI=1, SCAS_YES=1, or no TTY (piped / automation)
+if [[ "${CI:-}" = "1" || "${SCAS_YES:-}" = "1" || ! -t 0 ]]; then
+    REPLY=y
+    echo "Do you want to continue? (y/N): y  [noninteractive]"
+else
+    read -p "Do you want to continue? (y/N): " -n 1 -r
+    echo ""
+fi
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     echo "Setup cancelled."
     exit 1

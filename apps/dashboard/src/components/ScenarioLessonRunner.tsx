@@ -282,12 +282,13 @@ export function ScenarioLessonRunner({
       {error && <Alert variant="error">{error}</Alert>}
       {busy && (
         <Alert variant="info">
-          <span className="font-medium">{busy}</span> running - watch the live terminal below.
+          <span className="font-medium">{busy}</span> running - watch the live terminal.
         </Alert>
       )}
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <div className="space-y-4">
+      {/* Single column until the content pane is actually wide enough (avoids uneven cards beside the terminal). */}
+      <div className="grid gap-4 @3xl:grid-cols-2">
+        <div className="space-y-4 min-w-0">
           <Card title="Storyboard" subtitle="Guided steps for this lab">
             <ol className="space-y-1">
               {visibleSteps.map((step, i) => {
@@ -404,7 +405,7 @@ export function ScenarioLessonRunner({
           )}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
           <Card
             title="Live inspector"
             subtitle={

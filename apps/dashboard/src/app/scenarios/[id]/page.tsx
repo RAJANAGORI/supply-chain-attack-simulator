@@ -130,7 +130,7 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
         description={
           lesson
             ? `${scenario.level} · ~${lesson.etaMinutes} min · ${lesson.category} · live terminal below`
-            : `${scenario.level} · ports ${scenario.ports.join(', ')} · live output docks below`
+            : `${scenario.level} · ports ${scenario.ports.join(', ')} · live output beside the lab`
         }
         action={
           <div className="flex flex-wrap gap-2">
@@ -183,7 +183,7 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
                   </Btn>
                 </Card>
 
-                <div className="grid gap-4 lg:grid-cols-2">
+                <div className="grid gap-4 @2xl:grid-cols-2">
                   <Card title="Step 1 — Setup" subtitle="Creates packages, victim app, and mock infrastructure">
                     <Btn disabled={!!busy} onClick={() => action('setup', () => cp.setup(id))}>
                       {busy === 'setup' ? 'Setting up…' : 'Run setup'}

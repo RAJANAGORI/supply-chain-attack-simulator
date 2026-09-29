@@ -34,9 +34,15 @@ export default function TeardownPage() {
       try {
         await cp.platformStatus();
         setPhase('done');
+        // Backup clear if process-end hook already ran this is a no-op wipe (still fresh).
+        try {
+          await cp.clearLogs();
+        } catch {
+          /* non-fatal */
+        }
         setResult(
           (prev) =>
-            `${prev}\n\n✓ Reset finished. Control plane is still online — you can start a new lab without restarting the UI.`,
+            `${prev}\n\nReset finished. Control plane is still online — live terminal is cleared. Start a new lab when ready.`,
         );
       } catch {
         setPhase('failed');
