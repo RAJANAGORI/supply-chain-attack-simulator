@@ -27,11 +27,29 @@ export default function ObservePage() {
 
   const startEs = async () => {
     setBusy('es-up');
+    setError('');
     try {
       await cp.esUp();
-      await load();
+      // Script returns immediately; wait until ES answers or we time out.
+      const deadline = Date.now() + 3 * 60 * 1000;
+      while (Date.now() < deadline) {
+        const next = await cp.getTimeline(80);
+        setTimeline(next);
+        if (next.ok) {
+          setError('');
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 3000));
+      }
+      setError(
+        'Elasticsearch did not become reachable in time. Run ./scripts/observability/elasticsearch-up.sh from the repo root and watch Docker Desktop.',
+      );
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'ES start failed');
+      setError(
+        e instanceof Error
+          ? `${e.message} - is the control plane running on :3101?`
+          : 'ES start failed',
+      );
     } finally {
       setBusy('');
     }
@@ -82,14 +100,37 @@ export default function ObservePage() {
         }
       >
         {!timeline?.ok && (
-          <p className="mb-4 text-sm text-ink-muted">
-            Labs still work without ES. Forwarding only happens when mocks see{' '}
-            <code className="font-mono text-xs">SCAS_ES_URL</code>. See{' '}
-            <Link href="/" className="text-brand hover:underline">
-              Overview
-            </Link>{' '}
-            to manage the stack.
-          </p>
+          <div className="mb-4 space-y-2 text-sm text-ink-muted">
+            <p>
+              Observatory needs Docker Desktop running, then Elasticsearch on port 9200. Labs still work
+              without ES.
+            </p>
+            <ol className="list-decimal space-y-1 pl-5">
+              <li>Open Docker Desktop and wait until it is idle</li>
+              <li>
+                From the repo root run{' '}
+                <code className="rounded bg-canvas-hover px-1.5 py-0.5 font-mono text-xs">
+                  ./scripts/observability/elasticsearch-up.sh
+                </code>
+              </li>
+              <li>
+                Export{' '}
+                <code className="rounded bg-canvas-hover px-1.5 py-0.5 font-mono text-xs">
+                  SCAS_ES_URL=http://127.0.0.1:9200
+                </code>{' '}
+                before starting mocks (or restart the control plane with that env set)
+              </li>
+              <li>Re-run a lab, then hit Refresh here</li>
+            </ol>
+            <p>
+              Forwarding only happens when mocks see{' '}
+              <code className="font-mono text-xs">SCAS_ES_URL</code>. Manage the stack from{' '}
+              <Link href="/" className="text-brand hover:underline">
+                Overview
+              </Link>{' '}
+              once the control plane is up.
+            </p>
+          </div>
         )}
         <ul className="max-h-[70vh] space-y-2 overflow-auto">
           {(timeline?.events ?? []).map((ev, i) => {

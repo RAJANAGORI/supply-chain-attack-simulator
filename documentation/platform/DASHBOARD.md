@@ -22,7 +22,18 @@ The dashboard **proxies** all control-plane API and WebSocket traffic through po
 
 ## Quick start
 
-From the repository root (after `./scripts/setup/setup.sh`):
+**Full stack (recommended for Observatory + Floci + UI):** Docker Desktop must be running, then from the repository root:
+
+```bash
+chmod +x run.sh scripts/ui/run-everything.sh
+./run.sh
+```
+
+That one command runs core setup, Elasticsearch/Kibana, Floci, installs `act` when missing (Homebrew or GitHub release into `.tools/bin`), writes `.scas.env` with `SCAS_ACT_REQUIRED=1`, and starts the dashboard with `SCAS_ES_URL` exported into the control plane. Labs 05 and 25 then run real workflows via `act` instead of the npm stand-in (override with `SCAS_SKIP_ACT=1` or `./run.sh --skip-act`).
+
+Flags: `--core-only` (UI without ES/Floci), `--skip-es`, `--skip-floci`, `--skip-act`, `--no-ui`, `--skip-setup`.
+
+**UI only** (after `./scripts/setup/setup.sh`):
 
 ```bash
 chmod +x scripts/ui/start-dashboard.sh
