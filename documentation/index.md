@@ -15,21 +15,22 @@ Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) folder
 | New to SCAS | `./START_HERE.sh` then [first capture](./getting-started/ZERO_TO_HERO.md) | [Scenario 01 walkthrough](./scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md) |
 | Experienced developer | [Quick start](./getting-started/QUICK_START.md) · [Docker labs](./getting-started/DOCKER_LABS.md) (`./docker/install.sh`) | [Scenario catalog](./scenario-guides/CATALOG.md) |
 | Blue-team / detection | [Detection & observability](./platform/DETECTION_AND_OBSERVABILITY.md) | `scenarios/*/DETECT.md` (IOCs + mitigation) |
-| Instructor / workshop lead | [Teaching delivery pack](./learning-path/TEACHING_DELIVERY_PACK.md) | [Teaching modules](./modules/index.md) |
-| Running the observability stack | [Operations](./platform/OPERATIONS.md) | [Observability stack](../observability/README.md) |
+| Instructor / workshop lead | [Teaching delivery pack](./learning-path/TEACHING_DELIVERY_PACK.md) · [Dashboard UI](./platform/DASHBOARD.md) | [Teaching modules](./modules/index.md) |
+| Running the observability stack | [Operations](./platform/OPERATIONS.md) | [Observability stack](../observability/README.md) · [Dashboard](./platform/DASHBOARD.md) |
 | Maintainer / contributor | [Tooling & doc maintenance](./platform/TOOLING.md) | [CONTRIBUTING](../CONTRIBUTING.md) |
 
 ---
 
 ## Browse by task
 
-- **Set up the lab** → [Full-stack setup](./getting-started/FULL_STACK_SETUP.md) · [Docker labs](./getting-started/DOCKER_LABS.md) · [SETUP](./getting-started/SETUP.md) · [Operations](./platform/OPERATIONS.md) · [FAQ](./platform/FAQ.md)
-- **Run one scenario** → [Scenario catalog](./scenario-guides/CATALOG.md) → its README → [Quick-reference card](./scenario-guides/quick-reference/index.md)
-- **Learn an attack class** → [Zero-to-hero walkthroughs](./scenario-guides/zero-to-hero/index.md)
-- **Detect & hunt** → [Detection & observability](./platform/DETECTION_AND_OBSERVABILITY.md) · [Best practices](./platform/BEST_PRACTICES.md)
-- **Teach a course** → [Learning path](./learning-path/index.md) · [Modules](./modules/index.md) · [Capstone rubric](./learning-path/CAPSTONE_RUBRIC.md)
-- **Optional cloud track** → [Floci integration guide](./guides/FLOCI_INTEGRATION.md)
-- **One-page commands** → [Quick reference](./platform/QUICK_REFERENCE.md)
+- Set up the lab → [Full-stack setup](./getting-started/FULL_STACK_SETUP.md) · [Docker labs](./getting-started/DOCKER_LABS.md) · [SETUP](./getting-started/SETUP.md) · [Operations](./platform/OPERATIONS.md) · [FAQ](./platform/FAQ.md)
+- Run the browser UI → [Dashboard](./platform/DASHBOARD.md) (`./run.sh` or `./scripts/ui/conference-demo-up.sh`)
+- Run one scenario → [Scenario catalog](./scenario-guides/CATALOG.md) → its README → [Quick-reference card](./scenario-guides/quick-reference/index.md)
+- Learn an attack class → [Zero-to-hero walkthroughs](./scenario-guides/zero-to-hero/index.md)
+- Detect & hunt → [Detection & observability](./platform/DETECTION_AND_OBSERVABILITY.md) · [Best practices](./platform/BEST_PRACTICES.md)
+- Teach a course → [Learning path](./learning-path/index.md) · [Modules](./modules/index.md) · [Capstone rubric](./learning-path/CAPSTONE_RUBRIC.md)
+- Optional cloud track → [Floci integration guide](./guides/FLOCI_INTEGRATION.md)
+- One-page commands → [Quick reference](./platform/QUICK_REFERENCE.md)
 
 ---
 
@@ -39,7 +40,7 @@ Canonical Markdown lives in **`documentation/`**. The [`docs/`](../docs/) folder
 |---------|-------|---------------|
 | Getting started | [getting-started/](./getting-started/index.md) | Full-stack setup, first lab, quick start, SCAS-only setup |
 | Scenario guides | [scenario-guides/](./scenario-guides/index.md) | The 25-lab [catalog](./scenario-guides/CATALOG.md), zero-to-hero walkthroughs, quick-reference cards |
-| Platform & operations | [platform/](./platform/index.md) | Architecture, operations, detection, best practices, tooling, FAQ, quick reference |
+| Platform & operations | [platform/](./platform/index.md) | Architecture, dashboard UI, operations, detection, best practices, tooling, FAQ, quick reference |
 | Learning path | [learning-path/](./learning-path/index.md) | Curriculum, tracks, teaching delivery, capstone rubric |
 | Teaching modules | [modules/](./modules/index.md) | Instructor cards for all 25 scenarios + reusable template |
 | Integration guides | [guides/](./guides/index.md) | Optional integrations (Floci local-AWS cloud track) |

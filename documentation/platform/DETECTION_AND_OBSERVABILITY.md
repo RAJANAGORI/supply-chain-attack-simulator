@@ -83,13 +83,19 @@ One pair per scenario (01-25):
 - `SCAS Rules - Scenario NN`
 - `SCAS Detections - Scenario NN`
 
-Open **Discover** at [http://localhost:5601](http://localhost:5601).
+Open Discover at [http://localhost:5601](http://localhost:5601) on the lab host. From a LAN browser using the dashboard Observatory page, use Open Kibana (it rewrites to the lab hostname). Forward port 5601 if you only tunnel `:3100`.
 
 ### Live capture forwarding
 
-When `SCAS_ES_URL` is set **before** starting the mock collector, each exfil event is indexed automatically via [`detection-tools/es/forward-capture.js`](../../detection-tools/es/forward-capture.js).
+When `SCAS_ES_URL` is set before starting the mock collector, each exfil event is indexed via [`detection-tools/es/forward-capture.js`](../../detection-tools/es/forward-capture.js). The control plane injects `SCAS_ES_URL` into lab processes when you started via `./run.sh` (or exported it yourself).
 
-Zero-to-hero guides include per-scenario sequence diagrams under **Elasticsearch + Kibana observability**.
+If Observatory is empty after a lab:
+
+1. Confirm ES is up (`curl -s http://127.0.0.1:9200`).
+2. Confirm the mock was started with `SCAS_ES_URL` (restart services from the dashboard after ES is healthy).
+3. Backfill existing capture files: `node detection-tools/es/ship-captures.js`.
+
+Zero-to-hero guides include per-scenario sequence diagrams under Elasticsearch + Kibana observability.
 
 ### Smoke validation
 
