@@ -52,6 +52,19 @@ function KibanaOpenButton({ url }: { url?: string }) {
   );
 }
 
+function FlociOpenButton({ url }: { url?: string }) {
+  const base = useBrowserFacingUrl(url ?? 4566) || browserFacingUrl(4566);
+  const href = base ? `${base.replace(/\/$/, '')}/_floci/ui` : undefined;
+  if (!href) return null;
+  return (
+    <a href={href} target="_blank" rel="noreferrer">
+      <Btn size="sm" variant="secondary">
+        Open UI ↗
+      </Btn>
+    </a>
+  );
+}
+
 export default function OverviewPage() {
   const [status, setStatus] = useState<PlatformStatus | null>(null);
   const [scenarioCount, setScenarioCount] = useState(25);
@@ -251,11 +264,12 @@ export default function OverviewPage() {
             />
             <ServiceRow
               name="Floci"
-              description="Local AWS emulator for cloud-track scenarios"
+              description="Local AWS emulator — CLI/seed scripts and web console (/_floci/ui)."
               online={status?.floci.ok ?? false}
               url={status?.floci.url}
               actions={
                 <>
+                  <FlociOpenButton url={status?.floci.url} />
                   <Btn
                     size="sm"
                     variant="secondary"

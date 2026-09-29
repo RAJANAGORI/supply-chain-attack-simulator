@@ -84,6 +84,9 @@ else
   fi
 fi
 
+# Docker socket GID + FLOCI_RUN_AS_ROOT for /_floci/ui and container-backed services
+scas_floci_ensure_docker_access "${FLOCI_DIR}/.env"
+
 if [ "$USE_IMAGE" = "1" ]; then
   sed -i.bak 's/^FLOCI_USE_IMAGE=.*/FLOCI_USE_IMAGE=1/' "${FLOCI_DIR}/.env" 2>/dev/null \
     || sed -i '' 's/^FLOCI_USE_IMAGE=.*/FLOCI_USE_IMAGE=1/' "${FLOCI_DIR}/.env"

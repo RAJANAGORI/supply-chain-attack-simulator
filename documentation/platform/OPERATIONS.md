@@ -91,6 +91,7 @@ Source of truth: [`scripts/setup/ports.env`](../../scripts/setup/ports.env)
 | 9200 | Elasticsearch (optional) |
 | 5601 | Kibana (optional) |
 | 4566 | Floci AWS emulator (optional; all scenarios - S3 universal; extended on 05, 06, 11, 14, 17, 19, 23) |
+| 4500 | Floci web console sidecar (`/_floci/ui` - optional; started on demand) |
 
 Free a port after a lab:
 
@@ -145,6 +146,7 @@ See [FLOCI_INTEGRATION.md](../guides/FLOCI_INTEGRATION.md).
 | ES 404 on `_count` | Index not created yet | Run scenario or `node detection-tools/es/ship-captures.js` |
 | Kibana empty Discover | Data views not created | `./scripts/observability/setup-kibana-data-views.sh` |
 | Floci not healthy | Setup incomplete or Docker not ready | `./scripts/floci/floci-setup.sh --image` then `./scripts/floci/floci-up.sh`; `docker logs scas-floci` |
+| Floci UI: Permission denied | Docker socket not usable inside `scas-floci` | Re-run `./scripts/floci/floci-up.sh` (sets `FLOCI_RUN_AS_ROOT=true`, `:z` sock mount). Confirm `curl -s localhost:4566/_floci/ui/status` |
 | Port 4566 in use | Another local AWS emulator | `docker stop scas-floci` or free the port |
 
 More: [FAQ.md](./FAQ.md) · [Full-stack setup](../getting-started/FULL_STACK_SETUP.md)
