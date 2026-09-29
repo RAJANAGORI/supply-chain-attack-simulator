@@ -67,6 +67,7 @@ export function ScenarioLessonRunner({
   const [hintOpen, setHintOpen] = useState(false);
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
+  const [inspectorNote, setInspectorNote] = useState('');
 
   const visibleSteps = useMemo(
     () => lesson.steps.filter((s) => roleAllows(s.audience, role)),
@@ -111,7 +112,12 @@ export function ScenarioLessonRunner({
 
   useEffect(() => {
     setHintOpen(false);
+    setInspectorNote('');
   }, [activeStepId, role]);
+
+  const scrollToInspector = () => {
+    document.getElementById('live-inspector')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   const persistProgress = useCallback(
     async (patch: { completedSteps?: string[]; hintsOpened?: string[]; currentStepId?: string }) => {
@@ -166,19 +172,34 @@ export function ScenarioLessonRunner({
 
     const registry = activeStep.registry;
     if (registry === null) {
+      setBusy(activeStep.id);
+      setError('');
+      setInspectorNote('');
       try {
         const check = await cp.verifyLesson(scenarioId);
         setVerified(check.steps);
         setCaptures(check.captures);
-        if (check.steps[activeStep.id] || hasCaptureData(check.captures)) {
+        scrollToInspector();
+
+        const ok = !!(check.steps[activeStep.id] || hasCaptureData(check.captures));
+        if (ok) {
           await persistProgress({ completedSteps: [activeStep.id], currentStepId: activeStep.id });
           const next = visibleSteps[activeIndex + 1];
-          if (next) setActiveStepId(next.id);
+          if (next) {
+            setActiveStepId(next.id);
+            setInspectorNote('Capture looks good. Moved you to the next step.');
+          } else {
+            setInspectorNote(
+              'Inspector is up to date. Review the JSON below, then open DETECT.md for hardening.',
+            );
+          }
         } else {
           setError('No capture data yet. Run the attack steps first, then come back.');
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Verify failed');
+      } finally {
+        setBusy('');
       }
       return;
     }
@@ -280,6 +301,7 @@ export function ScenarioLessonRunner({
       </div>
 
       {error && <Alert variant="error">{error}</Alert>}
+      {inspectorNote && !error && <Alert variant="info">{inspectorNote}</Alert>}
       {busy && (
         <Alert variant="info">
           <span className="font-medium">{busy}</span> running - watch the live terminal.
@@ -344,7 +366,7 @@ export function ScenarioLessonRunner({
                   onClick={() => void runLessonStep()}
                 >
                   {busy === activeStep.id
-                    ? 'Running…'
+                    ? 'Checking…'
                     : activeStep.registry === null
                       ? 'Check inspector'
                       : activeStep.registry === 'services'
@@ -406,6 +428,7 @@ export function ScenarioLessonRunner({
         </div>
 
         <div className="space-y-4 min-w-0">
+          <div id="live-inspector" className="scroll-mt-4">
           <Card
             title="Live inspector"
             subtitle={
@@ -438,6 +461,7 @@ export function ScenarioLessonRunner({
               {JSON.stringify(captures, null, 2)}
             </pre>
           </Card>
+          </div>
 
           <Card title="Services" subtitle="Mock collectors and registries for this lab">
             <ul className="space-y-2 text-sm text-ink-muted">

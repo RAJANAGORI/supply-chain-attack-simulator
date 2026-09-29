@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { Alert, Btn, Card, PageHeader, StatTile, StatusPill } from '@/components/ui';
 import { cp, type PlatformStatus, type ProgressState, type ScenarioSummary } from '@/lib/api';
-import { useControlPlaneDisplayHost } from '@/lib/use-hosts';
+import { useControlPlaneDisplayHost, useBrowserFacingUrl } from '@/lib/use-hosts';
+import { browserFacingUrl } from '@/lib/hosts';
 
 interface ServiceRowProps {
   name: string;
@@ -15,6 +16,7 @@ interface ServiceRowProps {
 }
 
 function ServiceRow({ name, description, online, url, actions }: ServiceRowProps) {
+  const displayUrl = useBrowserFacingUrl(url);
   return (
     <div className="flex flex-col gap-3 rounded-xl liquid-glass p-4 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0 flex-1">
@@ -23,14 +25,30 @@ function ServiceRow({ name, description, online, url, actions }: ServiceRowProps
           <StatusPill status={online ? 'online' : 'offline'} label={online ? 'Running' : 'Stopped'} />
         </div>
         <p className="mt-1 text-xs text-ink-muted">{description}</p>
-        {url && (
-          <a href={url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-brand hover:text-brand-light hover:underline">
-            {url}
+        {displayUrl && (
+          <a
+            href={displayUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-1 inline-block break-all text-xs text-brand hover:text-brand-light hover:underline"
+          >
+            {displayUrl}
           </a>
         )}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap gap-2">{actions}</div>}
     </div>
+  );
+}
+
+function KibanaOpenButton({ url }: { url?: string }) {
+  const href = useBrowserFacingUrl(url ?? 5601);
+  return (
+    <a href={href || browserFacingUrl(5601)} target="_blank" rel="noreferrer">
+      <Btn size="sm" variant="secondary">
+        Open UI ↗
+      </Btn>
+    </a>
   );
 }
 
@@ -229,11 +247,7 @@ export default function OverviewPage() {
               description="Visualize detections and hunt queries"
               online={status?.kibana.ok ?? false}
               url={status?.kibana.url}
-              actions={
-                <a href="http://127.0.0.1:5601" target="_blank" rel="noreferrer">
-                  <Btn size="sm" variant="secondary">Open UI ↗</Btn>
-                </a>
-              }
+              actions={<KibanaOpenButton url={status?.kibana.url} />}
             />
             <ServiceRow
               name="Floci"
