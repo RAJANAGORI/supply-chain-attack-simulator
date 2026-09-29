@@ -1,0 +1,47 @@
+id: "16"
+etaMinutes: 40
+category: package-registry
+incidents:
+  - "npm cache poisoning"
+  - "Reused poisoned cache entries"
+objectives:
+  - "Poison the local cache on first install"
+  - "Reuse the poison on a second install"
+  - "Clear and verify caches as defense"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare the cache lab
+    teaching: "Setup creates the victim app and scaffolding for demonstrating a poisoned package cache."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start the mock collector
+    teaching: "Poisoned packages phone home to localhost:3016."
+    verify: { type: service-listening }
+  - id: install1
+    registry: install1
+    audience: attack
+    title: First install poisons the cache
+    teaching: "The first npm install seeds a malicious cache entry that later installs can reuse."
+    verify: { type: exit-zero }
+  - id: install2
+    registry: install2
+    audience: attack
+    title: Second install reuses the poison
+    teaching: "A second install pulls from the poisoned cache path, showing persistence beyond the first tree."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the victim app
+    teaching: "Runtime confirms the poisoned package is active and the collector has data."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Clear and audit caches
+    teaching: "DETECT.md covers npm cache verify/clean and CI cache isolation."
+    verify: { type: capture-count, min: 1 }

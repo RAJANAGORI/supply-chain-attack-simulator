@@ -1,0 +1,40 @@
+id: "05"
+etaMinutes: 45
+category: ci-cd
+incidents:
+  - "Codecov bash uploader (2021)"
+  - "SolarWinds build tooling compromise (2020)"
+  - "Trivy action tag force-push campaign (see lab 23)"
+objectives:
+  - "See how a mutable action tag (@v1) becomes an attack surface"
+  - "Run a local CI simulation that steals GITHUB_TOKEN-style secrets to localhost"
+  - "Apply SHA pinning and least-privilege ideas from DETECT.md"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare the workflow lab
+    teaching: "Setup wires the victim workflow, the compromised reusable action, and the localhost mock that stands in for attacker C2."
+    hint: "Read the victim workflow and the action entrypoint before you run CI. Note the @v1-style pin."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start the mock collector
+    teaching: "When the compromised action runs, it POSTs harvested CI secrets and artifact metadata to 127.0.0.1:3000."
+    hint: "Keep this service up for the full CI run."
+    verify: { type: service-listening }
+  - id: run-ci
+    registry: run-ci
+    audience: attack
+    title: Run the compromised CI pipeline
+    teaching: "run-ci.sh simulates the GitHub Actions job locally. The compromised action still looks like a normal build step while it exfiltrates."
+    hint: "Watch the live terminal for the action steps. Failures often mean the mock server was not up yet."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Harden the workflow
+    teaching: "Inspect the capture, then open DETECT.md. Pin actions by commit SHA, drop unnecessary permissions, and treat reusable actions like any other dependency."
+    hint: "Optional Floci seed/verify buttons exist on this lab if you are on the cloud track."
+    verify: { type: capture-count, min: 1 }

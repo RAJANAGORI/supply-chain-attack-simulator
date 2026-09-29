@@ -1,0 +1,46 @@
+id: "02"
+etaMinutes: 40
+category: package-registry
+incidents:
+  - "Alex Birsan (2021) dependency confusion bounties"
+  - "Scoped internal packages resolved from a public registry"
+objectives:
+  - "Explain how a higher public version can beat an internal package"
+  - "Abuse a misconfigured .npmrc that points a scope at an attacker registry"
+  - "Spot the confusion with the scenario scanner and capture data"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare TechCorp lab assets
+    teaching: "Setup creates leaked package names, internal @techcorp stubs, the attacker auth-lib@999.999.999 tarball, corporate-app, and both mock servers."
+    hint: "Read leaked-data/package.json after setup. That is how the attacker learned the internal names."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start mock collector and attacker registry
+    teaching: "Port 3000 collects exfil. Port 4874 is the fake public registry that serves the high version of @techcorp/auth-lib. corporate-app/.npmrc points the scope there on purpose."
+    hint: "Both services must be running before npm install in corporate-app."
+    verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: Install from the attacker registry
+    teaching: "npm install in corporate-app resolves @techcorp/auth-lib from localhost:4874, downloads 999.999.999, and the malicious postinstall fires."
+    hint: "If install fails, confirm registry-server.js is listening on 4874 and that .npmrc still points @techcorp there."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the corporate app
+    teaching: "The app still looks fine while the compromised dependency has already talked to the collector."
+    hint: "Check the inspector after start. You want at least one capture entry."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Hunt the substitution
+    teaching: "Compare what corporate-app resolved against the internal package. The dependency-confusion scanner under detection-tools/ flags scope and registry mismatches."
+    hint: "From the scenario root: node detection-tools/dependency-confusion-scanner.js corporate-app"
+    verify: { type: capture-count, min: 1 }

@@ -60,20 +60,42 @@ curl http://0.0.0.0:3101/api/health
 
 ## What the dashboard can do
 
-- **Labs workspace** - scenario controls and a pinned live terminal on the same page (run Prepare / Execute while watching stdout/stderr)
-- List and run all **25** scenarios (setup, start mocks/registries, attack steps, full lab)
-- Stream stdout/stderr over WebSocket in the Labs dock (legacy `/console` and `/output` redirect here)
-- Display capture JSON from mock servers on the Observe tab
-- Start/stop Elasticsearch, Kibana (via existing scripts), Floci
-- Run per-scenario Floci seed/verify where configured
-- Global teardown via `scripts/setup/teardown.sh`
+- **Welcome** - product pitch and safety model inside the dashboard (`/welcome`) so the Vite landing site is optional
+- **Labs workspace** - guided storyboard for all **25** scenarios via `lesson.yaml` (Red / Blue / Purple roles, hints, verify gates, live inspector)
+- **Observatory** (`/observe`) - Elasticsearch `scas-detections` timeline when the stack is up
+- **Skills** (`/skills`) - category matrix with Markdown/JSON export
+- **Briefing** (`/report`) - completion report with browser Print / PDF
+- **Classroom** (`/classroom`) - session code, join board, freeze for debrief (single control plane; not per-student isolation yet)
+- **Lab coach** - in-lab assistant (offline context by default; set `SCAS_AI_URL` + `SCAS_AI_API_KEY` for a live OpenAI-compatible model)
+- Stream stdout/stderr over WebSocket in the Labs dock
+- Persist progress under `~/.scas/progress.json`
+- Start/stop Elasticsearch, Kibana, Floci; global teardown
+
+## Guided lessons (`lesson.yaml`)
+
+Every lab under `scenarios/NN-slug/` ships `lesson.yaml`. Teaching metadata only:
+
+- Steps point at registry actions (`setup`, `services`, or a step id from `apps/control-plane/src/registry/scenarios.ts`)
+- Commands stay in the TypeScript registry; README.md remains the CLI source of truth
+- Verify rules: `exit-zero`, `service-listening`, `capture-count`
+- Validate with `node scripts/docs/check-lesson-yaml.js` (smoke CI)
+
+## App boundaries (current merge state)
+
+| Piece | Role |
+|-------|------|
+| Dashboard (Next.js :3100) | Primary learner UI (welcome, labs, observe, skills, briefing, classroom) |
+| Control plane (Express :3101) | Process supervisor, lessons, progress, classroom, assistant, ES proxy |
+| Landing (Vite :5173) | Optional marketing shell; CTA still points at the dashboard |
+
+Full process merge (Next API routes spawning labs) is intentionally not done - the supervisor stays in the control plane for safety and WebSocket log streaming.
 
 ## Project layout
 
 ```
 apps/
 ├── design-tokens/    # Shared SCAS brand tokens (Realtime Colors palette)
-├── landing/          # Vite + React + Motion-Primitives-style motion site
-├── dashboard/        # Next.js + Tailwind (same brand tokens)
-└── control-plane/    # Express + WS + scenario registry
+├── landing/          # Optional Vite marketing site
+├── dashboard/        # Next.js learning platform UI
+└── control-plane/    # Express + WS + registry + lesson/classroom/skills APIs
 ```

@@ -13,6 +13,52 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export type LessonAudience = 'attack' | 'detect' | 'both';
+
+export type LessonVerify =
+  | { type: 'exit-zero' }
+  | { type: 'service-listening' }
+  | { type: 'capture-count'; min: number };
+
+export interface LessonStep {
+  id: string;
+  registry: string | null;
+  audience: LessonAudience;
+  title: string;
+  teaching: string;
+  hint?: string;
+  verify: LessonVerify;
+}
+
+export interface LessonDefinition {
+  id: string;
+  etaMinutes: number;
+  category: string;
+  incidents: string[];
+  objectives: string[];
+  steps: LessonStep[];
+}
+
+export interface LessonSummary {
+  etaMinutes: number;
+  category: string;
+  stepCount: number;
+}
+
+export interface ScenarioProgressEntry {
+  completedSteps: string[];
+  hintsOpened: string[];
+  currentStepId?: string;
+  updatedAt: string;
+}
+
+export interface ProgressState {
+  lastScenarioId?: string;
+  lastStepId?: string;
+  scenarios: Record<string, ScenarioProgressEntry>;
+  updatedAt: string;
+}
+
 export interface ScenarioSummary {
   id: string;
   slug: string;
@@ -20,6 +66,7 @@ export interface ScenarioSummary {
   level: string;
   ports: number[];
   activeProcesses?: number;
+  lesson?: LessonSummary | null;
 }
 
 export interface ScenarioDetail extends ScenarioSummary {
@@ -29,7 +76,8 @@ export interface ScenarioDetail extends ScenarioSummary {
   captures: { id: string; label: string; url: string }[];
   floci?: { seed?: string; verify?: string };
   docs: { readme: string; detect: string };
-  processes?: { id: string; label: string; status: string }[];
+  processes?: { id: string; label: string; status: string; serviceId?: string; stepId?: string }[];
+  lesson?: LessonDefinition | null;
 }
 
 export interface PlatformStatus {
@@ -64,6 +112,69 @@ export interface ActionResult {
   startedProcesses?: ProcessRecord[];
 }
 
+export interface LessonVerifyResult {
+  steps: Record<string, boolean>;
+  captures: Record<string, unknown>;
+}
+
+export interface SkillMatrix {
+  categories: Array<{
+    category: string;
+    label: string;
+    total: number;
+    completed: number;
+    scenarioIds: string[];
+    completedIds: string[];
+  }>;
+  completedLabs: number;
+  totalLabs: number;
+  exportedAt: string;
+}
+
+export interface BriefingPayload {
+  generatedAt: string;
+  labs: Array<{
+    id: string;
+    title: string;
+    category: string;
+    completed: boolean;
+    completedSteps: string[];
+    objectives: string[];
+    incidents: string[];
+  }>;
+  skills: SkillMatrix;
+}
+
+export interface TimelinePayload {
+  ok: boolean;
+  url: string;
+  events: Array<Record<string, unknown>>;
+  error?: string;
+}
+
+export interface ClassroomStudent {
+  id: string;
+  name: string;
+  joinedAt: string;
+  lastScenarioId?: string;
+  lastStepId?: string;
+  completedSteps: number;
+}
+
+export interface ClassroomState {
+  code: string;
+  title: string;
+  createdAt: string;
+  frozen: boolean;
+  students: ClassroomStudent[];
+}
+
+export interface AssistantReply {
+  answer: string;
+  provider: string;
+  offline?: boolean;
+}
+
 async function sleep(ms: number) {
   await new Promise((r) => setTimeout(r, ms));
 }
@@ -95,6 +206,36 @@ export const cp = {
   runAll: (id: string) => api<ActionResult>(`/scenarios/${id}/run`, { method: 'POST' }),
   getCaptures: (id: string) => api<Record<string, unknown>>(`/scenarios/${id}/captures`),
   clearCaptures: (id: string) => api(`/scenarios/${id}/captures`, { method: 'DELETE' }),
+  verifyLesson: (id: string) => api<LessonVerifyResult>(`/scenarios/${id}/lesson/verify`),
+  getProgress: () => api<ProgressState>('/progress'),
+  putProgress: (body: {
+    scenarioId: string;
+    entry: Partial<ScenarioProgressEntry> & { lastStepId?: string };
+  }) => api<ProgressState>('/progress', { method: 'PUT', body: JSON.stringify(body) }),
+  getSkills: () => api<SkillMatrix>('/skills'),
+  exportSkillsMarkdown: async () => {
+    const res = await fetch(`${controlPlaneApiBase()}/skills/export?format=md`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(await res.text());
+    return res.text();
+  },
+  getBriefing: (scenario?: string) =>
+    api<BriefingPayload>(scenario ? `/briefing?scenario=${scenario}` : '/briefing'),
+  getTimeline: (limit = 50) => api<TimelinePayload>(`/observe/timeline?limit=${limit}`),
+  getClassroom: () => api<ClassroomState>('/classroom'),
+  createClassroom: (title?: string) =>
+    api<ClassroomState>('/classroom', { method: 'POST', body: JSON.stringify({ title }) }),
+  freezeClassroom: (frozen: boolean) =>
+    api<ClassroomState>('/classroom/freeze', { method: 'POST', body: JSON.stringify({ frozen }) }),
+  joinClassroom: (code: string, name: string) =>
+    api<ClassroomState>('/classroom/join', { method: 'POST', body: JSON.stringify({ code, name }) }),
+  reportClassroomProgress: (body: {
+    studentId: string;
+    lastScenarioId?: string;
+    lastStepId?: string;
+    completedSteps?: number;
+  }) => api<ClassroomState>('/classroom/progress', { method: 'POST', body: JSON.stringify(body) }),
+  askAssistant: (body: { question: string; scenarioId?: string; stepId?: string }) =>
+    api<AssistantReply>('/assistant', { method: 'POST', body: JSON.stringify(body) }),
   floci: (id: string, action: 'seed' | 'verify') =>
     api<ActionResult>(`/scenarios/${id}/floci/${action}`, { method: 'POST' }),
   platformStatus: () => api<PlatformStatus>('/platform/status'),

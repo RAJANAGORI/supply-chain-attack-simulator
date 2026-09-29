@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { Alert, Btn, Card, PageHeader, StatTile, StatusPill } from '@/components/ui';
-import { cp, type PlatformStatus } from '@/lib/api';
+import { cp, type PlatformStatus, type ProgressState, type ScenarioSummary } from '@/lib/api';
 import { useControlPlaneDisplayHost } from '@/lib/use-hosts';
 
 interface ServiceRowProps {
@@ -36,19 +36,24 @@ function ServiceRow({ name, description, online, url, actions }: ServiceRowProps
 
 export default function OverviewPage() {
   const [status, setStatus] = useState<PlatformStatus | null>(null);
-  const [scenarioCount, setScenarioCount] = useState(23);
+  const [scenarioCount, setScenarioCount] = useState(25);
+  const [scenarios, setScenarios] = useState<ScenarioSummary[]>([]);
+  const [progress, setProgress] = useState<ProgressState | null>(null);
   const [busy, setBusy] = useState('');
   const [cpReachable, setCpReachable] = useState(true);
   const cpDisplayHost = useControlPlaneDisplayHost();
 
   const refresh = useCallback(async () => {
     try {
-      const [plat, scenarios] = await Promise.all([
+      const [plat, list, prog] = await Promise.all([
         cp.platformStatus(),
         cp.getScenarios(),
+        cp.getProgress().catch(() => null),
       ]);
       setStatus(plat);
-      setScenarioCount(scenarios.length);
+      setScenarios(list);
+      setScenarioCount(list.length);
+      setProgress(prog);
       setCpReachable(true);
     } catch {
       setStatus(null);
@@ -101,6 +106,20 @@ export default function OverviewPage() {
     status?.floci.ok,
   ].filter(Boolean).length;
 
+  const guidedLabs = scenarios.filter((s) => s.lesson);
+  const guidedComplete = guidedLabs.filter((s) => {
+    const entry = progress?.scenarios[s.id];
+    const need = s.lesson?.stepCount ?? 0;
+    return need > 0 && (entry?.completedSteps?.length ?? 0) >= need;
+  }).length;
+
+  const resumeId = progress?.lastScenarioId;
+  const resumeScenario = resumeId ? scenarios.find((s) => s.id === resumeId) : undefined;
+  const resumeStep =
+    resumeScenario && progress?.scenarios[resumeScenario.id]?.currentStepId
+      ? progress.scenarios[resumeScenario.id].currentStepId
+      : progress?.lastStepId;
+
   return (
     <div className="animate-fade-in">
       <PageHeader
@@ -138,8 +157,32 @@ export default function OverviewPage() {
         </div>
       )}
 
+      {resumeScenario && (
+        <div className="mt-6">
+          <Card
+            title="Continue where you left off"
+            subtitle={`Lab ${resumeScenario.id}: ${resumeScenario.title}${resumeStep ? ` · step ${resumeStep}` : ''}`}
+            action={
+              <Link href={`/scenarios/${resumeScenario.id}`}>
+                <Btn>Resume</Btn>
+              </Link>
+            }
+          >
+            <p className="text-sm text-ink-muted">
+              Progress is stored in <span className="font-mono text-xs">~/.scas/progress.json</span> on this machine.
+            </p>
+          </Card>
+        </div>
+      )}
+
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile label="Scenarios" value={scenarioCount} sub="Hands-on attack labs" accent="brand" />
+        <StatTile
+          label="Guided labs"
+          value={`${guidedComplete}/${guidedLabs.length || 25}`}
+          sub="Storyboard complete (all labs)"
+          accent="ok"
+        />
         <StatTile
           label="Control plane"
           value={cpReachable ? 'Online' : 'Offline'}
@@ -147,11 +190,6 @@ export default function OverviewPage() {
           accent={cpReachable ? 'ok' : 'warn'}
         />
         <StatTile label="Stack services" value={`${runningServices}/3`} sub="ES · Kibana · Floci" accent="warn" />
-        <StatTile
-          label="Port conflicts"
-          value={status?.portConflicts?.length ?? 0}
-          sub="Should be 0 before a new lab"
-        />
       </div>
 
       <div className="mt-10">
@@ -238,12 +276,12 @@ export default function OverviewPage() {
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Card title="Quick start" subtitle="Recommended flow for first-time users">
           <ol className="space-y-3 text-sm text-ink-secondary">
-            <li className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">1</span>Open a lab from the Labs page</li>
-            <li className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">2</span>Run <strong className="text-ink-primary">Prepare</strong> then <strong className="text-ink-primary">Execute</strong></li>
-            <li className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">3</span>Watch the live terminal dock under Labs</li>
+            <li className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">1</span>Open lab 01 (guided storyboard)</li>
+            <li className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">2</span>Run each step, watch the inspector fill</li>
+            <li className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">3</span>Keep the live terminal dock open under Labs</li>
           </ol>
-          <Link href="/scenarios" className="mt-5 inline-block">
-            <Btn variant="secondary">Go to labs</Btn>
+          <Link href="/scenarios/01" className="mt-5 inline-block">
+            <Btn variant="secondary">Start lab 01</Btn>
           </Link>
         </Card>
         <Card title="Safety" subtitle="Education-only constraints">

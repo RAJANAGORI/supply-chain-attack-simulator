@@ -4,6 +4,7 @@ import { use, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Alert, Btn, Card, LevelBadge, PageHeader, StatusPill, WorkflowTabs } from '@/components/ui';
 import { useLabSession } from '@/components/LabSessionContext';
+import { ScenarioLessonRunner } from '@/components/ScenarioLessonRunner';
 import { cp, waitForSession, type ActionResult, type ScenarioDetail } from '@/lib/api';
 
 const WORKFLOW = [
@@ -58,7 +59,6 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
     nextPhase?: Phase,
     opts?: { followAll?: boolean; /** false for long-running mock servers */ wait?: boolean },
   ) => {
-    // Instant UI feedback — API returns as soon as the process is spawned
     setBusy(label);
     setError('');
     setFollowAll(true);
@@ -69,7 +69,6 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
 
       void load();
 
-      // Finite scripts: keep button busy until exit. Long-running services: release immediately.
       if (sid && opts?.wait !== false) {
         const finished = await waitForSession(sid);
         if (finished?.status === 'failed') {
@@ -117,6 +116,7 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
       Array.isArray((v as { captures: unknown[] }).captures) &&
       (v as { captures: unknown[] }).captures.length > 0,
   );
+  const lesson = scenario.lesson && 'steps' in scenario.lesson ? scenario.lesson : null;
 
   return (
     <div className="animate-fade-in">
@@ -127,7 +127,11 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
       <PageHeader
         eyebrow={`Lab ${scenario.id}`}
         title={scenario.title}
-        description={`${scenario.level} · ports ${scenario.ports.join(', ')} · live output docks below`}
+        description={
+          lesson
+            ? `${scenario.level} · ~${lesson.etaMinutes} min · ${lesson.category} · live terminal below`
+            : `${scenario.level} · ports ${scenario.ports.join(', ')} · live output docks below`
+        }
         action={
           <div className="flex flex-wrap gap-2">
             {busy ? <StatusPill status="busy" label={busy} /> : null}
@@ -143,146 +147,157 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
         </div>
       )}
 
-      {busy && (
-        <div className="mb-4">
-          <Alert variant="info">
-            <span className="font-medium">{busy}</span> in progress — watch the live terminal below for
-            backend stdout/stderr.
-          </Alert>
-        </div>
-      )}
+      {lesson ? (
+        <ScenarioLessonRunner
+          scenarioId={id}
+          scenario={scenario}
+          lesson={lesson}
+          onReload={load}
+        />
+      ) : (
+        <>
+          {busy && (
+            <div className="mb-4">
+              <Alert variant="info">
+                <span className="font-medium">{busy}</span> in progress — watch the live terminal below for
+                backend stdout/stderr.
+              </Alert>
+            </div>
+          )}
 
-      <WorkflowTabs steps={[...WORKFLOW]} active={phase} onChange={(tabId) => setPhase(tabId as Phase)} />
+          <WorkflowTabs steps={[...WORKFLOW]} active={phase} onChange={(tabId) => setPhase(tabId as Phase)} />
 
-      <div className="mt-6">
-        {phase === 'prepare' && (
-          <div className="space-y-4">
-            <Card
-              title="One-click full lab"
-              subtitle="Runs setup → services → all attack steps — output streams in the dock"
-            >
-              <Btn
-                size="lg"
-                disabled={!!busy}
-                onClick={() => action('run-all', () => cp.runAll(id), 'observe', { followAll: true })}
-              >
-                {busy === 'run-all' ? 'Running…' : 'Run full lab'}
-              </Btn>
-            </Card>
-
-            <div className="grid gap-4 lg:grid-cols-2">
-              <Card title="Step 1 — Setup" subtitle="Creates packages, victim app, and mock infrastructure">
-                <Btn disabled={!!busy} onClick={() => action('setup', () => cp.setup(id))}>
-                  {busy === 'setup' ? 'Setting up…' : 'Run setup'}
-                </Btn>
-              </Card>
-              <Card title="Step 2 — Services" subtitle="Starts mock servers and registries">
-                <div className="flex flex-wrap gap-2">
+          <div className="mt-6">
+            {phase === 'prepare' && (
+              <div className="space-y-4">
+                <Card
+                  title="One-click full lab"
+                  subtitle="Runs setup → services → all attack steps — output streams in the dock"
+                >
                   <Btn
-                    variant="success"
+                    size="lg"
                     disabled={!!busy}
-                    onClick={() =>
-                      action('services', () => cp.startServices(id), 'execute', {
-                        wait: false,
-                        followAll: true,
-                      })
-                    }
+                    onClick={() => action('run-all', () => cp.runAll(id), 'observe', { followAll: true })}
                   >
-                    Start services
+                    {busy === 'run-all' ? 'Running…' : 'Run full lab'}
                   </Btn>
-                  <Btn
-                    variant="danger"
-                    disabled={!!busy}
-                    onClick={() => action('stop', () => cp.stopServices(id), undefined, { wait: false })}
-                  >
-                    Stop
-                  </Btn>
+                </Card>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <Card title="Step 1 — Setup" subtitle="Creates packages, victim app, and mock infrastructure">
+                    <Btn disabled={!!busy} onClick={() => action('setup', () => cp.setup(id))}>
+                      {busy === 'setup' ? 'Setting up…' : 'Run setup'}
+                    </Btn>
+                  </Card>
+                  <Card title="Step 2 — Services" subtitle="Starts mock servers and registries">
+                    <div className="flex flex-wrap gap-2">
+                      <Btn
+                        variant="success"
+                        disabled={!!busy}
+                        onClick={() =>
+                          action('services', () => cp.startServices(id), 'execute', {
+                            wait: false,
+                            followAll: true,
+                          })
+                        }
+                      >
+                        Start services
+                      </Btn>
+                      <Btn
+                        variant="danger"
+                        disabled={!!busy}
+                        onClick={() => action('stop', () => cp.stopServices(id), undefined, { wait: false })}
+                      >
+                        Stop
+                      </Btn>
+                    </div>
+                    <ul className="mt-4 space-y-1.5 border-t border-line pt-4">
+                      {scenario.services.map((svc) => (
+                        <li key={svc.id} className="flex items-center gap-2 text-xs text-ink-muted">
+                          <span className="h-1 w-1 rounded-full bg-ink-faint" />
+                          {svc.label}
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
                 </div>
-                <ul className="mt-4 space-y-1.5 border-t border-line pt-4">
-                  {scenario.services.map((svc) => (
-                    <li key={svc.id} className="flex items-center gap-2 text-xs text-ink-muted">
-                      <span className="h-1 w-1 rounded-full bg-ink-faint" />
-                      {svc.label}
+
+                {scenario.floci && (
+                  <Card title="Floci (optional)" subtitle="Cloud-track seed and verification">
+                    <div className="flex gap-2">
+                      <Btn
+                        variant="secondary"
+                        disabled={!!busy}
+                        onClick={() => action('floci-seed', () => cp.floci(id, 'seed'))}
+                      >
+                        Seed
+                      </Btn>
+                      <Btn
+                        variant="secondary"
+                        disabled={!!busy}
+                        onClick={() => action('floci-verify', () => cp.floci(id, 'verify'))}
+                      >
+                        Verify
+                      </Btn>
+                    </div>
+                  </Card>
+                )}
+              </div>
+            )}
+
+            {phase === 'execute' && (
+              <Card title="Attack steps" subtitle="Each Run streams to the live terminal below">
+                <ul className="divide-y divide-line">
+                  {scenario.steps.map((step, i) => (
+                    <li
+                      key={step.id}
+                      className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-canvas-hover text-xs font-semibold text-ink-muted">
+                          {i + 1}
+                        </span>
+                        <div>
+                          <p className="text-sm font-medium text-ink-primary">{step.label}</p>
+                          <p className="text-[11px] text-ink-faint">step:{step.id}</p>
+                        </div>
+                      </div>
+                      <Btn
+                        variant="secondary"
+                        size="sm"
+                        disabled={!!busy}
+                        onClick={() => action(step.id, () => cp.runStep(id, step.id), 'observe')}
+                      >
+                        Run
+                      </Btn>
                     </li>
                   ))}
                 </ul>
               </Card>
-            </div>
+            )}
 
-            {scenario.floci && (
-              <Card title="Floci (optional)" subtitle="Cloud-track seed and verification">
-                <div className="flex gap-2">
-                  <Btn
-                    variant="secondary"
-                    disabled={!!busy}
-                    onClick={() => action('floci-seed', () => cp.floci(id, 'seed'))}
-                  >
-                    Seed
+            {phase === 'observe' && (
+              <Card
+                title="Exfiltration captures"
+                subtitle={
+                  hasCaptures
+                    ? 'Data received by mock collector — process logs stay in the dock below'
+                    : 'No captures yet — run attack steps first'
+                }
+                action={
+                  <Btn variant="ghost" size="sm" disabled={!!busy} onClick={() => action('clear', () => cp.clearCaptures(id))}>
+                    Clear
                   </Btn>
-                  <Btn
-                    variant="secondary"
-                    disabled={!!busy}
-                    onClick={() => action('floci-verify', () => cp.floci(id, 'verify'))}
-                  >
-                    Verify
-                  </Btn>
-                </div>
+                }
+              >
+                <pre className="max-h-72 overflow-auto rounded-xl border border-line bg-[#0c0b14] p-4 font-mono text-[11px] leading-relaxed text-white/70">
+                  {JSON.stringify(captures, null, 2)}
+                </pre>
               </Card>
             )}
           </div>
-        )}
-
-        {phase === 'execute' && (
-          <Card title="Attack steps" subtitle="Each Run streams to the live terminal below">
-            <ul className="divide-y divide-line">
-              {scenario.steps.map((step, i) => (
-                <li
-                  key={step.id}
-                  className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-canvas-hover text-xs font-semibold text-ink-muted">
-                      {i + 1}
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium text-ink-primary">{step.label}</p>
-                      <p className="text-[11px] text-ink-faint">step:{step.id}</p>
-                    </div>
-                  </div>
-                  <Btn
-                    variant="secondary"
-                    size="sm"
-                    disabled={!!busy}
-                    onClick={() => action(step.id, () => cp.runStep(id, step.id), 'observe')}
-                  >
-                    Run
-                  </Btn>
-                </li>
-              ))}
-            </ul>
-          </Card>
-        )}
-
-        {phase === 'observe' && (
-          <Card
-            title="Exfiltration captures"
-            subtitle={
-              hasCaptures
-                ? 'Data received by mock collector — process logs stay in the dock below'
-                : 'No captures yet — run attack steps first'
-            }
-            action={
-              <Btn variant="ghost" size="sm" disabled={!!busy} onClick={() => action('clear', () => cp.clearCaptures(id))}>
-                Clear
-              </Btn>
-            }
-          >
-            <pre className="max-h-72 overflow-auto rounded-xl border border-line bg-[#0c0b14] p-4 font-mono text-[11px] leading-relaxed text-white/70">
-              {JSON.stringify(captures, null, 2)}
-            </pre>
-          </Card>
-        )}
-      </div>
+        </>
+      )}
 
       <p className="mt-8 text-[11px] text-ink-faint">
         Docs: {scenario.docs.readme} · {scenario.docs.detect}

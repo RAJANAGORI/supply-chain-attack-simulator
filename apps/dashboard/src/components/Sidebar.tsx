@@ -2,13 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { landingUrl } from '@/lib/hosts';
 
 const mainNav = [
-  { href: '/', label: 'Overview', icon: '◈' },
+  { href: '/welcome', label: 'Welcome', icon: '◈' },
+  { href: '/', label: 'Overview', icon: '▣' },
   { href: '/scenarios', label: 'Labs', icon: '⬡' },
+  { href: '/observe', label: 'Observatory', icon: '◎' },
+  { href: '/skills', label: 'Skills', icon: '▤' },
+  { href: '/report', label: 'Briefing', icon: '☰' },
+  { href: '/classroom', label: 'Classroom', icon: '◫' },
 ];
 
 const utilityNav = [
@@ -17,11 +20,6 @@ const utilityNav = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [landing, setLanding] = useState('http://0.0.0.0:5173');
-
-  useEffect(() => {
-    setLanding(landingUrl());
-  }, []);
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
@@ -29,7 +27,7 @@ export function Sidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-line bg-canvas-elevated/95 backdrop-blur-md">
       <div className="border-b border-line px-5 py-5">
-        <Link href="/" className="group flex items-center gap-3">
+        <Link href="/welcome" className="group flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-sm font-bold text-white shadow-glow">
             S
           </span>
@@ -37,12 +35,12 @@ export function Sidebar() {
             <p className="font-display text-sm font-semibold text-ink-primary transition group-hover:text-brand">
               SCAS
             </p>
-            <p className="text-[11px] text-ink-muted">Control Center</p>
+            <p className="text-[11px] text-ink-muted">Learning platform</p>
           </div>
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-ink-faint">
           Workspace
         </p>
@@ -89,15 +87,8 @@ export function Sidebar() {
           <span className="text-[11px] font-medium text-ink-muted">Theme</span>
           <ThemeToggle />
         </div>
-        <a
-          href={landing}
-          className="flex items-center justify-between rounded-full border border-line bg-canvas px-3 py-2.5 text-xs text-ink-muted transition hover:border-line-strong hover:text-ink-primary"
-        >
-          <span>Landing page</span>
-          <span>↗</span>
-        </a>
         <p className="px-1 text-[10px] leading-relaxed text-ink-faint">
-          Localhost only · Education use
+          Localhost only · Education use · Control plane API on :3101
         </p>
       </div>
     </aside>

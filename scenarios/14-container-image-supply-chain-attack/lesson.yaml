@@ -1,0 +1,37 @@
+id: "14"
+etaMinutes: 45
+category: containers
+incidents:
+  - "Malicious container entrypoints"
+  - "Image supply chain swaps"
+objectives:
+  - "Run a malicious container start path without leaving localhost"
+  - "Inspect container-style exfil captures"
+  - "Apply image pinning and entrypoint review"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare the container lab
+    teaching: "Setup prepares victim-app and the mock collector used by the malicious start script. Docker compose is optional for a fuller path."
+    hint: "Default lab uses malicious-start.js; Docker is optional."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start the mock collector
+    teaching: "Port 3002 receives container exfil via /capture."
+    verify: { type: service-listening }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run malicious container start
+    teaching: "malicious-start.js simulates a bad image entrypoint that harvests env and posts to localhost only."
+    hint: "No real remote registry pull is required for the default path."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Harden image supply chain
+    teaching: "DETECT.md covers digest pins, entrypoint review, and Floci cloud-track options for this scenario."
+    verify: { type: capture-count, min: 1 }

@@ -1,0 +1,54 @@
+id: "03"
+etaMinutes: 35
+category: package-compromise
+incidents:
+  - "event-stream (2018)"
+  - "ua-parser-js (2021)"
+  - "coa and rc (2021)"
+objectives:
+  - "Contrast a clean package with a silent malicious patch"
+  - "See that a trusted package name can still exfiltrate on load"
+  - "Use forensics helpers and captures to prove the compromise"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare legitimate and compromised trees
+    teaching: "Setup syncs compromised secure-validator from the template, installs the victim against the legitimate package first, and starts capture storage."
+    hint: "Skim legitimate-package/secure-validator/index.js vs compromised-package/secure-validator/index.js before you run anything."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start the mock collector
+    teaching: "Exfil from the compromised module posts to the localhost mock on port 3000."
+    hint: "Keep the collector up through both the clean and compromised runs."
+    verify: { type: service-listening }
+  - id: run-legit
+    registry: run-legit
+    audience: attack
+    title: Run with the legitimate package
+    teaching: "Start the victim while it still depends on the clean secure-validator. You should see normal behavior and no exfil from a clean install."
+    hint: "This step is the baseline. Captures may still be empty here."
+    verify: { type: exit-zero }
+  - id: install-bad
+    registry: install-bad
+    audience: attack
+    title: Install the compromised package
+    teaching: "Swap in the silent patch via a local file path. The public API looks the same; hidden load-time exfil is what changed."
+    hint: "After install, compare package versions or run forensics/compare-versions.js from the scenario root."
+    verify: { type: exit-zero }
+  - id: run-bad
+    registry: run-bad
+    audience: attack
+    title: Run with the compromised package
+    teaching: "npm start now loads the malicious module. With TESTBENCH_MODE enabled it posts harvested data to 127.0.0.1 only."
+    hint: "If the first run completed too fast, check the inspector and re-run this step."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Prove the silent patch
+    teaching: "Use the inspector plus forensics/compare-versions.js. DETECT.md lists IOCs for this compromise pattern."
+    hint: "node forensics/compare-versions.js legitimate-package/secure-validator compromised-package/secure-validator"
+    verify: { type: capture-count, min: 1 }
