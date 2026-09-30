@@ -219,7 +219,13 @@ export const SCENARIOS: ScenarioDefinition[] = [
     victimStep('run', 'Run victim (highest version wins)', 'npm', ['start']),
   ], { ports: [3020] }),
   baseScenario('21', '21-axios-compromised-release-attack', 'Axios-style npm release', 'Advanced', 3021, [
-    victimStep('install', 'Install compromised release tarball', 'npm', ['install', 'axios-like@file:../packages/axios-like-1.14.1.tgz']),
+    {
+      id: 'install',
+      label: 'Install compromised release tarball',
+      command: 'bash',
+      args: ['./install-compromised-release.sh'],
+      cwd: '.',
+    },
     victimStep('run', 'Run victim app', 'npm', ['start']),
   ], {
     ports: [3021],

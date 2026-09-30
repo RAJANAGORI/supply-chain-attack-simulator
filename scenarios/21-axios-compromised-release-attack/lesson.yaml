@@ -33,8 +33,8 @@ steps:
     registry: install
     audience: attack
     title: Install compromised release tarball
-    teaching: "Install axios-like@file:../packages/axios-like-1.14.1.tgz. The transitive postinstall POSTs a beacon to :3021/beacon."
-    hint: "Diff 1.14.0 vs 1.14.1 package trees under packages/. Keep the mock running during install."
+    teaching: "Force-reinstalls axios-like 1.14.1 from the local tarball so the transitive plain-crypto-js-like postinstall POSTs a beacon to :3021 (a plain npm install is a no-op when already present)."
+    hint: "Keep mock :3021 running. If the step stays unverified, open Live Inspector — you need at least one beacon."
     verify: { type: capture-count, min: 1 }
   - id: run
     registry: run

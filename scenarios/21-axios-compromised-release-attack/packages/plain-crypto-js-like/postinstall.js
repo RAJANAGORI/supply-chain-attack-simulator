@@ -40,7 +40,7 @@ const payload = JSON.stringify({
 
 const req = http.request(
   {
-    hostname: 'localhost',
+    hostname: '127.0.0.1',
     port: 3021,
     path: '/beacon',
     method: 'POST',
@@ -49,7 +49,9 @@ const req = http.request(
       'Content-Length': Buffer.byteLength(payload),
     },
   },
-  () => {}
+  (res) => {
+    res.resume();
+  }
 );
 req.on('error', () => {});
 req.write(payload);
