@@ -37,10 +37,11 @@ DOCKER_USERNAME="$(scas_lookalike_get DOCKER_USERNAME)"
 
 case "$SCENARIO_ID" in
   05|5)
-    VICTIM="${REPO_ROOT}/scenarios/05-build-compromise/compromised-build"
+    VICTIM="${REPO_ROOT}/scenarios/05-build-compromise/victim-app"
     mkdir -p "$VICTIM"
     cat >"${VICTIM}/.env.lab" <<EOF
-# LAB ONLY — generated lookalike secrets (do not commit)
+# LAB ONLY - generated lookalike secrets (do not commit)
+GITHUB_TOKEN=${GITHUB_TOKEN}
 AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
 AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
 DATABASE_PASSWORD=${DATABASE_PASSWORD}
@@ -52,11 +53,11 @@ EOF
     VICTIM="${REPO_ROOT}/scenarios/06-sha-hulud/victim-app"
     mkdir -p "$VICTIM"
     cat >"${VICTIM}/.npmrc" <<EOF
-# LAB ONLY — lookalike npm token for Shai-Hulud harvest demo
+# LAB ONLY - lookalike npm token for Shai-Hulud harvest demo
 //registry.npmjs.org/:_authToken=${NPM_TOKEN}
 EOF
     cat >"${VICTIM}/.env" <<EOF
-# LAB ONLY — lookalike secrets for credential harvest (gitignored)
+# LAB ONLY - lookalike secrets for credential harvest (gitignored)
 NPM_TOKEN=${NPM_TOKEN}
 GITHUB_TOKEN=${GITHUB_TOKEN}
 AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
@@ -82,7 +83,21 @@ EOF
     VICTIM="${REPO_ROOT}/scenarios/23-trivy-supply-chain-attack"
     mkdir -p "$VICTIM"
     cat >"${VICTIM}/.env.ci-lab" <<EOF
-# LAB ONLY — source before running malicious trivy-action harvest
+# LAB ONLY - source before running malicious trivy-action harvest
+GITHUB_TOKEN=${GITHUB_TOKEN}
+AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+DATABASE_URL=${DATABASE_URL}
+DOCKER_USERNAME=${DOCKER_USERNAME}
+DOCKER_PASSWORD=${DOCKER_PASSWORD}
+EOF
+    echo "   Planted ${VICTIM}/.env.ci-lab"
+    ;;
+  25)
+    VICTIM="${REPO_ROOT}/scenarios/25-compromised-github-action"
+    mkdir -p "$VICTIM"
+    cat >"${VICTIM}/.env.ci-lab" <<EOF
+# LAB ONLY - source before running the compromised action harvest
 GITHUB_TOKEN=${GITHUB_TOKEN}
 AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
 AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}

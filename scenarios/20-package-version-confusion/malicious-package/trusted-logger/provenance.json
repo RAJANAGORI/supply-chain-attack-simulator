@@ -1,0 +1,38 @@
+{
+  "_type": "https://in-toto.io/Statement/v1",
+  "subject": [
+    {
+      "name": "pkg:npm/trusted-logger@9.9.9",
+      "digest": {
+        "sha512": "f1b718c8180b9ec78e5ffb5c92fd3e33b551ef86e27e16ece7e56c10a14aa139efacca421ceeb5eb289b557fd053e4554ea59cdae58d857ba35b07a11673a1ff"
+      }
+    }
+  ],
+  "predicateType": "https://slsa.dev/provenance/v1",
+  "predicate": {
+    "buildDefinition": {
+      "buildType": "https://github.com/actions/runner-github/v1",
+      "externalParameters": {
+        "workflow": {
+          "repository": "https://github.com/octo-org/trusted-logger",
+          "ref": "refs/heads/main",
+          "path": ".github/workflows/publish.yml"
+        }
+      }
+    },
+    "runDetails": {
+      "builder": {
+        "id": "https://github.com/octo-org/trusted-logger/.github/workflows/publish.yml@refs/heads/main"
+      },
+      "metadata": {
+        "invocationId": "https://github.com/octo-org/trusted-logger/actions/runs/123456789",
+        "startedOn": "2026-09-25T10:19:09.680Z"
+      }
+    }
+  },
+  "signature": {
+    "sig": "/BjsOwe72A1l/w9L/JR5t8eFsC6M9ljQ8/lznG23kNpI3ywnrgqtL2mchcdC7FSt+DTXXlL6dh2XNFAGicWrCA==",
+    "keyId": "scas-lab-provenance-key-001",
+    "algorithm": "Ed25519"
+  }
+}

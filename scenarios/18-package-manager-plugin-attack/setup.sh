@@ -9,13 +9,14 @@ set -euo pipefail
 
 
 echo "================================================"
-echo "🔧 Scenario 18: Package Manager Plugin Attack"
+echo "🔧 Scenario 18: Package Manager Hook Abuse (pnpm .pnpmfile.cjs)"
 echo "================================================"
 echo ""
 
 mkdir -p infrastructure victim-app
+rm -rf victim-app/node_modules victim-app/pnpm-lock.yaml
+
 echo '{"captures": []}' > infrastructure/captured-data.json
-rm -rf victim-app/node_modules
 
 cat <<'EOF'
 ================================================
@@ -23,18 +24,21 @@ cat <<'EOF'
 1) Start mock server (Terminal A):
    node infrastructure/mock-server.js
 
-2) Run the victim app (Terminal B):
+2) Install dependencies with pnpm (Terminal B):
    cd victim-app
-   rm -rf node_modules
+   export TESTBENCH_MODE=enabled
+   npx pnpm@9.15.9 install
+
+3) Run the victim app:
    npm start
 
-3) Detection (from scenario root):
+4) Detection (from scenario root):
    node detection-tools/plugin-attack-detector.js victim-app
 
-4) Review evidence:
+5) Review evidence:
    curl -s http://127.0.0.1:3018/captured-data
 
-5) Cleanup:
+6) Cleanup:
    ../../scripts/setup/kill-port.sh 3018
 ================================================
 EOF

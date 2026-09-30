@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Plugin Attack Detector (Scenario 18)
- * Flags evidence of plugin-based injection/exfiltration patterns.
+ * pnpm Hook File Detector (Scenario 18)
+ * Flags evidence of .pnpmfile.cjs hook-based dependency injection/exfiltration.
  */
 
 const fs = require('fs');
@@ -11,9 +11,9 @@ const path = require('path');
 const target = process.argv[2] || 'victim-app';
 const root = path.isAbsolute(target) ? target : path.join(process.cwd(), target);
 
-const pluginHookPath = path.join(root, 'plugins', 'malicious-plugin', 'index.js');
-const activePluginPath = path.join(root, 'plugin-active.js');
-const markerPath = path.join(root, 'node_modules', 'target-lib', '.infected-by-plugin');
+const pnpmfilePath = path.join(root, '.pnpmfile.cjs');
+const lockfilePath = path.join(root, 'pnpm-lock.yaml');
+const injectedDepPath = path.join(root, 'node_modules', 'malicious-logger');
 
 function read(p) {
   try {
@@ -24,22 +24,25 @@ function read(p) {
   }
 }
 
-const hook = read(pluginHookPath);
-const active = read(activePluginPath);
-const markerExists = fs.existsSync(markerPath);
-const exfilFound = hook.includes('localhost') && hook.includes(':3018') ? true : false;
+const pnpmfile = read(pnpmfilePath);
+const lockfile = read(lockfilePath);
+const injectedDepExists = fs.existsSync(injectedDepPath);
+const hookModifiesDeps = pnpmfile.includes('readPackage') && pnpmfile.includes('dependencies');
+const exfilEndpoint = pnpmfile.includes('127.0.0.1') || pnpmfile.includes(':3018');
+const lockfileHasMaliciousLogger = lockfile.includes('malicious-logger');
 
-console.log('🔍 Plugin Attack Detector (Scenario 18)\n');
+console.log('🔍 pnpm Hook File Detector (Scenario 18)\n');
 
-if (markerExists || exfilFound || hook.includes('installHook')) {
-  console.log('🚨 Potential plugin compromise detected.');
-  if (markerExists) console.log('- Found injection marker: .infected-by-plugin');
-  if (exfilFound) console.log('- Found exfiltration endpoint: localhost:3018');
-  console.log('\nMitigation: isolate build tools, verify plugins, and enforce allowlisted installation paths.');
+if (hookModifiesDeps || injectedDepExists || lockfileHasMaliciousLogger || exfilEndpoint) {
+  console.log('🚨 Potential .pnpmfile.cjs hook compromise detected.');
+  if (hookModifiesDeps) console.log('- Found readPackage hook modifying dependencies.');
+  if (injectedDepExists) console.log('- Found injected dependency in node_modules: malicious-logger');
+  if (lockfileHasMaliciousLogger) console.log('- Found malicious-logger in pnpm-lock.yaml');
+  if (exfilEndpoint) console.log('- Found exfiltration endpoint reference in .pnpmfile.cjs');
+  console.log('\nMitigation: audit .pnpmfile.cjs, lock hook files in version control, and verify lockfiles in CI.');
   process.exit(2);
 }
 
-console.log('✅ No obvious plugin compromise indicators found.');
-console.log('Mitigation: still review plugin hooks and disable unknown scripts.');
+console.log('✅ No obvious .pnpmfile.cjs hook compromise indicators found.');
+console.log('Mitigation: still review hook files and run installs with --frozen-lockfile in CI.');
 process.exit(0);
-

@@ -13,6 +13,22 @@ import {
   labBackend,
   rewriteLabUrl,
 } from '../docker-labs.js';
+import { loadLesson } from '../registry/lesson-loader.js';
+import { evaluateLessonSteps } from '../lesson-verify.js';
+import { mergeScenarioProgress, readProgress, writeProgress } from '../progress.js';
+import type { ProgressState, ScenarioProgressEntry } from '../registry/lesson-types.js';
+import {
+  askLabAssistant,
+  buildBriefing,
+  buildSkillMatrix,
+  createClassroom,
+  fetchEsTimeline,
+  joinClassroom,
+  readClassroom,
+  reportClassroomProgress,
+  setClassroomFrozen,
+  skillMatrixMarkdown,
+} from '../learning-platform.js';
 
 const REPO = getRepoRoot();
 
@@ -67,20 +83,172 @@ export function createApiRouter(): Router {
   });
 
   router.get('/scenarios', (_req, res) => {
-    const list = SCENARIOS.map((s) => ({
-      ...s,
-      activeProcesses: processManager.getActiveForScenario(s.id).length,
-    }));
+    const list = SCENARIOS.map((s) => {
+      let lessonSummary = null;
+      try {
+        const lesson = loadLesson(s);
+        if (lesson) {
+          lessonSummary = {
+            etaMinutes: lesson.etaMinutes,
+            category: lesson.category,
+            stepCount: lesson.steps.length,
+          };
+        }
+      } catch (err) {
+        console.error(`lesson load failed for ${s.id}:`, err);
+      }
+      return {
+        ...s,
+        lesson: lessonSummary,
+        activeProcesses: processManager.getActiveForScenario(s.id).length,
+      };
+    });
     res.json(list);
   });
 
   router.get('/scenarios/:id', (req, res) => {
     const scenario = getScenario(req.params.id);
     if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
+    let lesson = null;
+    try {
+      lesson = loadLesson(scenario);
+    } catch (err) {
+      console.error(`lesson load failed for ${scenario.id}:`, err);
+    }
     res.json({
       ...scenario,
+      lesson,
       processes: processManager.list().filter((p) => p.scenarioId === scenario.id),
     });
+  });
+
+  router.get('/scenarios/:id/lesson/verify', async (req, res) => {
+    const scenario = getScenario(req.params.id);
+    if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
+    const lesson = loadLesson(scenario);
+    if (!lesson) return res.status(404).json({ error: 'No lesson for scenario' });
+
+    const captures: Record<string, unknown> = {};
+    for (const cap of scenario.captures) {
+      try {
+        const response = await fetch(rewriteLabUrl(cap.url), { signal: AbortSignal.timeout(3000) });
+        captures[cap.id] = await response.json();
+      } catch (err) {
+        captures[cap.id] = { error: err instanceof Error ? err.message : 'Fetch failed' };
+      }
+    }
+
+    const processes = processManager.list().filter((p) => p.scenarioId === scenario.id);
+    const steps = evaluateLessonSteps(lesson, { scenario, processes, captures });
+    res.json({ steps, captures });
+  });
+
+  router.get('/progress', (_req, res) => {
+    res.json(readProgress());
+  });
+
+  router.put('/progress', (req, res) => {
+    const body = req.body as Partial<ProgressState> & {
+      scenarioId?: string;
+      entry?: Partial<ScenarioProgressEntry> & { lastStepId?: string };
+    };
+
+    if (body.scenarioId && body.entry) {
+      return res.json(mergeScenarioProgress(body.scenarioId, body.entry));
+    }
+
+    if (body.scenarios) {
+      return res.json(
+        writeProgress({
+          lastScenarioId: body.lastScenarioId,
+          lastStepId: body.lastStepId,
+          scenarios: body.scenarios,
+          updatedAt: new Date().toISOString(),
+        }),
+      );
+    }
+
+    return res.status(400).json({ error: 'Expected scenarioId+entry or full scenarios map' });
+  });
+
+  router.get('/skills', (_req, res) => {
+    res.json(buildSkillMatrix());
+  });
+
+  router.get('/skills/export', (req, res) => {
+    const format = String(req.query.format ?? 'json');
+    if (format === 'md' || format === 'markdown') {
+      res.type('text/markdown').send(skillMatrixMarkdown());
+      return;
+    }
+    res.json(buildSkillMatrix());
+  });
+
+  router.get('/briefing', (req, res) => {
+    const scenarioId = typeof req.query.scenario === 'string' ? req.query.scenario : undefined;
+    res.json(buildBriefing(scenarioId));
+  });
+
+  router.get('/observe/timeline', async (req, res) => {
+    const limit = Number(req.query.limit ?? 50);
+    res.json(await fetchEsTimeline(Number.isFinite(limit) ? limit : 50));
+  });
+
+  router.get('/classroom', (_req, res) => {
+    res.json(readClassroom());
+  });
+
+  router.post('/classroom', (req, res) => {
+    const title = typeof req.body?.title === 'string' ? req.body.title : 'SCAS classroom';
+    res.json(createClassroom(title));
+  });
+
+  router.post('/classroom/freeze', (req, res) => {
+    try {
+      const frozen = Boolean(req.body?.frozen ?? true);
+      res.json(setClassroomFrozen(frozen));
+    } catch (err) {
+      res.status(400).json({ error: err instanceof Error ? err.message : 'Freeze failed' });
+    }
+  });
+
+  router.post('/classroom/join', (req, res) => {
+    try {
+      const code = String(req.body?.code ?? '');
+      const name = String(req.body?.name ?? 'Learner');
+      res.json(joinClassroom(code, name));
+    } catch (err) {
+      res.status(400).json({ error: err instanceof Error ? err.message : 'Join failed' });
+    }
+  });
+
+  router.post('/classroom/progress', (req, res) => {
+    try {
+      const studentId = String(req.body?.studentId ?? '');
+      if (!studentId) return res.status(400).json({ error: 'studentId required' });
+      res.json(
+        reportClassroomProgress(studentId, {
+          lastScenarioId: req.body?.lastScenarioId,
+          lastStepId: req.body?.lastStepId,
+          completedSteps: req.body?.completedSteps,
+        }),
+      );
+    } catch (err) {
+      res.status(400).json({ error: err instanceof Error ? err.message : 'Progress update failed' });
+    }
+  });
+
+  router.post('/assistant', async (req, res) => {
+    try {
+      const result = await askLabAssistant({
+        question: String(req.body?.question ?? ''),
+        scenarioId: typeof req.body?.scenarioId === 'string' ? req.body.scenarioId : undefined,
+        stepId: typeof req.body?.stepId === 'string' ? req.body.stepId : undefined,
+      });
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: err instanceof Error ? err.message : 'Assistant failed' });
+    }
   });
 
   router.post('/scenarios/:id/setup', (req, res) => {
@@ -100,6 +268,7 @@ export function createApiRouter(): Router {
       args: [scenario.setup.command.replace('./', '')],
       cwd: scenario.setup.cwd,
       scenarioId: scenario.id,
+      stepId: 'setup',
       shell: false,
     });
     res.json({ async: true, started: true, sessionId: record.id, record, backend: 'host' });
@@ -212,6 +381,7 @@ export function createApiRouter(): Router {
           args: [scenario.setup.command.replace('./', '')],
           cwd: scenario.setup.cwd,
           scenarioId: scenario.id,
+          stepId: 'setup',
           mirrorTo,
         });
         const setupResult = await waitFor(setup.id);
@@ -390,7 +560,39 @@ export function createApiRouter(): Router {
         processManager.stopSession(proc.id);
       }
     }
-    return startPlatformScript(res, 'Lab teardown', 'scripts/setup/teardown.sh');
+    const scriptPath = resolve(REPO, 'scripts/setup/teardown.sh');
+    const record = processManager.startDetached({
+      label: 'Lab teardown',
+      command: 'bash',
+      args: [scriptPath],
+      cwd: REPO,
+      scenarioId: 'platform',
+      serviceId: 'Lab teardown',
+    });
+    const onEnd = (ended: { id: string }) => {
+      if (ended.id !== record.id) return;
+      processManager.off('process-end', onEnd);
+      // Fresh terminal after reset — drop teardown + lab history.
+      processManager.clearLogs('Environment reset. Terminal is clear — start a lab when ready.');
+    };
+    processManager.on('process-end', onEnd);
+    return res.json({
+      started: true,
+      async: true,
+      sessionId: record.id,
+      label: record.label,
+      message: 'Lab teardown started. The live terminal clears when reset finishes.',
+    });
+  });
+
+  router.delete('/logs', (_req, res) => {
+    const result = processManager.clearLogs();
+    res.json({ ok: true, ...result });
+  });
+
+  router.post('/logs/clear', (_req, res) => {
+    const result = processManager.clearLogs();
+    res.json({ ok: true, ...result });
   });
 
   router.get('/logs', (req, res) => {
@@ -398,9 +600,7 @@ export function createApiRouter(): Router {
     if (sessionId) {
       return res.json(processManager.getLogs(sessionId));
     }
-    const all = processManager.list().flatMap((p) => processManager.getLogs(p.id));
-    all.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
-    res.json(all.slice(-500));
+    res.json(processManager.getAllLogs());
   });
 
   router.get('/processes', (_req, res) => {

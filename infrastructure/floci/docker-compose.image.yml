@@ -1,5 +1,8 @@
 # Fast path — published Floci image (no vendor clone / no Java build).
 # Setup: ../../scripts/floci/floci-setup.sh --image
+#
+# Docker socket must be writable by the Floci process so /_floci/ui can spawn
+# the floci-ui sidecar (and so Lambda/ECR/ECS cloud-track features work).
 
 name: scas-floci
 
@@ -10,8 +13,14 @@ services:
     tty: true
     ports:
       - "${FLOCI_PORT:-4566}:4566"
+    group_add:
+      # Host docker.sock group (set by floci-up.sh). Lets uid 1001 reach the daemon.
+      - "${DOCKER_GID:-0}"
+    security_opt:
+      # SELinux / Podman: socket bind can otherwise fail with BindException Permission denied
+      - label=disable
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:z
       - ./data:/app/data
       - ./init/ready.d:/etc/floci/init/ready.d:ro
     environment:
@@ -19,6 +28,8 @@ services:
       FLOCI_STORAGE_MODE: ${FLOCI_STORAGE_MODE:-memory}
       FLOCI_STORAGE_PERSISTENT_PATH: /app/data
       FLOCI_SERVICES_DOCKER_NETWORK: scas_floci_default
+      # Root when socket is root-only (660 root:root). Prefer group_add when docker group works.
+      FLOCI_RUN_AS_ROOT: ${FLOCI_RUN_AS_ROOT:-true}
       AWS_DEFAULT_REGION: ${FLOCI_DEFAULT_REGION:-us-east-1}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-test}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-test}

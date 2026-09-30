@@ -9,6 +9,34 @@ export function controlPlaneDisplayHost(): string {
   return `${DEFAULT_HOST}:${CP_PORT}`;
 }
 
+/**
+ * Rewrite loopback service URLs so LAN / remote browsers hit the lab host,
+ * not the learner's own 127.0.0.1.
+ * Server-side probes stay on 127.0.0.1; only browser-facing links use this.
+ */
+export function browserFacingUrl(urlOrPort: string | number): string {
+  const host =
+    typeof window !== 'undefined' && window.location.hostname
+      ? window.location.hostname
+      : '127.0.0.1';
+
+  if (typeof urlOrPort === 'number') {
+    return `http://${host}:${urlOrPort}`;
+  }
+
+  try {
+    const u = new URL(urlOrPort);
+    if (u.hostname === '127.0.0.1' || u.hostname === 'localhost' || u.hostname === '0.0.0.0') {
+      u.hostname = host;
+    }
+    let out = u.toString();
+    if (out.endsWith('/') && u.pathname === '/') out = out.slice(0, -1);
+    return out;
+  } catch {
+    return urlOrPort;
+  }
+}
+
 /** REST base URL for control-plane API calls. */
 export function controlPlaneApiBase(): string {
   if (typeof window !== 'undefined') return CONTROL_PLANE_API_PREFIX;
@@ -26,10 +54,7 @@ export function controlPlaneWsUrl(): string {
   return `ws://127.0.0.1:${port}/ws/logs`;
 }
 
+/** Public marketing site (not started with the local control center). */
 export function landingUrl(): string {
-  const port = '5173';
-  if (typeof window !== 'undefined') {
-    return `http://${window.location.hostname}:${port}`;
-  }
-  return `http://${DEFAULT_HOST}:${port}`;
+  return 'https://simulator.rajanagori.in/';
 }

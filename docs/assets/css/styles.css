@@ -44,14 +44,14 @@
   --accent-glow: rgba(67, 59, 255, 0.14);
   --accent-glow-strong: rgba(47, 39, 206, 0.28);
 
-  --red: #ff4d5e;
-  --red-glow: rgba(255, 77, 94, 0.14);
-  --orange: #fb923c;
-  --amber: #fbbf24;
-  --emerald: #34d399;
-  --emerald-glow: rgba(52, 211, 153, 0.14);
-  --cyan: #22d3ee;
-  --cyan-glow: rgba(34, 211, 238, 0.14);
+  --red: #e11d48;
+  --red-glow: rgba(225, 29, 72, 0.1);
+  --orange: #ea580c;
+  --amber: #d97706;
+  --emerald: #059669;
+  --emerald-glow: rgba(5, 150, 105, 0.1);
+  --cyan: #0891b2;
+  --cyan-glow: rgba(8, 145, 178, 0.1);
 
   --border-subtle: rgba(5, 3, 21, 0.1);
   --border-accent: rgba(47, 39, 206, 0.28);
@@ -116,12 +116,12 @@
   --cyan-glow: rgba(8, 145, 178, 0.1);
 
   --border-subtle: rgba(16, 17, 32, 0.09);
-  --border-accent: rgba(98, 70, 234, 0.28);
+  --border-accent: rgba(47, 39, 206, 0.28);
 
   --nav-bg: rgba(250, 250, 255, 0.65);
   --nav-bg-solid: rgba(250, 250, 255, 0.97);
   --toolbar-bg: rgba(255, 255, 255, 0.92);
-  --grid-line: rgba(98, 70, 234, 0.07);
+  --grid-line: rgba(47, 39, 206, 0.07);
   --glow-opacity: 0.25;
 
   --shadow-sm: 0 1px 2px rgba(20, 20, 60, 0.06);
@@ -260,21 +260,21 @@ body::after {
 .bg-glow-1 {
   width: 620px; height: 620px;
   top: -220px; left: -140px;
-  background: radial-gradient(circle, rgba(124, 92, 255, 0.55), transparent 65%);
+  background: radial-gradient(circle, rgba(47, 39, 206, 0.45), transparent 65%);
   animation: aurora-float-1 18s ease-in-out infinite alternate;
 }
 
 .bg-glow-2 {
   width: 560px; height: 560px;
   top: 30vh; right: -200px;
-  background: radial-gradient(circle, rgba(34, 211, 238, 0.4), transparent 65%);
+  background: radial-gradient(circle, rgba(67, 59, 255, 0.35), transparent 65%);
   animation: aurora-float-2 22s ease-in-out infinite alternate;
 }
 
 .bg-glow-3 {
   width: 500px; height: 500px;
   bottom: -180px; left: 32vw;
-  background: radial-gradient(circle, rgba(244, 114, 182, 0.32), transparent 65%);
+  background: radial-gradient(circle, rgba(222, 220, 255, 0.55), transparent 65%);
   animation: aurora-float-3 26s ease-in-out infinite alternate;
 }
 
@@ -413,7 +413,7 @@ body::after {
 
 .nav-links a:hover {
   color: var(--text-primary);
-  background: rgba(124, 92, 255, 0.08);
+  background: rgba(47, 39, 206, 0.08);
 }
 
 .nav-links a:hover::after { width: 55%; }
@@ -656,7 +656,7 @@ body::after {
 .hero-logo-glow {
   position: absolute;
   inset: -30%;
-  background: conic-gradient(from var(--angle), #7c5cff, #22d3ee, #f472b6, #7c5cff);
+  background: conic-gradient(from var(--angle), #2f27ce, #433bff, #dedcff, #2f27ce);
   filter: blur(70px);
   opacity: 0.35;
   animation: spin-angle 10s linear infinite;
@@ -1519,7 +1519,7 @@ body::after {
   border: 1px solid transparent;
   background:
     linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
-    conic-gradient(from var(--angle), #7c5cff, #22d3ee, #f472b6, #7c5cff) border-box;
+    conic-gradient(from var(--angle), #2f27ce, #433bff, #dedcff, #2f27ce) border-box;
   animation: spin-angle 8s linear infinite;
   box-shadow: 0 30px 90px var(--accent-glow);
 }

@@ -17,7 +17,6 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
-
 ## Table of Contents
 
 <div class="doc-toc">
@@ -30,9 +29,8 @@ By the end of this guide, you will:
 - [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
-- [Mitigation Playbook](#mitigation-playbook)
 - [Code-level workflow](#code-level-workflow)
-- [Mitigation Playbook](#mitigation-playbook-1)
+- [Mitigation Playbook](#mitigation-playbook)
 - [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
@@ -576,18 +574,6 @@ node detection-tools/axios-compromise-detector.js victim-app
 
 ---
 
-## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/21-axios-compromised-release-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Contain: stop CI runners and isolate hosts that installed the bad version.
-- Eradicate: remove `node_modules`, regenerate lockfiles, rotate npm tokens and CI secrets.
-- Recover: pin to a known-good exact version; enforce lockfile-only installs in CI.
-- Hunt: search org lockfiles for unexpected transitive packages from advisories.
-- Enable trusted publishing / provenance checks and lifecycle script monitoring.
-
----
-
 ## Code-level workflow
 
 ![Scenario 21 code-level workflow: Axios-style Compromised Release](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-21.svg)
@@ -632,6 +618,94 @@ rm -rf node_modules package-lock.json
 npm install <package>@<known-good-version> --save-exact
 npm token revoke <token-id>
 ```
+
+---
+
+ **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+
+> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+
+### End-to-end flow
+
+![Scenario 21 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-21.svg)
+
+*Swimlane diagram for Scenario 21. Editable source: [`scas-observability-scenario-21.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-21.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
+
+### Sequence diagram (Phase 1-5)
+
+Same flow as a participant sequence (expandable in the docs hub).
+
+### Scenario-specific attack steps (Phase 2)
+
+Same Phase-2 path as the diagrams above (for skimming / accessibility).
+
+| # | From | To | Action |
+|---|------|----|--------|
+| 1 | Learner | Victim | npm install axios-like@file:../packages/axios-like-1.14.1.tgz |
+| 2 | Victim | MalPkg | Transitive plain-crypto-js-like postinstall runs |
+| 3 | Learner | Victim | npm start (parent never imports transitive directly) |
+| 4 | MalPkg | MalPkg | Write .testbench-axios-ioc.json + beacon payload |
+
+### Prerequisites
+
+From the repository root:
+
+```bash
+./scripts/observability/elasticsearch-up.sh
+./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
+```
+
+### Run this scenario with live Elasticsearch forwarding
+
+**Terminal A - mock collector** (from `scenarios/21-axios-compromised-release-attack`):
+
+```bash
+cd scenarios/21-axios-compromised-release-attack
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+node infrastructure/mock-server.js
+```
+
+**Terminal B - execute the lab:**
+
+```bash
+cd scenarios/21-axios-compromised-release-attack
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+cd victim-app && npm install axios-like@file:../packages/axios-like-1.14.1.tgz && npm start
+```
+
+### Verify locally (file-based evidence)
+
+```bash
+curl -s http://localhost:3021/captured-data
+```
+
+### Verify in Elasticsearch (API)
+
+```bash
+# Static runbook for this scenario
+curl -s "http://localhost:9200/scas-rules/_doc/21?pretty"
+
+# Latest runtime capture events
+curl -s "http://localhost:9200/scas-detections/_search?pretty" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": { "term": { "scenario_id": "21" } },
+    "sort": [{ "@timestamp": "desc" }],
+    "size": 5
+  }'
+```
+
+### Verify in Kibana (UI)
+
+1. Open [http://localhost:5601](http://localhost:5601)
+2. **Discover** → **SCAS Detections - Scenario 21** - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. **Discover** → **SCAS Rules - Scenario 21** - compare against `iocs`, `sigma`, and `yara` fields
+4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
+
+See [observability/README.md](../../../observability/README.md) for stack details.
 
 ---
 

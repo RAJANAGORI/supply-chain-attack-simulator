@@ -1,7 +1,9 @@
 # Detection Runbook: Scenario 13 (Package Metadata Manipulation)
 
 ## IOCs
-- `repository`/`author` metadata differs from known-good publisher.
+- `homepage` or `repository` URL differs between registry API, tarball `package.json`, and known-good publisher.
+- `author`/`maintainers` metadata differs between registry API and tarball.
+- README presents a trusted homepage or project story that does not match the actual publisher.
 - `dist.integrity` mismatch against expected values.
 - Runtime capture events to `127.0.0.1:3001`.
 
@@ -45,17 +47,26 @@ rule Metadata_Manipulation_IOC {
 
 ## Mitigation
 
-- Validate metadata against trusted allowlists for critical packages.
-- Require lockfile and integrity verification in CI.
-- Pin exact versions for sensitive dependencies.
-- Mirror and sign internal-approved artifacts.
+- Compare README, homepage, and repository URLs against a trusted source-of-truth; do not trust marketing copy.
+- Validate registry API metadata against tarball `package.json`; reject mismatches in author, repository, homepage, or dist integrity.
+- Pin exact versions and verify lockfile integrity hashes in CI.
+- Maintain an internal mirror of approved artifacts with signed metadata.
+- Require human review for dependency additions that change homepage, repository, or author fields.
 
 ## Straightforward Implementation
 
 ### 1. Metadata validation
 
 ```bash
-npm view <pkg> --json | jq '{name, version, author, repository, maintainers}'
+# Registry API metadata
+npm view clean-utils --json | jq '{name, version, author, repository, homepage, maintainers}'
+
+# Tarball metadata
+npm pack clean-utils
+tar -xzf clean-utils-*.tgz
+cat package/package.json | jq '{name, version, author, repository, homepage}'
+
+# Compare the two; reject mismatches
 ```
 
 ### 2. CI gate
@@ -64,6 +75,7 @@ npm view <pkg> --json | jq '{name, version, author, repository, maintainers}'
 # .github/workflows/metadata-check.yml
 - run: npm ci --ignore-scripts
 - run: node scripts/validate-package-metadata.js --allowlist allowed-packages.json
+- run: node scripts/compare-registry-vs-tarball.js clean-utils
 ```
 
 ### 3. Allowlist maintenance

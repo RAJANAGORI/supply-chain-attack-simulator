@@ -15,7 +15,6 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
-
 ## Table of Contents
 
 <div class="doc-toc">
@@ -30,9 +29,8 @@ By the end of this guide, you will:
 - [Part 8: Forensic Investigation (30 minutes)](#part-8-forensic-investigation-30-minutes)
 - [Part 9: Incident Response (30 minutes)](#part-9-incident-response-30-minutes)
 - [Part 10: Defense Strategies (20 minutes)](#part-10-defense-strategies-20-minutes)
-- [Mitigation Playbook](#mitigation-playbook)
 - [Code-level workflow](#code-level-workflow)
-- [Mitigation Playbook](#mitigation-playbook-1)
+- [Mitigation Playbook](#mitigation-playbook)
 - [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 11: Key Takeaways (10 minutes)](#part-11-key-takeaways-10-minutes)
@@ -687,19 +685,6 @@ cat package-lock.json | grep evil-utils
 
 ---
 
-## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Validate lockfiles before install in CI and locally.
-- Use git pre-commit hooks to detect unexpected lockfile changes.
-- Require careful code review of every `package-lock.json` diff.
-- Store and verify lockfile checksums as part of release gates.
-- Compare `package.json` declared deps against lockfile entries automatically.
-- Verify package integrity hashes match trusted registry metadata.
-
----
-
 ## Code-level workflow
 
 ![Scenario 08 code-level workflow: Package Lock File Manipulation](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-08.svg)
@@ -747,6 +732,93 @@ fi
 ### 4. Policy
 
 Never allow "file:", "link:", or "git+ssh" dependencies in production lockfiles without explicit security review.
+
+---
+
+l network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+
+### End-to-end flow
+
+![Scenario 08 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-08.svg)
+
+*Swimlane diagram for Scenario 08. Editable source: [`scas-observability-scenario-08.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-08.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
+
+### Sequence diagram (Phase 1-5)
+
+Same flow as a participant sequence (expandable in the docs hub).
+
+### Scenario-specific attack steps (Phase 2)
+
+Same Phase-2 path as the diagrams above (for skimming / accessibility).
+
+| # | From | To | Action |
+|---|------|----|--------|
+| 1 | Learner | Victim | npm install (honors manipulated package-lock.json) |
+| 2 | Victim | MalPkg | Install evil-utils from lockfile entry |
+| 3 | MalPkg | MalPkg | postinstall / load hook fires during install |
+| 4 | Learner | Victim | npm start (after stopping mock-server if port 3000 busy) |
+
+### Prerequisites
+
+From the repository root:
+
+```bash
+./scripts/observability/elasticsearch-up.sh
+./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
+```
+
+### Run this scenario with live Elasticsearch forwarding
+
+**Terminal A - mock collector** (from `scenarios/08-package-lock-file-manipulation`):
+
+```bash
+cd scenarios/08-package-lock-file-manipulation
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+node infrastructure/mock-server.js
+```
+
+**Terminal B - execute the lab:**
+
+```bash
+cd scenarios/08-package-lock-file-manipulation
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+cd victim-app && npm install && npm start
+```
+
+> **Note:** Stop mock-server before npm start if port 3000 conflicts with victim Express app.
+
+### Verify locally (file-based evidence)
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+### Verify in Elasticsearch (API)
+
+```bash
+# Static runbook for this scenario
+curl -s "http://localhost:9200/scas-rules/_doc/08?pretty"
+
+# Latest runtime capture events
+curl -s "http://localhost:9200/scas-detections/_search?pretty" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": { "term": { "scenario_id": "08" } },
+    "sort": [{ "@timestamp": "desc" }],
+    "size": 5
+  }'
+```
+
+### Verify in Kibana (UI)
+
+1. Open [http://localhost:5601](http://localhost:5601)
+2. **Discover** → **SCAS Detections - Scenario 08** - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. **Discover** → **SCAS Rules - Scenario 08** - compare against `iocs`, `sigma`, and `yara` fields
+4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
+
+See [observability/README.md](../../../observability/README.md) for stack details.
 
 ---
 

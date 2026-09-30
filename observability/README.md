@@ -16,7 +16,7 @@ This will:
 
 1. Start Elasticsearch (`:9200`) and Kibana (`:5601`) via Docker Compose
 2. Apply index templates for `scas-rules` and `scas-detections`
-3. Load all 23 scenario `DETECT.md` runbooks into `scas-rules`
+3. Load all 25 scenario `DETECT.md` runbooks into `scas-rules`
 
 Open Kibana at [http://localhost:5601](http://localhost:5601).
 
@@ -33,7 +33,7 @@ This creates:
 | SCAS Rules | `scas-rules` | `ingested_at` |
 | SCAS Detections | `scas-detections` | `@timestamp` |
 
-Plus **46 saved searches** - for each scenario 01-23:
+Plus **50 saved searches** - for each scenario 01-25:
 
 - `SCAS Rules - Scenario XX` (detection runbook / IOCs / Sigma / YARA)
 - `SCAS Detections - Scenario XX` (runtime capture events)

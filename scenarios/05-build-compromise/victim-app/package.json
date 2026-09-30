@@ -1,11 +1,12 @@
 {
-  "name": "my-application",
+  "name": "victim-build-repo",
   "version": "1.0.0",
-  "description": "Application using compromised build artifacts",
-  "main": "dist/app.js",
+  "description": "Victim repo that references a compromised reusable workflow/action [EDUCATIONAL]",
+  "private": true,
   "scripts": {
-    "start": "node -r ../../_shared/testbench-env.js dist/app.js"
+    "build": "node build.js",
+    "ci": "node local-ci.js",
+    "start": "node -r ../../_shared/testbench-env.js index.js"
   },
-  "author": "",
-  "license": "MIT"
+  "dependencies": {}
 }

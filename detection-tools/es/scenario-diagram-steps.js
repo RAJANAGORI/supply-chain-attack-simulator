@@ -213,6 +213,24 @@ const SCENARIO_DIAGRAMS = {
       { from: 'MalPkg', to: 'Mock', message: 'POST http://127.0.0.1:3023/collect - CI env vars harvested' },
       { from: 'MalPkg', to: 'Victim', message: 'scanTarget() runs - pipeline output appears normal' }
     ]
+  },
+  '24': {
+    intro: 'Slopsquatting: an LLM-hallucinated package name (`array-sortify`) is installed and beacons to the mock server.',
+    attack_steps: [
+      { from: 'Learner', to: 'Victim', message: 'npm install array-sortify (name suggested by generated README)' },
+      { from: 'Learner', to: 'Victim', message: 'npm start (TESTBENCH_MODE=enabled)' },
+      { from: 'Victim', to: 'MalPkg', message: 'require("array-sortify") loads slopsquatted module' },
+      { from: 'MalPkg', to: 'Mock', message: 'POST http://127.0.0.1:3024/collect - env + package metadata' }
+    ]
+  },
+  '25': {
+    intro: 'Compromised reusable GitHub Action: force-pushed v3 tag runs malicious action code that harvests CI secrets.',
+    attack_steps: [
+      { from: 'Learner', to: 'Victim', message: './run-ci.sh (act runs ci.yml, else npm start)' },
+      { from: 'Victim', to: 'MalPkg', message: 'Workflow uses example/actions/checkout@v3 (force-pushed)' },
+      { from: 'MalPkg', to: 'MalPkg', message: 'Action entrypoint reads GITHUB_TOKEN + env secrets' },
+      { from: 'MalPkg', to: 'Mock', message: 'POST http://127.0.0.1:3025/collect - CI secrets exfiltrated' }
+    ]
   }
 };
 

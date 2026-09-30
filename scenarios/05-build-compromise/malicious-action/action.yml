@@ -1,0 +1,14 @@
+name: 'Build and publish artifact (SCAS Scenario 5 reference)'
+description: >-
+  Educational stand-in for vendor/build-action@v1. In the lab narrative this
+  action was force-pushed with a malicious version that harvests CI secrets
+  and build artifacts. Run locally with ./run-ci.sh (nektos/act) or npm run ci.
+  Do not publish this workflow or run it against a real GitHub repository.
+inputs:
+  artifact-path:
+    description: 'Path to the artifact to publish'
+    required: true
+    default: 'dist/app.js'
+runs:
+  using: node20
+  main: index.js

@@ -1,0 +1,15 @@
+{
+  "name": "victim-application",
+  "version": "1.0.0",
+  "description": "Application that installs an LLM-hallucinated package",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r ../../_shared/testbench-env.js index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "array-sortify": "file:../malicious-packages/array-sortify"
+  }
+}

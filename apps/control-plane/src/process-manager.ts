@@ -36,6 +36,33 @@ export class ProcessManager extends EventEmitter {
     return this.logs.get(sessionId) ?? [];
   }
 
+  getAllLogs(): LogEntry[] {
+    const all: LogEntry[] = [];
+    for (const bucket of this.logs.values()) {
+      all.push(...bucket);
+    }
+    all.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+    return all.slice(-500);
+  }
+
+  /** Wipe buffered terminal output (and finished process records). Live children keep running with empty logs. */
+  clearLogs(readyLine?: string): { clearedSessions: number } {
+    const clearedSessions = this.logs.size;
+    this.logs.clear();
+    for (const [id, entry] of [...this.processes]) {
+      if (entry.record.status === 'running') {
+        this.logs.set(id, []);
+      } else {
+        this.processes.delete(id);
+      }
+    }
+    this.emit('logs-cleared');
+    if (readyLine) {
+      this.appendLog('__system__', 'system', readyLine);
+    }
+    return { clearedSessions };
+  }
+
   getActiveForScenario(scenarioId: string): ProcessRecord[] {
     return this.list().filter((p) => p.scenarioId === scenarioId && p.status === 'running');
   }

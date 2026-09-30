@@ -1,0 +1,12 @@
+{
+  "name": "shai-hulud",
+  "version": "1.0.0",
+  "description": "A small text formatting utility [MALICIOUS - EDUCATIONAL ONLY]",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node postinstall.js"
+  },
+  "keywords": ["format", "string", "text"],
+  "author": "Attacker (Educational Demo)",
+  "license": "MIT"
+}

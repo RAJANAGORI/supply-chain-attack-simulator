@@ -1,0 +1,47 @@
+id: "23"
+etaMinutes: 45
+category: ci-cd
+incidents:
+  - "Compromised Trivy / scanner modules"
+  - "Security tool as attack path"
+caseStudy: "Models compromised scanner modules and mutable Trivy action tags: the security tool in CI becomes the delivery path, with force-pushed tags swapping trusted SHAs for malicious ones."
+objectives:
+  - "Install a compromised scanner module into CI victim"
+  - "See C2-style posts to localhost:3023"
+  - "Trust but verify security tooling"
+mitigation:
+  - "Replace mutable action tags with immutable commit SHAs everywhere"
+  - "Disable and re-queue pipelines that ran known-bad scanner action versions"
+  - "Rotate CI secrets reachable by affected runs; hunt workflows for bad version strings"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare Trivy compromise lab
+    teaching: "Setup installs the compromised module via a local file path into victim-ci and prepares the mock C2 server."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start mock C2 server
+    teaching: "mock-c2-server.js on 3023 stands in for attacker C2. Traffic stays on localhost."
+    verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: Install compromised trivy module
+    teaching: "npm install in victim-ci ensures the compromised scanner module is present for the CI victim."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run CI victim
+    teaching: "The victim CI path invokes the bad scanner module, which beacons to the mock C2."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Verify security tools too
+    teaching: "Pin scanner versions by digest/SHA and monitor unexpected network from CI. See DETECT.md and Floci options."
+    verify: { type: capture-count, min: 1 }

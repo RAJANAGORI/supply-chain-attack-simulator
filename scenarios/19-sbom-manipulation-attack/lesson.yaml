@@ -1,0 +1,52 @@
+id: "19"
+etaMinutes: 40
+category: sbom-integrity
+incidents:
+  - "Tampered SBOMs that hide components"
+  - "False clean bills of materials"
+caseStudy: "Models SBOM manipulation that hides components: a polished bill of materials claims a clean tree while lockfile or runtime inventory still shows the risky package."
+objectives:
+  - "Install a tree that ships a misleading SBOM story"
+  - "Capture evidence while SBOM looks clean"
+  - "Validate SBOMs against actual installs"
+mitigation:
+  - "Regenerate SBOMs in trusted CI from lockfiles and build artifacts only"
+  - "Require SBOM signing or provenance; fail closed on SBOM-lockfile mismatches"
+  - "Periodically diff production SBOM against runtime inventory scans"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare the lab
+    teaching: "Run setup to create victim, packages, and mock infrastructure for this scenario."
+    hint: "Node 18+ (or the language this lab needs). Dashboard Setup runs ./setup.sh for you."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start mock collectors
+    teaching: "Start the localhost mock server(s). Exfil only targets 127.0.0.1 when TESTBENCH_MODE is enabled."
+    hint: "If a port is busy, free it from Teardown or scripts/setup/kill-port.sh."
+    verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: Install dependencies
+    teaching: "The lab demonstrates how an SBOM can omit or rename a malicious component while the install still pulls it."
+    hint: "Watch the live terminal for install hooks."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the victim
+    teaching: "Runtime exfil proves the SBOM was not the ground truth."
+    hint: "Confirm the inspector shows at least one capture."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Read captures and DETECT.md
+    teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
+    hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
+    verify: { type: capture-count, min: 1 }

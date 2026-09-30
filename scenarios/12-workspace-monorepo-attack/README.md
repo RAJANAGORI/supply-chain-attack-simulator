@@ -8,6 +8,9 @@
 
 
 
+
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -41,6 +44,8 @@ By completing this scenario, you will learn:
 
 **Workspace/Monorepo Attack** occurs when an attacker compromises a package within an npm workspace or monorepo. Since workspace packages share the same repository and can access each other's code, compromising one package can affect all packages in the workspace. This is especially dangerous in modern development where monorepos are common.
 
+Tools such as Nx and Turborepo add task orchestration and dependency graphs. Attackers can abuse these by adding cross-package task dependencies or by compromising a package that many tasks depend on. Reviewing the workspace graph and task boundaries is as important as reviewing the code itself.
+
 ### Why This Attack is Dangerous
 
 1. **Shared Access**: Workspace packages can access each other's code
@@ -60,11 +65,11 @@ By completing this scenario, you will learn:
 
 ## 🎯 Scenario Description
 
-**Scenario**: You work at "DevCorp" which uses an npm workspace (monorepo) with multiple packages. The workspace includes `@devcorp/utils`, `@devcorp/api`, and `@devcorp/auth`. An attacker has compromised `@devcorp/utils` and published a malicious version. Your task is to:
+**Scenario**: You work at "DevCorp" which uses an npm workspace or monorepo tool such as Nx or Turborepo. The workspace includes `@devcorp/utils`, `@devcorp/api`, and `@devcorp/auth`. An attacker has compromised `@devcorp/utils` and can now influence every package and task that depends on it. Your task is to:
 
 1. **Red Team**: Execute a workspace/monorepo attack
 2. **Blue Team**: Detect the compromised workspace package
-3. **Security Team**: Implement workspace security defenses
+3. **Security Team**: Implement workspace security defenses, including graph and task-boundary reviews
 
 ## 🔧 Setup
 
@@ -201,29 +206,12 @@ See detection tools and README for detailed detection methods.
 
 ## Mitigation Playbook
 
-### Prevention
-
-1. **Workspace Access Control**: Limit who can modify workspace packages
-2. **Regular Audits**: Audit all workspace packages regularly
-3. **Postinstall Monitoring**: Monitor postinstall scripts in workspace packages
-4. **Dependency Review**: Review workspace dependencies carefully
-5. **Version Control**: Use version control to track workspace changes
-
-### Detection
-
-1. **Workspace Scanning**: Scan all workspace packages for suspicious code
-2. **Postinstall Analysis**: Analyze postinstall scripts in workspace packages
-3. **Dependency Tree**: Monitor workspace dependency tree
-4. **Behavioral Monitoring**: Monitor workspace package behavior
-5. **Integrity Checking**: Verify workspace package integrity
-
-### Response
-
-1. **Immediate Containment**: Remove compromised workspace package
-2. **Package Restoration**: Restore legitimate version from version control
-3. **Workspace Audit**: Audit all workspace packages
-4. **Access Review**: Review who has workspace access
-5. **Incident Documentation**: Document the attack and response
+- Assign CODEOWNERS to workspace package directories, root `package.json`, and task configuration files such as `nx.json` or `turbo.json`.
+- Review `nx graph` or `turbo run` task boundaries before adding cross-package dependencies or tasks.
+- Run workspace scans for lifecycle scripts, unexpected binaries, and dependency drift on every PR.
+- Enforce `--ignore-scripts` in CI and require explicit allowlisting for required postinstall steps.
+- Separate build/test/deploy permissions per workspace package and per CI stage.
+- Treat every workspace package as a third-party dependency for security review.
 
 ## Straightforward Implementation
 
@@ -233,12 +221,17 @@ See detection tools and README for detailed detection methods.
 # .github/CODEOWNERS
 /packages/*     @org/security-team @org/platform-team
 /package.json   @org/security-team
+/nx.json        @org/security-team
+/turbo.json     @org/security-team
 ```
 
-### 2. Workspace graph check
+### 2. Workspace graph and task boundary review
 
 ```bash
+# Nx
 nx graph --file=dep-graph.json
+# Turborepo
+cat turbo.json | jq '.pipeline | keys'
 ```
 
 ### 3. CI gate
@@ -247,11 +240,14 @@ nx graph --file=dep-graph.json
 # .github/workflows/workspace-audit.yml
 - run: npm ci --ignore-scripts
 - run: node scripts/audit-workspace-packages.js
+- run: |
+    # Fail if a task depends on a workspace package outside the approved graph
+    node scripts/validate-task-boundaries.js --config nx.json
 ```
 
 ### 4. Policy
 
-Treat every workspace package as a third-party dependency for security review purposes.
+Treat every workspace package - and every task that touches it - as a third-party dependency for security review purposes.
 
 ## 📊 Key Takeaways
 

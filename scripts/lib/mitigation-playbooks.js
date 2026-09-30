@@ -1,6 +1,6 @@
 'use strict';
 
-/** Canonical mitigation bullets and implementation blocks per scenario (01-23). Single source for README, DETECT, and zero-to-hero docs. */
+/** Canonical mitigation bullets and implementation blocks per scenario (01-25). Single source for README, DETECT, and zero-to-hero docs. */
 const PLAYBOOKS = {
   '01': {
     scenarioDir: '01-typosquatting',
@@ -70,6 +70,7 @@ npm token revoke <token-id>
       'Pin dependencies to exact versions for critical packages.',
       'Verify package integrity hashes on install.',
       'Add build-time validation to reject unexpected registry sources.',
+      'Alert on unusual semver jumps and first-seen maintainers.',
     ],
     implementation: `## Straightforward Implementation
 
@@ -89,6 +90,8 @@ npm token revoke <token-id>
   run: |
     npm ci --ignore-scripts
     npm ls @myorg --json | grep -q 'registry.npmjs.org' && exit 1 || true
+- name: Alert on unusual semver jumps
+  run: node scripts/check-version-jumps.js --threshold 2
 \`\`\`
 
 ### 3. Namespace reservation
@@ -101,27 +104,39 @@ npm access public @myorg
 
 ### 4. Version policy
 
-Treat any resolved version above your internal threshold (for example, more than 10 major versions ahead of baseline) as a CI failure.`,
+Treat any resolved version above your internal threshold (for example, more than two major versions ahead of baseline or a first-seen maintainer) as a CI failure.`,
   },
   '03': {
     scenarioDir: '03-compromised-package',
     bullets: [
-      'Enforce lockfiles in CI (`npm ci --audit`) instead of open-ended `npm install`.',
-      'Pin exact versions for packages with high trust or wide blast radius.',
-      'Run automated security scanning on dependency updates (`npm audit`, custom scanners).',
-      'Verify package integrity and signatures when the registry supports them.',
-      'Monitor runtime behavior and log package installation events in production.',
-      'Maintain maintainer-transfer and dependency-addition review policies.',
+      'Require MFA and admin approval for maintainer role changes and publish tokens.',
+      'Pin exact versions and enforce lockfile-only installs (`npm ci --ignore-scripts`) in CI.',
+      'Alert on new maintainers, unexpected patch-version changes, and dependency additions in trusted packages.',
+      'Run supply-chain scanners and diff reviews on every dependency update before merge.',
+      'Segment CI permissions so a build job cannot publish packages or alter registry metadata.',
+      'Maintain a known-good artifact mirror and rotate credentials after any suspected maintainer compromise.',
     ],
     implementation: `## Straightforward Implementation
 
-### 1. CI gate
+### 1. Prevention config
+
+Create or update ".npmrc" in the repo root:
+
+\`\`\`ini
+# .npmrc
+@myorg:registry=https://internal.registry.example/
+ignore-scripts=true
+\`\`\`
+
+### 2. CI gate
 
 \`\`\`yaml
 # .github/workflows/supply-chain-scan.yml
 - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 - name: Install dependencies without scripts
   run: npm ci --ignore-scripts
+- name: Verify no unexpected patch drift
+  run: node scripts/check-version-jumps.js --allow-patch-review secure-validator
 - name: Supply-chain scan
   run: npx socket-dev scan
 - name: Snyk test
@@ -130,15 +145,13 @@ Treat any resolved version above your internal threshold (for example, more than
     SNYK_TOKEN: \${{ secrets.SNYK_TOKEN }}
 \`\`\`
 
-### 2. Runtime monitoring
+### 3. Maintainer monitoring
 
 \`\`\`bash
-node -r ./security/module-load-logger.js app.js
+# Alert on new maintainers or publish events
+npm view secure-validator maintainers
+npm owner ls secure-validator
 \`\`\`
-
-### 3. Maintainer policy
-
-Require 2FA and admin approval for npm publishing roles. Alert on new maintainers via npm webhook or GitHub organization audit log.
 
 ### 4. Incident response
 
@@ -147,6 +160,7 @@ npm install <package>@<known-good-version> --save-exact
 rm -rf node_modules package-lock.json
 npm ci
 npm token revoke <token-id>
+# Rotate any CI or registry credentials the maintainer account could reach
 \`\`\``,
   },
   '04': {
@@ -199,91 +213,151 @@ Merge dependency updates to a "staging" branch first. Run smoke tests for 24 hou
   '05': {
     scenarioDir: '05-build-compromise',
     bullets: [
-      'Verify build script integrity with checksums before each build.',
-      'Apply least privilege to CI/CD jobs and secret exposure.',
-      'Run builds in isolated environments with minimal credentials.',
-      'Verify build artifacts with checksums and signed attestations.',
-      'Use secret management tools - never hardcode secrets in build scripts.',
-      'Audit and log all build activities for forensic review.',
-      'Sign release artifacts and verify signatures before deployment.',
+      'Pin every third-party action to an immutable commit SHA and verify it with an allowlist check.',
+      'Set the minimum `permissions` on each workflow job and avoid granting `contents: write` when only read is needed.',
+      'Do not pass repository secrets into third-party or reusable actions unless absolutely necessary; prefer OIDC and short-lived tokens.',
+      'Protect reusable workflows and actions with branch rules, tag protection, CODEOWNERS, and signed tags.',
+      'Monitor CI runner process trees and egress for unexpected secret access or outbound connections.',
+      'Require security review of every workflow diff, especially new `uses` lines and mutable tag changes.',
+      'Rotate CI secrets and revoke `GITHUB_TOKEN` after any suspected workflow injection incident.',
     ],
     implementation: `## Straightforward Implementation
 
-### 1. CI gate (OIDC, no long-lived secrets)
+### 1. Prevention config
+
+Replace mutable tags with SHA-pinned references and tighten permissions:
 
 \`\`\`yaml
 # .github/workflows/build.yml
+name: Build and publish
+on:
+  push:
+    branches: [main]
+
 permissions:
-  id-token: write
   contents: read
-steps:
-  - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-  - uses: aws-actions/configure-aws-credentials@e3dd6a429a730001a79de495f50a554053c04fbc
-    with:
-      role-to-assume: arn:aws:iam::ACCOUNT:role/build-role
-  - run: npm ci --ignore-scripts
-  - run: npm run build
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        with:
+          node-version: 20
+      - run: npm ci --ignore-scripts
+      - run: npm run build
+      - uses: vendor/build-action@a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c
+        with:
+          artifact-path: dist/app.js
+        env:
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
 \`\`\`
 
-### 2. Artifact signing
+### 2. CI gate
 
-\`\`\`bash
-cosign sign-blob --yes artifact.tgz --output-signature artifact.tgz.sig
-\`\`\`
-
-### 3. SLSA provenance
+Fail the build if a workflow uses a mutable tag:
 
 \`\`\`yaml
-# Reusable workflow reference
-uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+# .github/workflows/lint-actions.yml
+name: Lint action references
+on: [pull_request]
+jobs:
+  lint-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Reject mutable action tags
+        run: |
+          grep -R "uses:.*@v[0-9]" .github/workflows/ && exit 1 || true
 \`\`\`
 
-### 4. Build isolation
+### 3. Detection rule location
 
-Use ephemeral CI runners or containers. Never reuse a runner that has built a different repository without re-imaging.`,
+Deploy the Sigma rule from DETECT.md to your SIEM under the supply-chain detection folder. Alert on:
+
+- A CI step that reads \`GITHUB_TOKEN\` and then makes an outbound HTTP request
+- \`process.env\` enumeration inside an action entrypoint
+- New \`uses\` references or tag changes in workflow pull requests
+
+### 4. Incident response
+
+\`\`\`bash
+# 1. Stop current runs and remove the malicious action reference
+gh workflow disable build.yml
+# 2. Rotate all secrets the workflow could access
+gh secret set AWS_ACCESS_KEY_ID --body "<new-key>"
+gh secret set AWS_SECRET_ACCESS_KEY --body "<new-secret>"
+# 3. Pin to the last known-good SHA
+sed -i 's/vendor\\/build-action@v1/vendor\\/build-action@<clean-sha>/' .github/workflows/build.yml
+# 4. Audit recent runs for unexpected egress or artifact changes
+\`\`\``,
   },
   '06': {
     scenarioDir: '06-sha-hulud',
     bullets: [
-      'Require 2FA on all package maintainer and publishing accounts.',
-      'Restrict or monitor `postinstall` and other lifecycle scripts.',
-      'Run automated security scanning in CI on every dependency change.',
-      'Use secret management tools; never commit tokens or keys to repositories.',
-      'Enforce lockfiles with `npm ci --audit` in CI pipelines.',
-      'Rotate credentials immediately after suspected compromise.',
+      'Store npm publish tokens only in CI/CD secrets; never keep them on developer machines.',
+      'Run `npm ci --ignore-scripts` by default and allowlist only required lifecycle scripts.',
+      'Require 2FA and publish provenance on npm maintainer accounts.',
+      'Restrict GitHub personal access tokens to the smallest scope and shortest lifetime.',
+      'Monitor CI and developer machines for unexpected `npm publish` or registry writes.',
+      'Alert on postinstall scripts that read `~/.npmrc`, `~/.git-credentials`, or environment tokens.',
+      'Rotate npm and GitHub tokens immediately after suspected compromise.',
     ],
     implementation: `## Straightforward Implementation
 
-### 1. Default deny lifecycle scripts
+### 1. Prevention config
 
-\`\`\`bash
-npm ci --ignore-scripts
+Disable lifecycle scripts by default:
+
+\`\`\`ini
+# .npmrc
+ignore-scripts=true
 \`\`\`
 
-### 2. Allowlist required scripts
+Store the publish token in CI only:
 
 \`\`\`yaml
-# allowed-scripts.yml
-allowed:
-  - electron:postinstall
-  - esbuild:postinstall
+# .github/workflows/publish.yml
+- run: npm publish --provenance --access public
+  env:
+    NODE_AUTH_TOKEN: \${{ secrets.NPM_PUBLISH_TOKEN }}
 \`\`\`
 
-### 3. Credential rotation
+### 2. CI gate
+
+\`\`\`yaml
+# .github/workflows/install-gate.yml
+- name: Install without lifecycle scripts
+  run: npm ci --ignore-scripts
+- name: Audit unexpected postinstall scripts
+  run: node scripts/audit-lifecycle-scripts.js
+\`\`\`
+
+### 3. Detection rule location
+
+Deploy Sigma or SIEM rules for:
+
+- \`npm publish\` or \`npm login\` from developer hosts.
+- Postinstall scripts reading \`~/.npmrc\` or \`~/.git-credentials\`.
+- Outbound traffic to unexpected registry or GitHub API endpoints during installs.
+
+### 4. Incident response
 
 \`\`\`bash
+# Revoke leaked tokens
 npm token list
 npm token revoke <token-id>
-gh ssh-key list
-gh ssh-key delete <id>
-\`\`\`
+gh token list
+gh token delete <token-id>
 
-### 4. Cache clearing
-
-\`\`\`bash
-npm cache clean --force
+# Clean and reinstall without scripts
 rm -rf node_modules package-lock.json
 npm ci --ignore-scripts
+
+# Audit published versions
+npm view <package> versions --json
 \`\`\``,
   },
   '07': {
@@ -342,9 +416,7 @@ npm ls --all > dependency-tree.txt
 
 \`\`\`bash
 npm install -g lockfile-lint
-lockfile-lint --path package-lock.json \
-  --allowed-hosts npm internal.registry.example \
-  --allowed-schemes https:
+lockfile-lint --path package-lock.json   --allowed-hosts npm internal.registry.example   --allowed-schemes https:
 \`\`\`
 
 ### 2. CI gate
@@ -372,19 +444,21 @@ Never allow "file:", "link:", or "git+ssh" dependencies in production lockfiles 
   '09': {
     scenarioDir: '09-package-signing-bypass',
     bullets: [
-      'Protect signing keys with HSMs or hardened secret stores.',
-      'Require MFA for all key access and signing operations.',
-      'Rotate signing keys on a regular schedule and after incidents.',
-      'Limit who can sign packages with strict access controls.',
-      'Always verify signatures - but pair with behavioral and content analysis.',
-      'Monitor signing activity for anomalies (time, volume, key fingerprint).',
+      'Treat signatures and provenance as identity and integrity signals, not safety guarantees; pair with behavioral scanning.',
+      'Publish npm packages with `--provenance` and verify with `npm audit signatures` or `gh attestation verify`.',
+      'Store signing keys in HSMs or KMS with MFA, strict ACLs, and signing audit logs.',
+      'Rotate keys on schedule and after maintainer departure or suspected compromise.',
+      'Monitor CI workflow changes and signing-credential usage for unexpected events.',
+      'Segment CI jobs so build runners cannot sign arbitrary artifacts or access signing keys.',
+      'Verify artifact attestations from trusted CI identities before deployment.',
     ],
     implementation: `## Straightforward Implementation
 
-### 1. Signature verification
+### 1. Signature and attestation verification
 
 \`\`\`bash
 npm audit signatures
+gh attestation verify <package>.tgz --repository org/secure-utils
 \`\`\`
 
 ### 2. Publish with provenance
@@ -403,29 +477,34 @@ npm audit signatures
 
 ### 3. Key management
 
-Store signing keys in AWS KMS, GCP KMS, or Azure Key Vault. Rotate every 90 days or on maintainer departure.
+Store signing keys in AWS KMS, GCP KMS, or Azure Key Vault. Rotate every 90 days or on maintainer departure. Require MFA for every signing operation.
 
-### 4. Behavioral analysis
+### 4. CI hardening and behavioral analysis
 
-Pair signature checks with supply-chain scanners (Socket, Snyk Supply Chain) that inspect package behavior.`,
+Pin third-party actions by SHA, restrict workflow permissions to \`id-token: write\` and \`contents: read\`, and pair signature checks with supply-chain scanners (Socket, Snyk Supply Chain) that inspect package behavior.`,
   },
   '10': {
     scenarioDir: '10-git-submodule-attack',
     bullets: [
-      'Review every submodule addition in pull requests.',
-      'Validate submodule repository URLs against an allowlist.',
-      'Limit who can add or modify submodules in protected branches.',
-      'Pin submodules to specific commits, not floating branch heads.',
-      'Scan submodule content and monitor submodule initialization behavior.',
+      'Review every submodule, subtree, or vendored dependency addition in pull requests.',
+      'Validate embedded repository URLs against an allowlist; reject local `file://` and relative paths.',
+      'Pin embedded dependencies to verified commits; do not track floating branch heads.',
+      'Set `protocol.file.allow=never` globally and in CI runners to block CVE-2022-39253-style local protocol abuse.',
+      'Scan subtree and vendored code with the same rules as git submodule code.',
+      'Monitor initialization behavior and lifecycle scripts in build pipelines.',
     ],
     implementation: `## Straightforward Implementation
 
-### 1. Pin submodules to commits
+### 1. Pin submodules, subtrees, and vendored code to commits
 
 \`\`\`bash
+# git submodule
 git submodule add https://github.com/org/lib.git
 cd lib && git checkout <commit-sha>
 cd .. && git commit -am "Pin submodule to commit"
+
+# git subtree
+git subtree add --prefix=vendor/lib https://github.com/org/lib.git <commit-sha> --squash
 \`\`\`
 
 ### 2. CI gate
@@ -435,13 +514,18 @@ cd .. && git commit -am "Pin submodule to commit"
 - run: |
     git submodule foreach 'git log --oneline -1'
     git config --file .gitmodules --get-regexp 'url' | grep -v 'allowed-github.example.com' && exit 1 || true
+- run: |
+    # Block local file-protocol abuse for submodules, subtrees, and vendored fetches
+    git config --global protocol.file.allow never
+    test -d vendor && find vendor -type f -name '*.sh' -print | xargs -r grep -E 'curl|wget|nc ' && exit 1 || true
 \`\`\`
 
 ### 3. CODEOWNERS
 
 \`\`\`text
 # .github/CODEOWNERS
-.gitmodules    @org/security-team
+.gitmodules @org/security-team
+vendor/ @org/security-team
 \`\`\`
 
 ### 4. Git config
@@ -490,11 +574,12 @@ Run a weekly job that compares a sample of mirrored packages against upstream me
   '12': {
     scenarioDir: '12-workspace-monorepo-attack',
     bullets: [
-      'Limit who can modify workspace and monorepo internal packages.',
-      'Audit all workspace packages regularly for lifecycle scripts and drift.',
-      'Monitor postinstall execution across workspace packages.',
-      'Review workspace dependency changes with the same rigor as external deps.',
-      'Track workspace package changes in version control with mandatory review.',
+      'Assign CODEOWNERS to workspace package directories, root `package.json`, and task configuration files such as `nx.json` or `turbo.json`.',
+      'Review `nx graph` or `turbo run` task boundaries before adding cross-package dependencies or tasks.',
+      'Run workspace scans for lifecycle scripts, unexpected binaries, and dependency drift on every PR.',
+      'Enforce `--ignore-scripts` in CI and require explicit allowlisting for required postinstall steps.',
+      'Separate build/test/deploy permissions per workspace package and per CI stage.',
+      'Treat every workspace package as a third-party dependency for security review.',
     ],
     implementation: `## Straightforward Implementation
 
@@ -502,14 +587,19 @@ Run a weekly job that compares a sample of mirrored packages against upstream me
 
 \`\`\`text
 # .github/CODEOWNERS
-/packages/*     @org/security-team @org/platform-team
-/package.json   @org/security-team
+/packages/* @org/security-team @org/platform-team
+/package.json @org/security-team
+/nx.json @org/security-team
+/turbo.json @org/security-team
 \`\`\`
 
-### 2. Workspace graph check
+### 2. Workspace graph and task boundary review
 
 \`\`\`bash
+# Nx
 nx graph --file=dep-graph.json
+# Turborepo
+cat turbo.json | jq '.pipeline | keys'
 \`\`\`
 
 ### 3. CI gate
@@ -518,26 +608,38 @@ nx graph --file=dep-graph.json
 # .github/workflows/workspace-audit.yml
 - run: npm ci --ignore-scripts
 - run: node scripts/audit-workspace-packages.js
+- run: |
+    # Fail if a task depends on a workspace package outside the approved graph
+    node scripts/validate-task-boundaries.js --config nx.json
 \`\`\`
 
 ### 4. Policy
 
-Treat every workspace package as a third-party dependency for security review purposes.`,
+Treat every workspace package - and every task that touches it - as a third-party dependency for security review purposes.`,
   },
   '13': {
     scenarioDir: '13-package-metadata-manipulation',
     bullets: [
-      'Validate metadata against trusted allowlists for critical packages.',
-      'Require lockfile and integrity verification in CI.',
-      'Pin exact versions for sensitive dependencies.',
-      'Mirror and sign internal-approved artifacts.',
+      'Compare README, homepage, and repository URLs against a trusted source-of-truth; do not trust marketing copy.',
+      'Validate registry API metadata against tarball `package.json`; reject mismatches in author, repository, homepage, or dist integrity.',
+      'Pin exact versions and verify lockfile integrity hashes in CI.',
+      'Maintain an internal mirror of approved artifacts with signed metadata.',
+      'Require human review for dependency additions that change homepage, repository, or author fields.',
     ],
     implementation: `## Straightforward Implementation
 
 ### 1. Metadata validation
 
 \`\`\`bash
-npm view <pkg> --json | jq '{name, version, author, repository, maintainers}'
+# Registry API metadata
+npm view clean-utils --json | jq '{name, version, author, repository, homepage, maintainers}'
+
+# Tarball metadata
+npm pack clean-utils
+tar -xzf clean-utils-*.tgz
+cat package/package.json | jq '{name, version, author, repository, homepage}'
+
+# Compare the two; reject mismatches
 \`\`\`
 
 ### 2. CI gate
@@ -546,6 +648,7 @@ npm view <pkg> --json | jq '{name, version, author, repository, maintainers}'
 # .github/workflows/metadata-check.yml
 - run: npm ci --ignore-scripts
 - run: node scripts/validate-package-metadata.js --allowlist allowed-packages.json
+- run: node scripts/compare-registry-vs-tarball.js clean-utils
 \`\`\`
 
 ### 3. Allowlist maintenance
@@ -594,11 +697,12 @@ Use Kyverno or OPA Gatekeeper to reject pods that use images without signatures 
   '15': {
     scenarioDir: '15-developer-tool-compromise',
     bullets: [
-      'Enforce `--ignore-scripts` for untrusted tool installs by default.',
-      'Pin dev tooling versions and source from an approved internal registry.',
-      'Require review/allowlist for new lifecycle scripts in dependency diffs.',
-      'Isolate tool installation to sandboxed CI runners with egress controls.',
-      'Rotate credentials after any install-time compromise.',
+      'Install dev tools with `--ignore-scripts` by default and source only from approved registries.',
+      'Review lockfile and `.gitignore` diffs for hidden entries after any tool install or update.',
+      'Pin dev tool versions and verify checksums before distribution to developers.',
+      'Run tool installs in sandboxed CI runners with egress controls and no production secrets.',
+      'Require allowlist approval for new lifecycle scripts in dependency diffs.',
+      'Rotate credentials and re-audit workstations if a dev tool shows install-time network beacons.',
     ],
     implementation: `## Straightforward Implementation
 
@@ -614,32 +718,51 @@ npm install --ignore-scripts --registry https://internal.registry.example/ <dev-
 # .github/workflows/dev-tool-check.yml
 - run: |
     npm ci --ignore-scripts
+    git diff --exit-code .gitignore || true
+- run: |
+    # Reject unexpected public registry sources for internal dev tools
     grep -E '"registry": "https://registry.npmjs.org"' package-lock.json && exit 1 || true
+- run: |
+    # Flag new postinstall/preinstall scripts
+    node scripts/scan-lifecycle-scripts.js --allowlist allowed-scripts.json
 \`\`\`
 
 ### 3. Diff review
 
-Review every new "postinstall" or "preinstall" script in dependency update diffs. Use Socket or a custom PR check to flag them.
+Review every new \`postinstall\` or \`preinstall\` script, lockfile integrity change, and \`.gitignore\` entry in dependency update diffs. Use Socket or a custom PR check to flag them.
 
 ### 4. Isolation
 
-Install dev tools in sandboxed CI runners with egress controls. Rotate CI credentials after any suspected install-time compromise.`,
+Install dev tools in sandboxed CI runners with egress controls and no production secrets. Rotate CI credentials and audit developer workstations after any suspected install-time compromise.`,
   },
   '16': {
     scenarioDir: '16-package-cache-poisoning',
     bullets: [
-      'Clear/rotate package cache during incident response and critical pipeline runs.',
-      'Enforce lockfile + integrity verification against trusted metadata.',
-      'Use deterministic installs in CI (`npm ci`) and immutable artifact mirrors.',
-      'Monitor for suspicious cache path mutations and postinstall behavior.',
+      'Clear npm, pnpm, Yarn, and CI caches during incident response and after any registry compromise.',
+      'Bind CI cache keys to `package-lock.json`/`pnpm-lock.yaml` hashes and revalidate integrity on restore.',
+      'Use immutable artifact mirrors and deterministic installs (`npm ci`) in production pipelines.',
+      'Monitor cache paths (`~/.npm`, `_cacache`, `~/.cache/pnpm`, `~/.yarn/cache`, GitHub Actions cache, Artifactory remote cache) for unauthorized mutations.',
       'Separate developer cache trust from production build trust boundaries.',
+      'Document cache-invalidation playbooks for npm, pnpm, Yarn, GitHub Actions, and Artifactory.',
     ],
     implementation: `## Straightforward Implementation
 
 ### 1. Cache clearing
 
 \`\`\`bash
+# npm
 npm cache clean --force
+rm -rf ~/.npm/_cacache
+
+# pnpm
+pnpm store prune
+
+# Yarn
+yarn cache clean
+
+# GitHub Actions
+gh actions-cache list -R org/repo
+gh actions-cache delete <key> -R org/repo --confirm
 \`\`\`
 
 ### 2. CI cache key
@@ -649,28 +772,31 @@ npm cache clean --force
 - uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
   with:
     path: ~/.npm
-    key: npm-\${{ hashFiles('package-lock.json') }}
+    key: npm-\${{ hashFiles('package-lock.json') }}-\${{ github.run_id }}
+    restore-keys: npm-\${{ hashFiles('package-lock.json') }}
 \`\`\`
 
-### 3. GitHub Actions cache cleanup
+### 3. Remote cache invalidation (Artifactory example)
 
 \`\`\`bash
-gh actions-cache list -R org/repo
-gh actions-cache delete <key> -R org/repo --confirm
+# Remove a poisoned package from the remote/virtual cache
+jf rt del --quiet npm-remote-cache/clean-utils/-/clean-utils-1.2.3.tgz
+# Trigger metadata recalculation on the virtual repository
 \`\`\`
 
 ### 4. Trust boundary
 
-Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches.`,
+Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches. After any suspected registry incident, rotate cache keys and purge remote caches before rebuilding.`,
   },
   '17': {
     scenarioDir: '17-multi-stage-attack-chain',
     bullets: [
-      'Add correlation rules that require cross-stage context before closing alerts.',
-      'Segment credentials and permissions to block stage progression.',
-      'Trigger automated containment when stage transitions occur in short windows.',
-      'Preserve forensic artifacts per stage for post-incident timeline reconstruction.',
-      'Run attack-chain tabletop exercises against your CI/CD architecture.',
+      'Correlate initial dependency access, lateral CI token abuse, and registry publish events before closing alerts.',
+      'Segment CI service accounts so build runners cannot publish packages or deploy to production.',
+      'Trigger auto-containment when dependency install, secret access, and publish events occur in short windows.',
+      'Preserve per-stage forensic artifacts and run attack-chain tabletop exercises quarterly.',
+      'Enforce least privilege on CI tokens and require approval gates for registry publishes.',
+      'Maintain dependency allowlists and anomaly thresholds for first-seen packages or rapid version jumps.',
     ],
     implementation: `## Straightforward Implementation
 
@@ -686,11 +812,11 @@ Do not reuse a developer's npm cache in production builds. Use ephemeral CI runn
 
 ### 2. Segmentation
 
-Use separate CI service accounts per stage. A build runner must not be able to publish packages or deploy to production.
+Use separate CI service accounts per stage. A build runner must not be able to publish packages or deploy to production. Store publish tokens in a dedicated secure vault, not in general build variables.
 
 ### 3. Auto-containment
 
-Configure SOAR or CI webhooks to kill runners and revoke tokens when stage transitions occur within a short window.
+Configure SOAR or CI webhooks to kill runners and revoke tokens when the sequence dependency install -> secret access -> registry publish occurs within a short window.
 
 ### 4. Tabletop exercises
 
@@ -699,43 +825,48 @@ Run quarterly attack-chain exercises against your CI/CD architecture. Preserve a
   '18': {
     scenarioDir: '18-package-manager-plugin-attack',
     bullets: [
-      'Enforce plugin allowlists with signed/approved plugin sources.',
-      'Block arbitrary plugin execution in CI and controlled developer images.',
-      'Run integrity checks on `node_modules` and generated lockfile state.',
-      'Review plugin code changes with the same rigor as build scripts.',
-      'Alert on hook-driven modifications outside expected paths.',
+      'Treat `.pnpmfile.cjs` and `.yarn/plugins/*` as code requiring the same review as build scripts.',
+      'Require CODEOWNERS approval for any hook file or plugin change.',
+      'Run `pnpm install --frozen-lockfile` in CI and fail if the lockfile changes unexpectedly.',
+      'Compare resolved dependencies against `package.json` declared dependencies in CI.',
+      'Use isolated CI runners with restricted egress for install steps.',
+      'Pin pnpm version and validate its checksum in CI.',
     ],
     implementation: `## Straightforward Implementation
 
-### 1. Plugin allowlist
+### 1. CODEOWNERS for hook files
 
-\`\`\`yaml
-# allowed-plugins.yml
-allowed:
-  - @yarnpkg/plugin-typescript
-  - @pnpm/plugin-engines
+\`\`\`text
+# .github/CODEOWNERS
+.pnpmfile.cjs    @org/security-team
+.yarn/plugins/*  @org/security-team
 \`\`\`
 
-### 2. CI gate
+### 2. CI gate - fail on frozen lockfile changes
 
 \`\`\`yaml
-# .github/workflows/plugin-check.yml
-- run: |
-    ls .yarn/plugins .pnpmfile.cjs 2>/dev/null || true
-    node scripts/validate-plugins-against-allowlist.js
+# .github/workflows/ci.yml
+- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+- name: Install with frozen lockfile
+  run: npx pnpm install --frozen-lockfile
+- name: Verify no unexpected lockfile changes
+  run: git diff --exit-code pnpm-lock.yaml
 \`\`\`
 
-### 3. Integrity check
+### 3. Detect injected dependencies
 
 \`\`\`bash
-# Compare node_modules state against lockfile
-npm ci --ignore-scripts
-npm ls
+npx pnpm list --json | jq '.dependencies | keys'
 \`\`\`
 
-### 4. Review policy
+### 4. Isolate install in CI
 
-Review plugin code changes with the same rigor as build scripts. Alert on hook-driven file changes outside expected paths.`,
+\`\`\`yaml
+- name: Install in sandbox
+  run: npx pnpm install --frozen-lockfile
+  env:
+    NODE_ENV: production
+\`\`\``,
   },
   '19': {
     scenarioDir: '19-sbom-manipulation-attack',
@@ -775,40 +906,58 @@ Periodically compare the production SBOM against runtime inventory scans (Syft, 
   '20': {
     scenarioDir: '20-package-version-confusion',
     bullets: [
-      'Pin exact versions for critical dependencies and enforce lockfile usage.',
-      'Scope private packages explicitly to internal registry endpoints.',
-      'Alert on unusual semver jumps and first-seen maintainers.',
-      'Require human review for dependency version changes above policy thresholds.',
-      'Prefer deterministic `npm ci` workflows in CI.',
+      'Treat npm provenance and GitHub artifact attestations as identity and integrity signals, not safety guarantees.',
+      'Pin expected builder identity, repository, and ref in a verification policy that fails closed.',
+      'Run behavioral scans on installed packages even when signatures and provenance verify.',
+      'Monitor CI workflow changes and signing-credential usage for unexpected events.',
+      'Segment CI jobs so build runners cannot sign arbitrary artifacts or access signing keys.',
+      'Publish to and verify against a transparency log when the registry supports it.',
+      'Require lockfiles and deterministic npm ci installs in CI pipelines.',
     ],
     implementation: `## Straightforward Implementation
 
-### 1. Dependabot config
+### 1. Prevention config
 
-\`\`\`yaml
-# .github/dependabot.yml
-ignore:
-  - dependency-name: "*"
-    update-types: ["version-update:semver-major"]
-\`\`\`
-
-### 2. Semver policy
-
-Any dependency update that jumps more than one major version requires security review.
-
-### 3. Scoped registry
+Enable provenance verification and configure npm to require attestations where available:
 
 \`\`\`ini
 # .npmrc
-@myorg:registry=https://artifactory.example.com/api/npm/npm-internal/
+provenance=true
 \`\`\`
 
-### 4. CI gate
+\`\`\`bash
+npm audit signatures
+\`\`\`
+
+### 2. Builder identity allowlist
+
+\`\`\`javascript
+// scripts/verify-provenance-policy.js
+const allowedBuilders = [
+  'https://github.com/myorg/trusted-logger/.github/workflows/publish.yml@refs/heads/main'
+];
+
+function checkProvenance(bundle) {
+  const builderId = bundle.predicate.runDetails.builder.id;
+  if (!allowedBuilders.includes(builderId)) {
+    throw new Error(\`Unexpected builder: \${builderId}\`);
+  }
+}
+\`\`\`
+
+### 3. CI gate
 
 \`\`\`yaml
+# .github/workflows/install-check.yml
 - run: npm ci --ignore-scripts
-- run: node scripts/check-version-jumps.js --threshold 2
-\`\`\``,
+- run: npm audit signatures
+- run: node scripts/verify-provenance-policy.js
+- run: node scripts/behavioral-scan.js
+\`\`\`
+
+### 4. Workflow and key monitoring
+
+Alert when the publish workflow file or the signing credential is modified. Review GitHub organization audit logs and cloud HSM/key vault logs for unexpected signing events. Rotate keys and revoke npm tokens after suspected CI compromise.`,
   },
   '21': {
     scenarioDir: '21-axios-compromised-release-attack',
@@ -870,7 +1019,7 @@ pip install --require-hashes -r requirements.txt
 ### 2. .pth scan
 
 \`\`\`bash
-find .venv -name "*.pth" -exec cat {} \;
+find .venv -name "*.pth" -exec cat {} ;
 \`\`\`
 
 ### 3. CI gate
@@ -927,6 +1076,113 @@ grep -R "uses:.*@v" .github/workflows/ && exit 1
 ### 4. Credential rotation
 
 Rotate GITHUB_TOKEN, AWS keys, registry credentials, and database URLs accessible to affected pipeline runs. Use short-lived OIDC tokens where possible.`,
+  },
+  '24': {
+    scenarioDir: '24-slopsquatting',
+    bullets: [
+      'Verify every package name on the public registry before installing a command copied from generated content.',
+      'Prefer internal or scoped packages for reusable utility code.',
+      'Run `npm install --ignore-scripts` and inspect package contents before allowing scripts.',
+      'Maintain an approved-dependency allowlist and require security review for every new name.',
+      'Pin exact versions and commit lockfiles so a slopsquat cannot slip in through a loose semver range.',
+      'Scan dependency diffs for network requests, environment access, and eval-like patterns.',
+    ],
+    implementation: `## Straightforward Implementation
+
+### 1. Prevention config
+
+Create or update \`.npmrc\` in the repo root:
+
+\`\`\`ini
+# .npmrc
+@myorg:registry=https://internal.registry.example/
+ignore-scripts=true
+\`\`\`
+
+### 2. Pre-install verification
+
+\`\`\`bash
+npm view array-sortify --json | jq '{name, version, maintainers, repository, time}'
+npm pack array-sortify
+tar -xzf array-sortify-*.tgz && cat package/index.js
+\`\`\`
+
+### 3. CI gate
+
+\`\`\`yaml
+# .github/workflows/dependency-review.yml
+name: Dependency Review
+on: [pull_request]
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/dependency-review-action@3b139cfc5fae8b618dfb3e11a0a753bf0c333854
+        with:
+          fail-on-severity: moderate
+      - uses: socket-security/action@latest
+        env:
+          SOCKET_SECURITY_API_KEY: \${{ secrets.SOCKET_API_KEY }}
+\`\`\`
+
+### 4. Incident response
+
+\`\`\`bash
+npm uninstall array-sortify
+rm -rf node_modules package-lock.json
+npm ci
+npm token list
+npm token revoke <token-id>
+\`\`\``,
+  },
+  '25': {
+    scenarioDir: '25-compromised-github-action',
+    bullets: [
+      'Pin every reusable action to an immutable commit SHA, never a mutable tag.',
+      'Audit workflow files for tag references and enforce SHA pinning via CI lint or policy.',
+      'Apply least-privilege permissions and avoid passing secrets to third-party actions as environment variables.',
+      'Monitor CI runners for unexpected outbound network calls.',
+      'Rotate CI secrets immediately when a reusable action compromise is reported or suspected.',
+      'Use tools like `step-security/harden-runner` to block unexpected egress from action steps.',
+    ],
+    implementation: `## Straightforward Implementation
+
+### 1. Pin actions by SHA
+
+\`\`\`yaml
+# .github/workflows/ci.yml
+- name: Checkout
+  uses: example/actions/checkout@a1b2c3d4e5f6789012345678901234567890abcd
+\`\`\`
+
+### 2. Audit workflow files
+
+\`\`\`bash
+grep -R "uses:.*@v" .github/workflows/ && exit 1
+\`\`\`
+
+### 3. Harden runner
+
+\`\`\`yaml
+- uses: step-security/harden-runner@<full-sha>
+  with:
+    egress-policy: block
+    allowed-endpoints: |
+      github.com:443
+      registry.npmjs.org:443
+\`\`\`
+
+### 4. Credential rotation
+
+\`\`\`bash
+# Rotate all secrets accessible to affected pipeline runs
+gh secret set GITHUB_TOKEN --repo org/repo --body "..."
+aws iam create-access-key --user-name ci-user
+# Update any database, registry, or cloud credentials the action could reach
+\`\`\``,
   },
 };
 

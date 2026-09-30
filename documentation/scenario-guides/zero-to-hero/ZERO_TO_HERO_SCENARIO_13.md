@@ -15,7 +15,6 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
-
 ## Table of Contents
 
 <div class="doc-toc">
@@ -28,9 +27,8 @@ By the end of this guide, you will:
 - [Part 6: Detection Methods (40 minutes)](#part-6-detection-methods-40-minutes)
 - [Part 7: Forensic Investigation (30 minutes)](#part-7-forensic-investigation-30-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
-- [Mitigation Playbook](#mitigation-playbook)
 - [Code-level workflow](#code-level-workflow)
-- [Mitigation Playbook](#mitigation-playbook-1)
+- [Mitigation Playbook](#mitigation-playbook)
 - [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
@@ -616,17 +614,6 @@ node detection-tools/metadata-validator.js victim-app/node_modules/clean-utils
 
 ---
 
-## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/13-package-metadata-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Validate metadata against trusted allowlists for critical packages.
-- Require lockfile and integrity verification in CI.
-- Pin exact versions for sensitive dependencies.
-- Mirror and sign internal-approved artifacts.
-
----
-
 ## Code-level workflow
 
 ![Scenario 13 code-level workflow: Package Metadata Manipulation](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-13.svg)
@@ -665,6 +652,95 @@ Store allowed package metadata in version control. Update only through pull requ
 ### 4. SBOM comparison
 
 Compare generated SBOM against the lockfile to detect omitted or altered dependencies.
+
+---
+
+ys written to `infrastructure/` on disk. |
+| **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+
+> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+
+### End-to-end flow
+
+![Scenario 13 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-13.svg)
+
+*Swimlane diagram for Scenario 13. Editable source: [`scas-observability-scenario-13.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-13.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
+
+### Sequence diagram (Phase 1-5)
+
+Same flow as a participant sequence (expandable in the docs hub).
+
+### Scenario-specific attack steps (Phase 2)
+
+Same Phase-2 path as the diagrams above (for skimming / accessibility).
+
+| # | From | To | Action |
+|---|------|----|--------|
+| 1 | Learner | Victim | npm install ../compromised-packages/clean-utils |
+| 2 | Victim | MalPkg | Trust spoofed repository / author metadata |
+| 3 | Learner | Victim | node index.js |
+| 4 | MalPkg | MalPkg | Metadata-matched package executes hidden logic |
+
+### Prerequisites
+
+From the repository root:
+
+```bash
+./scripts/observability/elasticsearch-up.sh
+./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
+```
+
+### Run this scenario with live Elasticsearch forwarding
+
+**Terminal A - mock collector** (from `scenarios/13-package-metadata-manipulation`):
+
+```bash
+cd scenarios/13-package-metadata-manipulation
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+node infrastructure/mock-server.js
+```
+
+**Terminal B - execute the lab:**
+
+```bash
+cd scenarios/13-package-metadata-manipulation
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+cd victim-app && npm install ../compromised-packages/clean-utils && node index.js
+```
+
+### Verify locally (file-based evidence)
+
+```bash
+curl -s http://localhost:3001/captured-data
+```
+
+### Verify in Elasticsearch (API)
+
+```bash
+# Static runbook for this scenario
+curl -s "http://localhost:9200/scas-rules/_doc/13?pretty"
+
+# Latest runtime capture events
+curl -s "http://localhost:9200/scas-detections/_search?pretty" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": { "term": { "scenario_id": "13" } },
+    "sort": [{ "@timestamp": "desc" }],
+    "size": 5
+  }'
+```
+
+### Verify in Kibana (UI)
+
+1. Open [http://localhost:5601](http://localhost:5601)
+2. **Discover** → **SCAS Detections - Scenario 13** - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. **Discover** → **SCAS Rules - Scenario 13** - compare against `iocs`, `sigma`, and `yara` fields
+4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
+
+See [observability/README.md](../../../observability/README.md) for stack details.
 
 ---
 

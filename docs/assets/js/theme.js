@@ -5,8 +5,8 @@
   var META_COLORS = { dark: '#050315', light: '#2f27ce' };
 
   function systemTheme() {
-    if (global.matchMedia && global.matchMedia('(prefers-color-scheme: light)').matches) {
-      return 'light';
+    if (global.matchMedia && global.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
     }
     return 'light';
   }

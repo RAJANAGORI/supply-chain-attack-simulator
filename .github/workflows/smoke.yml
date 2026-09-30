@@ -31,6 +31,9 @@ jobs:
       - name: Check Markdown watermarks
         run: node scripts/docs/check-markdown-watermarks.js
 
+      - name: Check lesson.yaml files
+        run: node scripts/docs/check-lesson-yaml.js
+
       - name: Check diagram assets
         run: node scripts/diagrams/check-diagram-assets.js
 

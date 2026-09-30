@@ -11,6 +11,7 @@ Day-two operations for running, cleaning up, and validating the test bench.
 | Python 3.8+ (scenarios 22+) | `python3 --version` |
 | Docker (Elasticsearch, Kibana, Floci) | `docker --version` |
 | Git | `git --version` |
+| nektos/act (optional, labs 05 and 25) | `act --version` |
 
 **Full install walkthrough:** [Full-stack setup](../getting-started/FULL_STACK_SETUP.md)
 
@@ -53,10 +54,14 @@ source .testbench.env
 
 | Script | Purpose |
 |--------|---------|
-| [`scripts/setup/setup.sh`](../../scripts/setup/setup.sh) | Repo-wide setup, creates `.testbench.env` |
+| [`scripts/setup/setup.sh`](../../scripts/setup/setup.sh) | Repo-wide setup, creates `.testbench.env` (`SCAS_YES=1` / `CI=1` / no TTY skips confirm) |
 | [`scripts/setup/teardown.sh`](../../scripts/setup/teardown.sh) | Kill scenario ports, remove captures & node_modules |
+| [`scripts/setup/ensure-act.sh`](../../scripts/setup/ensure-act.sh) | Install nektos/act for labs 05/25 |
+| [`run.sh`](../../run.sh) / [`scripts/ui/run-everything.sh`](../../scripts/ui/run-everything.sh) | Full UI stack (ES, Floci, act, dashboard) |
+| [`scripts/ui/start-dashboard.sh`](../../scripts/ui/start-dashboard.sh) | Dashboard only |
+| [`scripts/ui/conference-demo-up.sh`](../../scripts/ui/conference-demo-up.sh) | Conference / remote host smoke + lab 01 check |
 | [`scripts/setup/kill-port.sh`](../../scripts/setup/kill-port.sh) | Free one port or all ports from `ports.env` |
-| [`scripts/smoke/smoke-all-scenarios.sh`](../../scripts/smoke/smoke-all-scenarios.sh) | End-to-end smoke for all 23 scenarios |
+| [`scripts/smoke/smoke-all-scenarios.sh`](../../scripts/smoke/smoke-all-scenarios.sh) | End-to-end smoke for all 25 scenarios |
 | [`scripts/docs/check-info-consistency.js`](../../scripts/docs/check-info-consistency.js) | Fail CI if public lab counts / indexes drift from on-disk scenarios |
 | [`scripts/diagrams/check-diagram-assets.js`](../../scripts/diagrams/check-diagram-assets.js) | Fail CI if Excalidraw/SVG diagram contract drifts |
 | [`scripts/observability/elasticsearch-up.sh`](../../scripts/observability/elasticsearch-up.sh) | Start ES + Kibana, seed runbooks |
@@ -80,10 +85,13 @@ Source of truth: [`scripts/setup/ports.env`](../../scripts/setup/ports.env)
 | 3001 | Scenario 06 (credential harvester), 13 (mock-server) |
 | 3002 | Scenario 14 (container mock), 06 (GitHub Actions sim) |
 | 3003 | Scenario 06 (replication simulator) |
-| 3015-3022 | Scenarios 15-22 (dedicated mock servers) |
+| 3015-3025 | Scenarios 15-25 (dedicated mock servers) |
+| 3100 | Dashboard (optional UI) |
+| 3101 | Control plane (optional UI; often loopback-only behind :3100 proxy) |
 | 9200 | Elasticsearch (optional) |
 | 5601 | Kibana (optional) |
 | 4566 | Floci AWS emulator (optional; all scenarios - S3 universal; extended on 05, 06, 11, 14, 17, 19, 23) |
+| 4500 | Floci web console sidecar (`/_floci/ui` - optional; started on demand) |
 
 Free a port after a lab:
 
@@ -138,6 +146,7 @@ See [FLOCI_INTEGRATION.md](../guides/FLOCI_INTEGRATION.md).
 | ES 404 on `_count` | Index not created yet | Run scenario or `node detection-tools/es/ship-captures.js` |
 | Kibana empty Discover | Data views not created | `./scripts/observability/setup-kibana-data-views.sh` |
 | Floci not healthy | Setup incomplete or Docker not ready | `./scripts/floci/floci-setup.sh --image` then `./scripts/floci/floci-up.sh`; `docker logs scas-floci` |
+| Floci UI: Permission denied | Docker socket not usable inside `scas-floci` | Re-run `./scripts/floci/floci-up.sh` (sets `FLOCI_RUN_AS_ROOT=true`, `:z` sock mount). Confirm `curl -s localhost:4566/_floci/ui/status` |
 | Port 4566 in use | Another local AWS emulator | `docker stop scas-floci` or free the port |
 
 More: [FAQ.md](./FAQ.md) · [Full-stack setup](../getting-started/FULL_STACK_SETUP.md)

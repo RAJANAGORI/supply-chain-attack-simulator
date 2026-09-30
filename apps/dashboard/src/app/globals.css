@@ -47,3 +47,14 @@
     --tw-ring-offset-color: var(--scas-canvas);
   }
 }
+
+@media print {
+  aside,
+  .no-print {
+    display: none !important;
+  }
+  main {
+    margin-left: 0 !important;
+    max-width: 100% !important;
+  }
+}

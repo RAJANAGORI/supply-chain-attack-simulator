@@ -71,6 +71,60 @@ scas_floci_prepare_data_dir() {
   fi
 }
 
+# Export DOCKER_GID + FLOCI_RUN_AS_ROOT so compose can reach the host daemon
+# (needed for /_floci/ui sidecar and Lambda/ECR/ECS). Writes keys into infrastructure/floci/.env.
+scas_floci_ensure_docker_access() {
+  local env_file="${1:?}"
+  local sock="${DOCKER_HOST:-unix:///var/run/docker.sock}"
+  local sock_path="/var/run/docker.sock"
+  case "$sock" in
+    unix://*) sock_path="${sock#unix://}" ;;
+  esac
+
+  local gid=0
+  if [ -S "$sock_path" ]; then
+    if gid="$(stat -c '%g' "$sock_path" 2>/dev/null)"; then
+      :
+    elif gid="$(stat -f '%g' "$sock_path" 2>/dev/null)"; then
+      :
+    else
+      gid=0
+    fi
+  fi
+  export DOCKER_GID="${DOCKER_GID:-$gid}"
+
+  # Default: run as root so a root-only socket still works. Operators can set
+  # FLOCI_RUN_AS_ROOT=false once group_add + docker group membership is enough.
+  if [ -z "${FLOCI_RUN_AS_ROOT:-}" ]; then
+    export FLOCI_RUN_AS_ROOT=true
+  else
+    export FLOCI_RUN_AS_ROOT
+  fi
+
+  touch "$env_file"
+  if grep -q '^DOCKER_GID=' "$env_file" 2>/dev/null; then
+    sed -i.bak "s/^DOCKER_GID=.*/DOCKER_GID=${DOCKER_GID}/" "$env_file" 2>/dev/null \
+      || sed -i '' "s/^DOCKER_GID=.*/DOCKER_GID=${DOCKER_GID}/" "$env_file"
+    rm -f "${env_file}.bak"
+  else
+    echo "DOCKER_GID=${DOCKER_GID}" >> "$env_file"
+  fi
+  if grep -q '^FLOCI_RUN_AS_ROOT=' "$env_file" 2>/dev/null; then
+    sed -i.bak "s/^FLOCI_RUN_AS_ROOT=.*/FLOCI_RUN_AS_ROOT=${FLOCI_RUN_AS_ROOT}/" "$env_file" 2>/dev/null \
+      || sed -i '' "s/^FLOCI_RUN_AS_ROOT=.*/FLOCI_RUN_AS_ROOT=${FLOCI_RUN_AS_ROOT}/" "$env_file"
+    rm -f "${env_file}.bak"
+  else
+    echo "FLOCI_RUN_AS_ROOT=${FLOCI_RUN_AS_ROOT}" >> "$env_file"
+  fi
+}
+
+# Probe /_floci/ui/status — returns 0 when ready or still starting without a hard error.
+scas_floci_ui_status_ok() {
+  local body
+  body="$(curl -fsS --connect-timeout 2 --max-time 5 "${SCAS_FLOCI_ENDPOINT}/_floci/ui/status" 2>/dev/null)" || return 1
+  python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if d.get("ready") or not d.get("error") else 1)' <<<"$body" 2>/dev/null
+}
+
 scas_floci_init_ready() {
   local body
   body="$(curl -fsS "${SCAS_FLOCI_ENDPOINT}/_floci/init" 2>/dev/null)" || return 1

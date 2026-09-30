@@ -5,6 +5,7 @@
 - Submodule path `libs/malicious-submodule` contains executable `postinstall.sh`.
 - Parent `package.json` `postinstall` invokes `bash libs/malicious-submodule/postinstall.sh`.
 - Local file-protocol submodule URLs (`file://` or relative paths) in `.gitmodules` (lab uses `protocol.file.allow=always`).
+- Similar indicators in git subtree history or vendored `vendor/` directories.
 - Submodule URL/commit drift from approved baseline.
 - Mock exfil events on `127.0.0.1:3000` with `attackType: git-submodule`.
 
@@ -51,20 +52,25 @@ rule Submodule_Attack_IOC {
 
 ## Mitigation
 
-- Review every submodule addition in pull requests.
-- Validate submodule repository URLs against an allowlist.
-- Limit who can add or modify submodules in protected branches.
-- Pin submodules to specific commits, not floating branch heads.
-- Scan submodule content and monitor submodule initialization behavior.
+- Review every submodule, subtree, or vendored dependency addition in pull requests.
+- Validate embedded repository URLs against an allowlist; reject local `file://` and relative paths.
+- Pin embedded dependencies to verified commits; do not track floating branch heads.
+- Set `protocol.file.allow=never` globally and in CI runners to block CVE-2022-39253-style local protocol abuse.
+- Scan subtree and vendored code with the same rules as git submodule code.
+- Monitor initialization behavior and lifecycle scripts in build pipelines.
 
 ## Straightforward Implementation
 
-### 1. Pin submodules to commits
+### 1. Pin submodules, subtrees, and vendored code to commits
 
 ```bash
+# git submodule
 git submodule add https://github.com/org/lib.git
 cd lib && git checkout <commit-sha>
 cd .. && git commit -am "Pin submodule to commit"
+
+# git subtree
+git subtree add --prefix=vendor/lib https://github.com/org/lib.git <commit-sha> --squash
 ```
 
 ### 2. CI gate
@@ -74,13 +80,18 @@ cd .. && git commit -am "Pin submodule to commit"
 - run: |
     git submodule foreach 'git log --oneline -1'
     git config --file .gitmodules --get-regexp 'url' | grep -v 'allowed-github.example.com' && exit 1 || true
+- run: |
+    # Block local file-protocol abuse for submodules, subtrees, and vendored fetches
+    git config --global protocol.file.allow never
+    test -d vendor && find vendor -type f -name '*.sh' -print | xargs -r grep -E 'curl|wget|nc ' && exit 1 || true
 ```
 
 ### 3. CODEOWNERS
 
 ```text
 # .github/CODEOWNERS
-.gitmodules    @org/security-team
+.gitmodules @org/security-team
+vendor/ @org/security-team
 ```
 
 ### 4. Git config

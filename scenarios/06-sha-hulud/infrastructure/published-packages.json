@@ -1,0 +1,28 @@
+{
+  "publishes": [
+    {
+      "timestamp": "2026-09-25T10:16:47.275Z",
+      "data": {
+        "scenario": "06",
+        "event": "malicious_publish",
+        "package": "victim-utils",
+        "version": "1.0.1",
+        "maintainer": "Victim Org",
+        "tokenUsed": "npm_npm_SCAS...",
+        "injectedScript": "node postinstall.js"
+      }
+    },
+    {
+      "timestamp": "2026-09-25T10:19:02.470Z",
+      "data": {
+        "scenario": "06",
+        "event": "malicious_publish",
+        "package": "victim-utils",
+        "version": "1.0.1",
+        "maintainer": "Victim Org",
+        "tokenUsed": "npm_npm_SCAS...",
+        "injectedScript": "node postinstall.js"
+      }
+    }
+  ]
+}

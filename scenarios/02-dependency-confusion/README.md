@@ -8,6 +8,9 @@
 
 
 
+
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -64,7 +67,7 @@ When a higher version exists on the public registry, it may take precedence!
 
 1. **Red Team**: Execute a dependency confusion attack
 2. **Blue Team**: Detect and prevent the attack
-3. **Security Team**: Implement robust defenses
+3. **Security Team**: Implement practical defenses
 
 ## 🔧 Setup
 
@@ -398,6 +401,30 @@ Create a pre-install hook:
 }
 ```
 
+#### Defense 8: Version Jump and First-Seen Maintainer Alerting
+
+A dependency that jumps an entire major version or appears under a brand-new
+maintainer is a high-risk event for internal scopes.
+
+```javascript
+// scripts/dependency-version-gate.js
+const baseline = { '@techcorp/auth-lib': '1.0.0' };
+
+function checkVersionJump(pkg, resolved) {
+  const base = baseline[pkg];
+  if (!base) return 'ok';
+  const baseMajor = parseInt(base.split('.')[0], 10);
+  const resolvedMajor = parseInt(resolved.split('.')[0], 10);
+  if (resolvedMajor - baseMajor > 1) {
+    return `ALERT: ${pkg} jumped from ${base} to ${resolved}`;
+  }
+  return 'ok';
+}
+```
+
+Send these alerts to your SIEM or Slack security channel and require approval
+for any jump that exceeds the policy threshold.
+
 ## Mitigation Playbook
 
 - Configure scope-specific registry routing in `.npmrc` (e.g. `@org:registry=...`).
@@ -407,6 +434,7 @@ Create a pre-install hook:
 - Pin dependencies to exact versions for critical packages.
 - Verify package integrity hashes on install.
 - Add build-time validation to reject unexpected registry sources.
+- Alert on unusual semver jumps and first-seen maintainers for internal scopes.
 
 ## Straightforward Implementation
 
@@ -439,6 +467,17 @@ npm access public @myorg
 ### 4. Version policy
 
 Treat any resolved version above your internal threshold (for example, more than 10 major versions ahead of baseline) as a CI failure.
+
+### 5. Version jump alerting
+
+Run a gate that fails CI when an internal-scope dependency jumps more than one
+major version or resolves under a maintainer that has not been seen before.
+
+```yaml
+# .github/workflows/version-jump-alert.yml
+- name: Check for unusual version jumps
+  run: node scripts/dependency-version-gate.js --scope @techcorp --threshold 1
+```
 
 ## ✅ Success Criteria
 

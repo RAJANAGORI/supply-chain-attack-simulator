@@ -1,0 +1,41 @@
+id: "15"
+etaMinutes: 40
+category: developer-tools
+incidents:
+  - "Malicious CLI/dev tools on the PATH"
+  - "Trusted toolchain abuse"
+caseStudy: "Models malicious developer CLI tools on the PATH: a trusted toolchain install runs lifecycle scripts and can plant persistence or exfiltrate secrets from the workstation."
+objectives:
+  - "Run a victim that loads a malicious developer tool"
+  - "See exfil from tooling rather than app deps"
+  - "Lock down tool install sources"
+mitigation:
+  - "Install dev tools with --ignore-scripts by default from approved registries only"
+  - "Pin tool versions and verify checksums before distributing to developers"
+  - "Review lockfile and ignore-file diffs after any toolchain install"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare legitimate and malicious tools
+    teaching: "Setup places legitimate and malicious dev-tool trees and wires the victim to use the bad one in the attack path."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start the mock collector
+    teaching: "The malicious tool posts to localhost:3015."
+    verify: { type: service-listening }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run victim with malicious tool
+    teaching: "npm start exercises the compromised developer tool path. No separate install step is required in the registry."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Trust but verify tooling
+    teaching: "Compare legitimate-dev-tool vs malicious-dev-tool. DETECT.md focuses on tool allowlists and hash pins."
+    verify: { type: capture-count, min: 1 }

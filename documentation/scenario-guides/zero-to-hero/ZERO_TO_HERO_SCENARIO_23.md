@@ -17,7 +17,6 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
-
 ## Table of Contents
 
 <div class="doc-toc">
@@ -30,9 +29,8 @@ By the end of this guide, you will:
 - [Part 6: Detection Methods (30 minutes)](#part-6-detection-methods-30-minutes)
 - [Part 7: Forensic Investigation (20 minutes)](#part-7-forensic-investigation-20-minutes)
 - [Part 8: Incident Response and Mitigation (25 minutes)](#part-8-incident-response-and-mitigation-25-minutes)
-- [Mitigation Playbook](#mitigation-playbook)
 - [Code-level workflow](#code-level-workflow)
-- [Mitigation Playbook](#mitigation-playbook-1)
+- [Mitigation Playbook](#mitigation-playbook)
 - [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 9: Key Takeaways](#part-9-key-takeaways)
@@ -383,18 +381,6 @@ With `egress-policy: block`, the trivy-action exfil POST to `scan.aquasecurtiy.o
 
 ---
 
-## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/23-trivy-supply-chain-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Contain: disable and re-queue all pipelines that ran `trivy-action@v0.34.x` or `setup-trivy@v0.2.5` or earlier after March 19 2026.
-- Eradicate: replace every mutable tag reference with an immutable commit SHA (`aquasecurity/trivy-action@<SHA>`).
-- Recover: rotate all CI secrets (GITHUB_TOKEN, AWS keys, registry credentials, database URLs) accessible to affected pipeline runs.
-- Hunt: scan every workflow YAML in the organization for compromised version strings; check Dockerfiles and container registries for `trivy:0.69.4/5/6`.
-- Harden: enforce SHA pinning for all third-party actions via policy (e.g. `step-security/harden-runner`, Allstar, or custom CI lint); alert on unexpected outbound network calls from action steps.
-
----
-
 ## Code-level workflow
 
 ![Scenario 23 code-level workflow: Trivy Supply Chain Attack (CVE-2026-33634)](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-23.svg)
@@ -440,6 +426,87 @@ grep -R "uses:.*@v" .github/workflows/ && exit 1
 ### 4. Credential rotation
 
 Rotate GITHUB_TOKEN, AWS keys, registry credentials, and database URLs accessible to affected pipeline runs. Use short-lived OIDC tokens where possible.
+
+---
+
+ase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-23.svg)
+
+*Swimlane diagram for Scenario 23. Editable source: [`scas-observability-scenario-23.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-23.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
+
+### Sequence diagram (Phase 1-5)
+
+Same flow as a participant sequence (expandable in the docs hub).
+
+### Scenario-specific attack steps (Phase 2)
+
+Same Phase-2 path as the diagrams above (for skimming / accessibility).
+
+| # | From | To | Action |
+|---|------|----|--------|
+| 1 | Learner | Victim | cd victim-ci && node run-pipeline.js (TESTBENCH_MODE=enabled) |
+| 2 | Victim | MalPkg | require("trivy-action-like") triggers harvestAndExfiltrate() |
+| 3 | MalPkg | Mock | POST http://127.0.0.1:3023/collect - CI env vars harvested |
+| 4 | MalPkg | Victim | scanTarget() runs - pipeline output appears normal |
+
+### Prerequisites
+
+From the repository root:
+
+```bash
+./scripts/observability/elasticsearch-up.sh
+./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
+```
+
+### Run this scenario with live Elasticsearch forwarding
+
+**Terminal A - mock collector** (from `scenarios/23-trivy-supply-chain-attack`):
+
+```bash
+cd scenarios/23-trivy-supply-chain-attack
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+node infrastructure/mock-c2-server.js
+```
+
+**Terminal B - execute the lab:**
+
+```bash
+cd scenarios/23-trivy-supply-chain-attack
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+cd victim-ci && export TESTBENCH_MODE=enabled && node run-pipeline.js
+```
+
+### Verify locally (file-based evidence)
+
+```bash
+curl -s http://127.0.0.1:3023/captured-data
+```
+
+### Verify in Elasticsearch (API)
+
+```bash
+# Static runbook for this scenario
+curl -s "http://localhost:9200/scas-rules/_doc/23?pretty"
+
+# Latest runtime capture events
+curl -s "http://localhost:9200/scas-detections/_search?pretty" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": { "term": { "scenario_id": "23" } },
+    "sort": [{ "@timestamp": "desc" }],
+    "size": 5
+  }'
+```
+
+### Verify in Kibana (UI)
+
+1. Open [http://localhost:5601](http://localhost:5601)
+2. **Discover** → **SCAS Detections - Scenario 23** - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. **Discover** → **SCAS Rules - Scenario 23** - compare against `iocs`, `sigma`, and `yara` fields
+4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
+
+See [observability/README.md](../../../observability/README.md) for stack details.
 
 ---
 

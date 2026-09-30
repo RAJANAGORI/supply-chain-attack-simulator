@@ -1,0 +1,48 @@
+id: "11"
+etaMinutes: 45
+category: package-registry
+incidents:
+  - "Poisoned internal npm mirrors"
+  - "Corporate registry trust failures"
+caseStudy: "Models poisoned internal npm mirrors and corporate registry trust failures: once a mirror is writable, cached packages can diverge from upstream without anyone noticing in package.json."
+objectives:
+  - "Explain how a mirror can serve trojanized popular packages"
+  - "Install from the poisoned mirror on :4873"
+  - "Detect mirror drift with scanners and DETECT.md"
+mitigation:
+  - "Limit who can publish or mutate mirror storage; require MFA for admins"
+  - "Audit mirrors on a schedule and verify digests against upstream"
+  - "Alert on unexpected package mutations in the mirror cache"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Generate corporate app and mirror
+    teaching: "Setup builds corporate-app, compromised-mirror packages, and wires .npmrc toward the poisoned registry."
+    hint: "Run setup before services; generated trees are not always committed."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start collector and poisoned mirror
+    teaching: "Port 3000 collects exfil. Port 4873 serves the poisoned mirror content."
+    verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: Install from the poisoned mirror
+    teaching: "corporate-app resolves packages from localhost:4873 and receives compromised builds that still look like enterprise libs."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the corporate app
+    teaching: "The app works while the poisoned packages report home to the mock collector."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Validate mirror integrity
+    teaching: "DETECT.md covers checksum pinning, mirror allowlists, and Floci cloud-track checks for this lab."
+    verify: { type: capture-count, min: 1 }

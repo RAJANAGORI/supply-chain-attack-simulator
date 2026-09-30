@@ -15,7 +15,7 @@ source "${PORTS_FILE}"
 echo "Starting testbench teardown..."
 
 # UI / control-plane ports — never touch these (dashboard proxies to 3101).
-PROTECTED_PORTS=(3100 3101 5173)
+PROTECTED_PORTS=(3100 3101)
 
 is_protected_port() {
   local p="$1"

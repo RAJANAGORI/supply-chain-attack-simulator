@@ -1,8 +1,12 @@
 /**
- * SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori — Supply Chain Attack Simulator
- * Mock Attacker Server — Scenario 5: Build Compromise
+ * Mock Attacker Server (canonical SCAS template)
+ * SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori - Supply Chain Attack Simulator
+ *
+ * Receives and logs exfiltrated data from the Scenario 5 workflow injection lab.
  */
+
 require('../../_shared/scenario-provenance');
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -17,19 +21,30 @@ if (!fs.existsSync(logFile)) {
 const server = http.createServer((req, res) => {
   if (req.method === 'POST' && req.url === '/collect') {
     let body = '';
-    req.on('data', (chunk) => { body += chunk.toString(); });
+
+    req.on('data', (chunk) => {
+      body += chunk.toString();
+    });
+
     req.on('end', () => {
       try {
         const data = JSON.parse(body);
-        console.log('\n🎯 CAPTURED DATA (build-compromise):');
+
+        console.log('\nCAPTURED DATA (workflow injection):');
         console.log(JSON.stringify(data, null, 2));
-        console.log('─'.repeat(50));
+        console.log('-'.repeat(50));
+
         const captures = JSON.parse(fs.readFileSync(logFile, 'utf8'));
-        const captureEntry = { timestamp: new Date().toISOString(), data };
-                captures.captures.push(captureEntry);
+        const captureEntry = {
+          timestamp: new Date().toISOString(),
+          data
+        };
+        captures.captures.push(captureEntry);
         fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'success', message: 'Data received' }));
+
         try {
           require('../../../detection-tools/es/forward-capture')
             .forwardCaptureIfEnabled(__dirname, captureEntry)
@@ -38,13 +53,15 @@ const server = http.createServer((req, res) => {
           /* optional ES forwarding; capture already persisted */
         }
       } catch (e) {
+        console.error('Error processing data:', e);
         res.writeHead(400);
         res.end('Bad Request');
       }
     });
   } else if (req.method === 'GET' && req.url === '/captured-data') {
+    const captures = fs.readFileSync(logFile, 'utf8');
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(fs.readFileSync(logFile, 'utf8'));
+    res.end(captures);
   } else if (req.method === 'DELETE' && req.url === '/captured-data') {
     fs.writeFileSync(logFile, JSON.stringify({ captures: [] }, null, 2));
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -56,5 +73,14 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log('🎭 Mock Attacker Server (Scenario 5) — http://localhost:' + PORT);
+  console.log('Mock Attacker Server Started (Scenario 5)');
+  console.log('-'.repeat(50));
+  console.log(`Listening on http://localhost:${PORT}`);
+  console.log('');
+  console.log('Endpoints:');
+  console.log('  POST   /collect        - Receive exfiltrated data');
+  console.log('  GET    /captured-data  - View captured data');
+  console.log('  DELETE /captured-data  - Clear captured data');
+  console.log('-'.repeat(50));
+  console.log('Waiting for data...\n');
 });

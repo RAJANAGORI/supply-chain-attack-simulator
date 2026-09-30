@@ -1,10 +1,10 @@
 # Scenario 05 + Floci (optional cloud track)
 
-Extend **Build System Compromise** with a local AWS emulator so learners see the same attack hit **real S3 APIs**, not only the HTTP mock on port 3000.
+This track adds a local AWS emulator so the workflow injection lab writes evidence to real S3 APIs instead of only the HTTP mock on port 3000.
 
 ## Prerequisites
 
-From **repo root** (one-time + each session):
+From the repo root (one-time + each session):
 
 ```bash
 ./scripts/floci/floci-setup.sh          # once: clone vendor/floci-aws + build
@@ -12,7 +12,7 @@ From **repo root** (one-time + each session):
 source .testbench.env && source .floci.env
 ```
 
-## Lab flow (Floci track)
+## Lab flow
 
 ### 1. Seed baseline artifact in S3
 
@@ -22,19 +22,17 @@ chmod +x infrastructure/floci/*.sh
 ./infrastructure/floci/seed.sh
 ```
 
-Creates bucket `scas-sc05-artifacts` with a legitimate `releases/legitimate/manifest.json`, plus IAM role `scas-sc05-codebuild-role` and SSM parameter `/scas/sc05/ci-database-url` for CI abuse narrative.
+Creates bucket `scas-sc05-artifacts` with a baseline `releases/legitimate/manifest.json`, plus IAM role `scas-sc05-codebuild-role` and SSM parameter `/scas/sc05/ci-database-url` for the CI abuse narrative.
 
 ### 2. Run the normal lab (mock server still required)
 
 ```bash
 node infrastructure/mock-server.js &
-cd compromised-build
 # Lookalike CI secrets (LAB ONLY) - same values seeded into Floci SM/SSM
-set -a && source .env.lab 2>/dev/null || source ../../_shared/lookalike-secrets.env; set +a
-npm run build
+./run-ci.sh
 ```
 
-**What changes with Floci enabled:**
+What changes with Floci enabled:
 
 | Step | Mock (port 3000) | Floci (S3 + IAM/STS + Logs) |
 |------|------------------|---------------------------|
@@ -50,28 +48,28 @@ npm run build
 ../../detection-tools/floci/cloudtrail-hunt.sh 05
 ```
 
-### 4. Compare legitimate vs compromised in S3
+### 4. Compare baseline vs compromised in S3
 
 ```bash
 source ../../scripts/floci/floci-bridge.sh
 scas_floci_aws s3 ls s3://scas-sc05-artifacts/releases/ --recursive
 ```
 
-## Learning goals (Floci layer)
+## Learning goals
 
-- Build pipelines with `AWS_*` in env are a **real exfil target** (CodeCov-style).
-- HTTP beacons are not the only channel - **artifact buckets** get overwritten too.
-- Detection: monitor S3 `PutObject` on release prefixes, not just outbound HTTP.
+- CI pipelines with `AWS_*` in env are a real exfil target, similar to CodeCov.
+- HTTP beacons are not the only channel - artifact buckets can also be overwritten.
+- Detection should monitor S3 `PutObject` on release prefixes, not just outbound HTTP.
 
 ## Without Floci
 
-Unset `SCAS_FLOCI_ENABLED`. The lab behaves exactly as before (smoke tests unchanged).
+Unset `SCAS_FLOCI_ENABLED`. The lab behaves exactly as before and smoke tests stay unchanged.
 
 ## Troubleshooting
 
 ### `PutObject` 500 / `upload failed` on `seed.sh`
 
-**Full reset (most reliable fix):**
+Full reset:
 
 ```bash
 cd ~/supply-chain-attack-simulator
@@ -88,26 +86,26 @@ cd scenarios/05-build-compromise
 ./infrastructure/floci/seed.sh
 ```
 
-1. **Floci init ready?** `./scripts/floci/floci-status.sh` - must show `Init: ✅ ready`
-2. **Use emulator credentials:** `source .floci.env` from repo root (do not rely on host `~/.aws/credentials`)
-3. **Inspect logs:** `docker logs scas-floci --tail 80`
-4. **Manual upload test** (inside container):
+1. Floci init ready? `./scripts/floci/floci-status.sh` must show `Init: ready`
+2. Use emulator credentials: `source .floci.env` from repo root (do not rely on host `~/.aws/credentials`)
+3. Inspect logs: `docker logs scas-floci --tail 80`
+4. Manual upload test (inside container):
    ```bash
    docker exec scas-floci aws --endpoint-url http://127.0.0.1:4566 s3 mb s3://scas-sc05-artifacts
-   docker cp scenarios/05-build-compromise/legitimate-build/dist/manifest.json scas-floci:/tmp/m.json
+   docker cp scenarios/05-build-compromise/victim-app/dist/manifest.json scas-floci:/tmp/m.json
    docker exec scas-floci aws --endpoint-url http://127.0.0.1:4566 s3 cp /tmp/m.json s3://scas-sc05-artifacts/releases/legitimate/manifest.json
    ```
 
-### Build completes but nothing in S3 or mock server
+### Pipeline completes but nothing in S3 or mock server
 
-You must see `[TESTBENCH] Simulating build-time data exfiltration...` during `npm run build`.
+You should see `[TESTBENCH] build-action: simulating CI secret and artifact harvest...` during `./run-ci.sh`.
 
 ```bash
 source /path/to/supply-chain-attack-simulator/.testbench.env
 source /path/to/supply-chain-attack-simulator/.floci.env
 # Lookalike CI secrets for JSON harvest only - do not overwrite Floci emulator keys after this
 set -a && source .env.lab 2>/dev/null || source ../../_shared/lookalike-secrets.env; set +a
-npm run build
+./run-ci.sh
 ```
 
-Start `node infrastructure/mock-server.js` **before** `npm run build`.
+Start `node infrastructure/mock-server.js` before `./run-ci.sh`.

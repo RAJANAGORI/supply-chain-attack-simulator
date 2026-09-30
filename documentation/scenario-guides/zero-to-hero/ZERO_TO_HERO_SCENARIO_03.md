@@ -15,7 +15,6 @@ By the end of this guide, you will:
 - Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
-
 ## Table of Contents
 
 <div class="doc-toc">
@@ -29,9 +28,8 @@ By the end of this guide, you will:
 - [Part 7: Detection Methods (25 minutes)](#part-7-detection-methods-25-minutes)
 - [Part 8: Incident Response & Mitigation (30 minutes)](#part-8-incident-response--mitigation-30-minutes)
 - [Part 9: Understanding the Attack Flow (10 minutes)](#part-9-understanding-the-attack-flow-10-minutes)
-- [Mitigation Playbook](#mitigation-playbook)
 - [Code-level workflow](#code-level-workflow)
-- [Mitigation Playbook](#mitigation-playbook-1)
+- [Mitigation Playbook](#mitigation-playbook)
 - [Straightforward Implementation](#straightforward-implementation)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
 - [Part 10: Clean Up and Next Steps (5 minutes)](#part-10-clean-up-and-next-steps-5-minutes)
@@ -581,19 +579,6 @@ Implement preventive measures:
 
 ---
 
-## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/03-compromised-package/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Enforce lockfiles in CI (`npm ci --audit`) instead of open-ended `npm install`.
-- Pin exact versions for packages with high trust or wide blast radius.
-- Run automated security scanning on dependency updates (`npm audit`, custom scanners).
-- Verify package integrity and signatures when the registry supports them.
-- Monitor runtime behavior and log package installation events in production.
-- Maintain maintainer-transfer and dependency-addition review policies.
-
----
-
 ## Code-level workflow
 
 ![Scenario 03 code-level workflow: Compromised Package](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-03.svg)
@@ -646,6 +631,87 @@ rm -rf node_modules package-lock.json
 npm ci
 npm token revoke <token-id>
 ```
+
+---
+
+vability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-03.svg)
+
+*Swimlane diagram for Scenario 03. Editable source: [`scas-observability-scenario-03.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-03.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
+
+### Sequence diagram (Phase 1-5)
+
+Same flow as a participant sequence (expandable in the docs hub).
+
+### Scenario-specific attack steps (Phase 2)
+
+Same Phase-2 path as the diagrams above (for skimming / accessibility).
+
+| # | From | To | Action |
+|---|------|----|--------|
+| 1 | Learner | Victim | npm install (pulls compromised secure-validator) |
+| 2 | Learner | Victim | npm start |
+| 3 | Victim | MalPkg | require compromised secure-validator |
+| 4 | MalPkg | MalPkg | Execute trojanized release logic |
+
+### Prerequisites
+
+From the repository root:
+
+```bash
+./scripts/observability/elasticsearch-up.sh
+./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
+```
+
+### Run this scenario with live Elasticsearch forwarding
+
+**Terminal A - mock collector** (from `scenarios/03-compromised-package`):
+
+```bash
+cd scenarios/03-compromised-package
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+node infrastructure/mock-server.js
+```
+
+**Terminal B - execute the lab:**
+
+```bash
+cd scenarios/03-compromised-package
+export TESTBENCH_MODE=enabled
+export SCAS_ES_URL=http://localhost:9200
+cd victim-app && npm install && npm start
+```
+
+### Verify locally (file-based evidence)
+
+```bash
+curl -s http://localhost:3000/captured-data
+```
+
+### Verify in Elasticsearch (API)
+
+```bash
+# Static runbook for this scenario
+curl -s "http://localhost:9200/scas-rules/_doc/03?pretty"
+
+# Latest runtime capture events
+curl -s "http://localhost:9200/scas-detections/_search?pretty" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "query": { "term": { "scenario_id": "03" } },
+    "sort": [{ "@timestamp": "desc" }],
+    "size": 5
+  }'
+```
+
+### Verify in Kibana (UI)
+
+1. Open [http://localhost:5601](http://localhost:5601)
+2. **Discover** → **SCAS Detections - Scenario 03** - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. **Discover** → **SCAS Rules - Scenario 03** - compare against `iocs`, `sigma`, and `yara` fields
+4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
+
+See [observability/README.md](../../../observability/README.md) for stack details.
 
 ---
 

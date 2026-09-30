@@ -1,7 +1,7 @@
 /**
  * SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori — Supply Chain Attack Simulator
  * Mock Attacker Server (Scenario 20)
- * Receives and logs exfiltrated data from package version confusion attacks.
+ * Receives and logs exfiltrated data from the provenance-abuse lab.
  */
 
 require('../../_shared/scenario-provenance');
@@ -23,12 +23,18 @@ const server = http.createServer((req, res) => {
     req.on('end', () => {
       try {
         const data = JSON.parse(body || '{}');
+        console.log('\n🎯 CAPTURED DATA (provenance-abuse):');
+        console.log(JSON.stringify(data, null, 2));
+        console.log('─'.repeat(50));
+
         const captures = JSON.parse(fs.readFileSync(logFile, 'utf8'));
         const captureEntry = { timestamp: new Date().toISOString(), data };
-                captures.captures.push(captureEntry);
+        captures.captures.push(captureEntry);
         fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ status: 'success', message: 'Data received' }));
+
         try {
           require('../../../detection-tools/es/forward-capture')
             .forwardCaptureIfEnabled(__dirname, captureEntry)
@@ -37,6 +43,7 @@ const server = http.createServer((req, res) => {
           /* optional ES forwarding; capture already persisted */
         }
       } catch (e) {
+        console.error('Error processing data:', e);
         res.writeHead(400);
         res.end('Bad Request');
       }
@@ -66,4 +73,3 @@ server.listen(PORT, () => {
   console.log('🎭 Mock Attacker Server Started (Scenario 20)');
   console.log(`Listening on http://localhost:${PORT}`);
 });
-

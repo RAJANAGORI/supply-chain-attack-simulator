@@ -4,7 +4,7 @@
 
 **Raja Nagori** - original author of the Supply Chain Attack Simulator (SCAS)
 
-- Designed the 23-scenario lab curriculum, platform architecture, and safety model
+- Designed the 25-scenario lab curriculum, platform architecture, and safety model
 - Authored the core documentation, zero-to-hero guides, teaching modules, and learning paths
 - Maintains the open-source repository and project website
 

@@ -3,6 +3,7 @@
 ## IOCs
 - Workspace package unexpectedly replaced/overwritten.
 - Local package path mutation during monorepo install workflow.
+- New or changed task dependency in `nx.json` or `turbo.json` that broadens the blast radius.
 - Capture events to `127.0.0.1:3000`.
 
 ## Sample Log Lines
@@ -44,11 +45,12 @@ rule Workspace_Attack_IOC {
 
 ## Mitigation
 
-- Limit who can modify workspace and monorepo internal packages.
-- Audit all workspace packages regularly for lifecycle scripts and drift.
-- Monitor postinstall execution across workspace packages.
-- Review workspace dependency changes with the same rigor as external deps.
-- Track workspace package changes in version control with mandatory review.
+- Assign CODEOWNERS to workspace package directories, root `package.json`, and task configuration files such as `nx.json` or `turbo.json`.
+- Review `nx graph` or `turbo run` task boundaries before adding cross-package dependencies or tasks.
+- Run workspace scans for lifecycle scripts, unexpected binaries, and dependency drift on every PR.
+- Enforce `--ignore-scripts` in CI and require explicit allowlisting for required postinstall steps.
+- Separate build/test/deploy permissions per workspace package and per CI stage.
+- Treat every workspace package as a third-party dependency for security review.
 
 ## Straightforward Implementation
 
@@ -56,14 +58,19 @@ rule Workspace_Attack_IOC {
 
 ```text
 # .github/CODEOWNERS
-/packages/*     @org/security-team @org/platform-team
-/package.json   @org/security-team
+/packages/* @org/security-team @org/platform-team
+/package.json @org/security-team
+/nx.json @org/security-team
+/turbo.json @org/security-team
 ```
 
-### 2. Workspace graph check
+### 2. Workspace graph and task boundary review
 
 ```bash
+# Nx
 nx graph --file=dep-graph.json
+# Turborepo
+cat turbo.json | jq '.pipeline | keys'
 ```
 
 ### 3. CI gate
@@ -72,8 +79,11 @@ nx graph --file=dep-graph.json
 # .github/workflows/workspace-audit.yml
 - run: npm ci --ignore-scripts
 - run: node scripts/audit-workspace-packages.js
+- run: |
+    # Fail if a task depends on a workspace package outside the approved graph
+    node scripts/validate-task-boundaries.js --config nx.json
 ```
 
 ### 4. Policy
 
-Treat every workspace package as a third-party dependency for security review purposes.
+Treat every workspace package - and every task that touches it - as a third-party dependency for security review purposes.

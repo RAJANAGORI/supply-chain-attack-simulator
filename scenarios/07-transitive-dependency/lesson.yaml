@@ -1,0 +1,57 @@
+id: "07"
+etaMinutes: 35
+category: package-compromise
+incidents:
+  - "event-stream transitive backdoor (2018)"
+  - "Hidden deps deep in the tree"
+caseStudy: "Follows the event-stream (2018) transitive backdoor pattern: the malicious code sits deep in the tree behind a popular direct dependency, so a casual package.json review misses it."
+objectives:
+  - "Explain why a direct dependency can be clean while a transitive one is not"
+  - "Swap a compromised transitive package and observe exfil"
+  - "Hunt node_modules with scanners"
+mitigation:
+  - "Pin critical packages; commit package-lock.json and use npm ci"
+  - "Scan the full dependency tree (npm audit, SBOM) not only direct deps"
+  - "Watch postinstall scripts and unexpected localhost or outbound beacons"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare transitive lab trees
+    teaching: "Setup creates legitimate and compromised data-processor packages plus the victim app that depends on them indirectly."
+    hint: "Map the dependency tree before you swap anything."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start the mock collector
+    teaching: "Exfil from the compromised transitive package posts to localhost:3000."
+    verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: Install the clean tree first
+    teaching: "npm install resolves the declared graph. The next step will surgically replace a nested package."
+    hint: "Do not skip this install; the swap step expects node_modules to exist."
+    verify: { type: exit-zero }
+  - id: swap
+    registry: swap
+    audience: attack
+    title: Swap the compromised transitive dep
+    teaching: "Replace node_modules/data-processor with the compromised copy and fire its postinstall. Direct deps still look fine."
+    hint: "This is the core demo: attackers hide one level down."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the victim app
+    teaching: "The app runs as usual while the swapped transitive package phones home to the mock collector."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Audit the tree
+    teaching: "Scanner output and DETECT.md focus on unexpected postinstall scripts and hash mismatches in nested deps."
+    hint: "node detection-tools/package-scanner.js scenarios/07-transitive-dependency/victim-app"
+    verify: { type: capture-count, min: 1 }

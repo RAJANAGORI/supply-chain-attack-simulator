@@ -1,0 +1,36 @@
+{
+  "prs": [
+    {
+      "timestamp": "2026-09-25T10:16:47.275Z",
+      "data": {
+        "scenario": "06",
+        "event": "backdoor_pr",
+        "repo": "https://github.com/victim-org/victim-utils",
+        "branch": "feat/dependency-bump",
+        "files": [
+          {
+            "path": "package.json",
+            "change": "injected postinstall script"
+          }
+        ],
+        "tokenUsed": "gh_GITHUB_T..."
+      }
+    },
+    {
+      "timestamp": "2026-09-25T10:19:02.470Z",
+      "data": {
+        "scenario": "06",
+        "event": "backdoor_pr",
+        "repo": "https://github.com/victim-org/victim-utils",
+        "branch": "feat/dependency-bump",
+        "files": [
+          {
+            "path": "package.json",
+            "change": "injected postinstall script"
+          }
+        ],
+        "tokenUsed": "gh_GITHUB_T..."
+      }
+    }
+  ]
+}

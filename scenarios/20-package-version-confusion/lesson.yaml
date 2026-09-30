@@ -1,0 +1,52 @@
+id: "20"
+etaMinutes: 35
+category: package-registry
+incidents:
+  - "Highest version wins resolution tricks"
+  - "Version confusion across registries"
+caseStudy: "Models version confusion across registries: highest version wins, so a higher public build of an internal name can beat the private package you meant to install."
+objectives:
+  - "Install when a higher malicious version wins"
+  - "Run the victim under that resolution"
+  - "Pin exact versions and registries"
+mitigation:
+  - "Pin expected builder identity and refs; verify provenance fail-closed"
+  - "Still run behavioral scans even when signatures verify"
+  - "Segment CI so build runners cannot sign arbitrary artifacts"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare the lab
+    teaching: "Run setup to create victim, packages, and mock infrastructure for this scenario."
+    hint: "Node 18+ (or the language this lab needs). Dashboard Setup runs ./setup.sh for you."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start mock collectors
+    teaching: "Start the localhost mock server(s). Exfil only targets 127.0.0.1 when TESTBENCH_MODE is enabled."
+    hint: "If a port is busy, free it from Teardown or scripts/setup/kill-port.sh."
+    verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: Install dependencies
+    teaching: "Resolution prefers the highest satisfying version. The lab plants a malicious higher version that wins."
+    hint: "Watch the live terminal for install hooks."
+    verify: { type: exit-zero }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the victim
+    teaching: "npm start uses the winning malicious version and posts to localhost:3020."
+    hint: "Confirm the inspector shows at least one capture."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Read captures and DETECT.md
+    teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
+    hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
+    verify: { type: capture-count, min: 1 }

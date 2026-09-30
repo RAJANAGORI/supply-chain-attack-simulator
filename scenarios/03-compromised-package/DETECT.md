@@ -2,7 +2,8 @@
 
 ## IOCs
 - Existing trusted package starts making outbound requests.
-- New install/postinstall behavior introduced in patch update.
+- New install/postinstall behavior introduced in a patch update after a maintainer change.
+- Patch-version release from a maintainer account with no recent activity or new 2FA status.
 - Capture events to `127.0.0.1:3000`.
 
 ## Sample Log Lines
@@ -45,22 +46,34 @@ rule Compromised_Package_Runtime_IOC {
 
 ## Mitigation
 
-- Enforce lockfiles in CI (`npm ci --audit`) instead of open-ended `npm install`.
-- Pin exact versions for packages with high trust or wide blast radius.
-- Run automated security scanning on dependency updates (`npm audit`, custom scanners).
-- Verify package integrity and signatures when the registry supports them.
-- Monitor runtime behavior and log package installation events in production.
-- Maintain maintainer-transfer and dependency-addition review policies.
+- Require MFA and admin approval for maintainer role changes and publish tokens.
+- Pin exact versions and enforce lockfile-only installs (`npm ci --ignore-scripts`) in CI.
+- Alert on new maintainers, unexpected patch-version changes, and dependency additions in trusted packages.
+- Run supply-chain scanners and diff reviews on every dependency update before merge.
+- Segment CI permissions so a build job cannot publish packages or alter registry metadata.
+- Maintain a known-good artifact mirror and rotate credentials after any suspected maintainer compromise.
 
 ## Straightforward Implementation
 
-### 1. CI gate
+### 1. Prevention config
+
+Create or update ".npmrc" in the repo root:
+
+```ini
+# .npmrc
+@myorg:registry=https://internal.registry.example/
+ignore-scripts=true
+```
+
+### 2. CI gate
 
 ```yaml
 # .github/workflows/supply-chain-scan.yml
 - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 - name: Install dependencies without scripts
   run: npm ci --ignore-scripts
+- name: Verify no unexpected patch drift
+  run: node scripts/check-version-jumps.js --allow-patch-review secure-validator
 - name: Supply-chain scan
   run: npx socket-dev scan
 - name: Snyk test
@@ -69,15 +82,13 @@ rule Compromised_Package_Runtime_IOC {
     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 ```
 
-### 2. Runtime monitoring
+### 3. Maintainer monitoring
 
 ```bash
-node -r ./security/module-load-logger.js app.js
+# Alert on new maintainers or publish events
+npm view secure-validator maintainers
+npm owner ls secure-validator
 ```
-
-### 3. Maintainer policy
-
-Require 2FA and admin approval for npm publishing roles. Alert on new maintainers via npm webhook or GitHub organization audit log.
 
 ### 4. Incident response
 
@@ -86,4 +97,5 @@ npm install <package>@<known-good-version> --save-exact
 rm -rf node_modules package-lock.json
 npm ci
 npm token revoke <token-id>
+# Rotate any CI or registry credentials the maintainer account could reach
 ```

@@ -18,6 +18,8 @@ fi
 
 # Fix ./data mount for container uid 1001 (avoids "not writable by floci")
 scas_floci_prepare_data_dir "${FLOCI_DIR}/data"
+# Docker socket access for /_floci/ui sidecar + container-backed AWS services
+scas_floci_ensure_docker_access "${FLOCI_DIR}/.env"
 
 COMPOSE_FILE="${FLOCI_DIR}/docker-compose.yml"
 if [ "${FLOCI_USE_IMAGE:-0}" = "1" ]; then
@@ -123,7 +125,15 @@ echo "⏳ Waiting for Floci init (S3 and services ready)…"
 if scas_floci_wait_init "${FLOCI_INIT_TRIES}"; then
   echo "✅ Floci is ready on port ${FLOCI_PORT:-4566}"
   echo "   Container: scas-floci"
+  echo "   API:       ${SCAS_FLOCI_ENDPOINT}"
+  echo "   Web UI:    ${SCAS_FLOCI_ENDPOINT}/_floci/ui  (first open may pull floci-ui)"
   echo "   Enable labs: source ${REPO_ROOT}/.floci.env"
+  if ! scas_floci_ui_status_ok; then
+    echo ""
+    echo "⚠️  Floci UI sidecar could not reach the Docker socket yet."
+    echo "   Recreate with: docker compose -f ${COMPOSE_FILE} --env-file ${FLOCI_DIR}/.env up -d --force-recreate"
+    echo "   Or set FLOCI_RUN_AS_ROOT=true in ${FLOCI_DIR}/.env (default) and re-run this script."
+  fi
   exit 0
 fi
 

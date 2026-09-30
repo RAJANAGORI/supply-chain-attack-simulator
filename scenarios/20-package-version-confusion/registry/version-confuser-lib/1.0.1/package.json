@@ -1,8 +1,0 @@
-{
-  "name": "version-confuser-lib",
-  "version": "1.0.1",
-  "description": "Legitimate version (educational simulation)",
-  "main": "index.js",
-  "license": "MIT"
-}
-

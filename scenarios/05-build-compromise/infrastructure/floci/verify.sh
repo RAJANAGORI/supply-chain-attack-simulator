@@ -9,7 +9,7 @@ source "${REPO_ROOT}/scripts/floci/floci-bridge.sh"
 scas_floci_require
 BUCKET="$(scas_floci_bucket_for_scenario 05)"
 
-echo "=== Floci S3 evidence — scenario 05 ==="
+echo "=== Floci S3 evidence - scenario 05 ==="
 echo "Bucket: s3://${BUCKET}"
 echo ""
 echo "--- exfil/ (stolen build secrets) ---"

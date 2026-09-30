@@ -237,14 +237,14 @@ ${victimFlociVolumes()}
 
 function composeShaHulud(meta) {
   const project = `scas-${meta.slug}`;
-  return `# Auto-generated local Docker lab — ${meta.slug} (CDN + harvester)
+  return `# Auto-generated local Docker lab — ${meta.slug} (token-theft + re-publishing worm)
 # Floci via host.docker.internal:4566
 name: ${project}
 
 services:
-  mock-cdn:
+  credential-harvester:
     image: node:20-alpine
-    container_name: ${project}-mock-cdn
+    container_name: ${project}-harvester
     working_dir: /scenarios/${meta.slug}
     volumes:
       - ./:/scenarios/${meta.slug}
@@ -252,35 +252,50 @@ services:
       - ../../detection-tools:/detection-tools:ro
 ${mockPlatformEnv()}
 ${flociExtraHosts()}
-    command: ["node", "${meta.cdn_path}"]
+    command: ["node", "${meta.c2_path}"]
     ports:
-      - "${meta.cdn_port}:${meta.cdn_port}"
       - "${meta.c2_port}:${meta.c2_port}"
+      - "${meta.github_port}:${meta.github_port}"
+      - "${meta.registry_port}:${meta.registry_port}"
     healthcheck:
       test:
         [
           "CMD",
           "node",
           "-e",
-          "require('http').get('http://127.0.0.1:${meta.cdn_port}/bundle.js',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))",
+          "require('http').get('http://127.0.0.1:${meta.c2_port}/captured-credentials',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))",
         ]
       interval: 5s
       timeout: 3s
       retries: 12
       start_period: 8s
 
-  credential-harvester:
+  github-actions-simulator:
     image: node:20-alpine
-    container_name: ${project}-harvester
+    container_name: ${project}-github
     working_dir: /scenarios/${meta.slug}
-    network_mode: "service:mock-cdn"
+    network_mode: "service:credential-harvester"
     volumes:
       - ./:/scenarios/${meta.slug}
       - ../_shared:/scenarios/_shared:ro
       - ../../detection-tools:/detection-tools:ro
-    command: ["node", "${meta.c2_path}"]
+    command: ["node", "${meta.github_path}"]
     depends_on:
-      mock-cdn:
+      credential-harvester:
+        condition: service_healthy
+
+  mock-registry:
+    image: node:20-alpine
+    container_name: ${project}-registry
+    working_dir: /scenarios/${meta.slug}
+    network_mode: "service:credential-harvester"
+    volumes:
+      - ./:/scenarios/${meta.slug}
+      - ../_shared:/scenarios/_shared:ro
+      - ../../detection-tools:/detection-tools:ro
+    command: ["node", "${meta.registry_path}"]
+    depends_on:
+      credential-harvester:
         condition: service_healthy
 
   victim:
@@ -288,13 +303,15 @@ ${flociExtraHosts()}
       context: ..
       dockerfile: ${meta.slug}/Dockerfile
     container_name: ${project}-victim
-    network_mode: "service:mock-cdn"
+    network_mode: "service:credential-harvester"
 ${flociVictimEnv()}
 ${victimFlociVolumes()}
     depends_on:
-      mock-cdn:
-        condition: service_healthy
       credential-harvester:
+        condition: service_healthy
+      github-actions-simulator:
+        condition: service_started
+      mock-registry:
         condition: service_started
     tty: true
     stdin_open: true

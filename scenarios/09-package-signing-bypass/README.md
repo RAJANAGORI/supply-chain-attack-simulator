@@ -8,6 +8,9 @@
 
 
 
+
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -41,13 +44,15 @@ By completing this scenario, you will learn:
 
 **Package Signing Bypass** occurs when attackers compromise package signing keys and use them to sign malicious packages. Since the packages are signed with legitimate keys, they appear trusted and verified, bypassing signature verification checks.
 
+Modern registries also support provenance, such as npm provenance via Sigstore and GitHub artifact attestations. Provenance links a package to a specific CI run and repository identity. However, provenance still proves origin, not intent: if the CI pipeline or repository that produced the provenance is compromised, the attestation will vouch for a malicious artifact.
+
 ### Why This Attack is Dangerous
 
-1. **Trust in Signatures**: Signatures are meant to verify authenticity
-2. **Complete Trust**: Verified signatures are trusted completely
-3. **Wide Distribution**: Signed malicious packages look legitimate
-4. **Hard to Detect**: Packages pass signature verification
-5. **Key Compromise**: Once keys are compromised, all packages can be signed
+1. Origin is not intent. A signature or attestation proves who built the package, not that the package is safe.
+2. Complete trust. Verified signatures are often trusted without further inspection.
+3. Wide distribution. Signed malicious packages look legitimate.
+4. Hard to detect. Packages pass signature verification.
+5. Key or CI compromise. Once signing keys or the CI publisher are compromised, all packages can be signed or attested.
 
 ### Real-World Examples
 
@@ -57,11 +62,11 @@ By completing this scenario, you will learn:
 
 ## 🎯 Scenario Description
 
-**Scenario**: A popular npm package `secure-utils` uses package signing for security. An attacker has compromised the maintainer's signing keys and is publishing malicious versions signed with the legitimate keys. Your task is to:
+**Scenario**: A popular npm package `secure-utils` uses package signing for security. An attacker has compromised the maintainer's signing keys and published a malicious version signed with the legitimate keys. The same lesson applies to provenance: an attestation only proves that a specific CI identity built the package; if that CI identity is compromised, the provenance record is also misleading. Your task is to:
 
 1. **Red Team**: Execute a signing bypass attack
-2. **Blue Team**: Detect the signature anomaly
-3. **Security Team**: Implement key rotation and validation
+2. **Blue Team**: Detect the signature anomaly and interpret provenance limits
+3. **Security Team**: Implement key rotation, provenance verification, and CI hardening
 
 ## 🔧 Setup
 
@@ -178,36 +183,20 @@ See detection tools and README for detailed detection methods.
 
 ## Mitigation Playbook
 
-### Prevention
-
-1. **Key Protection**: Secure storage of private keys
-2. **Multi-factor Authentication**: Protect key access
-3. **Key Rotation**: Regular key rotation procedures
-4. **Hardware Security Modules**: Use HSMs for key storage
-5. **Access Controls**: Limit who can sign packages
-
-### Detection
-
-1. **Signature Verification**: Always verify signatures
-2. **Key Fingerprint Checking**: Verify key fingerprints
-3. **Certificate Chain Validation**: Validate certificate chains
-4. **Timestamp Analysis**: Check signature timestamps
-5. **Behavioral Monitoring**: Monitor for unusual signing activity
-
-### Response
-
-1. **Immediate Key Revocation**: Revoke compromised keys immediately
-2. **Key Rotation**: Generate and distribute new keys
-3. **Package Re-signing**: Re-sign legitimate packages with new keys
-4. **User Notification**: Notify users of the compromise
-5. **Incident Documentation**: Document the attack and response
+- Treat signatures and provenance as origin proofs, not intent guarantees; pair with behavioral scanning.
+- Publish npm packages with `--provenance` and verify with `npm audit signatures` or `gh attestation verify`.
+- Store signing keys in HSMs or KMS with MFA, strict ACLs, and signing audit logs.
+- Rotate keys on schedule and after maintainer departure or suspected compromise.
+- Monitor CI pipelines that publish packages for unauthorized workflow changes and secret exfiltration.
+- Verify artifact attestations from trusted CI identities before deployment.
 
 ## Straightforward Implementation
 
-### 1. Signature verification
+### 1. Signature and attestation verification
 
 ```bash
 npm audit signatures
+gh attestation verify <package>.tgz --repository org/secure-utils
 ```
 
 ### 2. Publish with provenance
@@ -226,11 +215,11 @@ npm audit signatures
 
 ### 3. Key management
 
-Store signing keys in AWS KMS, GCP KMS, or Azure Key Vault. Rotate every 90 days or on maintainer departure.
+Store signing keys in AWS KMS, GCP KMS, or Azure Key Vault. Rotate every 90 days or on maintainer departure. Require MFA for every signing operation.
 
-### 4. Behavioral analysis
+### 4. CI hardening and behavioral analysis
 
-Pair signature checks with supply-chain scanners (Socket, Snyk Supply Chain) that inspect package behavior.
+Pin third-party actions by SHA, restrict workflow permissions to `id-token: write` and `contents: read`, and pair signature checks with supply-chain scanners (Socket, Snyk Supply Chain) that inspect package behavior.
 
 ## 📊 Key Takeaways
 

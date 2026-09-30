@@ -10,6 +10,9 @@
 
 
 
+
+
+
 ## Table of Contents
 
 <div class="doc-toc">
@@ -42,7 +45,11 @@
 
 ## Background
 
-Package metadata (name, repository, homepage, maintainers, publish time) is often trusted by consumers and automated tools. Attackers can manipulate metadata (typos, spoofed repository URLs, fake maintainer fields, or altered tarball URLs) to hide malicious intent or to redirect package consumers to attacker-controlled resources.
+Package metadata (name, repository, homepage, maintainers, publish time) is often trusted by consumers and automated tools. Attackers can manipulate metadata to hide malicious intent or redirect consumers to attacker-controlled resources.
+
+Two common techniques are:
+- **README and homepage URL social engineering**: a polished README and a legitimate-looking homepage URL convince developers that the package is official, even when the tarball contains something else.
+- **Registry API versus tarball mismatch**: the registry API may list one repository URL, author, or integrity hash while the actual downloaded tarball contains different metadata or altered code.
 
 ## Threat Model Snapshot
 
@@ -53,10 +60,10 @@ Package metadata (name, repository, homepage, maintainers, publish time) is ofte
 
 ## Scenario Description
 
-A widely used package (`clean-utils`) has had its metadata modified in a compromised publish: the `repository` points to a malicious mirror, the `author` is spoofed, and the tarball integrity fields do not match the actual package contents. Your tasks:
+A widely used package (`clean-utils`) has had its metadata modified in a compromised publish. The registry page shows a trustworthy README and homepage URL, but the `repository` field points to a malicious mirror, the `author` is spoofed, and the tarball `package.json` does not match the registry API metadata. Your tasks:
 
-1. Red Team: craft a manipulated package metadata publish
-2. Blue Team: detect mismatched metadata and tarball integrity
+1. Red Team: craft a manipulated package with README/homepage social engineering and registry-tarball mismatch
+2. Blue Team: detect mismatched metadata, spoofed homepage URLs, and tarball integrity issues
 3. Security Team: implement defenses and incident response
 
 ## Lab Setup
@@ -135,9 +142,10 @@ Follow **Run the lab** above first. The sections below expand the exercise with 
 ## Detection Playbook
 
 - **Static checks**
-  - Repository URL mismatch from expected upstream
+  - README or homepage URL that looks official but does not match the publisher's real site
+  - Repository URL mismatch between registry API, tarball `package.json`, and known-good metadata
   - Author/maintainer mismatch from known-good metadata
-  - Integrity field mismatch in `dist.integrity`
+  - Integrity field mismatch in `dist.integrity` or between registry API and tarball
 - **Behavioral checks**
   - Unexpected postinstall behavior
   - Mock-server capture events on port `3001`
@@ -153,17 +161,26 @@ node detection-tools/metadata-validator.js victim-app/node_modules/clean-utils
 
 ## Mitigation Playbook
 
-- Validate metadata against trusted allowlists for critical packages.
-- Require lockfile and integrity verification in CI.
-- Pin exact versions for sensitive dependencies.
-- Mirror and sign internal-approved artifacts.
+- Compare README, homepage, and repository URLs against a trusted source-of-truth; do not trust marketing copy.
+- Validate registry API metadata against tarball `package.json`; reject mismatches in author, repository, homepage, or dist integrity.
+- Pin exact versions and verify lockfile integrity hashes in CI.
+- Maintain an internal mirror of approved artifacts with signed metadata.
+- Require human review for dependency additions that change homepage, repository, or author fields.
 
 ## Straightforward Implementation
 
 ### 1. Metadata validation
 
 ```bash
-npm view <pkg> --json | jq '{name, version, author, repository, maintainers}'
+# Registry API metadata
+npm view clean-utils --json | jq '{name, version, author, repository, homepage, maintainers}'
+
+# Tarball metadata
+npm pack clean-utils
+tar -xzf clean-utils-*.tgz
+cat package/package.json | jq '{name, version, author, repository, homepage}'
+
+# Compare the two; reject mismatches
 ```
 
 ### 2. CI gate
@@ -172,6 +189,7 @@ npm view <pkg> --json | jq '{name, version, author, repository, maintainers}'
 # .github/workflows/metadata-check.yml
 - run: npm ci --ignore-scripts
 - run: node scripts/validate-package-metadata.js --allowlist allowed-packages.json
+- run: node scripts/compare-registry-vs-tarball.js clean-utils
 ```
 
 ### 3. Allowlist maintenance

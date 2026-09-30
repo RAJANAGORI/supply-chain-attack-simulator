@@ -1,0 +1,7 @@
+name: 'Setup Node (SCAS act stub)'
+description: >-
+  Local stand-in so act never fetches actions/setup-node from GitHub. The
+  host already has Node.js.
+runs:
+  using: node20
+  main: index.js

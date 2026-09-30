@@ -2,7 +2,7 @@
 
 > [Documentation](../index.md) › [Integration guides](./index.md) › Floci
 
-Optional **local AWS emulator** track for **all 23 scenarios**. Uses [Floci](https://github.com/floci-io/floci) core on port **4566** (not floci-ui - avoids clashes with SCAS mock servers on 3000-3023).
+Optional **local AWS emulator** track for **all 25 scenarios**. Uses [Floci](https://github.com/floci-io/floci) core on port **4566**. Labs work via **CLI/seed scripts** and via the **Floci web console** at `/_floci/ui` (spawns `floci-ui` on host port **4500** when the Docker socket is reachable).
 
 **First-time install?** Start with [Full-stack setup](../getting-started/FULL_STACK_SETUP.md) (Parts 1-3 cover SCAS, Elasticsearch, and Floci together).
 
@@ -96,9 +96,30 @@ Scenarios **01-04, 07-13, 15-16, 18-20, 22-23** mirror mock-server JSON to `s3:/
 | 19 | SBOM analytics | `truth/` vs `sbom/` prefixes, Glue DB |
 | 23 | CI/CD capstone | `push-compromised.sh`, `pipeline-artifact-check.sh` |
 
-## Port conflicts
+## CLI and web console
 
-SCAS runs **`scas-floci` on 4566 only** - not floci-ui (`:3000`/`:4500`). SCAS mock servers use 3000-3023.
+Both paths use the same emulator:
+
+| Path | How |
+|------|-----|
+| CLI / scripts | `aws` / `awslocal` via `scripts/floci/floci-bridge.sh`, plus per-lab `infrastructure/floci/seed.sh` and `verify.sh` |
+| Web console | Open `http://127.0.0.1:4566/_floci/ui` (dashboard **Open UI**). First visit may pull `floci/floci-ui` and publish it on **:4500**. |
+
+Mock servers stay on **3000-3023**. Floci API stays on **4566**. The UI sidecar uses **4500**, which does not overlap those mocks.
+
+If `/_floci/ui` shows `BindException: Permission denied`, recreate Floci so the Docker socket is usable:
+
+```bash
+./scripts/floci/floci-up.sh   # sets DOCKER_GID + FLOCI_RUN_AS_ROOT=true, remounts sock with :z
+```
+
+## Port map
+
+| Port | Role |
+|------|------|
+| 4566 | Floci AWS API + `/_floci/health` + `/_floci/ui` entry |
+| 4500 | floci-ui sidecar (started on demand from `/_floci/ui`) |
+| 3000-3023 | SCAS scenario mock servers (unchanged) |
 
 ## Scripts reference
 

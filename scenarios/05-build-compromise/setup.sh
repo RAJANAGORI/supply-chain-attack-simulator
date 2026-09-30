@@ -1,158 +1,77 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
+# Scenario 5: GitHub Actions workflow injection - Setup Script
 SCENARIO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCENARIO_DIR}"
 # shellcheck disable=SC1091
 source "${SCENARIO_DIR}/../_shared/enable-testbench.sh"
 
-# Scenario 5: Build System Compromise - Setup Script
-# This script prepares the environment for the build compromise lab
-
-set -e  # Exit on error
+set -euo pipefail
 
 echo "================================================"
-echo "🔧 Setting up Build System Compromise Scenario"
+echo "Setting up GitHub Actions Workflow Injection"
+echo "Scenario 5: Build Compromise"
 echo "================================================"
 echo ""
 
-# Check prerequisites
-echo "📋 Checking prerequisites..."
+command -v node >/dev/null 2>&1 || { echo "Node.js is not installed. Please install Node.js 16+"; exit 1; }
+command -v npm >/dev/null 2>&1 || { echo "npm is not installed."; exit 1; }
+
+echo "Node.js version: $(node --version)"
+echo "npm version: $(npm --version)"
+if command -v act >/dev/null 2>&1; then
+  echo "nektos/act: $(act --version 2>/dev/null | head -1) (will run build.yml)"
+else
+  echo "nektos/act: not found (lab falls back to npm run ci)"
+  echo "  Optional: brew install act"
+fi
 echo ""
 
-command -v node >/dev/null 2>&1 || { echo "❌ Node.js is not installed. Please install Node.js 16+"; exit 1; }
-command -v npm >/dev/null 2>&1 || { echo "❌ npm is not installed. Please install npm"; exit 1; }
-command -v curl >/dev/null 2>&1 || { echo "❌ curl is not installed. Please install curl"; exit 1; }
+chmod +x "${SCENARIO_DIR}/run-ci.sh" "${SCENARIO_DIR}/../_shared/run-act.sh"
 
-echo "✅ Node.js version: $(node --version)"
-echo "✅ npm version: $(npm --version)"
-echo "✅ curl version: $(curl --version | head -1)"
-echo ""
-
-# Create directories if they don't exist
-echo "📁 Creating directory structure..."
-mkdir -p legitimate-build
-mkdir -p compromised-build
-mkdir -p victim-app/dist
-mkdir -p templates
-mkdir -p detection-tools
+echo "Creating directory structure..."
+mkdir -p victim-app/.github/workflows
+mkdir -p malicious-action
 mkdir -p infrastructure
-echo "✅ Directories created"
+mkdir -p detection-tools
+echo "Directories created"
 echo ""
 
-# Make build scripts executable
-echo "🔐 Making build scripts executable..."
-chmod +x legitimate-build/build.sh 2>/dev/null || true
-chmod +x compromised-build/build.sh 2>/dev/null || true
-chmod +x templates/build-compromise-template.sh 2>/dev/null || true
-echo "✅ Scripts configured"
-echo ""
-
-# Create detection tool
-echo "🔍 Creating detection tools..."
-chmod +x detection-tools/secret-monitor.js
-echo "✅ Detection tools created"
-echo ""
-
-echo "📝 Creating mock attacker server..."
-cat > infrastructure/mock-server.js << 'EOF'
-/**
- * Mock Attacker Server — Scenario 5: Build Compromise
- */
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-
-const PORT = 3000;
-const logFile = path.join(__dirname, 'captured-data.json');
-
-if (!fs.existsSync(logFile)) {
-  fs.writeFileSync(logFile, JSON.stringify({ captures: [] }, null, 2));
-}
-
-const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/collect') {
-    let body = '';
-    req.on('data', (chunk) => { body += chunk.toString(); });
-    req.on('end', () => {
-      try {
-        const data = JSON.parse(body);
-        console.log('\n🎯 CAPTURED DATA (build-compromise):');
-        console.log(JSON.stringify(data, null, 2));
-        console.log('─'.repeat(50));
-        const captures = JSON.parse(fs.readFileSync(logFile, 'utf8'));
-        captures.captures.push({ timestamp: new Date().toISOString(), data });
-        fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'success', message: 'Data received' }));
-      } catch (e) {
-        res.writeHead(400);
-        res.end('Bad Request');
-      }
-    });
-  } else if (req.method === 'GET' && req.url === '/captured-data') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(fs.readFileSync(logFile, 'utf8'));
-  } else if (req.method === 'DELETE' && req.url === '/captured-data') {
-    fs.writeFileSync(logFile, JSON.stringify({ captures: [] }, null, 2));
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'success', message: 'Data cleared' }));
-  } else {
-    res.writeHead(404);
-    res.end('Not Found');
-  }
-});
-
-server.listen(PORT, () => {
-  console.log('🎭 Mock Attacker Server (Scenario 5) — http://localhost:' + PORT);
-});
-EOF
-chmod +x infrastructure/mock-server.js
-echo "✅ Mock server created"
+echo "Resetting capture log..."
+echo '{"captures":[]}' > infrastructure/captured-data.json
+echo "Capture log reset"
 echo ""
 
 bash "${SCENARIO_DIR}/../_shared/plant-lookalike-secrets.sh" 05
-echo "✅ Lookalike CI secrets planted (compromised-build/.env.lab)"
+echo "Lookalike CI secrets planted (victim-app/.env.lab)"
 echo ""
 
 echo "================================================"
-echo "✅ Setup Complete!"
+echo "Setup complete!"
 echo "================================================"
 echo ""
-echo "🎯 Next Steps:"
+echo "Next steps:"
 echo ""
 echo "1. Start the mock attacker server:"
 echo "   node infrastructure/mock-server.js &"
 echo ""
-echo "2. Review the legitimate build:"
-echo "   cat legitimate-build/build.sh"
+echo "2. Review the victim workflow:"
+echo "   cat victim-app/.github/workflows/build.yml"
 echo ""
-echo "3. Review the compromised build:"
-echo "   cat compromised-build/build.sh"
+echo "3. Review the compromised action:"
+echo "   cat malicious-action/action.yml"
+echo "   cat malicious-action/index.js"
 echo ""
-echo "4. Run the legitimate build:"
-echo "   cd legitimate-build"
-echo "   npm run build"
-echo ""
-echo "5. Run the compromised build:"
-echo "   cd compromised-build"
+echo "4. Source the lab secrets and run the CI workflow:"
 echo "   export TESTBENCH_MODE=enabled"
-echo "   set -a && source ../.env.lab 2>/dev/null || source ../../_shared/lookalike-secrets.env; set +a"
-echo "   npm run build"
+echo "   ./run-ci.sh"
+echo "   (act runs build.yml when installed; otherwise npm run ci)"
 echo ""
-echo "6. Check captured data:"
-echo "   curl http://localhost:3000/captured-data"
+echo "5. Verify exfiltration:"
+echo "   curl http://127.0.0.1:3000/captured-data"
 echo ""
-echo "7. Use compromised build artifacts:"
-echo "   cp compromised-build/dist/* victim-app/dist/"
-echo "   cd victim-app"
-echo "   export TESTBENCH_MODE=enabled"
-echo "   npm start"
+echo "6. Run the detector:"
+echo "   node detection-tools/workflow-injection-scanner.js victim-app"
 echo ""
-echo "8. Run detection scanner:"
-echo "   node detection-tools/secret-monitor.js compromised-build"
+echo "Full instructions: cat README.md"
 echo ""
-echo "📖 Read the full lab instructions:"
-echo "   cat README.md"
-echo ""
-echo "Happy hacking! 🔐"
-

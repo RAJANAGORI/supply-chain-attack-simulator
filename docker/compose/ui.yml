@@ -1,4 +1,5 @@
-# SCAS Command Center — landing :5173, dashboard :3100, control-plane :3101
+# SCAS Command Center — dashboard :3100, control-plane :3101
+# Public marketing: https://simulator.rajanagori.in/ (not run in this compose)
 # Requires Docker socket so control-plane can start scenario compose labs.
 # From repo root: docker compose -f docker/compose/ui.yml up -d --build
 name: scas-ui
@@ -16,7 +17,6 @@ services:
       - scas-ui-node-modules:/repo/node_modules
       - scas-ui-nm-cp:/repo/apps/control-plane/node_modules
       - scas-ui-nm-dash:/repo/apps/dashboard/node_modules
-      - scas-ui-nm-land:/repo/apps/landing/node_modules
     environment:
       SCAS_REPO_ROOT: /repo
       SCAS_LAB_BACKEND: docker
@@ -54,7 +54,6 @@ services:
       - scas-ui-node-modules:/repo/node_modules
       - scas-ui-nm-cp:/repo/apps/control-plane/node_modules
       - scas-ui-nm-dash:/repo/apps/dashboard/node_modules
-      - scas-ui-nm-land:/repo/apps/landing/node_modules
     environment:
       SCAS_REPO_ROOT: /repo
       CONTROL_PLANE_HOST: control-plane
@@ -70,30 +69,7 @@ services:
         condition: service_healthy
     command: ["npm", "run", "dev:dashboard"]
 
-  landing:
-    build:
-      context: ../..
-      dockerfile: docker/Dockerfile.ui
-    container_name: scas-ui-landing
-    working_dir: /repo
-    volumes:
-      - ../..:/repo
-      - scas-ui-node-modules:/repo/node_modules
-      - scas-ui-nm-cp:/repo/apps/control-plane/node_modules
-      - scas-ui-nm-dash:/repo/apps/dashboard/node_modules
-      - scas-ui-nm-land:/repo/apps/landing/node_modules
-    environment:
-      VITE_DASHBOARD_URL: http://localhost:3100
-      VITE_CONTROL_PLANE_URL: http://localhost:3101
-    ports:
-      - "5173:5173"
-    depends_on:
-      control-plane:
-        condition: service_healthy
-    command: ["npm", "run", "dev:landing"]
-
 volumes:
   scas-ui-node-modules:
   scas-ui-nm-cp:
   scas-ui-nm-dash:
-  scas-ui-nm-land:

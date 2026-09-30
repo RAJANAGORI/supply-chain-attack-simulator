@@ -128,6 +128,20 @@ If `DETECT.md` structure changes, also reload runbooks:
 node detection-tools/es/load-runbooks.js
 ```
 
+## GitHub Actions labs
+
+When a lab needs a real `uses:` run (force-pushed action tag, workflow injection), do not only `require()` the action from Node.
+
+1. Keep the victim workflow YAML as GitHub would see it (`uses: owner/repo@tag`).
+2. Put the payload in a local action directory with `runs.using: node20` and `main: index.js`.
+3. Add `run-ci.sh` that calls `scenarios/_shared/run-act.sh` with `--local-repository owner/repo@tag=/local/dir`.
+4. Map any extra remote actions the workflow needs (checkout, setup-node) to `scenarios/_shared/act-stubs/`.
+5. Pass `--fallback "npm start"` or `--fallback "npm run ci"` so the lab works without act.
+6. Never fetch from GitHub. Never tell learners to run the workflow on a real repository.
+7. Host runner only (`ubuntu-latest=-self-hosted`) so exfil stays on `127.0.0.1` without Docker.
+
+Canonical runner: `scenarios/_shared/run-act.sh`. Examples: `05-build-compromise/run-ci.sh`, `25-compromised-github-action/run-ci.sh`.
+
 ## Adding a new scenario
 
 1. Add the scenario to `scripts/lib/mitigation-playbooks.js` with `bullets` and `implementation`.

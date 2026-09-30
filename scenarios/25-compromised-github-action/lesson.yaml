@@ -1,0 +1,42 @@
+id: "25"
+etaMinutes: 45
+category: ci-cd
+incidents:
+  - "Compromised reusable GitHub Actions"
+  - "Mutable action tags"
+caseStudy: "Models compromised reusable GitHub Actions on mutable tags: a popular action@vX reference moves under you, so workflows start running attacker code with your CI secrets."
+objectives:
+  - "Run a compromised reusable action workflow locally"
+  - "Capture stolen CI secrets on localhost"
+  - "Pin actions by commit SHA"
+mitigation:
+  - "Pin every reusable action to an immutable commit SHA, never a mutable tag"
+  - "Lint workflows for tag references; apply least-privilege job permissions"
+  - "Rotate CI secrets when an action compromise is suspected; monitor runner egress"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
+steps:
+  - id: setup
+    registry: setup
+    audience: both
+    title: Prepare the action lab
+    teaching: "Setup wires the victim workflow, compromised reusable action, and mock collector on port 3025."
+    verify: { type: exit-zero }
+  - id: services
+    registry: services
+    audience: both
+    title: Start the mock collector
+    teaching: "The compromised action POSTs harvested CI material to 127.0.0.1:3025."
+    verify: { type: service-listening }
+  - id: run
+    registry: run
+    audience: attack
+    title: Run the compromised workflow
+    teaching: "run-ci.sh simulates the GitHub Actions job that calls the bad reusable action."
+    hint: "Similar lesson to lab 05, focused on reusable action compromise."
+    verify: { type: capture-count, min: 1 }
+  - id: detect
+    registry: null
+    audience: detect
+    title: Pin and least-privilege
+    teaching: "DETECT.md: pin by SHA, drop unused permissions, review reusable actions like dependencies."
+    verify: { type: capture-count, min: 1 }
