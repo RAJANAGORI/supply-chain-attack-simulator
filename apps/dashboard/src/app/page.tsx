@@ -317,7 +317,7 @@ export default function OverviewPage() {
             <li>• Lab exfil still targets <span className="text-ink-secondary">127.0.0.1</span> only</li>
             <li>• UI binds on <span className="text-ink-secondary">0.0.0.0</span> for local/LAN access</li>
             <li>• Payloads require <span className="font-mono text-xs text-ink-secondary">TESTBENCH_MODE=enabled</span></li>
-            <li>• Use Reset lab when finished to free ports</li>
+            <li>• Use Reset lab when finished to clear progress, captures, and free ports</li>
           </ul>
           <Link href="/teardown" className="mt-5 inline-block">
             <Btn variant="danger" size="sm">Reset lab environment</Btn>

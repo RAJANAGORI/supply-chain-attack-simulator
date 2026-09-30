@@ -194,6 +194,19 @@ export function reportClassroomProgress(
   return writeClassroom({ ...current, students });
 }
 
+/** Clear per-student lab progress; keep classroom code and roster for the session. */
+export function resetClassroomLearnerProgress(): ClassroomState {
+  const current = readClassroom();
+  if (!current.code) return current;
+  const students = current.students.map((s) => ({
+    ...s,
+    lastScenarioId: undefined,
+    lastStepId: undefined,
+    completedSteps: 0,
+  }));
+  return writeClassroom({ ...current, students, frozen: false });
+}
+
 export function buildBriefing(scenarioId?: string): {
   generatedAt: string;
   labs: Array<{

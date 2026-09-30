@@ -247,6 +247,7 @@ export const cp = {
   flociUp: () => api<ActionResult>('/platform/floci/up', { method: 'POST' }),
   flociDown: () => api<ActionResult>('/platform/floci/down', { method: 'POST' }),
   teardown: () => api<ActionResult>('/platform/teardown', { method: 'POST' }),
+  resetProgress: () => api<ProgressState>('/progress', { method: 'DELETE' }),
   clearLogs: () => api<{ ok: boolean; clearedSessions: number }>('/logs/clear', { method: 'POST' }),
   logs: (session?: string) => api<LogEntry[]>(session ? `/logs?session=${session}` : '/logs'),
   processes: () => api<ProcessRecord[]>('/processes'),

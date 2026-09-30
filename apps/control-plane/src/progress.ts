@@ -42,6 +42,11 @@ export function writeProgress(next: ProgressState): ProgressState {
   return payload;
 }
 
+/** Wipe learner progress (storyboard resume, completed steps, hints). Used by platform teardown. */
+export function resetProgress(): ProgressState {
+  return writeProgress(emptyProgress());
+}
+
 export function mergeScenarioProgress(
   scenarioId: string,
   patch: Partial<ScenarioProgressEntry> & { lastStepId?: string },

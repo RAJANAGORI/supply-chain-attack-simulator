@@ -308,146 +308,124 @@ export function ScenarioLessonRunner({
         </Alert>
       )}
 
-      {/* Single column until the content pane is actually wide enough (avoids uneven cards beside the terminal). */}
-      <div className="grid gap-4 @3xl:grid-cols-2">
-        <div className="space-y-4 min-w-0">
-          <Card title="Storyboard" subtitle="Guided steps for this lab">
-            <ol className="space-y-1">
-              {visibleSteps.map((step, i) => {
-                const done = !!verified[step.id];
-                const current = step.id === activeStepId;
-                const locked = !stepUnlocked(i);
-                return (
-                  <li key={step.id}>
-                    <button
-                      type="button"
-                      disabled={locked}
-                      onClick={() => setActiveStepId(step.id)}
-                      className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition ${
-                        current
-                          ? 'bg-brand/10 ring-1 ring-brand/30'
-                          : locked
-                            ? 'opacity-40'
-                            : 'hover:bg-canvas-hover'
+      {/* Single column: Objectives → Storyboard → active step → inspector → services → mitigation → case → incidents → coach */}
+      <div className="space-y-4">
+        {lesson.objectives.length > 0 && (
+          <Card title="Objectives" subtitle="What you should walk away with">
+            <ul className="space-y-2 text-sm text-ink-secondary">
+              {lesson.objectives.map((o) => (
+                <li key={o} className="flex gap-2">
+                  <span className="text-ink-faint">·</span>
+                  <span>{o}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        )}
+
+        <Card title="Storyboard" subtitle="Guided steps for this lab">
+          <ol className="space-y-1">
+            {visibleSteps.map((step, i) => {
+              const done = !!verified[step.id];
+              const current = step.id === activeStepId;
+              const locked = !stepUnlocked(i);
+              return (
+                <li key={step.id}>
+                  <button
+                    type="button"
+                    disabled={locked}
+                    onClick={() => setActiveStepId(step.id)}
+                    className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition ${
+                      current
+                        ? 'bg-brand/10 ring-1 ring-brand/30'
+                        : locked
+                          ? 'opacity-40'
+                          : 'hover:bg-canvas-hover'
+                    }`}
+                  >
+                    <span
+                      className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[11px] font-semibold ${
+                        done
+                          ? 'bg-state-ok/15 text-state-ok'
+                          : current
+                            ? 'bg-brand text-white'
+                            : 'bg-canvas-hover text-ink-muted'
                       }`}
                     >
-                      <span
-                        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[11px] font-semibold ${
-                          done
-                            ? 'bg-state-ok/15 text-state-ok'
-                            : current
-                              ? 'bg-brand text-white'
-                              : 'bg-canvas-hover text-ink-muted'
-                        }`}
-                      >
-                        {done ? '✓' : i + 1}
+                      {done ? '✓' : i + 1}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium text-ink-primary">{step.title}</span>
+                      <span className="mt-0.5 block text-[11px] text-ink-faint">
+                        {step.audience}
+                        {step.registry ? ` · ${step.registry}` : ' · inspect'}
+                        {locked ? ' · locked' : ''}
                       </span>
-                      <span className="min-w-0">
-                        <span className="block text-sm font-medium text-ink-primary">{step.title}</span>
-                        <span className="mt-0.5 block text-[11px] text-ink-faint">
-                          {step.audience}
-                          {step.registry ? ` · ${step.registry}` : ' · inspect'}
-                          {locked ? ' · locked' : ''}
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
-          </Card>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </Card>
 
-          {activeStep && (
-            <Card title={activeStep.title} subtitle="Context for this step">
-              <p className="text-sm leading-relaxed text-ink-secondary">{activeStep.teaching}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Btn
-                  disabled={!!busy || !stepUnlocked(activeIndex)}
-                  onClick={() => void runLessonStep()}
-                >
-                  {busy === activeStep.id
-                    ? 'Checking…'
-                    : activeStep.registry === null
-                      ? 'Check inspector'
-                      : activeStep.registry === 'services'
-                        ? 'Start services'
-                        : 'Run step'}
+        {activeStep && (
+          <Card title={activeStep.title} subtitle="Context for this step">
+            <p className="text-sm leading-relaxed text-ink-secondary">{activeStep.teaching}</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Btn
+                disabled={!!busy || !stepUnlocked(activeIndex)}
+                onClick={() => void runLessonStep()}
+              >
+                {busy === activeStep.id
+                  ? 'Checking…'
+                  : activeStep.registry === null
+                    ? 'Check inspector'
+                    : activeStep.registry === 'services'
+                      ? 'Start services'
+                      : 'Run step'}
+              </Btn>
+              {activeStep.hint && (
+                <Btn variant="ghost" size="sm" onClick={openHint}>
+                  {hintOpen ? 'Hide hint' : 'Hint'}
                 </Btn>
-                {activeStep.hint && (
-                  <Btn variant="ghost" size="sm" onClick={openHint}>
-                    {hintOpen ? 'Hide hint' : 'Hint'}
-                  </Btn>
-                )}
-                {activeStep.registry === 'services' && (
-                  <Btn
-                    variant="danger"
-                    size="sm"
-                    disabled={!!busy}
-                    onClick={() =>
-                      void (async () => {
-                        setBusy('stop');
-                        try {
-                          await cp.stopServices(scenarioId);
-                          await onReload();
-                          await refreshVerify();
-                        } finally {
-                          setBusy('');
-                        }
-                      })()
-                    }
-                  >
-                    Stop services
-                  </Btn>
-                )}
+              )}
+              {activeStep.registry === 'services' && (
+                <Btn
+                  variant="danger"
+                  size="sm"
+                  disabled={!!busy}
+                  onClick={() =>
+                    void (async () => {
+                      setBusy('stop');
+                      try {
+                        await cp.stopServices(scenarioId);
+                        await onReload();
+                        await refreshVerify();
+                      } finally {
+                        setBusy('');
+                      }
+                    })()
+                  }
+                >
+                  Stop services
+                </Btn>
+              )}
+            </div>
+            {hintOpen && activeStep.hint && (
+              <div className="mt-4 rounded-xl border border-line bg-canvas-hover/60 px-4 py-3 text-sm text-ink-muted">
+                {activeStep.hint}
               </div>
-              {hintOpen && activeStep.hint && (
-                <div className="mt-4 rounded-xl border border-line bg-canvas-hover/60 px-4 py-3 text-sm text-ink-muted">
-                  {activeStep.hint}
-                </div>
-              )}
-              {verified[activeStep.id] && (
-                <div className="mt-4">
-                  <StatusPill status="online" label="Step verified" />
-                </div>
-              )}
-            </Card>
-          )}
+            )}
+            {verified[activeStep.id] && (
+              <div className="mt-4">
+                <StatusPill status="online" label="Step verified" />
+              </div>
+            )}
+          </Card>
+        )}
 
-          {lesson.caseStudy && (
-            <Card title="Real-world case" subtitle="Where this pattern showed up in the wild">
-              <p className="text-sm leading-relaxed text-ink-secondary">{lesson.caseStudy}</p>
-            </Card>
-          )}
-
-          {lesson.objectives.length > 0 && (
-            <Card title="Objectives" subtitle="What you should walk away with">
-              <ul className="space-y-2 text-sm text-ink-secondary">
-                {lesson.objectives.map((o) => (
-                  <li key={o} className="flex gap-2">
-                    <span className="text-ink-faint">·</span>
-                    <span>{o}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
-
-          {lesson.mitigation && lesson.mitigation.length > 0 && (
-            <Card title="Mitigation" subtitle="Quick reference - full runbook in DETECT.md">
-              <ul className="space-y-2 text-sm text-ink-secondary">
-                {lesson.mitigation.map((m) => (
-                  <li key={m} className="flex gap-2">
-                    <span className="text-ink-faint">·</span>
-                    <span>{m}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
-        </div>
-
-        <div className="space-y-4 min-w-0">
-          <div id="live-inspector" className="scroll-mt-4">
+        <div id="live-inspector" className="scroll-mt-4">
           <Card
             title="Live inspector"
             subtitle={
@@ -480,39 +458,57 @@ export function ScenarioLessonRunner({
               {JSON.stringify(captures, null, 2)}
             </pre>
           </Card>
-          </div>
+        </div>
 
-          <Card title="Services" subtitle="Mock collectors and registries for this lab">
-            <ul className="space-y-2 text-sm text-ink-muted">
-              {scenario.services.map((svc) => {
-                const running = scenario.processes?.some(
-                  (p) => p.serviceId === svc.id && p.status === 'running',
-                );
-                return (
-                  <li key={svc.id} className="flex items-center justify-between gap-2">
-                    <span>{svc.label}</span>
-                    <StatusPill
-                      status={running ? 'online' : 'offline'}
-                      label={running ? 'Running' : 'Stopped'}
-                    />
-                  </li>
-                );
-              })}
+        <Card title="Services" subtitle="Mock collectors and registries for this lab">
+          <ul className="space-y-2 text-sm text-ink-muted">
+            {scenario.services.map((svc) => {
+              const running = scenario.processes?.some(
+                (p) => p.serviceId === svc.id && p.status === 'running',
+              );
+              return (
+                <li key={svc.id} className="flex items-center justify-between gap-2">
+                  <span>{svc.label}</span>
+                  <StatusPill
+                    status={running ? 'online' : 'offline'}
+                    label={running ? 'Running' : 'Stopped'}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
+
+        {lesson.mitigation && lesson.mitigation.length > 0 && (
+          <Card title="Mitigation" subtitle="Quick reference - full runbook in DETECT.md">
+            <ul className="space-y-2 text-sm text-ink-secondary">
+              {lesson.mitigation.map((m) => (
+                <li key={m} className="flex gap-2">
+                  <span className="text-ink-faint">·</span>
+                  <span>{m}</span>
+                </li>
+              ))}
             </ul>
           </Card>
+        )}
 
-          {lesson.incidents.length > 0 && (
-            <Card title="Named incidents" subtitle="Tags this lab is modeled on">
-              <ul className="space-y-1.5 text-sm text-ink-secondary">
-                {lesson.incidents.map((inc) => (
-                  <li key={inc}>· {inc}</li>
-                ))}
-              </ul>
-            </Card>
-          )}
+        {lesson.caseStudy && (
+          <Card title="Real-world case" subtitle="Where this pattern showed up in the wild">
+            <p className="text-sm leading-relaxed text-ink-secondary">{lesson.caseStudy}</p>
+          </Card>
+        )}
 
-          <LabAssistant scenarioId={scenarioId} stepId={activeStep?.id} />
-        </div>
+        {lesson.incidents.length > 0 && (
+          <Card title="Named incidents" subtitle="Tags this lab is modeled on">
+            <ul className="space-y-1.5 text-sm text-ink-secondary">
+              {lesson.incidents.map((inc) => (
+                <li key={inc}>· {inc}</li>
+              ))}
+            </ul>
+          </Card>
+        )}
+
+        <LabAssistant scenarioId={scenarioId} stepId={activeStep?.id} />
       </div>
     </div>
   );

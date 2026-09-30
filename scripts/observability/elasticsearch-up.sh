@@ -56,16 +56,19 @@ else
   echo "Kibana not ready yet; run ./scripts/observability/setup-kibana-data-views.sh after it finishes starting."
 fi
 
+echo "Backfilling local captured-data.json files into scas-detections..."
+if node "${DETECTION_TOOLS_DIR}/es/ship-captures.js"; then
+  echo "Capture backfill complete."
+else
+  echo "Capture backfill skipped (no files or ship-captures failed)."
+fi
+
 echo ""
 echo "Observability stack is ready."
 echo "  Elasticsearch: http://localhost:${ES_PORT:-9200}"
 echo "  Kibana:        http://localhost:${KIBANA_PORT:-5601}"
+echo "  SCAS_ES_URL:   ${SCAS_ES_URL} (inherited by ./run.sh dashboard / lab mocks)"
 echo ""
-echo "Optional: export SCAS_ES_URL=${SCAS_ES_URL} before running scenarios"
-echo "          so mock-server captures are forwarded live."
-echo ""
+echo "Live captures: mock collectors forward when SCAS_ES_URL is set (./run.sh does this)."
 echo "Ship scanner findings:"
 echo "  node detection-tools/es/ship-findings.js scenarios/01-typosquatting/victim-app --scenario=01"
-echo ""
-echo "Backfill captured-data.json files:"
-echo "  node detection-tools/es/ship-captures.js"
