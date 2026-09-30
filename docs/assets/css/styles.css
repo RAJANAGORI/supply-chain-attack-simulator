@@ -1392,6 +1392,28 @@ body::after {
   color: var(--text-secondary);
 }
 
+
+/* Centered CTA under multi-column section grids */
+.section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.85rem;
+  margin-top: 1.75rem;
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.btn-ghost:hover {
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+  background: var(--bg-glass);
+}
+
 /* ============ Stack ============ */
 
 .stack-items {
