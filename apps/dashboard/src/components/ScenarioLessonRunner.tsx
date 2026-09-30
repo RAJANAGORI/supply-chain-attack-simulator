@@ -308,8 +308,8 @@ export function ScenarioLessonRunner({
         </Alert>
       )}
 
-      {/* Two columns when wide enough — left: learn/run, right: observe/defend context */}
-      <div className="grid gap-4 @3xl:grid-cols-2">
+      {/* Two columns from md up (viewport). @container queries need a Tailwind plugin we do not ship. */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start">
         <div className="space-y-4 min-w-0">
           {lesson.objectives.length > 0 && (
             <Card title="Objectives" subtitle="What you should walk away with">
