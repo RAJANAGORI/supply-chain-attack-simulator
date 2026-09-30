@@ -212,7 +212,14 @@ export const SCENARIOS: ScenarioDefinition[] = [
   },
   baseScenario('23', '23-trivy-supply-chain-attack', 'Trivy supply chain attack', 'Advanced', 3023, [
     victimStep('install', 'Install compromised trivy module', 'npm', ['install'], 'victim-ci'),
-    victimStep('run', 'Run CI victim', 'npm', ['start'], 'victim-ci'),
+    // package.json exposes "ci" (node run-pipeline.js), not "start"; source planted CI secrets first
+    victimStep(
+      'run',
+      'Run CI victim',
+      'bash',
+      ['-c', 'set -a && source ../.env.ci-lab && set +a && npm run ci'],
+      'victim-ci',
+    ),
   ], {
     ports: [3023],
     services: [{ id: 'mock-c2', label: 'Mock C2 server :3023', command: 'node', args: ['infrastructure/mock-c2-server.js'], cwd: '.', port: 3023 }],
