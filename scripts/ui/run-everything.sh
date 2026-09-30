@@ -184,9 +184,12 @@ fi
 ensure_act
 
 if [[ "$SKIP_ES" != "1" ]]; then
-  log "Starting Elasticsearch + Kibana…"
+  log "Starting Elasticsearch + Kibana (templates, runbooks, Kibana views, capture backfill)…"
   chmod +x scripts/observability/elasticsearch-up.sh
   ./scripts/observability/elasticsearch-up.sh
+  # Ensure session + child processes see ES even if elasticsearch-up used localhost vs 127.0.0.1
+  export SCAS_ES_URL="${SCAS_ES_URL:-http://127.0.0.1:9200}"
+  export KIBANA_URL="${KIBANA_URL:-http://127.0.0.1:5601}"
 else
   warn "Skipping Elasticsearch (--skip-es)"
 fi

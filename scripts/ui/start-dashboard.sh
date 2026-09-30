@@ -33,8 +33,8 @@ export CONTROL_PLANE_HOST="$BIND_HOST"
 export CONTROL_PLANE_PORT="${CONTROL_PLANE_PORT:-3101}"
 export SCAS_PUBLIC_HOST="$PUBLIC_HOST"
 export NEXT_PUBLIC_CONTROL_PLANE_URL="${NEXT_PUBLIC_CONTROL_PLANE_URL:-http://${PUBLIC_HOST}:3101}"
-# Observatory forwarding (no-op if ES is down)
-export SCAS_ES_URL="${SCAS_ES_URL:-}"
+# Observatory forwarding (no-op if ES is down; mocks need this at process start)
+export SCAS_ES_URL="${SCAS_ES_URL:-http://127.0.0.1:9200}"
 export KIBANA_URL="${KIBANA_URL:-http://127.0.0.1:5601}"
 
 if [[ ! -d node_modules ]]; then
@@ -115,7 +115,7 @@ echo "  Marketing:     https://simulator.rajanagori.in/"
 if [[ -n "${SCAS_ES_URL:-}" ]]; then
   echo "  SCAS_ES_URL:   ${SCAS_ES_URL}"
 else
-  echo "  SCAS_ES_URL:   (unset — Observatory stays empty until ES is up)"
+  echo "  SCAS_ES_URL:   (unset - Observatory stays empty until ES is up)"
 fi
 if [[ -n "${LAN_IP}" ]]; then
   echo ""

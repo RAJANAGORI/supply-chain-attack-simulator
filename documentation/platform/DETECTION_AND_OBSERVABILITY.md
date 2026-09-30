@@ -63,11 +63,21 @@ Full operational guide: [`observability/README.md`](../../observability/README.m
 
 ### Quick start
 
+Preferred (full stack, including ES env + capture backfill):
+
+```bash
+./run.sh
+```
+
+Manual observability only:
+
 ```bash
 ./scripts/observability/elasticsearch-up.sh
 ./scripts/observability/setup-kibana-data-views.sh
 export SCAS_ES_URL=http://localhost:9200
 ```
+
+`./run.sh` (via `scripts/ui/run-everything.sh` + `elasticsearch-up.sh`) starts ES/Kibana, writes `SCAS_ES_URL` into `.scas.env`, loads runbooks, sets up Kibana data views, and backfills any existing `captured-data.json` files with `ship-captures.js`. Lab mocks started from the dashboard inherit that env.
 
 ### Indices
 
@@ -89,11 +99,13 @@ Open Discover at [http://localhost:5601](http://localhost:5601) on the lab host.
 
 When `SCAS_ES_URL` is set before starting the mock collector, each exfil event is indexed via [`detection-tools/es/forward-capture.js`](../../detection-tools/es/forward-capture.js). The control plane injects `SCAS_ES_URL` into lab processes when you started via `./run.sh` (or exported it yourself).
 
+Important: scenario `setup.sh` must not rewrite `infrastructure/mock-server.js` (or other collectors) without the forward hook. CI enforces this with `node scripts/docs/check-es-forward-hooks.js`. If setup regenerates a collector, keep the same `forwardCaptureIfEnabled` block as the tracked file.
+
 If Observatory is empty after a lab:
 
 1. Confirm ES is up (`curl -s http://127.0.0.1:9200`).
 2. Confirm the mock was started with `SCAS_ES_URL` (restart services from the dashboard after ES is healthy).
-3. Backfill existing capture files: `node detection-tools/es/ship-captures.js`.
+3. Backfill existing capture files: `node detection-tools/es/ship-captures.js` (also runs automatically from `elasticsearch-up.sh` / `./run.sh`).
 
 Zero-to-hero guides include per-scenario sequence diagrams under Elasticsearch + Kibana observability.
 

@@ -15,7 +15,7 @@ import {
 } from '../docker-labs.js';
 import { loadLesson } from '../registry/lesson-loader.js';
 import { evaluateLessonSteps } from '../lesson-verify.js';
-import { mergeScenarioProgress, readProgress, writeProgress } from '../progress.js';
+import { mergeScenarioProgress, readProgress, resetProgress, writeProgress } from '../progress.js';
 import type { ProgressState, ScenarioProgressEntry } from '../registry/lesson-types.js';
 import {
   askLabAssistant,
@@ -26,6 +26,7 @@ import {
   joinClassroom,
   readClassroom,
   reportClassroomProgress,
+  resetClassroomLearnerProgress,
   setClassroomFrozen,
   skillMatrixMarkdown,
 } from '../learning-platform.js';
@@ -145,6 +146,10 @@ export function createApiRouter(): Router {
 
   router.get('/progress', (_req, res) => {
     res.json(readProgress());
+  });
+
+  router.delete('/progress', (_req, res) => {
+    res.json(resetProgress());
   });
 
   router.put('/progress', (req, res) => {
@@ -560,6 +565,11 @@ export function createApiRouter(): Router {
         processManager.stopSession(proc.id);
       }
     }
+
+    // Zero learner state immediately (ports/files cleaned by teardown.sh async).
+    const progress = resetProgress();
+    const classroom = resetClassroomLearnerProgress();
+
     const scriptPath = resolve(REPO, 'scripts/setup/teardown.sh');
     const record = processManager.startDetached({
       label: 'Lab teardown',
@@ -573,7 +583,7 @@ export function createApiRouter(): Router {
       if (ended.id !== record.id) return;
       processManager.off('process-end', onEnd);
       // Fresh terminal after reset — drop teardown + lab history.
-      processManager.clearLogs('Environment reset. Terminal is clear — start a lab when ready.');
+      processManager.clearLogs('Environment reset. Labs, progress, and terminal are clear — start a lab when ready.');
     };
     processManager.on('process-end', onEnd);
     return res.json({
@@ -581,7 +591,10 @@ export function createApiRouter(): Router {
       async: true,
       sessionId: record.id,
       label: record.label,
-      message: 'Lab teardown started. The live terminal clears when reset finishes.',
+      progress,
+      classroom,
+      message:
+        'Reset started: progress wiped, classroom learner stats cleared, lab ports/captures/node_modules will be cleaned. Terminal clears when teardown finishes.',
     });
   });
 

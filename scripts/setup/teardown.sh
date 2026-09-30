@@ -53,11 +53,19 @@ done
 
 echo "Removing captured mock-server artifacts..."
 find "${ROOT_DIR}/scenarios" -type f \
-  \( -name "captured-data.json" -o -name "captured-credentials.json" \) \
+  \( -name "captured-data.json" -o -name "captured-credentials.json" -o -name "beacons.json" \) \
   -exec rm -f {} \;
 
 echo "Removing scenario node_modules..."
 find "${ROOT_DIR}/scenarios" -type d -name "node_modules" -prune -exec rm -rf {} +
+
+# Learner progress (storyboard resume / verified steps) — also cleared by control plane
+# on POST /platform/teardown; this covers direct CLI runs of teardown.sh.
+PROGRESS_FILE="${SCAS_PROGRESS_PATH:-${HOME}/.scas/progress.json}"
+if [[ -f "${PROGRESS_FILE}" ]]; then
+  echo "Clearing learner progress: ${PROGRESS_FILE}"
+  rm -f "${PROGRESS_FILE}"
+fi
 
 if [[ "${SCAS_STOP_OBSERVABILITY:-}" == "1" ]]; then
   echo "Stopping optional Elasticsearch + Kibana stack..."
@@ -65,4 +73,6 @@ if [[ "${SCAS_STOP_OBSERVABILITY:-}" == "1" ]]; then
 fi
 
 echo "Teardown complete."
+echo "Lab ports freed, captures removed, progress cleared."
+echo "Dashboard / control plane were left running. Re-run a lab setup to start clean."
 echo "To disable in your current shell: unset TESTBENCH_MODE"

@@ -11,7 +11,15 @@ export default function TeardownPage() {
   const [phase, setPhase] = useState<'idle' | 'running' | 'done' | 'failed'>('idle');
 
   const runTeardown = async () => {
-    if (!confirm('Reset the lab environment? This stops mock servers and clears captured data.')) return;
+    if (
+      !confirm(
+        'Reset everything to a clean slate?\n\n' +
+          'This clears lab progress, storyboard steps, captures, scenario node_modules, and frees lab ports.\n' +
+          'The Control Center (dashboard + control plane) stays running.',
+      )
+    ) {
+      return;
+    }
     setBusy(true);
     setPhase('running');
     setResult('');
@@ -33,16 +41,21 @@ export default function TeardownPage() {
       // Confirm control plane survived (old bug: teardown killed CP via lsof clients)
       try {
         await cp.platformStatus();
-        setPhase('done');
-        // Backup clear if process-end hook already ran this is a no-op wipe (still fresh).
+        // Belt-and-suspenders if the async script path raced progress write
+        try {
+          await cp.resetProgress();
+        } catch {
+          /* already cleared by teardown handler */
+        }
         try {
           await cp.clearLogs();
         } catch {
           /* non-fatal */
         }
+        setPhase('done');
         setResult(
           (prev) =>
-            `${prev}\n\nReset finished. Control plane is still online — live terminal is cleared. Start a new lab when ready.`,
+            `${prev}\n\nReset finished. Progress is zeroed, lab ports/captures cleaned, terminal cleared. Open Labs and run setup on a scenario to start fresh.`,
         );
       } catch {
         setPhase('failed');
@@ -64,12 +77,12 @@ export default function TeardownPage() {
       <PageHeader
         eyebrow="System"
         title="Reset lab environment"
-        description="Frees scenario ports and removes captured artefacts. The Control Center (dashboard + control plane) stays running."
+        description="Full clean slate: lab progress, storyboard status, captures, scenario installs, and lab ports. Control Center stays up."
         action={
           phase === 'running' ? (
             <StatusPill status="busy" label="Resetting…" />
           ) : phase === 'done' ? (
-            <StatusPill status="online" label="Ready" />
+            <StatusPill status="online" label="Clean" />
           ) : phase === 'failed' ? (
             <StatusPill status="offline" label="Failed" />
           ) : null
@@ -77,10 +90,16 @@ export default function TeardownPage() {
       />
 
       <Alert variant="warn">
-        Stops lab mock servers and clears capture files. Does not stop Elasticsearch, Kibana, Floci, or this UI.
+        Wipes learner progress (~/.scas/progress.json), stops mock servers, deletes capture files and
+        scenario node_modules, and frees lab ports. Does not stop Elasticsearch, Kibana, Floci, or this
+        UI.
       </Alert>
 
-      <Card className="mt-6" title="Full teardown" subtitle="Runs scripts/setup/teardown.sh — watch status below (not Labs dock)">
+      <Card
+        className="mt-6"
+        title="Full teardown"
+        subtitle="Stops labs, clears progress + captures, runs scripts/setup/teardown.sh"
+      >
         <div className="flex flex-wrap gap-3">
           <Btn variant="danger" size="lg" disabled={busy} onClick={runTeardown}>
             {busy ? 'Resetting…' : 'Reset environment'}
