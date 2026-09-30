@@ -8,6 +8,7 @@
   --font-sans: var(--scas-font-sans);
   --font-display: var(--scas-font-display);
   --font-mono: var(--scas-font-mono);
+  --scas-sidebar-w: 15rem;
 }
 
 @layer base {

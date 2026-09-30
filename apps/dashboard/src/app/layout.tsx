@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <RouteWarmup />
           <Sidebar />
-          <div className="pl-60">
+          <div className="pl-[var(--scas-sidebar-w,15rem)] transition-[padding] duration-200 ease-out">
             <main className="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">{children}</main>
           </div>
         </ThemeProvider>

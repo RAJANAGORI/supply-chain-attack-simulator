@@ -198,7 +198,7 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className={`fixed inset-0 left-0 z-20 flex bg-canvas md:left-60 ${
+      className={`fixed inset-0 left-0 z-20 flex bg-canvas md:left-[var(--scas-sidebar-w,15rem)] ${
         useVertical ? 'flex-row' : 'flex-col'
       } ${dragging ? 'select-none' : ''}`}
     >
