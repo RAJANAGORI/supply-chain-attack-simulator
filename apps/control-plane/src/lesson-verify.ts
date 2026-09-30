@@ -5,10 +5,14 @@ function captureCount(captures: Record<string, unknown>): number {
   let total = 0;
   for (const value of Object.values(captures)) {
     if (!value || typeof value !== 'object') continue;
-    const obj = value as { captures?: unknown[]; events?: unknown[] };
+    if (Array.isArray(value)) {
+      total += value.length;
+      continue;
+    }
+    const obj = value as { captures?: unknown[]; events?: unknown[]; beacons?: unknown[] };
     if (Array.isArray(obj.captures)) total += obj.captures.length;
-    else if (Array.isArray(obj.events)) total += obj.events.length;
-    else if (Array.isArray(value)) total += value.length;
+    if (Array.isArray(obj.events)) total += obj.events.length;
+    if (Array.isArray(obj.beacons)) total += obj.beacons.length;
   }
   return total;
 }

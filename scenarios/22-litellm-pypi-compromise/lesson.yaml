@@ -19,26 +19,28 @@ steps:
     registry: setup
     audience: both
     title: Prepare venv and packages
-    teaching: "Setup creates victim-app venv, malicious litellm-like package, and Python mock server assets."
-    hint: "Python 3.11+ recommended. setup.sh builds the venv."
+    teaching: "Setup creates victim-app/.venv with clean litellm_like 1.82.6. On Debian hosts without python3-venv it bootstraps pip via get-pip.py."
+    hint: "If setup still fails: sudo apt install python3-venv python3-pip (use the version apt suggests, e.g. python3.14-venv)."
     verify: { type: exit-zero }
   - id: services
     registry: services
     audience: both
     title: Start Python mock server
-    teaching: "mock_server.py listens on 3022 and stores captures for the PyPI-style compromise."
+    teaching: "mock_server.py is stdlib-only and runs with system python3 on port 3022."
     verify: { type: service-listening }
   - id: install
     registry: install
     audience: attack
-    title: pip install compromised package
-    teaching: "Activate the venv and install ../malicious-packages/litellm-like. Post-install or import-time code talks to localhost only."
+    title: pip install compromised 1.82.7
+    teaching: "Upgrades the venv to python-packages/v1_82_7. Import-time code posts to localhost when TESTBENCH_MODE is enabled."
+    hint: "Requires Prepare the lab to have created victim-app/.venv."
     verify: { type: exit-zero }
   - id: run
     registry: run
     audience: attack
     title: Run the Python victim app
-    teaching: "python app.py loads the compromised package and should produce capture events."
+    teaching: "run_victim.py imports litellm_like and should produce a capture on :3022."
+    hint: "Keep the mock server running before this step."
     verify: { type: capture-count, min: 1 }
   - id: detect
     registry: null

@@ -2,6 +2,9 @@
   "name": "victim-app-metadata",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "clean-utils": "file:../compromised-packages/clean-utils"
   }

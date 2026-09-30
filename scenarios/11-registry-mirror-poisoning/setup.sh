@@ -323,6 +323,9 @@ cat > corporate-app/package.json << 'EOF'
   "version": "1.0.0",
   "description": "EnterpriseCorp Web Application",
   "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "enterprise-utils": "file:../compromised-mirror/enterprise-utils",
     "secure-lib": "file:../compromised-mirror/secure-lib"

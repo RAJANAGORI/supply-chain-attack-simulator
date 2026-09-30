@@ -108,14 +108,16 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
   if (!scenario) return null;
 
   const activeCount = scenario.processes?.filter((p) => p.status === 'running').length ?? 0;
-  const hasCaptures = Object.values(captures).some(
-    (v) =>
-      v &&
-      typeof v === 'object' &&
-      'captures' in (v as object) &&
-      Array.isArray((v as { captures: unknown[] }).captures) &&
-      (v as { captures: unknown[] }).captures.length > 0,
-  );
+  const hasCaptures = Object.values(captures).some((v) => {
+    if (!v || typeof v !== 'object') return false;
+    if (Array.isArray(v) && v.length > 0) return true;
+    const obj = v as { captures?: unknown[]; beacons?: unknown[]; events?: unknown[] };
+    return (
+      (Array.isArray(obj.captures) && obj.captures.length > 0) ||
+      (Array.isArray(obj.beacons) && obj.beacons.length > 0) ||
+      (Array.isArray(obj.events) && obj.events.length > 0)
+    );
+  });
   const lesson = scenario.lesson && 'steps' in scenario.lesson ? scenario.lesson : null;
 
   return (

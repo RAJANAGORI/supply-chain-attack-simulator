@@ -26,10 +26,12 @@ function roleAllows(audience: LessonAudience, mode: RoleMode): boolean {
 function hasCaptureData(captures: Record<string, unknown>): boolean {
   return Object.values(captures).some((v) => {
     if (!v || typeof v !== 'object') return false;
-    const obj = v as { captures?: unknown[]; events?: unknown[] };
+    if (Array.isArray(v) && v.length > 0) return true;
+    const obj = v as { captures?: unknown[]; events?: unknown[]; beacons?: unknown[] };
     if (Array.isArray(obj.captures) && obj.captures.length > 0) return true;
     if (Array.isArray(obj.events) && obj.events.length > 0) return true;
-    return Array.isArray(v) && v.length > 0;
+    if (Array.isArray(obj.beacons) && obj.beacons.length > 0) return true;
+    return false;
   });
 }
 
@@ -453,6 +455,9 @@ export function ScenarioLessonRunner({
                       try {
                         const res = await cp.freePort(freePortTarget);
                         if (res.sessionId) await waitForSession(res.sessionId);
+                        if (res.ok === false) {
+                          setError(res.message || `Port :${freePortTarget} still busy`);
+                        }
                         await onReload();
                         await refreshVerify();
                       } catch (e) {

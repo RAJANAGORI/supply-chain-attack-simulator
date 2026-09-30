@@ -54,7 +54,8 @@ async function checkPort(port: number): Promise<boolean> {
       server.close();
       resolvePort(false);
     });
-    server.listen(port, '127.0.0.1');
+    // Match mock servers that bind :::PORT (dual-stack), not only 127.0.0.1
+    server.listen(port, '0.0.0.0');
   });
 }
 
@@ -69,6 +70,40 @@ function runScript(scriptPath: string, args: string[] = []): Promise<{ code: num
     proc.stderr.on('data', (c) => { output += c.toString(); });
     proc.on('close', (code) => resolveScript({ code, output }));
   });
+}
+
+/** Stop tracked mocks on these ports, then kill orphans. Awaits until bind is free (or retry). */
+async function freeLabPorts(ports: number[]): Promise<{ port: number; output: string; stillBusy: boolean }[]> {
+  const unique = [...new Set(ports.filter((p) => Number.isFinite(p) && p > 0))];
+  for (const proc of processManager.list()) {
+    if (proc.status !== 'running' || !proc.scenarioId || proc.scenarioId === 'platform') continue;
+    const scenario = getScenario(proc.scenarioId);
+    if (!scenario) continue;
+    if (scenario.ports.some((p) => unique.includes(p))) {
+      processManager.stopSession(proc.id);
+    }
+  }
+  // Let SIGTERM land before lsof/kill -9 (avoids racing a dying listener)
+  if (unique.length > 0) {
+    await new Promise((r) => setTimeout(r, 200));
+  }
+
+  const scriptPath = resolve(REPO, 'scripts/setup/kill-port.sh');
+  const results: { port: number; output: string; stillBusy: boolean }[] = [];
+  for (const port of unique) {
+    const first = await runScript(scriptPath, [String(port)]);
+    await new Promise((r) => setTimeout(r, 150));
+    let stillBusy = await checkPort(port);
+    let output = first.output.trim();
+    if (stillBusy) {
+      const retry = await runScript(scriptPath, [String(port)]);
+      await new Promise((r) => setTimeout(r, 250));
+      stillBusy = await checkPort(port);
+      output = `${output}\n${retry.output}`.trim();
+    }
+    results.push({ port, output, stillBusy });
+  }
+  return results;
 }
 
 export function createApiRouter(): Router {
@@ -279,7 +314,7 @@ export function createApiRouter(): Router {
     res.json({ async: true, started: true, sessionId: record.id, record, backend: 'host' });
   });
 
-  router.post('/scenarios/:id/services/start', (req, res) => {
+  router.post('/scenarios/:id/services/start', async (req, res) => {
     const scenario = getScenario(req.params.id);
     if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
     if (labBackend() === 'docker') {
@@ -296,6 +331,17 @@ export function createApiRouter(): Router {
         return res.status(500).json({ error: err instanceof Error ? err.message : 'Docker start failed' });
       }
     }
+
+    // Early labs share :3000. Free overlapping mocks/orphans before bind.
+    const freed = await freeLabPorts(scenario.ports);
+    const blocked = freed.filter((f) => f.stillBusy);
+    if (blocked.length > 0) {
+      return res.status(409).json({
+        error: `Port(s) still busy after free: ${blocked.map((b) => b.port).join(', ')}. Click Free :${blocked[0].port} or Reset lab.`,
+        freed,
+      });
+    }
+
     const started = scenario.services.map((service) =>
       processManager.startLongRunning({
         label: service.label,
@@ -314,6 +360,8 @@ export function createApiRouter(): Router {
       sessions: started.map((r) => r.id),
       sessionId: started[0]?.id,
       backend: 'host',
+      freed,
+      message: `Started services after freeing ports: ${scenario.ports.join(', ')}`,
     });
   });
 
@@ -557,38 +605,31 @@ export function createApiRouter(): Router {
     return startPlatformScript(res, entry.label, entry.script, entry.args ?? []);
   });
 
-  /** Free a single lab port (default :3000). Early labs share 3000 — use before switching scenarios. */
-  router.post('/platform/ports/free', (req, res) => {
+  /** Free a lab port (default :3000). Awaits kill so the next Start services can bind. */
+  router.post('/platform/ports/free', async (req, res) => {
     const raw = req.body?.port ?? 3000;
     const port = typeof raw === 'number' ? raw : Number(String(raw).replace(/^:/, ''));
     if (!Number.isFinite(port) || port <= 0) {
       return res.status(400).json({ error: 'port must be a positive number' });
     }
 
-    for (const proc of processManager.list()) {
-      if (proc.status !== 'running' || !proc.scenarioId || proc.scenarioId === 'platform') continue;
-      const scenario = getScenario(proc.scenarioId);
-      if (!scenario?.ports.includes(port)) continue;
-      processManager.stopSession(proc.id);
+    const [result] = await freeLabPorts([port]);
+    if (result?.stillBusy) {
+      return res.status(409).json({
+        ok: false,
+        port,
+        output: result.output,
+        message: `Port :${port} is still busy. Try Reset lab or: ./scripts/setup/kill-port.sh ${port}`,
+      });
     }
 
-    const scriptPath = resolve(REPO, 'scripts/setup/kill-port.sh');
-    const record = processManager.startDetached({
-      label: `Free port :${port}`,
-      command: 'bash',
-      args: [scriptPath, String(port)],
-      cwd: REPO,
-      scenarioId: 'platform',
-      serviceId: `free-port-${port}`,
-    });
-
     return res.json({
-      started: true,
-      async: true,
-      sessionId: record.id,
-      label: record.label,
+      ok: true,
+      started: false,
+      async: false,
       port,
-      message: `Freeing listeners on :${port}. Labs 01-05 and 07-12 share :3000 — free it before starting the next mock.`,
+      output: result?.output ?? '',
+      message: `Port :${port} is free. Labs 01-05 and 07-12 share :3000 — Start services when ready.`,
     });
   });
 

@@ -113,7 +113,13 @@ export const SCENARIOS: ScenarioDefinition[] = [
   },
   baseScenario('07', '07-transitive-dependency', 'Transitive dependency', 'Intermediate', 3000, [
     victimStep('install', 'Install dependencies', 'npm', ['install']),
-    { id: 'swap', label: 'Swap compromised transitive dep', command: 'bash', args: ['-c', 'rm -rf node_modules/data-processor && cp -r ../compromised-packages/data-processor node_modules/data-processor && node node_modules/data-processor/postinstall.js || true'], cwd: 'victim-app', shell: true },
+    {
+      id: 'swap',
+      label: 'Swap compromised transitive dep',
+      command: 'bash',
+      args: ['../swap-transitive.sh'],
+      cwd: 'victim-app',
+    },
     victimStep('run', 'Run victim app', 'npm', ['start']),
   ]),
   baseScenario('08', '08-package-lock-file-manipulation', 'Package lock manipulation', 'Intermediate', 3000, [
@@ -125,12 +131,24 @@ export const SCENARIOS: ScenarioDefinition[] = [
     victimStep('run', 'Run victim app', 'npm', ['start']),
   ]),
   baseScenario('10', '10-git-submodule-attack', 'Git submodule attack', 'Intermediate', 3000, [
-    victimStep('install', 'Install victim dependencies', 'npm', ['install']),
-    victimStep('run', 'Run victim app', 'npm', ['start']),
+    {
+      id: 'install',
+      label: 'Clone compromised repo + npm install',
+      command: 'bash',
+      args: ['../run-attack.sh'],
+      cwd: 'victim-app',
+    },
+    {
+      id: 'run',
+      label: 'Run cloned victim project',
+      command: 'node',
+      args: ['index.js'],
+      cwd: 'work/victim-clone',
+    },
   ]),
   baseScenario('11', '11-registry-mirror-poisoning', 'Registry mirror poisoning', 'Advanced', 3000, [
     victimStep('install', 'Install from poisoned mirror', 'npm', ['install'], 'corporate-app'),
-    victimStep('run', 'Run corporate app', 'npm', ['start'], 'corporate-app'),
+    victimStep('run', 'Run corporate app', 'node', ['index.js'], 'corporate-app'),
   ], {
     ports: [3000, 4873],
     services: [
@@ -143,21 +161,35 @@ export const SCENARIOS: ScenarioDefinition[] = [
     victimStep('install-root', 'Install workspace root', 'npm', ['install'], '.'),
     victimStep('install-api', 'Install api package', 'npm', ['install'], 'packages/api'),
     victimStep('install-utils', 'Install utils package', 'npm', ['install'], 'packages/utils'),
+    {
+      id: 'swap',
+      label: 'Swap compromised @devcorp/utils',
+      command: 'bash',
+      args: ['./swap-compromised-utils.sh'],
+      cwd: '.',
+    },
     victimStep('run', 'Run victim app', 'npm', ['start'], 'victim-app'),
   ], { setup: { command: './setup.sh', cwd: scenarioPath('12-workspace-monorepo-attack') } }),
   baseScenario('13', '13-package-metadata-manipulation', 'Metadata manipulation', 'Intermediate', 3001, [
     victimStep('install', 'Install metadata-tampered package', 'npm', ['install', '../compromised-packages/clean-utils']),
-    victimStep('run', 'Run victim app', 'npm', ['start']),
-  ], { captures: [capture(3001, '/capture', 'Captured metadata exfil')] }),
+    victimStep('run', 'Run victim app', 'node', ['index.js']),
+  ], { captures: [capture(3001, '/captured-data', 'Captured metadata exfil')] }),
   baseScenario('14', '14-container-image-supply-chain-attack', 'Container image supply chain', 'Advanced', 3002, [
-    victimStep('run', 'Run malicious container start', 'node', ['malicious-start.js'], 'victim-app'),
+    victimStep('run', 'Run malicious container start', 'node', ['malicious-start.js'], 'images/compromised-image'),
   ], {
     ports: [3002],
-    captures: [capture(3002, '/capture', 'Container exfil capture')],
+    captures: [capture(3002, '/captured-data', 'Container exfil capture')],
     floci: { seed: 'infrastructure/floci/seed.sh', verify: 'infrastructure/floci/verify.sh' },
   }),
   baseScenario('15', '15-developer-tool-compromise', 'Developer tool compromise', 'Advanced', 3015, [
-    victimStep('run', 'Run victim with malicious dev tool', 'npm', ['start']),
+    {
+      id: 'install',
+      label: 'Install malicious developer tool',
+      command: 'bash',
+      args: ['./install-malicious-tool.sh'],
+      cwd: '.',
+    },
+    victimStep('run', 'Run victim with malicious tool', 'npm', ['start']),
   ], { ports: [3015] }),
   baseScenario('16', '16-package-cache-poisoning', 'Package cache poisoning', 'Intermediate', 3016, [
     victimStep('install1', 'First install (poisons cache)', 'npm', ['install']),
@@ -169,6 +201,13 @@ export const SCENARIOS: ScenarioDefinition[] = [
     victimStep('run', 'Run victim app', 'npm', ['start']),
   ], { ports: [3017], floci: { seed: 'infrastructure/floci/seed.sh', verify: 'infrastructure/floci/verify.sh' } }),
   baseScenario('18', '18-package-manager-plugin-attack', 'Package manager plugin', 'Advanced', 3018, [
+    {
+      id: 'install',
+      label: 'pnpm install (fires .pnpmfile.cjs hooks)',
+      command: 'bash',
+      args: ['./install-with-hooks.sh'],
+      cwd: '.',
+    },
     victimStep('run', 'Run victim (plugin hooks fire)', 'npm', ['start']),
   ], { ports: [3018] }),
   baseScenario('19', '19-sbom-manipulation-attack', 'SBOM manipulation', 'Advanced', 3019, [
@@ -184,7 +223,7 @@ export const SCENARIOS: ScenarioDefinition[] = [
     victimStep('run', 'Run victim app', 'npm', ['start']),
   ], {
     ports: [3021],
-    captures: [{ id: 'beacon', label: 'Beacon captures', url: 'http://127.0.0.1:3021/beacon', clearUrl: 'http://127.0.0.1:3021/beacon' }],
+    captures: [{ id: 'beacon', label: 'Beacon captures', url: 'http://127.0.0.1:3021/captured-data', clearUrl: 'http://127.0.0.1:3021/captured-data' }],
   }),
   {
     id: '22',
@@ -197,15 +236,28 @@ export const SCENARIOS: ScenarioDefinition[] = [
       {
         id: 'mock-py',
         label: 'Python mock server :3022',
-        command: 'bash',
-        args: ['-c', 'source victim-app/venv/bin/activate && python infrastructure/mock_server.py'],
+        // stdlib-only mock — do not require .venv (ensurepip may be missing on the host)
+        command: 'python3',
+        args: ['infrastructure/mock_server.py'],
         cwd: '.',
         port: 3022,
       },
     ],
     steps: [
-      { id: 'install', label: 'Install compromised PyPI package', command: 'bash', args: ['-c', 'source venv/bin/activate && pip install ../malicious-packages/litellm-like'], cwd: 'victim-app' },
-      { id: 'run', label: 'Run victim app', command: 'bash', args: ['-c', 'source venv/bin/activate && python app.py'], cwd: 'victim-app' },
+      {
+        id: 'install',
+        label: 'pip install compromised 1.82.7',
+        command: 'bash',
+        args: ['-c', 'source .venv/bin/activate && pip install -U ../python-packages/v1_82_7'],
+        cwd: 'victim-app',
+      },
+      {
+        id: 'run',
+        label: 'Run victim (import litellm_like)',
+        command: 'bash',
+        args: ['-c', 'source .venv/bin/activate && python run_victim.py'],
+        cwd: 'victim-app',
+      },
     ],
     captures: [capture(3022)],
     docs: { readme: 'scenarios/22-litellm-pypi-compromise/README.md', detect: 'scenarios/22-litellm-pypi-compromise/DETECT.md' },

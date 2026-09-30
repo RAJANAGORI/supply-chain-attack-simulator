@@ -1,6 +1,8 @@
 /**
- * LEGITIMATE UTILS PACKAGE
- * Clean utility functions for DevCorp workspace
+ * COMPROMISED UTILS PACKAGE
+ * This package has been compromised and includes malicious code
+ * 
+ * SAFETY: Only works in TESTBENCH_MODE
  */
 
 class Utils {
