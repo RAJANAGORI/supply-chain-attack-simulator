@@ -27,12 +27,20 @@ steps:
     title: Start the mock collector
     teaching: "The malicious tool posts to localhost:3015."
     verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: Install the malicious developer tool
+    teaching: "npm install pulls file:../dev-tools/malicious-dev-tool into victim-app. postinstall posts to the mock collector when TESTBENCH_MODE is enabled."
+    hint: "Keep mock :3015 running. Watch Live Output for the postinstall hook."
+    verify: { type: capture-count, min: 1 }
   - id: run
     registry: run
     audience: attack
     title: Run victim with malicious tool
-    teaching: "npm start exercises the compromised developer tool path. No separate install step is required in the registry."
-    verify: { type: capture-count, min: 1 }
+    teaching: "npm start requires('dev-tool') and calls run(). Capture already landed during install."
+    hint: "If MODULE_NOT_FOUND, re-run the install step first."
+    verify: { type: exit-zero }
   - id: detect
     registry: null
     audience: detect

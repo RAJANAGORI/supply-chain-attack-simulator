@@ -2,7 +2,7 @@
  * SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori — Supply Chain Attack Simulator
  * Scenario 21: Axios-style compromised release — mock collector
  * POST /beacon — benign lab telemetry (localhost only)
- * GET /captured-data — JSON log for blue-team review
+ * GET  /captured-data (and GET /beacon) — JSON log for inspector / blue-team review
  */
 
 require('../../_shared/scenario-provenance');
@@ -13,16 +13,32 @@ const path = require('path');
 const PORT = 3021;
 const logFile = path.join(__dirname, 'captured-data.json');
 
-function initLog() {
-  if (!fs.existsSync(logFile)) {
-    fs.writeFileSync(logFile, JSON.stringify({ beacons: [] }, null, 2));
+function readStore() {
+  if (!fs.existsSync(logFile)) return { beacons: [], captures: [] };
+  try {
+    const raw = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+    const beacons = Array.isArray(raw?.beacons) ? raw.beacons : Array.isArray(raw) ? raw : [];
+    return { beacons, captures: beacons };
+  } catch (_) {
+    return { beacons: [], captures: [] };
   }
 }
 
-initLog();
+function writeStore(beacons) {
+  fs.writeFileSync(logFile, JSON.stringify({ beacons, captures: beacons }, null, 2));
+}
+
+function sendJson(res, status, body) {
+  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(body));
+}
+
+if (!fs.existsSync(logFile)) writeStore([]);
 
 const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/beacon') {
+  const pathOnly = (req.url || '/').split('?')[0];
+
+  if (req.method === 'POST' && pathOnly === '/beacon') {
     let body = '';
     req.on('data', (c) => {
       body += c.toString();
@@ -33,12 +49,11 @@ const server = http.createServer((req, res) => {
         console.log('\n📡 BEACON (scenario-21):');
         console.log(JSON.stringify(parsed, null, 2));
         console.log('─'.repeat(50));
-        const log = JSON.parse(fs.readFileSync(logFile, 'utf8'));
+        const store = readStore();
         const captureEntry = { received_at: new Date().toISOString(), payload: parsed };
-        log.beacons.push(captureEntry);
-        fs.writeFileSync(logFile, JSON.stringify(log, null, 2));
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ok: true }));
+        store.beacons.push(captureEntry);
+        writeStore(store.beacons);
+        sendJson(res, 200, { ok: true });
         try {
           require('../../../detection-tools/es/forward-capture')
             .forwardCaptureIfEnabled(__dirname, captureEntry)
@@ -49,21 +64,25 @@ const server = http.createServer((req, res) => {
         res.end('bad request');
       }
     });
-  } else if (req.method === 'GET' && req.url === '/captured-data') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(fs.readFileSync(logFile, 'utf8'));
-  } else if (req.method === 'DELETE' && req.url === '/captured-data') {
-    fs.writeFileSync(logFile, JSON.stringify({ beacons: [] }, null, 2));
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ ok: true }));
-  } else {
-    res.writeHead(404);
-    res.end('not found');
+    return;
   }
+
+  if (req.method === 'GET' && (pathOnly === '/captured-data' || pathOnly === '/beacon')) {
+    sendJson(res, 200, readStore());
+    return;
+  }
+
+  if (req.method === 'DELETE' && (pathOnly === '/captured-data' || pathOnly === '/beacon')) {
+    writeStore([]);
+    sendJson(res, 200, { ok: true });
+    return;
+  }
+
+  sendJson(res, 404, { error: 'not found' });
 });
 
 server.listen(PORT, () => {
   console.log(`Scenario 21 mock server on http://localhost:${PORT}`);
-  console.log('  POST /beacon  POST body JSON');
-  console.log('  GET  /captured-data');
+  console.log('  POST /beacon');
+  console.log('  GET  /captured-data (beacons JSON)');
 });

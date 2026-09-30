@@ -40,7 +40,7 @@ steps:
     registry: run
     audience: attack
     title: Run the victim
-    teaching: "Captures land on port 3001 /capture for this lab."
+    teaching: "Captures land on port 3001 (POST /capture, view via /captured-data)."
     hint: "Confirm the inspector shows at least one capture."
     verify: { type: capture-count, min: 1 }
   - id: detect

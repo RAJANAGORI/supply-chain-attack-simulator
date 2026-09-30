@@ -136,13 +136,11 @@ echo ""
 # Setup victim app
 echo "📦 Setting up victim application..."
 cd victim-app
-if [ ! -d "node_modules" ]; then
-    echo "Installing dependencies..."
-    npm install
-else
-    echo "ℹ️  Dependencies already installed"
-fi
+echo "Installing dependencies (web-utils → file: data-processor)..."
+rm -rf node_modules
+npm install
 cd ..
+chmod +x swap-transitive.sh
 echo ""
 
 # Make detection tools executable

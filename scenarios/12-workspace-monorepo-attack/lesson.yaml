@@ -43,14 +43,22 @@ steps:
     registry: install-utils
     audience: attack
     title: Install utils package
-    teaching: "The utils package is where the compromise often hides in this lab."
+    teaching: "Install the legitimate @devcorp/utils first so you can see the clean workspace state."
     verify: { type: exit-zero }
+  - id: swap
+    registry: swap
+    audience: attack
+    title: Swap compromised @devcorp/utils
+    teaching: "This replaces packages/utils with the attacker copy and reinstalls. The malicious postinstall posts workspace metadata to the mock collector."
+    hint: "Keep mock :3000 running. After this step the Live Inspector should show attackType workspace-monorepo."
+    verify: { type: capture-count, min: 1 }
   - id: run
     registry: run
     audience: attack
     title: Run the victim app
-    teaching: "victim-app loads the workspace packages and triggers exfil if the compromised utils path is in play."
-    verify: { type: capture-count, min: 1 }
+    teaching: "victim-app still loads @devcorp/api and @devcorp/auth, which resolve the compromised workspace utils. The capture already landed on swap."
+    hint: "If the inspector is empty, re-run Swap compromised @devcorp/utils with the mock server up."
+    verify: { type: exit-zero }
   - id: detect
     registry: null
     audience: detect

@@ -32,8 +32,8 @@ steps:
     registry: run
     audience: attack
     title: Run malicious container start
-    teaching: "malicious-start.js simulates a bad image entrypoint that harvests env and posts to localhost only."
-    hint: "No real remote registry pull is required for the default path."
+    teaching: "Runs images/compromised-image/malicious-start.js — a bad image entrypoint that posts a localhost beacon to :3002, then exits."
+    hint: "Keep mock :3002 running. No real registry pull is required for this path."
     verify: { type: capture-count, min: 1 }
   - id: detect
     registry: null

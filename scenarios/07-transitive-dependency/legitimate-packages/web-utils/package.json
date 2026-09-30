@@ -7,7 +7,7 @@
   "author": "Web Tools Inc.",
   "license": "MIT",
   "dependencies": {
-    "data-processor": "^1.2.0"
+    "data-processor": "file:../data-processor"
   }
 }
 

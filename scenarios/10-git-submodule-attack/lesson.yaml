@@ -32,21 +32,21 @@ steps:
   - id: install
     registry: install
     audience: attack
-    title: Install victim dependencies
-    teaching: "The victim pulls code that depends on a submodule path the lab has already pointed at malicious content."
-    hint: "Watch the live terminal for install hooks."
-    verify: { type: exit-zero }
+    title: Clone repo and trigger submodule install
+    teaching: "This clones work/awesome-project with --recurse-submodules, then runs npm install so the malicious submodule postinstall posts to the mock collector."
+    hint: "Keep the mock server on :3000 running. If clone fails, re-run Prepare the lab so build-repos.sh recreates work/."
+    verify: { type: capture-count, min: 1 }
   - id: run
     registry: run
     audience: attack
-    title: Run the victim
-    teaching: "Running the app exercises the compromised submodule path and hits the mock collector."
-    hint: "Confirm the inspector shows at least one capture."
-    verify: { type: capture-count, min: 1 }
+    title: Run the cloned project
+    teaching: "Loads the compromised clone. The capture already landed during install; this step confirms the victim tree still runs."
+    hint: "If this fails with missing work/victim-clone, re-run the install step first."
+    verify: { type: exit-zero }
   - id: detect
     registry: null
     audience: detect
     title: Read captures and DETECT.md
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
-    hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
+    hint: "Detection tools under detection-tools/ can scan work/victim-clone from the scenario folder."
     verify: { type: capture-count, min: 1 }

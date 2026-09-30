@@ -27,11 +27,19 @@ steps:
     title: Start the mock collector
     teaching: "Hook payloads post to localhost:3018."
     verify: { type: service-listening }
+  - id: install
+    registry: install
+    audience: attack
+    title: pnpm install (load .pnpmfile.cjs)
+    teaching: "pnpm loads .pnpmfile.cjs and the readPackage hook injects malicious-logger into target-lib without an obvious package.json change."
+    hint: "Keep mock :3018 running. Use the pinned pnpm via npx (the install script does that)."
+    verify: { type: exit-zero }
   - id: run
     registry: run
     audience: attack
     title: Run victim so plugin hooks fire
-    teaching: "npm start is enough for this lab. Plugin hooks fire without a separate install step in the registry."
+    teaching: "npm start requires target-lib; the injected malicious-logger exfiltrates on import when TESTBENCH_MODE is enabled."
+    hint: "If MODULE_NOT_FOUND for target-lib, re-run the pnpm install step after Prepare the lab."
     verify: { type: capture-count, min: 1 }
   - id: detect
     registry: null

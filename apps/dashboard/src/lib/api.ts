@@ -108,10 +108,14 @@ export interface ProcessRecord {
 export interface ActionResult {
   async?: boolean;
   started?: boolean;
+  ok?: boolean;
   sessionId?: string;
   sessions?: string[];
   record?: ProcessRecord;
   startedProcesses?: ProcessRecord[];
+  message?: string;
+  port?: number;
+  output?: string;
 }
 
 export interface LessonVerifyResult {

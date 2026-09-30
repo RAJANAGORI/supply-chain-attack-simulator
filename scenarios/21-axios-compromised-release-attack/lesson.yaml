@@ -33,16 +33,16 @@ steps:
     registry: install
     audience: attack
     title: Install compromised release tarball
-    teaching: "Install axios-like@file:../packages/axios-like-1.14.1.tgz to model a bad release that still looks like a patch bump."
-    hint: "Diff 1.14.0 vs 1.14.1 package trees under packages/."
-    verify: { type: exit-zero }
+    teaching: "Install axios-like@file:../packages/axios-like-1.14.1.tgz. The transitive postinstall POSTs a beacon to :3021/beacon."
+    hint: "Diff 1.14.0 vs 1.14.1 package trees under packages/. Keep the mock running during install."
+    verify: { type: capture-count, min: 1 }
   - id: run
     registry: run
     audience: attack
     title: Run the victim
-    teaching: "Beacons hit http://127.0.0.1:3021/beacon rather than /captured-data."
-    hint: "Confirm the inspector shows at least one capture."
-    verify: { type: capture-count, min: 1 }
+    teaching: "Confirms the compromised release loads. Beacons are POSTed to /beacon; the Live Inspector reads GET /captured-data."
+    hint: "If the inspector is empty, re-run Install with mock :3021 up."
+    verify: { type: exit-zero }
   - id: detect
     registry: null
     audience: detect
