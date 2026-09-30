@@ -119,12 +119,16 @@ node scripts/docs/inject-zero-to-hero-mitigation-playbooks.js
 # 4. Rebuild every Table of Contents
 node scripts/docs/inject-markdown-toc.js all
 
-# 5. After adding/removing a scenario (or changing public counts):
-#    update README, AUTHORS, docs/index.html, docs/docs-manifest.json,
-#    CATALOG + zero-to-hero / quick-ref / modules indexes, observability
-#    "N runbooks" / "2N saved searches", playbooks, control-plane registry -
-#    then verify:
+# 5. After adding/removing a scenario (or changing public counts), update all of:
+#    - scenarios/NN-slug/{README,DETECT,setup,lesson.yaml,FLOCI} (lesson.yaml needs caseStudy + mitigation)
+#    - README, AUTHORS, docs/index.html (hero counts AND scenario cards 01..NN), docs/guide.html
+#    - docs/docs-manifest.json, CATALOG, zero-to-hero / quick-ref / modules indexes
+#    - ZERO_TO_HERO_SCENARIO_NN.md with non-empty Mitigation Playbook + Straightforward Implementation
+#    - observability "N runbooks" / "2N saved searches", playbooks, control-plane registry, diagram specs
+#    Then verify (CI runs this in smoke.yml):
 node scripts/docs/check-info-consistency.js
+#    The harness also fails on: missing landing cards, empty Z2H mitigation sections,
+#    missing lesson.yaml caseStudy/mitigation, FLOCI.md gaps, and stale "all N scenarios" / 02-NN ranges.
 
 # 5b. Markdown punctuation (ASCII hyphen/quotes only; smoke.yml)
 node scripts/docs/check-markdown-watermarks.js

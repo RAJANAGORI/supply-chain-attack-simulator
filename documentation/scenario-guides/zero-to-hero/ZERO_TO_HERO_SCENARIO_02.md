@@ -605,7 +605,7 @@ From the repository root:
 
 ```bash
 ./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
+./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding
@@ -757,7 +757,7 @@ From the repository root:
 
 ```bash
 ./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 23 scenarios
+./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
 ```
 
 ### Run this scenario with live Elasticsearch forwarding

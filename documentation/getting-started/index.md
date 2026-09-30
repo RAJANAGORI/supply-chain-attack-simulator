@@ -7,7 +7,7 @@ Guides for first-time setup and your first lab.
 | [FULL_STACK_SETUP.md](./FULL_STACK_SETUP.md) | Workshop install - `./START_HERE.sh -y` or step-by-step SCAS + ES/Kibana + Floci |
 | [ZERO_TO_HERO.md](./ZERO_TO_HERO.md) | Short path from zero to a first scenario - safety and lab flow |
 | [QUICK_START.md](./QUICK_START.md) | Fast path if you already know npm and want a scenario running |
-| [DOCKER_LABS.md](./DOCKER_LABS.md) | Docker install hub - option 3 in `./START_HERE.sh`, or `./docker/install.sh` (platform + all 23 labs) |
+| [DOCKER_LABS.md](./DOCKER_LABS.md) | Docker install hub - option 3 in `./START_HERE.sh`, or `./docker/install.sh` (platform + all 25 labs) |
 | [SETUP.md](./SETUP.md) | SCAS-only install, env, prerequisites |
 | [RASPBERRY_PI_STORAGE.md](./RASPBERRY_PI_STORAGE.md) | Pi / USB HDD via `install-external.sh` (everyone else: `./START_HERE.sh`) |
 
