@@ -33,16 +33,16 @@ steps:
     registry: install
     audience: attack
     title: Install from the manipulated lockfile
-    teaching: "npm install trusts the lockfile. Here the lock entry points at a malicious package while package.json still looks plausible."
-    hint: "Diff legitimate-app vs compromised lockfiles before or after install."
-    verify: { type: exit-zero }
+    teaching: "npm install trusts the lockfile. Here the lock entry points at a malicious package while package.json still looks plausible. postinstall posts to the mock on :3000."
+    hint: "Keep mock :3000 running during install. Diff legitimate-app vs compromised lockfiles."
+    verify: { type: capture-count, min: 1 }
   - id: run
     registry: run
     audience: attack
     title: Run the victim
-    teaching: "Starting the victim confirms the bad tree is live and the collector receives data."
-    hint: "Confirm the inspector shows at least one capture."
-    verify: { type: capture-count, min: 1 }
+    teaching: "Confirms evil-utils is require()-able. The victim no longer binds :3000 so it does not collide with the mock collector."
+    hint: "If you still see EADDRINUSE, click Free :3000 then Start services, then re-run Install."
+    verify: { type: exit-zero }
   - id: detect
     registry: null
     audience: detect
