@@ -103,6 +103,16 @@ const TOTAL_COUNT_PATTERNS = [
   },
   { re: /expected\s*>=\s*(\d+)/gi, label: 'smoke-observability floor' },
   { re: /value:\s*(\d+),\s*label:\s*'Attack labs'/g, label: 'landing Attack labs stat' },
+  { re: /with\s+(\d+)\s+real-world\s+attack\s+scenarios/gi, label: 'with N real-world attack scenarios' },
+  { re: /with\s+(\d+)\s+real-world\s+scenarios/gi, label: 'with N real-world scenarios' },
+  { re: /against\s+(\d+)\s+real-world/gi, label: 'against N real-world' },
+  { re: /covering\s+(\d+)\s+supply\s+chain/gi, label: 'covering N supply chain' },
+  { re: /includes\s+(\d+)\s+comprehensive/gi, label: 'includes N comprehensive' },
+  { re: />\s*(\d+)\s+Scenarios\s*</g, label: 'conference/docs N Scenarios chip' },
+  { re: /numberOfCredits"\s*:\s*(\d+)/g, label: 'JSON-LD numberOfCredits' },
+  { re: /Pick from\s+(\d+)\s+scenarios/gi, label: 'Pick from N scenarios' },
+  { re: /walkthroughs for all\s+(\d+)\s+supply/gi, label: 'walkthroughs for all N supply' },
+  { re: /(\d+)\s+supply chain attack scenario walkthroughs/gi, label: 'N supply chain walkthroughs' },
 ];
 
 /**
@@ -122,6 +132,8 @@ const RANGE_PATTERNS = [
   { re: /for each scenario 01[–-](\d{2})/gi, label: 'for each scenario 01–NN' },
   { re: /Canonical mitigation bullets per scenario \(01[–-](\d{2})\)/g, label: 'playbooks comment' },
   { re: /numbered folders `01-` … `(\d{2})-`/g, label: 'numbered folders 01- … NN-' },
+  { re: /# scenarios 02-(\d{2})\b/g, label: 'docs architecture scenarios 02-NN' },
+  { re: /Zero to Hero guides 01[→\-](\d{2})/g, label: 'guide.html Zero to Hero 01-NN' },
 ];
 
 const SAVED_SEARCHES_RES = [
@@ -135,6 +147,7 @@ const SURFACE_FILES = [
   'AUTHORS.md',
   'docs/AUTHORS.md',
   'docs/index.html',
+  'docs/guide.html',
   'docs/docs-manifest.json',
   'observability/README.md',
   'apps/landing/src/content/site.ts',
@@ -379,6 +392,94 @@ function checkStructural(scenarios) {
   return idSet;
 }
 
+
+function checkLandingScenarioCards(scenarios) {
+  const relPath = 'docs/index.html';
+  const filePath = path.join(ROOT, relPath);
+  if (!exists(filePath)) {
+    fail(`${relPath}: missing`);
+    return;
+  }
+  const text = read(filePath);
+  const ids = scenarios.map((s) => s.id);
+  const found = [];
+  const re = /<span class="scenario-number">(\d{2})<\/span>/g;
+  let m;
+  while ((m = re.exec(text)) !== null) found.push(m[1]);
+  const uniq = [...new Set(found)];
+  if (found.length !== ids.length) {
+    fail(
+      `${relPath}: scenario-card numbers count ${found.length}, expected ${ids.length} (found ${found.join(', ') || 'none'})`,
+    );
+  } else if (uniq.length !== ids.length) {
+    fail(`${relPath}: duplicate or incomplete scenario-number set: ${found.join(', ')}`);
+  } else {
+    const missing = ids.filter((id) => !uniq.includes(id));
+    if (missing.length) fail(`${relPath}: scenario cards missing ids: ${missing.join(', ')}`);
+    else ok(`${relPath} scenario cards cover every on-disk lab (${ids.length})`);
+  }
+}
+
+function checkZeroToHeroGuideQuality(scenarios) {
+  const emptyHeading = [];
+  const missingLessonFields = [];
+  const missingFloci = [];
+
+  for (const s of scenarios) {
+    const z2h = path.join(ROOT, `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_${s.id}.md`);
+    if (exists(z2h)) {
+      const text = read(z2h);
+      // Empty section: heading then another ## with only blank lines between
+      const emptyRe =
+        /^## (Mitigation Playbook|Straightforward Implementation)\s*\n+(?=## )/gm;
+      let em;
+      while ((em = emptyRe.exec(text)) !== null) {
+        emptyHeading.push(`${s.id}:${em[1]}`);
+      }
+      // Duplicate TOC heading is a common inject failure mode
+      const tocCount = (text.match(/^## Table of Contents\s*$/gm) || []).length;
+      if (tocCount !== 1) emptyHeading.push(`${s.id}:Table of Contents x${tocCount}`);
+    }
+
+    const lesson = path.join(s.full, 'lesson.yaml');
+    if (exists(lesson)) {
+      const ly = read(lesson);
+      if (!/^caseStudy:\s*.+/m.test(ly)) missingLessonFields.push(`${s.id}:caseStudy`);
+      if (!/^mitigation:\s*$/m.test(ly) && !/^mitigation:\s*\[/m.test(ly)) {
+        // list form starts with mitigation: then indented dashes
+        if (!/^mitigation:\s*\n(\s+-\s+.+)/m.test(ly)) missingLessonFields.push(`${s.id}:mitigation`);
+      }
+    } else {
+      missingLessonFields.push(`${s.id}:lesson.yaml`);
+    }
+
+    const floci = path.join(s.full, 'FLOCI.md');
+    if (!exists(floci)) missingFloci.push(s.id);
+  }
+
+  if (emptyHeading.length) {
+    fail(
+      `zero-to-hero empty/broken sections (fill Mitigation Playbook + Straightforward Implementation; one TOC): ${emptyHeading.join(', ')}`,
+    );
+  } else {
+    ok('zero-to-hero guides have non-empty Mitigation Playbook + Straightforward Implementation');
+  }
+
+  if (missingLessonFields.length) {
+    fail(
+      `lesson.yaml missing caseStudy/mitigation quick-reference fields: ${missingLessonFields.join(', ')}`,
+    );
+  } else {
+    ok('every scenario lesson.yaml has caseStudy + mitigation');
+  }
+
+  if (missingFloci.length) {
+    fail(`missing FLOCI.md for scenarios: ${missingFloci.join(', ')}`);
+  } else {
+    ok('every scenario folder has FLOCI.md');
+  }
+}
+
 /** Mermaid sequence + SVG chips share these participant ids — no undeclared C2 etc. */
 const DIAGRAM_ACTORS = new Set(['Learner', 'Victim', 'MalPkg', 'Mock', 'ES', 'Kibana']);
 
@@ -454,6 +555,8 @@ function main() {
   console.log('');
 
   checkStructural(scenarios);
+  checkLandingScenarioCards(scenarios);
+  checkZeroToHeroGuideQuality(scenarios);
   checkDiagramStepActors(scenarios);
   console.log('');
   checkProseCounts(count, maxId);
@@ -462,11 +565,13 @@ function main() {
     console.log('');
     console.log(`Summary: ${passes.length} pass, ${failures.length} fail`);
     console.error('');
-    console.error('Info consistency check failed. When adding a scenario, update:');
-    console.error('  - README + AUTHORS + docs/index.html + docs/docs-manifest.json');
-    console.error('  - documentation indexes (CATALOG, zero-to-hero, quick-ref, modules)');
-    console.error('  - observability counts (DETECT runbooks, 2× saved searches)');
-    console.error('  - scripts/lib/mitigation-playbooks.js + control-plane registry');
+    console.error('Info consistency check failed. When adding a scenario NN-slug, update:');
+    console.error('  - scenarios/NN-slug/{README,DETECT,setup,lesson.yaml,FLOCI}.md (+ caseStudy/mitigation in lesson.yaml)');
+    console.error('  - README + AUTHORS + docs/index.html (hero counts + scenario cards 01..NN) + docs/guide.html');
+    console.error('  - docs/docs-manifest.json + documentation indexes (CATALOG, zero-to-hero, quick-ref, modules)');
+    console.error('  - ZERO_TO_HERO_SCENARIO_NN.md with real Mitigation Playbook + Straightforward Implementation');
+    console.error('  - observability counts (DETECT runbooks, 2× saved searches) + diagram specs');
+    console.error('  - scripts/lib/mitigation-playbooks.js + apps/control-plane registry');
     console.error('Then re-run: node scripts/docs/check-info-consistency.js');
     process.exit(1);
   }
