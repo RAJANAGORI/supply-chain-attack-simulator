@@ -4,10 +4,16 @@ category: package-compromise
 incidents:
   - "npm metadata and README social engineering"
   - "Clean names with dirty payloads"
+caseStudy: "Models npm metadata and README social engineering: clean names, polished docs, and trusted-looking homepage fields hide a dirty tarball payload."
 objectives:
   - "Spot metadata that looks legitimate while the tarball is not"
   - "Install clean-utils and observe /capture exfil"
   - "Use metadata diffs in detection"
+mitigation:
+  - "Do not trust README marketing; compare homepage and repository URLs to a trusted source"
+  - "Reject registry metadata that disagrees with tarball package.json fields"
+  - "Require human review when author, homepage, or repository fields change on a dependency"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

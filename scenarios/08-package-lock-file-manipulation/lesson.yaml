@@ -4,10 +4,16 @@ category: package-compromise
 incidents:
   - "Lockfile injection and integrity bypasses"
   - "Committed lockfiles as attack surface"
+caseStudy: "Models lockfile injection attacks where package-lock.json is the attack surface: a crafted lockfile can redirect installs or weaken integrity checks even when package.json looks fine."
 objectives:
   - "See how a manipulated package-lock.json redirects installs"
   - "Install from a bad lockfile and capture exfil"
   - "Diff lockfiles as a blue-team habit"
+mitigation:
+  - "Validate lockfiles in CI and require review of every package-lock.json diff"
+  - "Compare package.json declarations to lockfile entries automatically"
+  - "Verify integrity hashes against trusted registry metadata"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

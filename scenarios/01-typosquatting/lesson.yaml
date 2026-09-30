@@ -4,10 +4,16 @@ category: package-registry
 incidents:
   - "crossenv vs cross-env"
   - "python3-dateutil vs python-dateutil"
+caseStudy: "Same family as the crossenv typosquat and similar lookalike packages: attackers publish a near-miss name so install scripts run in your environment before anyone notices the missing letter."
 objectives:
   - "Tell a typosquat apart from the real package name"
   - "See how a postinstall script can exfiltrate env vars on localhost"
   - "Use the mock collector and DETECT.md as a blue-team starting point"
+mitigation:
+  - "Commit package-lock.json and install with npm ci in production pipelines"
+  - "Scope registry routes and review every new dependency name before merge"
+  - "Prefer ignore-scripts in CI until a package is explicitly trusted"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

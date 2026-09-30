@@ -4,10 +4,16 @@ category: sbom-integrity
 incidents:
   - "Tampered SBOMs that hide components"
   - "False clean bills of materials"
+caseStudy: "Models SBOM manipulation that hides components: a polished bill of materials claims a clean tree while lockfile or runtime inventory still shows the risky package."
 objectives:
   - "Install a tree that ships a misleading SBOM story"
   - "Capture evidence while SBOM looks clean"
   - "Validate SBOMs against actual installs"
+mitigation:
+  - "Regenerate SBOMs in trusted CI from lockfiles and build artifacts only"
+  - "Require SBOM signing or provenance; fail closed on SBOM-lockfile mismatches"
+  - "Periodically diff production SBOM against runtime inventory scans"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

@@ -4,10 +4,16 @@ category: package-compromise
 incidents:
   - "Axios-style compromised npm releases"
   - "Tarball release swaps"
+caseStudy: "Models Axios-style compromised npm releases and tarball swaps: a popular package version is replaced or poisoned while consumers still trust the familiar name."
 objectives:
   - "Install a compromised release tarball like a silent patch"
   - "Observe beacon captures on /beacon"
   - "Compare clean vs bad release artifacts"
+mitigation:
+  - "Contain affected CI hosts; eradicate node_modules and regenerate lockfiles"
+  - "Pin a known-good exact version; rotate npm tokens and CI secrets"
+  - "Enable provenance checks and hunt org lockfiles for the bad version"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

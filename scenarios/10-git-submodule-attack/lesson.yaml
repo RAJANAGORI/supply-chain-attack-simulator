@@ -4,10 +4,16 @@ category: source-control
 incidents:
   - "Malicious git submodule swaps"
   - "Pinning commits vs moving refs"
+caseStudy: "Models malicious git submodule and vendored-path swaps (including local protocol abuse like CVE-2022-39253): a moving ref or file:// embed replaces trusted code at clone time."
 objectives:
   - "See how a submodule can pull attacker-controlled code"
   - "Install and run after the submodule compromise"
   - "Pin submodules by commit SHA"
+mitigation:
+  - "Review every submodule or vendored path addition; allowlist remote URLs"
+  - "Pin embeds to verified commits; do not track floating branch heads"
+  - "Set protocol.file.allow=never on developer machines and CI runners"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

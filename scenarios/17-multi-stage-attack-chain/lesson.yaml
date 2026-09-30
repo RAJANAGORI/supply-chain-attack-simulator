@@ -4,10 +4,16 @@ category: attack-chains
 incidents:
   - "Staged access then payload packages"
   - "Multi-phase supply chain ops"
+caseStudy: "Models multi-phase supply chain operations: initial dependency access, then CI token abuse, then a later malicious publish - single alerts look unrelated until correlated."
 objectives:
   - "Install stage1 then stage2 packages"
   - "See how access and payload roles split"
   - "Detect chain signals end to end"
+mitigation:
+  - "Correlate install, secret access, and publish events before closing alerts"
+  - "Segment CI accounts so build runners cannot publish or deploy to production"
+  - "Require approval gates for registry publishes; preserve per-stage forensics"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

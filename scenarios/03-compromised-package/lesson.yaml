@@ -5,10 +5,16 @@ incidents:
   - "event-stream (2018)"
   - "ua-parser-js (2021)"
   - "coa and rc (2021)"
+caseStudy: "Same class as event-stream (2018) and the 2021 ua-parser-js / coa / rc compromises: a trusted package keeps its name while a maintainer or publish path quietly ships a malicious release."
 objectives:
   - "Contrast a clean package with a silent malicious patch"
   - "See that a trusted package name can still exfiltrate on load"
   - "Use forensics helpers and captures to prove the compromise"
+mitigation:
+  - "Require MFA and approval for maintainer and publish-token changes"
+  - "Pin exact versions and use npm ci with ignore-scripts in CI until scripts are allowlisted"
+  - "Alert on new maintainers, surprise patch bumps, and unexpected dependency additions"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

@@ -4,10 +4,16 @@ category: package-registry
 incidents:
   - "AI-hallucinated package names"
   - "Slopsquatting installs"
+caseStudy: "Models slopsquatting: AI assistants hallucinate package names that do not exist yet, and attackers register those names so copied install commands pull malware."
 objectives:
   - "Install a package name that looks plausible but is attacker-controlled"
   - "Run the victim and capture exfil"
   - "Validate AI-suggested deps before install"
+mitigation:
+  - "Verify every package name on the registry before installing generated install commands"
+  - "Prefer scoped or internal packages; use --ignore-scripts until contents are inspected"
+  - "Maintain an allowlist and pin exact versions with committed lockfiles"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

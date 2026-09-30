@@ -4,10 +4,16 @@ category: package-integrity
 incidents:
   - "Unsigned package installs in CI"
   - "Signature verification gaps"
+caseStudy: "Covers signature and provenance gaps in CI: unsigned or weakly verified packages still install when pipelines treat signing as optional instead of fail-closed."
 objectives:
   - "Explain what package signing is supposed to stop"
   - "Install an unsigned compromised package in the lab"
   - "List verification controls from DETECT.md"
+mitigation:
+  - "Publish with provenance and verify with npm audit signatures or attestation tools"
+  - "Treat signatures as identity signals; still run behavioral and content scanning"
+  - "Protect signing keys in HSM/KMS with MFA, rotation, and audit logs"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

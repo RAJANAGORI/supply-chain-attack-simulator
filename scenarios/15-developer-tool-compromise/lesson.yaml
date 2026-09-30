@@ -4,10 +4,16 @@ category: developer-tools
 incidents:
   - "Malicious CLI/dev tools on the PATH"
   - "Trusted toolchain abuse"
+caseStudy: "Models malicious developer CLI tools on the PATH: a trusted toolchain install runs lifecycle scripts and can plant persistence or exfiltrate secrets from the workstation."
 objectives:
   - "Run a victim that loads a malicious developer tool"
   - "See exfil from tooling rather than app deps"
   - "Lock down tool install sources"
+mitigation:
+  - "Install dev tools with --ignore-scripts by default from approved registries only"
+  - "Pin tool versions and verify checksums before distributing to developers"
+  - "Review lockfile and ignore-file diffs after any toolchain install"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

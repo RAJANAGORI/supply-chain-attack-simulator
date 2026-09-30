@@ -413,6 +413,12 @@ export function ScenarioLessonRunner({
             </Card>
           )}
 
+          {lesson.caseStudy && (
+            <Card title="Real-world case" subtitle="Where this pattern showed up in the wild">
+              <p className="text-sm leading-relaxed text-ink-secondary">{lesson.caseStudy}</p>
+            </Card>
+          )}
+
           {lesson.objectives.length > 0 && (
             <Card title="Objectives" subtitle="What you should walk away with">
               <ul className="space-y-2 text-sm text-ink-secondary">
@@ -420,6 +426,19 @@ export function ScenarioLessonRunner({
                   <li key={o} className="flex gap-2">
                     <span className="text-ink-faint">·</span>
                     <span>{o}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
+          {lesson.mitigation && lesson.mitigation.length > 0 && (
+            <Card title="Mitigation" subtitle="Quick reference - full runbook in DETECT.md">
+              <ul className="space-y-2 text-sm text-ink-secondary">
+                {lesson.mitigation.map((m) => (
+                  <li key={m} className="flex gap-2">
+                    <span className="text-ink-faint">·</span>
+                    <span>{m}</span>
                   </li>
                 ))}
               </ul>
@@ -483,7 +502,7 @@ export function ScenarioLessonRunner({
           </Card>
 
           {lesson.incidents.length > 0 && (
-            <Card title="Real-world echoes" subtitle="Incidents this lab is modeled on">
+            <Card title="Named incidents" subtitle="Tags this lab is modeled on">
               <ul className="space-y-1.5 text-sm text-ink-secondary">
                 {lesson.incidents.map((inc) => (
                   <li key={inc}>· {inc}</li>

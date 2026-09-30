@@ -4,10 +4,16 @@ category: worm-propagation
 incidents:
   - "Shai-Hulud npm worm campaigns"
   - "Token theft and package re-publishing"
+caseStudy: "Models Shai-Hulud-style npm worm campaigns: stolen tokens and credentials are reused to republish packages and fan out across maintainer ecosystems."
 objectives:
   - "See how stolen tokens enable re-publishing worms"
   - "Trace harvester + Actions sim + registry together"
   - "Practice containment using DETECT.md"
+mitigation:
+  - "Keep npm publish tokens in CI secrets only; never on developer machines"
+  - "Default to npm ci --ignore-scripts and allowlist required lifecycle scripts"
+  - "Require 2FA and provenance on maintainer accounts; shorten GitHub token lifetimes"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

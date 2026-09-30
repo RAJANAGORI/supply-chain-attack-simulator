@@ -4,10 +4,16 @@ category: package-registry
 incidents:
   - "Alex Birsan (2021) dependency confusion bounties"
   - "Scoped internal packages resolved from a public registry"
+caseStudy: "Models Alex Birsan's 2021 dependency confusion research: internal package names resolved from a public registry when scope routing is missing, so a higher public version wins the install."
 objectives:
   - "Explain how a higher public version can beat an internal package"
   - "Abuse a misconfigured .npmrc that points a scope at an attacker registry"
   - "Spot the confusion with the scenario scanner and capture data"
+mitigation:
+  - "Route scoped packages to your private registry in .npmrc (for example @org:registry=...)"
+  - "Commit lockfiles and install with npm ci; pin critical packages to exact versions"
+  - "Reserve or claim internal namespaces on public registries where the ecosystem allows it"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

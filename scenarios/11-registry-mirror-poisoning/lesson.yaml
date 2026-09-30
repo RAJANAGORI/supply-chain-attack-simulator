@@ -4,10 +4,16 @@ category: package-registry
 incidents:
   - "Poisoned internal npm mirrors"
   - "Corporate registry trust failures"
+caseStudy: "Models poisoned internal npm mirrors and corporate registry trust failures: once a mirror is writable, cached packages can diverge from upstream without anyone noticing in package.json."
 objectives:
   - "Explain how a mirror can serve trojanized popular packages"
   - "Install from the poisoned mirror on :4873"
   - "Detect mirror drift with scanners and DETECT.md"
+mitigation:
+  - "Limit who can publish or mutate mirror storage; require MFA for admins"
+  - "Audit mirrors on a schedule and verify digests against upstream"
+  - "Alert on unexpected package mutations in the mirror cache"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

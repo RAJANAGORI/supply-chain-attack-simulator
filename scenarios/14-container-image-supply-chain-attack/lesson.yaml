@@ -4,10 +4,16 @@ category: containers
 incidents:
   - "Malicious container entrypoints"
   - "Image supply chain swaps"
+caseStudy: "Models container image supply-chain swaps: a malicious entrypoint or retagged image runs at start time while digests and signatures were never pinned in the deploy path."
 objectives:
   - "Run a malicious container start path without leaving localhost"
   - "Inspect container-style exfil captures"
   - "Apply image pinning and entrypoint review"
+mitigation:
+  - "Pin immutable image digests; do not rely on mutable tags alone"
+  - "Enforce image provenance and signature verification in CI/CD"
+  - "Policy-check ENTRYPOINT/CMD changes on critical images"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

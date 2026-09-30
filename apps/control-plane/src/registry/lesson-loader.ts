@@ -1,30 +1,32 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { getRepoRoot } from '../env.js';
 import type { LessonDefinition } from './lesson-types.js';
 import { normalizeLesson, parseLessonYaml } from './parse-lesson-yaml.js';
 import type { ScenarioDefinition } from './types.js';
 
-const cache = new Map<string, LessonDefinition | null>();
+const cache = new Map<string, { lesson: LessonDefinition | null; mtimeMs: number }>();
 
 export function lessonPathFor(slug: string): string {
   return resolve(getRepoRoot(), 'scenarios', slug, 'lesson.yaml');
 }
 
 export function loadLesson(scenario: ScenarioDefinition): LessonDefinition | null {
-  if (cache.has(scenario.id)) return cache.get(scenario.id) ?? null;
-
   const path = lessonPathFor(scenario.slug);
   if (!existsSync(path)) {
-    cache.set(scenario.id, null);
+    cache.set(scenario.id, { lesson: null, mtimeMs: 0 });
     return null;
   }
+
+  const mtimeMs = statSync(path).mtimeMs;
+  const hit = cache.get(scenario.id);
+  if (hit && hit.mtimeMs === mtimeMs) return hit.lesson;
 
   try {
     const raw = parseLessonYaml(readFileSync(path, 'utf8'));
     const lesson = normalizeLesson(raw, scenario.id);
     validateLessonAgainstRegistry(lesson, scenario);
-    cache.set(scenario.id, lesson);
+    cache.set(scenario.id, { lesson, mtimeMs });
     return lesson;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

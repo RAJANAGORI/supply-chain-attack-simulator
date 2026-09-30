@@ -24,6 +24,10 @@ export interface LessonDefinition {
   category: string;
   incidents: string[];
   objectives: string[];
+  /** Optional: 1-2 sentences tying the lab to a real supply-chain incident or class of attacks. */
+  caseStudy?: string;
+  /** Optional: short mitigation bullets distilled from DETECT.md (not a full runbook). */
+  mitigation?: string[];
   steps: LessonStep[];
 }
 

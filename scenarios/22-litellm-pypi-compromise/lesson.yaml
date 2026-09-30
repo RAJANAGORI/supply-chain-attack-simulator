@@ -4,10 +4,16 @@ category: package-compromise
 incidents:
   - "LiteLLM-style PyPI compromises"
   - "Python package supply chain"
+caseStudy: "Models LiteLLM-style PyPI compromises: a Python package or site-packages hook (for example a rogue .pth) runs attacker code inside the virtualenv after a normal pip install."
 objectives:
   - "Use the Python mock server and venv"
   - "pip install a compromised local package"
   - "Detect Python-side exfil patterns"
+mitigation:
+  - "Contain compromised virtualenvs; uninstall and recreate .venv from known-good pins"
+  - "Enforce hash pinning or vetted indexes; rotate PyPI and API tokens after incidents"
+  - "Scan site-packages for unexpected *.pth files after every pip install in CI"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

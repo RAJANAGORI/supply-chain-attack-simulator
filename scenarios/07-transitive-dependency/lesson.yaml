@@ -4,10 +4,16 @@ category: package-compromise
 incidents:
   - "event-stream transitive backdoor (2018)"
   - "Hidden deps deep in the tree"
+caseStudy: "Follows the event-stream (2018) transitive backdoor pattern: the malicious code sits deep in the tree behind a popular direct dependency, so a casual package.json review misses it."
 objectives:
   - "Explain why a direct dependency can be clean while a transitive one is not"
   - "Swap a compromised transitive package and observe exfil"
   - "Hunt node_modules with scanners"
+mitigation:
+  - "Pin critical packages; commit package-lock.json and use npm ci"
+  - "Scan the full dependency tree (npm audit, SBOM) not only direct deps"
+  - "Watch postinstall scripts and unexpected localhost or outbound beacons"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

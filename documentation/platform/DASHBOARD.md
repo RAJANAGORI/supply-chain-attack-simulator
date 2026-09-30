@@ -113,7 +113,13 @@ Every lab under `scenarios/NN-slug/` ships `lesson.yaml`. Teaching metadata only
 - Steps point at registry actions (`setup`, `services`, or a step id from `apps/control-plane/src/registry/scenarios.ts`)
 - Commands stay in the TypeScript registry; README.md remains the CLI source of truth
 - Verify rules: `exit-zero`, `service-listening`, `capture-count`
+- Optional quick-reference fields (shown in the lab storyboard when set):
+  - `caseStudy` - one or two sentences tying the lab to a named real-world supply chain incident
+  - `mitigation` - short bullets distilled from that lab's `DETECT.md` (not a second runbook)
+  - `incidents` - short name tags (already required-style list on every lab)
 - Validate with `node scripts/docs/check-lesson-yaml.js` (smoke CI)
+
+Lab **01** is the seed template for `caseStudy` / `mitigation`. Other labs can adopt the same fields later without schema changes.
 
 ## App boundaries (current merge state)
 

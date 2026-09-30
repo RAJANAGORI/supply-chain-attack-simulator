@@ -4,10 +4,16 @@ category: package-registry
 incidents:
   - "npm cache poisoning"
   - "Reused poisoned cache entries"
+caseStudy: "Models npm (and peer toolchain) cache poisoning: a bad tarball survives in ~/.npm or CI caches and is reused across clean-looking installs."
 objectives:
   - "Poison the local cache on first install"
   - "Reuse the poison on a second install"
   - "Clear and verify caches as defense"
+mitigation:
+  - "Bind CI cache keys to lockfile hashes and revalidate integrity on restore"
+  - "Clear caches after registry incidents; prefer npm ci with immutable mirrors"
+  - "Monitor cache directories for unauthorized mutations"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

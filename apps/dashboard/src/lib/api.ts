@@ -36,6 +36,8 @@ export interface LessonDefinition {
   category: string;
   incidents: string[];
   objectives: string[];
+  caseStudy?: string;
+  mitigation?: string[];
   steps: LessonStep[];
 }
 

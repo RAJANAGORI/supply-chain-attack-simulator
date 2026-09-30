@@ -4,10 +4,16 @@ category: package-compromise
 incidents:
   - "Workspace package substitution"
   - "Monorepo trust boundaries"
+caseStudy: "Models workspace package substitution in monorepos: a local package name wins resolution inside the workspace graph, so a malicious sibling package can shadow a trusted dependency."
 objectives:
   - "Install across workspace packages safely vs maliciously"
   - "See how one bad workspace package infects the victim app"
   - "Review workspace lock and publish controls"
+mitigation:
+  - "CODEOWNERS on workspace packages and root task configs (nx.json / turbo.json)"
+  - "Review cross-package task graphs before adding new workspace deps"
+  - "Use --ignore-scripts in CI and allowlist required lifecycle scripts"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

@@ -4,10 +4,16 @@ category: ci-cd
 incidents:
   - "Compromised Trivy / scanner modules"
   - "Security tool as attack path"
+caseStudy: "Models compromised scanner modules and mutable Trivy action tags: the security tool in CI becomes the delivery path, with force-pushed tags swapping trusted SHAs for malicious ones."
 objectives:
   - "Install a compromised scanner module into CI victim"
   - "See C2-style posts to localhost:3023"
   - "Trust but verify security tooling"
+mitigation:
+  - "Replace mutable action tags with immutable commit SHAs everywhere"
+  - "Disable and re-queue pipelines that ran known-bad scanner action versions"
+  - "Rotate CI secrets reachable by affected runs; hunt workflows for bad version strings"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

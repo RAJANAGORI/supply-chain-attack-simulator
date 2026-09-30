@@ -4,10 +4,16 @@ category: package-registry
 incidents:
   - "Highest version wins resolution tricks"
   - "Version confusion across registries"
+caseStudy: "Models version confusion across registries: highest version wins, so a higher public build of an internal name can beat the private package you meant to install."
 objectives:
   - "Install when a higher malicious version wins"
   - "Run the victim under that resolution"
   - "Pin exact versions and registries"
+mitigation:
+  - "Pin expected builder identity and refs; verify provenance fail-closed"
+  - "Still run behavioral scans even when signatures verify"
+  - "Segment CI so build runners cannot sign arbitrary artifacts"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

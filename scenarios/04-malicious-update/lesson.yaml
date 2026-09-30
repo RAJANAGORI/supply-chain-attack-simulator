@@ -4,10 +4,16 @@ category: package-compromise
 incidents:
   - "coa and rc malicious updates (2021)"
   - "ua-parser-js crypto-miner releases (2021)"
+caseStudy: "Mirrors the 2021 coa/rc malicious updates and ua-parser-js miner releases: an existing dependency ships a bad patch that victims pull through loose ranges or unreviewed updates."
 objectives:
   - "Explain how caret and tilde ranges pull in a bad patch"
   - "Install a malicious update that still looks like a bugfix"
   - "Detect the update with scanner output and capture data"
+mitigation:
+  - "Pin exact versions on sensitive dependencies; avoid carets where compromise would hurt"
+  - "Commit lockfiles and use npm ci in CI/CD"
+  - "Require changelog and diff review before merging dependency bumps"
+  - "Full blue-team runbook: DETECT.md in this lab folder"
 steps:
   - id: setup
     registry: setup

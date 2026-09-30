@@ -188,6 +188,22 @@ export function normalizeLesson(raw: Record<string, unknown>, expectedId: string
   const objectives = Array.isArray(raw.objectives)
     ? raw.objectives.map((x, i) => asString(x, `objectives[${i}]`))
     : [];
+
+  let caseStudy: string | undefined;
+  if (raw.caseStudy !== undefined && raw.caseStudy !== null) {
+    caseStudy = asString(raw.caseStudy, 'caseStudy').trim();
+    if (!caseStudy) caseStudy = undefined;
+  }
+
+  let mitigation: string[] | undefined;
+  if (raw.mitigation !== undefined && raw.mitigation !== null) {
+    if (!Array.isArray(raw.mitigation)) {
+      throw new Error('mitigation must be a list of strings');
+    }
+    mitigation = raw.mitigation.map((x, i) => asString(x, `mitigation[${i}]`));
+    if (mitigation.length === 0) mitigation = undefined;
+  }
+
   if (!Array.isArray(raw.steps) || raw.steps.length === 0) {
     throw new Error('steps must be a non-empty list');
   }
@@ -213,5 +229,5 @@ export function normalizeLesson(raw: Record<string, unknown>, expectedId: string
     };
   });
 
-  return { id, etaMinutes, category, incidents, objectives, steps };
+  return { id, etaMinutes, category, incidents, objectives, caseStudy, mitigation, steps };
 }
