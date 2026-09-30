@@ -93,13 +93,14 @@ Source of truth: [`scripts/setup/ports.env`](../../scripts/setup/ports.env)
 | 4566 | Floci AWS emulator (optional; all scenarios - S3 universal; extended on 05, 06, 11, 14, 17, 19, 23) |
 | 4500 | Floci web console sidecar (`/_floci/ui` - optional; started on demand) |
 
-Free a port after a lab:
+Early labs (01-05, 07-12) intentionally share mock collector `:3000` - they were written before the per-lab 3015-3025 scheme. Only one of those mocks can listen at a time. From the dashboard Services card use **Free :3000**, or:
 
 ```bash
 ./scripts/setup/kill-port.sh 3000
 ./scripts/setup/kill-port.sh --all
 ```
 
+Labs 15-25 already use dedicated ports and do not collide with `:3000`.
 ## Standard lab workflow
 
 1. `cd scenarios/NN-slug && export TESTBENCH_MODE=enabled && ./setup.sh`

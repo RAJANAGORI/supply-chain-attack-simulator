@@ -557,6 +557,41 @@ export function createApiRouter(): Router {
     return startPlatformScript(res, entry.label, entry.script, entry.args ?? []);
   });
 
+  /** Free a single lab port (default :3000). Early labs share 3000 — use before switching scenarios. */
+  router.post('/platform/ports/free', (req, res) => {
+    const raw = req.body?.port ?? 3000;
+    const port = typeof raw === 'number' ? raw : Number(String(raw).replace(/^:/, ''));
+    if (!Number.isFinite(port) || port <= 0) {
+      return res.status(400).json({ error: 'port must be a positive number' });
+    }
+
+    for (const proc of processManager.list()) {
+      if (proc.status !== 'running' || !proc.scenarioId || proc.scenarioId === 'platform') continue;
+      const scenario = getScenario(proc.scenarioId);
+      if (!scenario?.ports.includes(port)) continue;
+      processManager.stopSession(proc.id);
+    }
+
+    const scriptPath = resolve(REPO, 'scripts/setup/kill-port.sh');
+    const record = processManager.startDetached({
+      label: `Free port :${port}`,
+      command: 'bash',
+      args: [scriptPath, String(port)],
+      cwd: REPO,
+      scenarioId: 'platform',
+      serviceId: `free-port-${port}`,
+    });
+
+    return res.json({
+      started: true,
+      async: true,
+      sessionId: record.id,
+      label: record.label,
+      port,
+      message: `Freeing listeners on :${port}. Labs 01-05 and 07-12 share :3000 — free it before starting the next mock.`,
+    });
+  });
+
   router.post('/platform/teardown', (_req, res) => {
     // Stop tracked lab children first so teardown does not need to kill our own PIDs.
     for (const proc of processManager.list()) {
