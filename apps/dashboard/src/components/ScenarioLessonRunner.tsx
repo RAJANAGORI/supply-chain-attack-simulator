@@ -263,6 +263,12 @@ export function ScenarioLessonRunner({
 
   const doneCount = visibleSteps.filter((s) => verified[s.id]).length;
   const captureReady = hasCaptureData(captures);
+  // Prefer shared :3000 when this lab uses it; otherwise the primary mock/C2 port.
+  const freePortTarget = useMemo(() => {
+    if (scenario.ports.includes(3000)) return 3000;
+    const servicePort = scenario.services.map((s) => s.port).find((p): p is number => typeof p === 'number');
+    return servicePort ?? scenario.ports[0] ?? null;
+  }, [scenario.ports, scenario.services]);
 
   return (
     <div className="space-y-4">
@@ -308,9 +314,8 @@ export function ScenarioLessonRunner({
         </Alert>
       )}
 
-      {/* Two columns from md up; Live inspector spans full width underneath. */}
-      <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start">
+      {/* Balanced two-column lab chrome: run path | observe + context */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
         <div className="space-y-4 min-w-0">
           {lesson.objectives.length > 0 && (
             <Card title="Objectives" subtitle="What you should walk away with">
@@ -426,41 +431,43 @@ export function ScenarioLessonRunner({
               )}
             </Card>
           )}
-        </div>
 
-        <div className="space-y-4 min-w-0">
           <Card
             title="Services"
-            subtitle={
-              scenario.ports.includes(3000)
-                ? 'Mock collectors for this lab (early labs share :3000)'
-                : 'Mock collectors and registries for this lab'
-            }
+            subtitle="Mock collectors and registries for this lab"
             action={
-              <Btn
-                variant="ghost"
-                size="sm"
-                disabled={!!busy}
-                title="Kill whatever is listening on :3000 (labs 01-05, 07-12 share this port)"
-                onClick={() =>
-                  void (async () => {
-                    setBusy('free-3000');
-                    setError('');
-                    try {
-                      const res = await cp.freePort(3000);
-                      if (res.sessionId) await waitForSession(res.sessionId);
-                      await onReload();
-                      await refreshVerify();
-                    } catch (e) {
-                      setError(e instanceof Error ? e.message : 'Failed to free :3000');
-                    } finally {
-                      setBusy('');
-                    }
-                  })()
-                }
-              >
-                {busy === 'free-3000' ? 'Freeing…' : 'Free :3000'}
-              </Btn>
+              freePortTarget != null ? (
+                <Btn
+                  variant="ghost"
+                  size="sm"
+                  disabled={!!busy}
+                  title={
+                    freePortTarget === 3000
+                      ? 'Labs 01-05 and 07-12 share :3000 — free it before switching those labs'
+                      : `Free listeners on :${freePortTarget}`
+                  }
+                  onClick={() =>
+                    void (async () => {
+                      setBusy('free-port');
+                      setError('');
+                      try {
+                        const res = await cp.freePort(freePortTarget);
+                        if (res.sessionId) await waitForSession(res.sessionId);
+                        await onReload();
+                        await refreshVerify();
+                      } catch (e) {
+                        setError(
+                          e instanceof Error ? e.message : `Failed to free :${freePortTarget}`,
+                        );
+                      } finally {
+                        setBusy('');
+                      }
+                    })()
+                  }
+                >
+                  {busy === 'free-port' ? 'Freeing…' : `Free :${freePortTarget}`}
+                </Btn>
+              ) : undefined
             }
           >
             <ul className="space-y-2 text-sm text-ink-muted">
@@ -479,12 +486,49 @@ export function ScenarioLessonRunner({
                 );
               })}
             </ul>
-            <p className="mt-3 text-[11px] leading-relaxed text-ink-faint">
-              Labs 01-05 and 07-12 all use mock :3000 by design (not per-lab incremental). Free :3000
-              before switching those labs if you see EADDRINUSE. Full Reset lab still clears
-              everything.
-            </p>
+            {freePortTarget === 3000 && (
+              <p className="mt-3 text-[11px] leading-relaxed text-ink-faint">
+                This lab shares mock :3000 with labs 01-05 and 07-12. Free it if you see EADDRINUSE.
+              </p>
+            )}
           </Card>
+        </div>
+
+        <div className="space-y-4 min-w-0">
+          <div id="live-inspector" className="scroll-mt-4">
+            <Card
+              title="Live inspector"
+              subtitle={
+                captureReady
+                  ? 'Mock collector data for this lab'
+                  : 'Captures appear here after the attack steps fire'
+              }
+              action={
+                <Btn
+                  variant="ghost"
+                  size="sm"
+                  disabled={!!busy}
+                  onClick={() =>
+                    void (async () => {
+                      setBusy('clear');
+                      try {
+                        await cp.clearCaptures(scenarioId);
+                        await refreshVerify();
+                      } finally {
+                        setBusy('');
+                      }
+                    })()
+                  }
+                >
+                  Clear
+                </Btn>
+              }
+            >
+              <pre className="max-h-[min(28rem,50vh)] min-h-[12rem] overflow-auto rounded-xl border border-line bg-[#0c0b14] p-4 font-mono text-[11px] leading-relaxed text-white/70">
+                {JSON.stringify(captures, null, 2)}
+              </pre>
+            </Card>
+          </div>
 
           {lesson.mitigation && lesson.mitigation.length > 0 && (
             <Card title="Mitigation" subtitle="Quick reference - full runbook in DETECT.md">
@@ -530,42 +574,6 @@ export function ScenarioLessonRunner({
 
           <LabAssistant scenarioId={scenarioId} stepId={activeStep?.id} />
         </div>
-      </div>
-
-      <div id="live-inspector" className="scroll-mt-4">
-        <Card
-          title="Live inspector"
-          subtitle={
-            captureReady
-              ? 'Mock collector data for this lab'
-              : 'Captures appear here after the attack steps fire'
-          }
-          action={
-            <Btn
-              variant="ghost"
-              size="sm"
-              disabled={!!busy}
-              onClick={() =>
-                void (async () => {
-                  setBusy('clear');
-                  try {
-                    await cp.clearCaptures(scenarioId);
-                    await refreshVerify();
-                  } finally {
-                    setBusy('');
-                  }
-                })()
-              }
-            >
-              Clear
-            </Btn>
-          }
-        >
-          <pre className="max-h-[32rem] overflow-auto rounded-xl border border-line bg-[#0c0b14] p-4 font-mono text-[11px] leading-relaxed text-white/70">
-            {JSON.stringify(captures, null, 2)}
-          </pre>
-        </Card>
-      </div>
       </div>
     </div>
   );
