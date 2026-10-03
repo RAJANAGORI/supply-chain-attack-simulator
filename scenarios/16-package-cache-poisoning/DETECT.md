@@ -55,43 +55,4 @@ rule Cache_Poisoning_IOC {
 
 ## Straightforward Implementation
 
-### 1. Cache clearing
-
-```bash
-# npm
-npm cache clean --force
-rm -rf ~/.npm/_cacache
-
-# pnpm
-pnpm store prune
-
-# Yarn
-yarn cache clean
-
-# GitHub Actions
-gh actions-cache list -R org/repo
-gh actions-cache delete <key> -R org/repo --confirm
-```
-
-### 2. CI cache key
-
-```yaml
-# .github/workflows/ci.yml
-- uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
-  with:
-    path: ~/.npm
-    key: npm-${{ hashFiles('package-lock.json') }}-${{ github.run_id }}
-    restore-keys: npm-${{ hashFiles('package-lock.json') }}
-```
-
-### 3. Remote cache invalidation (Artifactory example)
-
-```bash
-# Remove a poisoned package from the remote/virtual cache
-jf rt del --quiet npm-remote-cache/clean-utils/-/clean-utils-1.2.3.tgz
-# Trigger metadata recalculation on the virtual repository
-```
-
-### 4. Trust boundary
-
-Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches. After any suspected registry incident, rotate cache keys and purge remote caches before rebuilding.
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

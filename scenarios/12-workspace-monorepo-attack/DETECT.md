@@ -54,36 +54,4 @@ rule Workspace_Attack_IOC {
 
 ## Straightforward Implementation
 
-### 1. CODEOWNERS
-
-```text
-# .github/CODEOWNERS
-/packages/* @org/security-team @org/platform-team
-/package.json @org/security-team
-/nx.json @org/security-team
-/turbo.json @org/security-team
-```
-
-### 2. Workspace graph and task boundary review
-
-```bash
-# Nx
-nx graph --file=dep-graph.json
-# Turborepo
-cat turbo.json | jq '.pipeline | keys'
-```
-
-### 3. CI gate
-
-```yaml
-# .github/workflows/workspace-audit.yml
-- run: npm ci --ignore-scripts
-- run: node scripts/audit-workspace-packages.js
-- run: |
-    # Fail if a task depends on a workspace package outside the approved graph
-    node scripts/validate-task-boundaries.js --config nx.json
-```
-
-### 4. Policy
-
-Treat every workspace package - and every task that touches it - as a third-party dependency for security review purposes.
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

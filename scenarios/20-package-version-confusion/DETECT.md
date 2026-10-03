@@ -81,45 +81,4 @@ rule Provenance_Abuse_Indicator {
 
 ## Straightforward Implementation
 
-### 1. Prevention config
-
-Enable provenance verification and configure npm to require attestations where available:
-
-```ini
-# .npmrc
-provenance=true
-```
-
-```bash
-npm audit signatures
-```
-
-### 2. Builder identity allowlist
-
-```javascript
-// scripts/verify-provenance-policy.js
-const allowedBuilders = [
-  'https://github.com/myorg/trusted-logger/.github/workflows/publish.yml@refs/heads/main'
-];
-
-function checkProvenance(bundle) {
-  const builderId = bundle.predicate.runDetails.builder.id;
-  if (!allowedBuilders.includes(builderId)) {
-    throw new Error(`Unexpected builder: ${builderId}`);
-  }
-}
-```
-
-### 3. CI gate
-
-```yaml
-# .github/workflows/install-check.yml
-- run: npm ci --ignore-scripts
-- run: npm audit signatures
-- run: node scripts/verify-provenance-policy.js
-- run: node scripts/behavioral-scan.js
-```
-
-### 4. Workflow and key monitoring
-
-Alert when the publish workflow file or the signing credential is modified. Review GitHub organization audit logs and cloud HSM/key vault logs for unexpected signing events. Rotate keys and revoke npm tokens after suspected CI compromise.
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

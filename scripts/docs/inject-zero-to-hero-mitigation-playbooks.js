@@ -41,7 +41,7 @@ for (const id of Object.keys(PLAYBOOKS)) {
   const bullets = playbookBullets(id);
   const impl = playbookImplementation(id);
   const block = formatZeroToHeroPlaybook(id, bullets).replace(/\n---\s*\n$/, '\n') +
-    formatZeroToHeroImplementation(impl);
+    formatZeroToHeroImplementation(id, impl);
 
   // Strip existing Mitigation Playbook and Straightforward Implementation sections if present
   let stripped = content;

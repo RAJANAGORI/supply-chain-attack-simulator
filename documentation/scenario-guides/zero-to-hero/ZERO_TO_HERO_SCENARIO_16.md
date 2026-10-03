@@ -575,134 +575,7 @@ node detection-tools/cache-poisoning-detector.js .
 
 *Code-level workflow for Scenario 16. Editable source: [`scas-codeflow-scenario-16.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-16.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/16-package-cache-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Clear/rotate package cache during incident response and critical pipeline runs.
-- Enforce lockfile + integrity verification against trusted metadata.
-- Use deterministic installs in CI (`npm ci`) and immutable artifact mirrors.
-- Monitor for suspicious cache path mutations and postinstall behavior.
-- Separate developer cache trust from production build trust boundaries.
-
-## Straightforward Implementation
-
-### 1. Cache clearing
-
-```bash
-npm cache clean --force
-```
-
-### 2. CI cache key
-
-```yaml
-# .github/workflows/ci.yml
-- uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9
-  with:
-    path: ~/.npm
-    key: npm-${{ hashFiles('package-lock.json') }}
-```
-
-### 3. GitHub Actions cache cleanup
-
-```bash
-gh actions-cache list -R org/repo
-gh actions-cache delete <key> -R org/repo --confirm
-```
-
-### 4. Trust boundary
-
-Do not reuse a developer's npm cache in production builds. Use ephemeral CI runners or immutable mirror caches.
-
----
-
-nario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
-
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 16 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-16.svg)
-
-*Swimlane diagram for Scenario 16. Editable source: [`scas-observability-scenario-16.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-16.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm install (first pass - seeds poisoned cache-lib) |
-| 2 | Learner | Victim | rm node_modules && npm install again (cache hit) |
-| 3 | Victim | MalPkg | Load cache-lib from poisoned local cache/ |
-| 4 | Learner | Victim | npm start - same bad bits reinstalled |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/16-package-cache-poisoning`):
-
-```bash
-cd scenarios/16-package-cache-poisoning
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/16-package-cache-poisoning
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm install && npm install && npm start
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://127.0.0.1:3016/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/16?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "16" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 16** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 16** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -780,7 +653,24 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 16
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learner: Correlate capture detail with runbook IOCs
+    Learner->>Learner: Corre## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/16-package-cache-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Clear npm, pnpm, Yarn, and CI caches during incident response and after any registry compromise.
+- Bind CI cache keys to `package-lock.json`/`pnpm-lock.yaml` hashes and revalidate integrity on restore.
+- Use immutable artifact mirrors and deterministic installs (`npm ci`) in production pipelines.
+- Monitor cache paths (`~/.npm`, `_cacache`, `~/.cache/pnpm`, `~/.yarn/cache`, GitHub Actions cache, Artifactory remote cache) for unauthorized mutations.
+- Separate developer cache trust from production build trust boundaries.
+- Document cache-invalidation playbooks for npm, pnpm, Yarn, GitHub Actions, and Artifactory.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/16-package-cache-poisoning/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+late capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

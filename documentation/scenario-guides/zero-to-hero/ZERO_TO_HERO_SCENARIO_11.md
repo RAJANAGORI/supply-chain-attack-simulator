@@ -648,135 +648,7 @@ node detection-tools/mirror-validator.js compromised-mirror legitimate-packages
 
 *Code-level workflow for Scenario 11. Editable source: [`scas-codeflow-scenario-11.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-11.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/11-registry-mirror-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Secure mirror access - limit who can publish or modify mirror storage.
-- Audit mirror configuration and cached packages on a schedule.
-- Verify mirror packages match upstream registry digests.
-- Implement strict access controls and MFA on mirror admin paths.
-- Monitor mirror behavior and alert on unexpected package mutations.
-
-## Straightforward Implementation
-
-### 1. Mirror config example (Verdaccio)
-
-```yaml
-# verdaccio/config.yaml
-uplinks:
-  npmjs:
-    url: https://registry.npmjs.org/
-    cache: true
-    integrity: true
-```
-
-### 2. Upstream digest check
-
-```bash
-npm view <pkg> dist.shasum
-sha1sum /path/to/mirror/cache/<pkg>/*.tgz
-```
-
-### 3. Admin hardening
-
-Require MFA on mirror admin accounts. Alert on package overwrites or deletions.
-
-### 4. Audit cadence
-
-Run a weekly job that compares a sample of mirrored packages against upstream metadata.
-
----
-
-csearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
-
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 11 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-11.svg)
-
-*Swimlane diagram for Scenario 11. Editable source: [`scas-observability-scenario-11.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-11.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm install (uses poisoned internal mirror path) |
-| 2 | Victim | MalPkg | Resolve enterprise-utils / secure-lib from mirror |
-| 3 | Learner | Victim | npm start |
-| 4 | MalPkg | MalPkg | Poisoned mirror package executes |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/11-registry-mirror-poisoning`):
-
-```bash
-cd scenarios/11-registry-mirror-poisoning
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/11-registry-mirror-poisoning
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd corporate-app && npm install && npm start
-```
-
-> **Note:** Run ./setup.sh first to generate corporate-app/ and compromised-mirror/.
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3000/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/11?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "11" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 11** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 11** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -857,7 +729,23 @@ sequenceDiagram
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
-### Scenario-specific attack steps (Phase 2)
+### Scenario-## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/11-registry-mirror-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Secure mirror access - limit who can publish or modify mirror storage.
+- Audit mirror configuration and cached packages on a schedule.
+- Verify mirror packages match upstream registry digests.
+- Implement strict access controls and MFA on mirror admin paths.
+- Monitor mirror behavior and alert on unexpected package mutations.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/11-registry-mirror-poisoning/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+specific attack steps (Phase 2)
 
 Same Phase-2 path as the diagrams above (for skimming / accessibility).
 

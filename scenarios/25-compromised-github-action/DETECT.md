@@ -67,36 +67,4 @@ rule Compromised_Checkout_Action_IOC {
 
 ## Straightforward Implementation
 
-### 1. Pin actions by SHA
-
-```yaml
-# .github/workflows/ci.yml
-- name: Checkout
-  uses: example/actions/checkout@a1b2c3d4e5f6789012345678901234567890abcd
-```
-
-### 2. Audit workflow files
-
-```bash
-grep -R "uses:.*@v" .github/workflows/ && exit 1
-```
-
-### 3. Harden runner
-
-```yaml
-- uses: step-security/harden-runner@<full-sha>
-  with:
-    egress-policy: block
-    allowed-endpoints: |
-      github.com:443
-      registry.npmjs.org:443
-```
-
-### 4. Credential rotation
-
-```bash
-# Rotate all secrets accessible to affected pipeline runs
-gh secret set GITHUB_TOKEN --repo org/repo --body "..."
-aws iam create-access-key --user-name ci-user
-# Update any database, registry, or cloud credentials the action could reach
-```
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

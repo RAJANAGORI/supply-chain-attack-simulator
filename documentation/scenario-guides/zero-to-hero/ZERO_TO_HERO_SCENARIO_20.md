@@ -546,134 +546,7 @@ node detection-tools/version-confusion-detector.js victim-app
 
 *Code-level workflow for Scenario 20. Editable source: [`scas-codeflow-scenario-20.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-20.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/20-package-version-confusion/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Pin exact versions for critical dependencies and enforce lockfile usage.
-- Scope private packages explicitly to internal registry endpoints.
-- Alert on unusual semver jumps and first-seen maintainers.
-- Require human review for dependency version changes above policy thresholds.
-- Prefer deterministic `npm ci` workflows in CI.
-
-## Straightforward Implementation
-
-### 1. Dependabot config
-
-```yaml
-# .github/dependabot.yml
-ignore:
-  - dependency-name: "*"
-    update-types: ["version-update:semver-major"]
-```
-
-### 2. Semver policy
-
-Any dependency update that jumps more than one major version requires security review.
-
-### 3. Scoped registry
-
-```ini
-# .npmrc
-@myorg:registry=https://artifactory.example.com/api/npm/npm-internal/
-```
-
-### 4. CI gate
-
-```yaml
-- run: npm ci --ignore-scripts
-- run: node scripts/check-version-jumps.js --threshold 2
-```
-
----
-
-earch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
-
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 20 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-20.svg)
-
-*Swimlane diagram for Scenario 20. Editable source: [`scas-observability-scenario-20.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-20.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm install (registry/ layout serves many versions) |
-| 2 | Victim | MalPkg | Resolver selects highest matching 999.999.999 |
-| 3 | Learner | Victim | npm start |
-| 4 | MalPkg | MalPkg | Malicious high-version package executes |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/20-package-version-confusion`):
-
-```bash
-cd scenarios/20-package-version-confusion
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/20-package-version-confusion
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm install && npm start
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3020/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/20?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "20" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 20** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 20** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -751,7 +624,25 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 20
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learner: Correlate capture detail with runbook IOCs
+    Learner## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/20-package-version-confusion/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Treat npm provenance and GitHub artifact attestations as identity and integrity signals, not safety guarantees.
+- Pin expected builder identity, repository, and ref in a verification policy that fails closed.
+- Run behavioral scans on installed packages even when signatures and provenance verify.
+- Monitor CI workflow changes and signing-credential usage for unexpected events.
+- Segment CI jobs so build runners cannot sign arbitrary artifacts or access signing keys.
+- Publish to and verify against a transparency log when the registry supports it.
+- Require lockfiles and deterministic npm ci installs in CI pipelines.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/20-package-version-confusion/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

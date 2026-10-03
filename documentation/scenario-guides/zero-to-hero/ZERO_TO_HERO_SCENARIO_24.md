@@ -164,68 +164,7 @@ node detection-tools/slopsquat-detector.js victim-app
 - [ ] Installed package reads `process.env` and makes HTTP requests on module load.
 - [ ] Mock capture evidence at `infrastructure/captured-data.json` with `install_beacon` event type.
 
-## Mitigation Playbook
 
-- Verify every package name on the public registry before installing.
-- Prefer internal or scoped packages for reusable utility code.
-- Run `npm install --ignore-scripts` and inspect package contents before allowing scripts.
-- Maintain an approved-dependency allowlist and require security review for new names.
-- Pin exact versions and commit lockfiles so a slopsquat cannot be introduced by a loose semver range.
-- Scan dependency diffs for network requests, environment access, and eval-like patterns.
-
-## Straightforward Implementation
-
-### 1. Prevention config
-
-Create or update `.npmrc` in the repo root:
-
-```ini
-# .npmrc
-@myorg:registry=https://internal.registry.example/
-ignore-scripts=true
-```
-
-### 2. Pre-install verification
-
-```bash
-# Verify the package exists and review its metadata
-npm view array-sortify --json | jq '{name, version, maintainers, repository, time}'
-
-# Inspect the tarball before install
-npm pack array-sortify
-tar -xzf array-sortify-*.tgz && cat package/index.js
-```
-
-### 3. CI gate
-
-```yaml
-# .github/workflows/dependency-review.yml
-name: Dependency Review
-on: [pull_request]
-jobs:
-  dependency-review:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: actions/dependency-review-action@3b139cfc5fae8b618dfb3e11a0a753bf0c333854
-        with:
-          fail-on-severity: moderate
-      - uses: socket-security/action@latest
-        env:
-          SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_API_KEY }}
-```
-
-### 4. Incident response
-
-```bash
-npm uninstall array-sortify
-rm -rf node_modules package-lock.json
-npm ci
-npm token list
-npm token revoke <token-id>
-```
 
 ## Code-level workflow
 
@@ -256,7 +195,24 @@ Slopsquatting: an LLM-hallucinated package name (`array-sortify`) is installed a
 
 ### End-to-end flow
 
-![Scenario 24 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-24.svg)
+![Scenario 24 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-sc## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/24-slopsquatting/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Verify every package name on the public registry before installing a command copied from generated content.
+- Prefer internal or scoped packages for reusable utility code.
+- Run `npm install --ignore-scripts` and inspect package contents before allowing scripts.
+- Maintain an approved-dependency allowlist and require security review for every new name.
+- Pin exact versions and commit lockfiles so a slopsquat cannot slip in through a loose semver range.
+- Scan dependency diffs for network requests, environment access, and eval-like patterns.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/24-slopsquatting/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+enario-24.svg)
 
 *Swimlane diagram for Scenario 24. Editable source: [`scas-observability-scenario-24.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-24.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
 
@@ -382,5 +338,3 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
-
-

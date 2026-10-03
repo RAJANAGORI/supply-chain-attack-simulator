@@ -53,37 +53,4 @@ rule Malicious_Update_Script {
 
 ## Straightforward Implementation
 
-### 1. Prevention config
-
-```json
-// package.json
-{
-  "dependencies": {
-    "express": "4.18.2"
-  }
-}
-```
-
-### 2. Dependabot config
-
-```yaml
-# .github/dependabot.yml
-version: 2
-updates:
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-```
-
-### 3. Update review
-
-```bash
-npx npm-diff <package>@<old> <package>@<new>
-npx socket-dev diff
-```
-
-### 4. Staged rollout
-
-Merge dependency updates to a "staging" branch first. Run smoke tests for 24 hours before promoting to "main".
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

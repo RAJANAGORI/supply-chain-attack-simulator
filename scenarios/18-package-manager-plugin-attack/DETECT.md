@@ -69,36 +69,4 @@ rule Pnpm_Hook_IOC {
 
 ## Straightforward Implementation
 
-### 1. CODEOWNERS for hook files
-
-```text
-# .github/CODEOWNERS
-.pnpmfile.cjs    @org/security-team
-.yarn/plugins/*  @org/security-team
-```
-
-### 2. CI gate - fail on frozen lockfile changes
-
-```yaml
-# .github/workflows/ci.yml
-- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-- name: Install with frozen lockfile
-  run: npx pnpm install --frozen-lockfile
-- name: Verify no unexpected lockfile changes
-  run: git diff --exit-code pnpm-lock.yaml
-```
-
-### 3. Detect injected dependencies
-
-```bash
-npx pnpm list --json | jq '.dependencies | keys'
-```
-
-### 4. Isolate install in CI
-
-```yaml
-- name: Install in sandbox
-  run: npx pnpm install --frozen-lockfile
-  env:
-    NODE_ENV: production
-```
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

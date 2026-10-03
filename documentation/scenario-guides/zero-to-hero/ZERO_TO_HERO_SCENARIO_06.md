@@ -620,142 +620,7 @@ Implement preventive measures:
 
 *Code-level workflow for Scenario 06. Editable source: [`scas-codeflow-scenario-06.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-06.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/06-sha-hulud/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Require 2FA on all package maintainer and publishing accounts.
-- Restrict or monitor `postinstall` and other lifecycle scripts.
-- Run automated security scanning in CI on every dependency change.
-- Use secret management tools; never commit tokens or keys to repositories.
-- Enforce lockfiles with `npm ci --audit` in CI pipelines.
-- Rotate credentials immediately after suspected compromise.
-
-## Straightforward Implementation
-
-### 1. Default deny lifecycle scripts
-
-```bash
-npm ci --ignore-scripts
-```
-
-### 2. Allowlist required scripts
-
-```yaml
-# allowed-scripts.yml
-allowed:
-  - electron:postinstall
-  - esbuild:postinstall
-```
-
-### 3. Credential rotation
-
-```bash
-npm token list
-npm token revoke <token-id>
-gh ssh-key list
-gh ssh-key delete <id>
-```
-
-### 4. Cache clearing
-
-```bash
-npm cache clean --force
-rm -rf node_modules package-lock.json
-npm ci --ignore-scripts
-```
-
----
-
-asticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
-
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 06 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-06.svg)
-
-*Swimlane diagram for Scenario 06. Editable source: [`scas-observability-scenario-06.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-06.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm install ../compromised-package/data-processor |
-| 2 | Victim | MalPkg | npm lifecycle runs postinstall script |
-| 3 | MalPkg | MalPkg | Scan for tokens / npmrc paths (simulated) |
-| 4 | Learner | Victim | npm start (optional second-stage behavior) |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/06-sha-hulud`):
-
-```bash
-cd scenarios/06-sha-hulud
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd infrastructure && node credential-harvester.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/06-sha-hulud
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm install ../compromised-package/data-processor && npm start
-```
-
-> **Note:** Also runs mock-cdn :3000 and github-actions-simulator :3002 for replication simulation.
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3001/captured-credentials
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/06?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "06" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 06** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 06** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -836,7 +701,25 @@ sequenceDiagram
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
-### Scenario-specific attack steps (Phase 2)
+### Scenario-specific attack## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/06-sha-hulud/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Store npm publish tokens only in CI/CD secrets; never keep them on developer machines.
+- Run `npm ci --ignore-scripts` by default and allowlist only required lifecycle scripts.
+- Require 2FA and publish provenance on npm maintainer accounts.
+- Restrict GitHub personal access tokens to the smallest scope and shortest lifetime.
+- Monitor CI and developer machines for unexpected `npm publish` or registry writes.
+- Alert on postinstall scripts that read `~/.npmrc`, `~/.git-credentials`, or environment tokens.
+- Rotate npm and GitHub tokens immediately after suspected compromise.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/06-sha-hulud/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+ steps (Phase 2)
 
 Same Phase-2 path as the diagrams above (for skimming / accessibility).
 

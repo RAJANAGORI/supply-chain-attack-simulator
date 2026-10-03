@@ -59,24 +59,4 @@ rule Multi_Stage_Attack_IOC {
 
 ## Straightforward Implementation
 
-### 1. Correlation rule (pseudo-Splunk)
-
-```spl
-| tstats `security` count from datamodel=Endpoint.Processes
-  where Processes.process="npm install" by _time host
-| join host [ search eventtype=network_traffic dest_port=443 ]
-| where relative_time(_time,"-5m") < first_event_time
-| where event_count >= 3
-```
-
-### 2. Segmentation
-
-Use separate CI service accounts per stage. A build runner must not be able to publish packages or deploy to production. Store publish tokens in a dedicated secure vault, not in general build variables.
-
-### 3. Auto-containment
-
-Configure SOAR or CI webhooks to kill runners and revoke tokens when the sequence dependency install -> secret access -> registry publish occurs within a short window.
-
-### 4. Tabletop exercises
-
-Run quarterly attack-chain exercises against your CI/CD architecture. Preserve artifacts per stage for timeline reconstruction.
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

@@ -52,26 +52,4 @@ rule Container_Image_Compromise_IOC {
 
 ## Straightforward Implementation
 
-### 1. Digest pinning
-
-```dockerfile
-# Dockerfile
-FROM node:20.11.0-alpine@sha256:abcdef123...
-```
-
-### 2. Image signing and verification
-
-```bash
-cosign sign --yes registry.example/image@sha256:...
-cosign verify --key cosign.pub registry.example/image@sha256:...
-```
-
-### 3. BuildKit provenance
-
-```bash
-docker buildx build --provenance=true --sbom=true -t image:tag .
-```
-
-### 4. Admission control
-
-Use Kyverno or OPA Gatekeeper to reject pods that use images without signatures or digests.
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

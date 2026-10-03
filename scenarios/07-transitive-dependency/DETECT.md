@@ -53,30 +53,4 @@ rule Transitive_Dependency_IOC {
 
 ## Straightforward Implementation
 
-### 1. SBOM generation
-
-```bash
-npx @cyclonedx/cyclonedx-npm --output-file sbom.json
-# or
-npx syft dir:. -o cyclonedx-json > sbom.json
-```
-
-### 2. CI gate
-
-```yaml
-# .github/workflows/sbom.yml
-- run: npm ci --ignore-scripts
-- run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json
-- run: node scripts/validate-sbom-against-lockfile.js sbom.json package-lock.json
-```
-
-### 3. Full-tree review
-
-```bash
-npm ls --all > dependency-tree.txt
-# Review monthly or on every major dependency update
-```
-
-### 4. Note on limits
-
-"> npm audit" finds known CVEs, not novel malware in transitive packages. Pair it with supply-chain scanners and runtime monitoring.
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

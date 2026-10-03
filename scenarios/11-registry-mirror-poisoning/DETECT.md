@@ -61,28 +61,4 @@ rule Registry_Mirror_Poisoning_IOC {
 
 ## Straightforward Implementation
 
-### 1. Mirror config example (Verdaccio)
-
-```yaml
-# verdaccio/config.yaml
-uplinks:
-  npmjs:
-    url: https://registry.npmjs.org/
-    cache: true
-    integrity: true
-```
-
-### 2. Upstream digest check
-
-```bash
-npm view <pkg> dist.shasum
-sha1sum /path/to/mirror/cache/<pkg>/*.tgz
-```
-
-### 3. Admin hardening
-
-Require MFA on mirror admin accounts. Alert on package overwrites or deletions.
-
-### 4. Audit cadence
-
-Run a weekly job that compares a sample of mirrored packages against upstream metadata.
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

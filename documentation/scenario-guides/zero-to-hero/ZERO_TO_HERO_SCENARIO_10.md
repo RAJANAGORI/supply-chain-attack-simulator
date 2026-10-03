@@ -331,137 +331,7 @@ git commit -m "Remove malicious submodule"
 
 *Code-level workflow for Scenario 10. Editable source: [`scas-codeflow-scenario-10.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-10.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/10-git-submodule-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Review every submodule addition in pull requests.
-- Validate submodule repository URLs against an allowlist.
-- Limit who can add or modify submodules in protected branches.
-- Pin submodules to specific commits, not floating branch heads.
-- Scan submodule content and monitor submodule initialization behavior.
-
-## Straightforward Implementation
-
-### 1. Pin submodules to commits
-
-```bash
-git submodule add https://github.com/org/lib.git
-cd lib && git checkout <commit-sha>
-cd .. && git commit -am "Pin submodule to commit"
-```
-
-### 2. CI gate
-
-```yaml
-# .github/workflows/submodule-check.yml
-- run: |
-    git submodule foreach 'git log --oneline -1'
-    git config --file .gitmodules --get-regexp 'url' | grep -v 'allowed-github.example.com' && exit 1 || true
-```
-
-### 3. CODEOWNERS
-
-```text
-# .github/CODEOWNERS
-.gitmodules    @org/security-team
-```
-
-### 4. Git config
-
-```bash
-git config --global protocol.file.allow never
-```
-
----
-
-`scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
-
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 10 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-10.svg)
-
-*Swimlane diagram for Scenario 10. Editable source: [`scas-observability-scenario-10.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-10.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | git submodule update --init (lab setup) |
-| 2 | Learner | Victim | bash malicious-submodule/postinstall.sh |
-| 3 | Victim | MalPkg | Submodule hook executes bundled script |
-| 4 | MalPkg | MalPkg | Collect repo / env indicators (simulated) |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/10-git-submodule-attack`):
-
-```bash
-cd scenarios/10-git-submodule-attack
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/10-git-submodule-attack
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-bash malicious-submodule/postinstall.sh
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3000/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/10?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "10" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 10** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 10** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -539,7 +409,24 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 10
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learner: Correlate capture detail with runbook IOCs
+    Learne## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/10-git-submodule-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Review every submodule, subtree, or vendored dependency addition in pull requests.
+- Validate embedded repository URLs against an allowlist; reject local `file://` and relative paths.
+- Pin embedded dependencies to verified commits; do not track floating branch heads.
+- Set `protocol.file.allow=never` globally and in CI runners to block CVE-2022-39253-style local protocol abuse.
+- Scan subtree and vendored code with the same rules as git submodule code.
+- Monitor initialization behavior and lifecycle scripts in build pipelines.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/10-git-submodule-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+r->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

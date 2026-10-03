@@ -691,136 +691,7 @@ cat package-lock.json | grep evil-utils
 
 *Code-level workflow for Scenario 08. Editable source: [`scas-codeflow-scenario-08.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-08.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Validate lockfiles before install in CI and locally.
-- Use git pre-commit hooks to detect unexpected lockfile changes.
-- Require careful code review of every `package-lock.json` diff.
-- Store and verify lockfile checksums as part of release gates.
-- Compare `package.json` declared deps against lockfile entries automatically.
-- Verify package integrity hashes match trusted registry metadata.
-
-## Straightforward Implementation
-
-### 1. Lockfile lint
-
-```bash
-npm install -g lockfile-lint
-lockfile-lint --path package-lock.json   --allowed-hosts npm internal.registry.example   --allowed-schemes https:
-```
-
-### 2. CI gate
-
-```yaml
-# .github/workflows/lockfile-check.yml
-- run: npm ci --ignore-scripts
-- run: git diff --exit-code package-lock.json
-- run: npx lockfile-lint --path package-lock.json --allowed-hosts npm
-```
-
-### 3. Pre-commit hook
-
-```bash
-# .git/hooks/pre-commit or husky
-if git diff --cached --name-only | grep -q package-lock.json; then
-  npx lockfile-lint --path package-lock.json --allowed-hosts npm
-fi
-```
-
-### 4. Policy
-
-Never allow "file:", "link:", or "git+ssh" dependencies in production lockfiles without explicit security review.
-
----
-
-l network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 08 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-08.svg)
-
-*Swimlane diagram for Scenario 08. Editable source: [`scas-observability-scenario-08.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-08.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm install (honors manipulated package-lock.json) |
-| 2 | Victim | MalPkg | Install evil-utils from lockfile entry |
-| 3 | MalPkg | MalPkg | postinstall / load hook fires during install |
-| 4 | Learner | Victim | npm start (after stopping mock-server if port 3000 busy) |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/08-package-lock-file-manipulation`):
-
-```bash
-cd scenarios/08-package-lock-file-manipulation
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/08-package-lock-file-manipulation
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm install && npm start
-```
-
-> **Note:** Stop mock-server before npm start if port 3000 conflicts with victim Express app.
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3000/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/08?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "08" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 08** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 08** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -903,7 +774,24 @@ sequenceDiagram
 
 ### Scenario-specific attack steps (Phase 2)
 
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
+Same Phase-2## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Validate lockfiles before install in CI and locally.
+- Use git pre-commit hooks to detect unexpected lockfile changes.
+- Require careful code review of every `package-lock.json` diff.
+- Store and verify lockfile checksums as part of release gates.
+- Compare `package.json` declared deps against lockfile entries automatically.
+- Verify package integrity hashes match trusted registry metadata.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+ path as the diagrams above (for skimming / accessibility).
 
 | # | From | To | Action |
 |---|------|----|--------|

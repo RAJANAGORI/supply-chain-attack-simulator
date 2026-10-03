@@ -394,135 +394,7 @@ gpg --verify dist/app.js.asc
 
 *Code-level workflow for Scenario 05. Editable source: [`scas-codeflow-scenario-05.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-05.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/05-build-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Verify build script integrity with checksums before each build.
-- Apply least privilege to CI/CD jobs and secret exposure.
-- Run builds in isolated environments with minimal credentials.
-- Verify build artifacts with checksums and signed attestations.
-- Use secret management tools - never hardcode secrets in build scripts.
-- Audit and log all build activities for forensic review.
-- Sign release artifacts and verify signatures before deployment.
-
-## Straightforward Implementation
-
-### 1. CI gate (OIDC, no long-lived secrets)
-
-```yaml
-# .github/workflows/build.yml
-permissions:
-  id-token: write
-  contents: read
-steps:
-  - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-  - uses: aws-actions/configure-aws-credentials@e3dd6a429a730001a79de495f50a554053c04fbc
-    with:
-      role-to-assume: arn:aws:iam::ACCOUNT:role/build-role
-  - run: npm ci --ignore-scripts
-  - run: npm run build
-```
-
-### 2. Artifact signing
-
-```bash
-cosign sign-blob --yes artifact.tgz --output-signature artifact.tgz.sig
-```
-
-### 3. SLSA provenance
-
-```yaml
-# Reusable workflow reference
-uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
-```
-
-### 4. Build isolation
-
-Use ephemeral CI runners or containers. Never reuse a runner that has built a different repository without re-imaging.
-
----
-
-se 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-05.svg)
-
-*Swimlane diagram for Scenario 05. Editable source: [`scas-observability-scenario-05.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-05.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | MalPkg | cd compromised-build && npm run build |
-| 2 | MalPkg | MalPkg | Build script injects payload into dist/ artifacts |
-| 3 | Learner | Victim | cp compromised-build/dist/* victim-app/dist/ |
-| 4 | Learner | Victim | npm start - runs trojanized bundle |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/05-build-compromise`):
-
-```bash
-cd scenarios/05-build-compromise
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/05-build-compromise
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd compromised-build && npm run build && cp dist/* ../victim-app/dist/ && cd ../victim-app && npm start
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3000/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/05?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "05" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 05** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 05** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -600,7 +472,25 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 05
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learner: Correlate capture detail with runbook IOCs
+    Learner->>Learner: Correlate capture detail with## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/05-build-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin every third-party action to an immutable commit SHA and verify it with an allowlist check.
+- Set the minimum `permissions` on each workflow job and avoid granting `contents: write` when only read is needed.
+- Do not pass repository secrets into third-party or reusable actions unless absolutely necessary; prefer OIDC and short-lived tokens.
+- Protect reusable workflows and actions with branch rules, tag protection, CODEOWNERS, and signed tags.
+- Monitor CI runner process trees and egress for unexpected secret access or outbound connections.
+- Require security review of every workflow diff, especially new `uses` lines and mutable tag changes.
+- Rotate CI secrets and revoke `GITHUB_TOKEN` after any suspected workflow injection incident.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/05-build-compromise/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+ runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

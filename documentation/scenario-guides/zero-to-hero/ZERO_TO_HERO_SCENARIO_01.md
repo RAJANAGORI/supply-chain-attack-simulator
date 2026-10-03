@@ -553,147 +553,7 @@ For internal packages:
 
 *Code-level workflow for Scenario 01. Editable source: [`scas-codeflow-scenario-01.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-01.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/01-typosquatting/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Commit `package-lock.json` and use `npm ci` in production pipelines.
-- Configure registry scope restrictions and verify package signatures where supported.
-- Run automated dependency scanning (e.g. `npm audit`, Snyk, Socket.dev).
-- Require a code-review checklist for every new dependency (name, maintainer, reputation).
-- Prefer private registries and scope-based routing for internal package names.
-
-## Straightforward Implementation
-
-### 1. Prevention config
-
-Create or update ".npmrc" in the repo root:
-
-```ini
-# .npmrc
-@myorg:registry=https://internal.registry.example/
-ignore-scripts=true
-```
-
-### 2. CI gate
-
-```yaml
-# .github/workflows/dependency-review.yml
-name: Dependency Review
-on: [pull_request]
-jobs:
-  dependency-review:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: actions/dependency-review-action@3b139cfc5fae8b618dfb3e11a0a753bf0c333854
-        with:
-          fail-on-severity: moderate
-      - uses: socket-security/action@latest
-        env:
-          SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_API_KEY }}
-```
-
-### 3. Pre-install verification
-
-```bash
-npm view <package> --json | jq '{name, version, maintainers, repository}'
-npm pack <package>
-tar -xzf <package>-*.tgz && cat package/index.js
-```
-
-### 4. Incident response
-
-```bash
-npm uninstall <typo-package>
-npm token list
-npm token revoke <token-id>
-```
-
----
-
-/../assets/diagrams/observability/svg/scas-observability-scenario-01.svg)
-
-*Swimlane diagram for Scenario 01. Editable source: [`scas-observability-scenario-01.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-01.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm install ../malicious-packages/request-lib |
-| 2 | Learner | Victim | npm start (TESTBENCH_MODE=enabled) |
-| 3 | Victim | MalPkg | require("request-lib") loads typosquatted module |
-| 4 | MalPkg | MalPkg | Collect env vars + package metadata (lab-safe subset) |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/01-typosquatting`):
-
-```bash
-cd scenarios/01-typosquatting
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/01-typosquatting
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm install ../malicious-packages/request-lib && npm start
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3000/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/01?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "01" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 01** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 01** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -771,7 +631,23 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 01
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learner: Correlate capture detail with runbook IOCs
+    Learner->>Learne## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/01-typosquatting/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Commit `package-lock.json` and use `npm ci` in production pipelines.
+- Configure registry scope restrictions and verify package signatures where supported.
+- Run automated dependency scanning (e.g. `npm audit`, Snyk, Socket.dev).
+- Require a code-review checklist for every new dependency (name, maintainer, reputation).
+- Prefer private registries and scope-based routing for internal package names.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/01-typosquatting/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+r: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

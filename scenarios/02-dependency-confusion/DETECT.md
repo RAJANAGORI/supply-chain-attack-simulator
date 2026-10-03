@@ -86,34 +86,4 @@ rule Dependency_Confusion_Indicator {
 
 ## Straightforward Implementation
 
-### 1. Prevention config
-
-```ini
-# .npmrc
-@myorg:registry=https://artifactory.example.com/api/npm/npm-internal/
-//artifactory.example.com/api/npm/npm-internal/:_authToken=${NPM_TOKEN}
-```
-
-### 2. CI gate
-
-```yaml
-# .github/workflows/registry-validation.yml
-- name: Ensure private scopes never resolve from public npm
-  run: |
-    npm ci --ignore-scripts
-    npm ls @myorg --json | grep -q 'registry.npmjs.org' && exit 1 || true
-- name: Alert on unusual semver jumps
-  run: node scripts/check-version-jumps.js --threshold 2
-```
-
-### 3. Namespace reservation
-
-```bash
-# Reserve your org scope on public npm
-npm access public @myorg
-# or publish a placeholder package
-```
-
-### 4. Version policy
-
-Treat any resolved version above your internal threshold (for example, more than two major versions ahead of baseline or a first-seen maintainer) as a CI failure.
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

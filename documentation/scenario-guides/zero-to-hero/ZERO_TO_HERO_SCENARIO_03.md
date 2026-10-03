@@ -585,135 +585,7 @@ Implement preventive measures:
 
 *Code-level workflow for Scenario 03. Editable source: [`scas-codeflow-scenario-03.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-03.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/03-compromised-package/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Enforce lockfiles in CI (`npm ci --audit`) instead of open-ended `npm install`.
-- Pin exact versions for packages with high trust or wide blast radius.
-- Run automated security scanning on dependency updates (`npm audit`, custom scanners).
-- Verify package integrity and signatures when the registry supports them.
-- Monitor runtime behavior and log package installation events in production.
-- Maintain maintainer-transfer and dependency-addition review policies.
-
-## Straightforward Implementation
-
-### 1. CI gate
-
-```yaml
-# .github/workflows/supply-chain-scan.yml
-- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-- name: Install dependencies without scripts
-  run: npm ci --ignore-scripts
-- name: Supply-chain scan
-  run: npx socket-dev scan
-- name: Snyk test
-  run: npx snyk test --severity-threshold=high
-  env:
-    SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-```
-
-### 2. Runtime monitoring
-
-```bash
-node -r ./security/module-load-logger.js app.js
-```
-
-### 3. Maintainer policy
-
-Require 2FA and admin approval for npm publishing roles. Alert on new maintainers via npm webhook or GitHub organization audit log.
-
-### 4. Incident response
-
-```bash
-npm install <package>@<known-good-version> --save-exact
-rm -rf node_modules package-lock.json
-npm ci
-npm token revoke <token-id>
-```
-
----
-
-vability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-03.svg)
-
-*Swimlane diagram for Scenario 03. Editable source: [`scas-observability-scenario-03.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-03.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm install (pulls compromised secure-validator) |
-| 2 | Learner | Victim | npm start |
-| 3 | Victim | MalPkg | require compromised secure-validator |
-| 4 | MalPkg | MalPkg | Execute trojanized release logic |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/03-compromised-package`):
-
-```bash
-cd scenarios/03-compromised-package
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/03-compromised-package
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm install && npm start
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3000/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/03?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "03" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 03** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 03** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -790,7 +662,24 @@ sequenceDiagram
     Kibana->>ES: Query scenario_id + sort by @timestamp desc
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 03
-    ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
+    ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/03-compromised-package/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Require MFA and admin approval for maintainer role changes and publish tokens.
+- Pin exact versions and enforce lockfile-only installs (`npm ci --ignore-scripts`) in CI.
+- Alert on new maintainers, unexpected patch-version changes, and dependency additions in trusted packages.
+- Run supply-chain scanners and diff reviews on every dependency update before merge.
+- Segment CI permissions so a build job cannot publish packages or alter registry metadata.
+- Maintain a known-good artifact mirror and rotate credentials after any suspected maintainer compromise.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/03-compromised-package/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+md
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 

@@ -382,142 +382,7 @@ Always review changelogs before updating:
 
 *Code-level workflow for Scenario 04. Editable source: [`scas-codeflow-scenario-04.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-04.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/04-malicious-update/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Pin exact versions in `package.json` - avoid carets on sensitive dependencies.
-- Commit lockfiles and use `npm ci` in CI/CD pipelines.
-- Verify updates before install (changelog review, integrity checks, code diff).
-- Scan dependency updates automatically in CI before merge.
-- Use staged rollouts - test updates in staging before production.
-- Require human review of changelogs for patch and minor bumps on critical packages.
-
-## Straightforward Implementation
-
-### 1. Prevention config
-
-```json
-// package.json
-{
-  "dependencies": {
-    "express": "4.18.2"
-  }
-}
-```
-
-### 2. Dependabot config
-
-```yaml
-# .github/dependabot.yml
-version: 2
-updates:
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-```
-
-### 3. Update review
-
-```bash
-npx npm-diff <package>@<old> <package>@<new>
-npx socket-dev diff
-```
-
-### 4. Staged rollout
-
-Merge dependency updates to a "staging" branch first. Run smoke tests for 24 hours before promoting to "main".
-
----
-
-bana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
-
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 04 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-04.svg)
-
-*Swimlane diagram for Scenario 04. Editable source: [`scas-observability-scenario-04.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-04.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm update utils-helper (trusted name, bad version) |
-| 2 | Learner | Victim | npm start |
-| 3 | Victim | MalPkg | Load updated utils-helper module |
-| 4 | MalPkg | MalPkg | New update channel triggers exfil stub |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/04-malicious-update`):
-
-```bash
-cd scenarios/04-malicious-update
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/04-malicious-update
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm update && npm start
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3000/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/04?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "04" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 04** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 04** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -594,7 +459,24 @@ sequenceDiagram
     Kibana->>ES: Query scenario_id + sort by @timestamp desc
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 04
-    ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
+    ES-->>Kibana: Return IOCs, Sigma, YARA f## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/04-malicious-update/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin exact versions in `package.json` - avoid carets on sensitive dependencies.
+- Commit lockfiles and use `npm ci` in CI/CD pipelines.
+- Verify updates before install (changelog review, integrity checks, code diff).
+- Scan dependency updates automatically in CI before merge.
+- Use staged rollouts - test updates in staging before production.
+- Require human review of changelogs for patch and minor bumps on critical packages.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/04-malicious-update/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+rom DETECT.md
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 

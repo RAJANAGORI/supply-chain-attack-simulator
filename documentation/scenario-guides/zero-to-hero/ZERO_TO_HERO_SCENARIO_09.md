@@ -343,133 +343,7 @@ npm cache clean --force
 
 *Code-level workflow for Scenario 09. Editable source: [`scas-codeflow-scenario-09.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-09.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/09-package-signing-bypass/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Protect signing keys with HSMs or hardened secret stores.
-- Require MFA for all key access and signing operations.
-- Rotate signing keys on a regular schedule and after incidents.
-- Limit who can sign packages with strict access controls.
-- Always verify signatures - but pair with behavioral and content analysis.
-- Monitor signing activity for anomalies (time, volume, key fingerprint).
-
-## Straightforward Implementation
-
-### 1. Signature verification
-
-```bash
-npm audit signatures
-```
-
-### 2. Publish with provenance
-
-```yaml
-# .github/workflows/publish.yml
-- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-- uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
-  with:
-    node-version: 20
-    registry-url: https://registry.npmjs.org
-- run: npm publish --provenance --access public
-  env:
-    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-```
-
-### 3. Key management
-
-Store signing keys in AWS KMS, GCP KMS, or Azure Key Vault. Rotate every 90 days or on maintainer departure.
-
-### 4. Behavioral analysis
-
-Pair signature checks with supply-chain scanners (Socket, Snyk Supply Chain) that inspect package behavior.
-
----
-
-ls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 09 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-09.svg)
-
-*Swimlane diagram for Scenario 09. Editable source: [`scas-observability-scenario-09.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-09.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm install secure-utils (forged signature accepted) |
-| 2 | Learner | Victim | npm start |
-| 3 | Victim | MalPkg | Load "signed" secure-utils module |
-| 4 | MalPkg | MalPkg | Execute compromised signed release |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/09-package-signing-bypass`):
-
-```bash
-cd scenarios/09-package-signing-bypass
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/09-package-signing-bypass
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm install && npm start
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3000/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/09?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "09" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 09** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 09** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -547,7 +421,25 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 09
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learner: Correlate capture detail with runbook IOCs
+    L## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/09-package-signing-bypass/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Treat signatures and provenance as identity and integrity signals, not safety guarantees; pair with behavioral scanning.
+- Publish npm packages with `--provenance` and verify with `npm audit signatures` or `gh attestation verify`.
+- Store signing keys in HSMs or KMS with MFA, strict ACLs, and signing audit logs.
+- Rotate keys on schedule and after maintainer departure or suspected compromise.
+- Monitor CI workflow changes and signing-credential usage for unexpected events.
+- Segment CI jobs so build runners cannot sign arbitrary artifacts or access signing keys.
+- Verify artifact attestations from trusted CI identities before deployment.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/09-package-signing-bypass/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+earner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

@@ -53,29 +53,4 @@ rule Axios_Compromise_IOC {
 
 ## Straightforward Implementation
 
-### 1. Enable provenance
-
-```bash
-npm config set provenance true
-```
-
-### 2. Org-wide hunt
-
-```bash
-gh search code "axios-like" --owner=myorg
-```
-
-### 3. CI gate
-
-```yaml
-- run: npm ci --ignore-scripts
-- run: npx socket-dev scan
-```
-
-### 4. Incident response
-
-```bash
-rm -rf node_modules package-lock.json
-npm install <package>@<known-good-version> --save-exact
-npm token revoke <token-id>
-```
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

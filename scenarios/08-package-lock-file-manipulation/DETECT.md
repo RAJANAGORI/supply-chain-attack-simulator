@@ -53,31 +53,4 @@ rule Lockfile_Manipulation_IOC {
 
 ## Straightforward Implementation
 
-### 1. Lockfile lint
-
-```bash
-npm install -g lockfile-lint
-lockfile-lint --path package-lock.json   --allowed-hosts npm internal.registry.example   --allowed-schemes https:
-```
-
-### 2. CI gate
-
-```yaml
-# .github/workflows/lockfile-check.yml
-- run: npm ci --ignore-scripts
-- run: git diff --exit-code package-lock.json
-- run: npx lockfile-lint --path package-lock.json --allowed-hosts npm
-```
-
-### 3. Pre-commit hook
-
-```bash
-# .git/hooks/pre-commit or husky
-if git diff --cached --name-only | grep -q package-lock.json; then
-  npx lockfile-lint --path package-lock.json --allowed-hosts npm
-fi
-```
-
-### 4. Policy
-
-Never allow "file:", "link:", or "git+ssh" dependencies in production lockfiles without explicit security review.
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

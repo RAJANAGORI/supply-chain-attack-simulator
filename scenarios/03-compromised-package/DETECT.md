@@ -55,47 +55,4 @@ rule Compromised_Package_Runtime_IOC {
 
 ## Straightforward Implementation
 
-### 1. Prevention config
-
-Create or update ".npmrc" in the repo root:
-
-```ini
-# .npmrc
-@myorg:registry=https://internal.registry.example/
-ignore-scripts=true
-```
-
-### 2. CI gate
-
-```yaml
-# .github/workflows/supply-chain-scan.yml
-- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-- name: Install dependencies without scripts
-  run: npm ci --ignore-scripts
-- name: Verify no unexpected patch drift
-  run: node scripts/check-version-jumps.js --allow-patch-review secure-validator
-- name: Supply-chain scan
-  run: npx socket-dev scan
-- name: Snyk test
-  run: npx snyk test --severity-threshold=high
-  env:
-    SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-```
-
-### 3. Maintainer monitoring
-
-```bash
-# Alert on new maintainers or publish events
-npm view secure-validator maintainers
-npm owner ls secure-validator
-```
-
-### 4. Incident response
-
-```bash
-npm install <package>@<known-good-version> --save-exact
-rm -rf node_modules package-lock.json
-npm ci
-npm token revoke <token-id>
-# Rotate any CI or registry credentials the maintainer account could reach
-```
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

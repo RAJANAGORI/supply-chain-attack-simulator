@@ -1221,7 +1221,7 @@ function formatDetectMitigation(bullets) {
 
 function formatDetectImplementation(impl) {
   if (!impl) return '';
-  return `\n\n${impl}`;
+  return `\n\n## Straightforward Implementation\n\nThe full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.`;
 }
 
 function formatZeroToHeroPlaybook(id, bullets) {
@@ -1238,9 +1238,10 @@ function formatZeroToHeroPlaybook(id, bullets) {
   ].join('\n');
 }
 
-function formatZeroToHeroImplementation(impl) {
+function formatZeroToHeroImplementation(id, impl) {
   if (!impl) return '';
-  return `${impl}\n\n---\n\n`;
+  const readme = `../../../scenarios/${PLAYBOOKS[id].scenarioDir}/README.md`;
+  return `## Straightforward Implementation\n\nThe full step-by-step implementation flow lives in the [scenario README](${readme}#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.\n\n---\n\n`;
 }
 
 module.exports = {

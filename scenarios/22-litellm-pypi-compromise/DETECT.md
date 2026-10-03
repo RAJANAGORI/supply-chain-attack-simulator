@@ -53,32 +53,4 @@ rule PyPI_PTH_Compromise_IOC {
 
 ## Straightforward Implementation
 
-### 1. Hash pinning
-
-```bash
-# Generate requirements with hashes
-pip-compile --generate-hashes requirements.in
-pip install --require-hashes -r requirements.txt
-```
-
-### 2. .pth scan
-
-```bash
-find .venv -name "*.pth" -exec cat {} ;
-```
-
-### 3. CI gate
-
-```yaml
-# .github/workflows/python-security.yml
-- run: python -m venv .venv
-- run: .venv/bin/pip install --require-hashes -r requirements.txt
-- run: .venv/bin/python scripts/scan-pth-files.py .venv
-```
-
-### 4. Token rotation
-
-```bash
-# Revoke PyPI tokens via pypi.org/manage/account/
-pypi-token-revoke <token-id>
-```
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

@@ -653,133 +653,7 @@ node detection-tools/workspace-scanner.js .
 
 *Code-level workflow for Scenario 12. Editable source: [`scas-codeflow-scenario-12.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-12.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/12-workspace-monorepo-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Limit who can modify workspace and monorepo internal packages.
-- Audit all workspace packages regularly for lifecycle scripts and drift.
-- Monitor postinstall execution across workspace packages.
-- Review workspace dependency changes with the same rigor as external deps.
-- Track workspace package changes in version control with mandatory review.
-
-## Straightforward Implementation
-
-### 1. CODEOWNERS
-
-```text
-# .github/CODEOWNERS
-/packages/*     @org/security-team @org/platform-team
-/package.json   @org/security-team
-```
-
-### 2. Workspace graph check
-
-```bash
-nx graph --file=dep-graph.json
-```
-
-### 3. CI gate
-
-```yaml
-# .github/workflows/workspace-audit.yml
-- run: npm ci --ignore-scripts
-- run: node scripts/audit-workspace-packages.js
-```
-
-### 4. Policy
-
-Treat every workspace package as a third-party dependency for security review purposes.
-
----
-
-icsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
-
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 12 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-12.svg)
-
-*Swimlane diagram for Scenario 12. Editable source: [`scas-observability-scenario-12.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-12.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm install at workspace root |
-| 2 | Victim | MalPkg | Workspace links @devcorp/utils into victim-app |
-| 3 | Learner | Victim | npm start |
-| 4 | MalPkg | MalPkg | Compromised workspace package runs on import |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/12-workspace-monorepo-attack`):
-
-```bash
-cd scenarios/12-workspace-monorepo-attack
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/12-workspace-monorepo-attack
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm install && npm start
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3000/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/12?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "12" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 12** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 12** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -857,7 +731,24 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 12
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learner: Correlate capture detail with runbook IOCs
+    Learner->>Learn## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/12-workspace-monorepo-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Assign CODEOWNERS to workspace package directories, root `package.json`, and task configuration files such as `nx.json` or `turbo.json`.
+- Review `nx graph` or `turbo run` task boundaries before adding cross-package dependencies or tasks.
+- Run workspace scans for lifecycle scripts, unexpected binaries, and dependency drift on every PR.
+- Enforce `--ignore-scripts` in CI and require explicit allowlisting for required postinstall steps.
+- Separate build/test/deploy permissions per workspace package and per CI stage.
+- Treat every workspace package as a third-party dependency for security review.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/12-workspace-monorepo-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+er: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

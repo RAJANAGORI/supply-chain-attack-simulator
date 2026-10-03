@@ -563,136 +563,7 @@ pip install litellm_like==1.82.6 --no-deps  # after verifying package integrity
 
 *Code-level workflow for Scenario 22. Editable source: [`scas-codeflow-scenario-22.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-22.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/22-litellm-pypi-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Contain: stop workloads using the compromised virtualenv; block egress from CI if needed.
-- Eradicate: `pip uninstall`, delete `.venv`, remove rogue `*.pth` under `site-packages`.
-- Recover: pin known-good version (`litellm_like==1.82.6`); enforce hash pinning or vetting.
-- Rotate: API keys and PyPI maintainer tokens after confirmed incidents.
-- Scan `site-packages/*.pth` in CI after every `pip install`.
-
-## Straightforward Implementation
-
-### 1. Hash pinning
-
-```bash
-# Generate requirements with hashes
-pip-compile --generate-hashes requirements.in
-pip install --require-hashes -r requirements.txt
-```
-
-### 2. .pth scan
-
-```bash
-find .venv -name "*.pth" -exec cat {} ;
-```
-
-### 3. CI gate
-
-```yaml
-# .github/workflows/python-security.yml
-- run: python -m venv .venv
-- run: .venv/bin/pip install --require-hashes -r requirements.txt
-- run: .venv/bin/python scripts/scan-pth-files.py .venv
-```
-
-### 4. Token rotation
-
-```bash
-# Revoke PyPI tokens via pypi.org/manage/account/
-pypi-token-revoke <token-id>
-```
-
----
-
-- Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
-
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 22 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-22.svg)
-
-*Swimlane diagram for Scenario 22. Editable source: [`scas-observability-scenario-22.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-22.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | pip install ../python-packages/v1_82_7 (or v1_82_8) |
-| 2 | Learner | Victim | python run_victim.py OR python -c "print(1)" (.pth path) |
-| 3 | Victim | MalPkg | Import hook or .pth loads litellm_like payload |
-| 4 | MalPkg | MalPkg | Write .testbench-litellm-*.json markers |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/22-litellm-pypi-compromise`):
-
-```bash
-cd scenarios/22-litellm-pypi-compromise
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-python3 infrastructure/mock_server.py
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/22-litellm-pypi-compromise
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && source .venv/bin/activate && pip install -U ../python-packages/v1_82_7 && python run_victim.py
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://127.0.0.1:3022/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/22?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "22" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 22** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 22** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -773,7 +644,23 @@ sequenceDiagram
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
-### Scenario-specific attack steps (Phase 2)
+### Sc## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/22-litellm-pypi-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Contain: stop workloads using the compromised virtualenv; block egress from CI if needed.
+- Eradicate: `pip uninstall`, delete `.venv`, remove rogue `*.pth` under `site-packages`.
+- Recover: pin known-good version (`litellm_like==1.82.6`); enforce hash pinning or vetting.
+- Rotate: API keys and PyPI maintainer tokens after confirmed incidents.
+- Scan `site-packages/*.pth` in CI after every `pip install`.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/22-litellm-pypi-compromise/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+enario-specific attack steps (Phase 2)
 
 Same Phase-2 path as the diagrams above (for skimming / accessibility).
 

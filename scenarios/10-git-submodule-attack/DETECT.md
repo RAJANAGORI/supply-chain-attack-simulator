@@ -61,41 +61,4 @@ rule Submodule_Attack_IOC {
 
 ## Straightforward Implementation
 
-### 1. Pin submodules, subtrees, and vendored code to commits
-
-```bash
-# git submodule
-git submodule add https://github.com/org/lib.git
-cd lib && git checkout <commit-sha>
-cd .. && git commit -am "Pin submodule to commit"
-
-# git subtree
-git subtree add --prefix=vendor/lib https://github.com/org/lib.git <commit-sha> --squash
-```
-
-### 2. CI gate
-
-```yaml
-# .github/workflows/submodule-check.yml
-- run: |
-    git submodule foreach 'git log --oneline -1'
-    git config --file .gitmodules --get-regexp 'url' | grep -v 'allowed-github.example.com' && exit 1 || true
-- run: |
-    # Block local file-protocol abuse for submodules, subtrees, and vendored fetches
-    git config --global protocol.file.allow never
-    test -d vendor && find vendor -type f -name '*.sh' -print | xargs -r grep -E 'curl|wget|nc ' && exit 1 || true
-```
-
-### 3. CODEOWNERS
-
-```text
-# .github/CODEOWNERS
-.gitmodules @org/security-team
-vendor/ @org/security-team
-```
-
-### 4. Git config
-
-```bash
-git config --global protocol.file.allow never
-```
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

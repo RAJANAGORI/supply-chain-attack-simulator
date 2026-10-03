@@ -178,50 +178,7 @@ node detection-tools/action-compromise-detector.js victim-app
 - [ ] Rotate all secrets accessible to pipelines that ran the compromised action.
 - [ ] Mock capture evidence at `infrastructure/captured-data.json` with `ci_secret_exfil` event type.
 
-## Mitigation Playbook
 
-- Pin every reusable action to an immutable commit SHA, never a mutable tag.
-- Audit workflow files for tag references and enforce SHA pinning via CI lint or policy.
-- Apply least-privilege permissions and avoid passing secrets to third-party actions as environment variables.
-- Monitor CI runners for unexpected outbound network calls.
-- Rotate CI secrets immediately when a reusable action compromise is reported or suspected.
-- Use tools like `step-security/harden-runner` to block unexpected egress from action steps.
-
-## Straightforward Implementation
-
-### 1. Pin actions by SHA
-
-```yaml
-# .github/workflows/ci.yml
-- name: Checkout
-  uses: example/actions/checkout@a1b2c3d4e5f6789012345678901234567890abcd
-```
-
-### 2. Audit workflow files
-
-```bash
-grep -R "uses:.*@v" .github/workflows/ && exit 1
-```
-
-### 3. Harden runner
-
-```yaml
-- uses: step-security/harden-runner@<full-sha>
-  with:
-    egress-policy: block
-    allowed-endpoints: |
-      github.com:443
-      registry.npmjs.org:443
-```
-
-### 4. Credential rotation
-
-```bash
-# Rotate all secrets accessible to affected pipeline runs
-gh secret set GITHUB_TOKEN --repo org/repo --body "..."
-aws iam create-access-key --user-name ci-user
-# Update any database, registry, or cloud credentials the action could reach
-```
 
 ## Code-level workflow
 
@@ -246,7 +203,24 @@ Compromised reusable GitHub Action: force-pushed v3 tag runs malicious action co
 | **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
 | **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
 | **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| **5 - Kibana** | Use the per-scenario## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/25-compromised-github-action/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin every reusable action to an immutable commit SHA, never a mutable tag.
+- Audit workflow files for tag references and enforce SHA pinning via CI lint or policy.
+- Apply least-privilege permissions and avoid passing secrets to third-party actions as environment variables.
+- Monitor CI runners for unexpected outbound network calls.
+- Rotate CI secrets immediately when a reusable action compromise is reported or suspected.
+- Use tools like `step-security/harden-runner` to block unexpected egress from action steps.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/25-compromised-github-action/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+ saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
 
 > **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 
@@ -378,5 +352,3 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
-
-

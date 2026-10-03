@@ -55,31 +55,4 @@ rule Dev_Tool_Compromise_IOC {
 
 ## Straightforward Implementation
 
-### 1. Install policy
-
-```bash
-npm install --ignore-scripts --registry https://internal.registry.example/ <dev-tool>
-```
-
-### 2. CI gate
-
-```yaml
-# .github/workflows/dev-tool-check.yml
-- run: |
-    npm ci --ignore-scripts
-    git diff --exit-code .gitignore || true
-- run: |
-    # Reject unexpected public registry sources for internal dev tools
-    grep -E '"registry": "https://registry.npmjs.org"' package-lock.json && exit 1 || true
-- run: |
-    # Flag new postinstall/preinstall scripts
-    node scripts/scan-lifecycle-scripts.js --allowlist allowed-scripts.json
-```
-
-### 3. Diff review
-
-Review every new `postinstall` or `preinstall` script, lockfile integrity change, and `.gitignore` entry in dependency update diffs. Use Socket or a custom PR check to flag them.
-
-### 4. Isolation
-
-Install dev tools in sandboxed CI runners with egress controls and no production secrets. Rotate CI credentials and audit developer workstations after any suspected install-time compromise.
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

@@ -64,31 +64,4 @@ rule Signing_Bypass_Indicator {
 
 ## Straightforward Implementation
 
-### 1. Signature and attestation verification
-
-```bash
-npm audit signatures
-gh attestation verify <package>.tgz --repository org/secure-utils
-```
-
-### 2. Publish with provenance
-
-```yaml
-# .github/workflows/publish.yml
-- uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-- uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
-  with:
-    node-version: 20
-    registry-url: https://registry.npmjs.org
-- run: npm publish --provenance --access public
-  env:
-    NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-```
-
-### 3. Key management
-
-Store signing keys in AWS KMS, GCP KMS, or Azure Key Vault. Rotate every 90 days or on maintainer departure. Require MFA for every signing operation.
-
-### 4. CI hardening and behavioral analysis
-
-Pin third-party actions by SHA, restrict workflow permissions to `id-token: write` and `contents: read`, and pair signature checks with supply-chain scanners (Socket, Snyk Supply Chain) that inspect package behavior.
+The full step-by-step implementation flow lives in the [scenario README](README.md#straightforward-implementation) to keep this runbook focused on detection.

@@ -600,126 +600,7 @@ node detection-tools/multi-stage-correlator.js .
 
 *Code-level workflow for Scenario 17. Editable source: [`scas-codeflow-scenario-17.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-17.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/17-multi-stage-attack-chain/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Add correlation rules that require cross-stage context before closing alerts.
-- Segment credentials and permissions to block stage progression.
-- Trigger automated containment when stage transitions occur in short windows.
-- Preserve forensic artifacts per stage for post-incident timeline reconstruction.
-- Run attack-chain tabletop exercises against your CI/CD architecture.
-
-## Straightforward Implementation
-
-### 1. Correlation rule (pseudo-Splunk)
-
-```spl
-| tstats `security` count from datamodel=Endpoint.Processes
-  where Processes.process="npm install" by _time host
-| join host [ search eventtype=network_traffic dest_port=443 ]
-| where relative_time(_time,"-5m") < first_event_time
-| where event_count >= 3
-```
-
-### 2. Segmentation
-
-Use separate CI service accounts per stage. A build runner must not be able to publish packages or deploy to production.
-
-### 3. Auto-containment
-
-Configure SOAR or CI webhooks to kill runners and revoke tokens when stage transitions occur within a short window.
-
-### 4. Tabletop exercises
-
-Run quarterly attack-chain exercises against your CI/CD architecture. Preserve artifacts per stage for timeline reconstruction.
-
----
-
-n `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 17 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-17.svg)
-
-*Swimlane diagram for Scenario 17. Editable source: [`scas-observability-scenario-17.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-17.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm install stage1-access-lib + stage2-compromised-lib |
-| 2 | Learner | Victim | npm start |
-| 3 | Victim | MalPkg | Stage 1 loads → triggers stage 2 payload |
-| 4 | MalPkg | MalPkg | Chained exfil completes (stage 3 simulated in logs) |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/17-multi-stage-attack-chain`):
-
-```bash
-cd scenarios/17-multi-stage-attack-chain
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/17-multi-stage-attack-chain
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm install ../packages/stage1-access-lib ../packages/stage2-compromised-lib && npm start
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3017/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/17?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "17" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 17** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 17** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -800,7 +681,24 @@ sequenceDiagram
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
-### Scenario-specific attack steps (Phase 2)
+### Scenario-s## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/17-multi-stage-attack-chain/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Correlate initial dependency access, lateral CI token abuse, and registry publish events before closing alerts.
+- Segment CI service accounts so build runners cannot publish packages or deploy to production.
+- Trigger auto-containment when dependency install, secret access, and publish events occur in short windows.
+- Preserve per-stage forensic artifacts and run attack-chain tabletop exercises quarterly.
+- Enforce least privilege on CI tokens and require approval gates for registry publishes.
+- Maintain dependency allowlists and anomaly thresholds for first-seen packages or rapid version jumps.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/17-multi-stage-attack-chain/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+pecific attack steps (Phase 2)
 
 Same Phase-2 path as the diagrams above (for skimming / accessibility).
 

@@ -641,135 +641,7 @@ git commit -m "Update package-lock.json with safe dependencies"
 
 *Code-level workflow for Scenario 07. Editable source: [`scas-codeflow-scenario-07.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-07.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
-## Mitigation Playbook
 
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/07-transitive-dependency/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Pin exact dependency versions - avoid loose semver ranges on critical packages.
-- Commit `package-lock.json` and use `npm ci` in CI/CD.
-- Run automated scanning (`npm audit`, SBOM tools) across the full dependency tree.
-- Generate and maintain SBOMs for transitive dependency visibility.
-- Monitor postinstall script execution and unexpected network requests.
-- Review the full dependency tree regularly, not only direct dependencies.
-
-## Straightforward Implementation
-
-### 1. SBOM generation
-
-```bash
-npx @cyclonedx/cyclonedx-npm --output-file sbom.json
-# or
-npx syft dir:. -o cyclonedx-json > sbom.json
-```
-
-### 2. CI gate
-
-```yaml
-# .github/workflows/sbom.yml
-- run: npm ci --ignore-scripts
-- run: npx @cyclonedx/cyclonedx-npm --output-file sbom.json
-- run: node scripts/validate-sbom-against-lockfile.js sbom.json package-lock.json
-```
-
-### 3. Full-tree review
-
-```bash
-npm ls --all > dependency-tree.txt
-# Review monthly or on every major dependency update
-```
-
-### 4. Note on limits
-
-"> npm audit" finds known CVEs, not novel malware in transitive packages. Pair it with supply-chain scanners and runtime monitoring.
-
----
-
-(Rules). |
-
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
-
-### End-to-end flow
-
-![Scenario 07 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-07.svg)
-
-*Swimlane diagram for Scenario 07. Editable source: [`scas-observability-scenario-07.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-07.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
-
-### Sequence diagram (Phase 1-5)
-
-Same flow as a participant sequence (expandable in the docs hub).
-
-### Scenario-specific attack steps (Phase 2)
-
-Same Phase-2 path as the diagrams above (for skimming / accessibility).
-
-| # | From | To | Action |
-|---|------|----|--------|
-| 1 | Learner | Victim | npm install (pulls web-utils + transitive deps) |
-| 2 | Victim | MalPkg | web-utils requires nested data-processor |
-| 3 | Learner | Victim | npm start |
-| 4 | MalPkg | MalPkg | Transitive payload executes without direct dependency |
-
-### Prerequisites
-
-From the repository root:
-
-```bash
-./scripts/observability/elasticsearch-up.sh
-./scripts/observability/setup-kibana-data-views.sh   # data views + saved searches for all 25 scenarios
-```
-
-### Run this scenario with live Elasticsearch forwarding
-
-**Terminal A - mock collector** (from `scenarios/07-transitive-dependency`):
-
-```bash
-cd scenarios/07-transitive-dependency
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-node infrastructure/mock-server.js
-```
-
-**Terminal B - execute the lab:**
-
-```bash
-cd scenarios/07-transitive-dependency
-export TESTBENCH_MODE=enabled
-export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm install && npm start
-```
-
-### Verify locally (file-based evidence)
-
-```bash
-curl -s http://localhost:3000/captured-data
-```
-
-### Verify in Elasticsearch (API)
-
-```bash
-# Static runbook for this scenario
-curl -s "http://localhost:9200/scas-rules/_doc/07?pretty"
-
-# Latest runtime capture events
-curl -s "http://localhost:9200/scas-detections/_search?pretty" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "query": { "term": { "scenario_id": "07" } },
-    "sort": [{ "@timestamp": "desc" }],
-    "size": 5
-  }'
-```
-
-### Verify in Kibana (UI)
-
-1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 07** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 07** - compare against `iocs`, `sigma`, and `yara` fields
-4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
-
-See [observability/README.md](../../../observability/README.md) for stack details.
-
----
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -847,7 +719,24 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 07
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learner: Correlate capture detail with runbook IOCs
+    Le## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/07-transitive-dependency/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin exact dependency versions - avoid loose semver ranges on critical packages.
+- Commit `package-lock.json` and use `npm ci` in CI/CD.
+- Run automated scanning (`npm audit`, SBOM tools) across the full dependency tree.
+- Generate and maintain SBOMs for transitive dependency visibility.
+- Monitor postinstall script execution and unexpected network requests.
+- Review the full dependency tree regularly, not only direct dependencies.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/07-transitive-dependency/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
+arner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)
