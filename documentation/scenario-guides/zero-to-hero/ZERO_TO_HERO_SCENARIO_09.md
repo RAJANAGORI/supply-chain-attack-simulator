@@ -343,7 +343,23 @@ npm cache clean --force
 
 *Code-level workflow for Scenario 09. Editable source: [`scas-codeflow-scenario-09.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-09.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/09-package-signing-bypass/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Treat signatures and provenance as identity and integrity signals, not safety guarantees; pair with behavioral scanning.
+- Publish npm packages with `--provenance` and verify with `npm audit signatures` or `gh attestation verify`.
+- Store signing keys in HSMs or KMS with MFA, strict ACLs, and signing audit logs.
+- Rotate keys on schedule and after maintainer departure or suspected compromise.
+- Monitor CI workflow changes and signing-credential usage for unexpected events.
+- Segment CI jobs so build runners cannot sign arbitrary artifacts or access signing keys.
+- Verify artifact attestations from trusted CI identities before deployment.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/09-package-signing-bypass/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -421,25 +437,7 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 09
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    L## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/09-package-signing-bypass/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Treat signatures and provenance as identity and integrity signals, not safety guarantees; pair with behavioral scanning.
-- Publish npm packages with `--provenance` and verify with `npm audit signatures` or `gh attestation verify`.
-- Store signing keys in HSMs or KMS with MFA, strict ACLs, and signing audit logs.
-- Rotate keys on schedule and after maintainer departure or suspected compromise.
-- Monitor CI workflow changes and signing-credential usage for unexpected events.
-- Segment CI jobs so build runners cannot sign arbitrary artifacts or access signing keys.
-- Verify artifact attestations from trusted CI identities before deployment.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/09-package-signing-bypass/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-earner->>Learner: Correlate capture detail with runbook IOCs
+    Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

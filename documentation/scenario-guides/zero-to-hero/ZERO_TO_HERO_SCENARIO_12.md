@@ -653,7 +653,22 @@ node detection-tools/workspace-scanner.js .
 
 *Code-level workflow for Scenario 12. Editable source: [`scas-codeflow-scenario-12.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-12.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/12-workspace-monorepo-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Assign CODEOWNERS to workspace package directories, root `package.json`, and task configuration files such as `nx.json` or `turbo.json`.
+- Review `nx graph` or `turbo run` task boundaries before adding cross-package dependencies or tasks.
+- Run workspace scans for lifecycle scripts, unexpected binaries, and dependency drift on every PR.
+- Enforce `--ignore-scripts` in CI and require explicit allowlisting for required postinstall steps.
+- Separate build/test/deploy permissions per workspace package and per CI stage.
+- Treat every workspace package as a third-party dependency for security review.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/12-workspace-monorepo-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -731,24 +746,7 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 12
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learn## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/12-workspace-monorepo-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Assign CODEOWNERS to workspace package directories, root `package.json`, and task configuration files such as `nx.json` or `turbo.json`.
-- Review `nx graph` or `turbo run` task boundaries before adding cross-package dependencies or tasks.
-- Run workspace scans for lifecycle scripts, unexpected binaries, and dependency drift on every PR.
-- Enforce `--ignore-scripts` in CI and require explicit allowlisting for required postinstall steps.
-- Separate build/test/deploy permissions per workspace package and per CI stage.
-- Treat every workspace package as a third-party dependency for security review.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/12-workspace-monorepo-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-er: Correlate capture detail with runbook IOCs
+    Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

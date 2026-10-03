@@ -575,7 +575,22 @@ node detection-tools/cache-poisoning-detector.js .
 
 *Code-level workflow for Scenario 16. Editable source: [`scas-codeflow-scenario-16.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-16.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/16-package-cache-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Clear npm, pnpm, Yarn, and CI caches during incident response and after any registry compromise.
+- Bind CI cache keys to `package-lock.json`/`pnpm-lock.yaml` hashes and revalidate integrity on restore.
+- Use immutable artifact mirrors and deterministic installs (`npm ci`) in production pipelines.
+- Monitor cache paths (`~/.npm`, `_cacache`, `~/.cache/pnpm`, `~/.yarn/cache`, GitHub Actions cache, Artifactory remote cache) for unauthorized mutations.
+- Separate developer cache trust from production build trust boundaries.
+- Document cache-invalidation playbooks for npm, pnpm, Yarn, GitHub Actions, and Artifactory.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/16-package-cache-poisoning/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -653,24 +668,7 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 16
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learner: Corre## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/16-package-cache-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Clear npm, pnpm, Yarn, and CI caches during incident response and after any registry compromise.
-- Bind CI cache keys to `package-lock.json`/`pnpm-lock.yaml` hashes and revalidate integrity on restore.
-- Use immutable artifact mirrors and deterministic installs (`npm ci`) in production pipelines.
-- Monitor cache paths (`~/.npm`, `_cacache`, `~/.cache/pnpm`, `~/.yarn/cache`, GitHub Actions cache, Artifactory remote cache) for unauthorized mutations.
-- Separate developer cache trust from production build trust boundaries.
-- Document cache-invalidation playbooks for npm, pnpm, Yarn, GitHub Actions, and Artifactory.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/16-package-cache-poisoning/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-late capture detail with runbook IOCs
+    Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

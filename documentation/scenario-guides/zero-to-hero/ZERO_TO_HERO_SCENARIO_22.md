@@ -563,7 +563,21 @@ pip install litellm_like==1.82.6 --no-deps  # after verifying package integrity
 
 *Code-level workflow for Scenario 22. Editable source: [`scas-codeflow-scenario-22.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-22.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/22-litellm-pypi-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Contain: stop workloads using the compromised virtualenv; block egress from CI if needed.
+- Eradicate: `pip uninstall`, delete `.venv`, remove rogue `*.pth` under `site-packages`.
+- Recover: pin known-good version (`litellm_like==1.82.6`); enforce hash pinning or vetting.
+- Rotate: API keys and PyPI maintainer tokens after confirmed incidents.
+- Scan `site-packages/*.pth` in CI after every `pip install`.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/22-litellm-pypi-compromise/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -644,23 +658,7 @@ sequenceDiagram
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
-### Sc## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/22-litellm-pypi-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Contain: stop workloads using the compromised virtualenv; block egress from CI if needed.
-- Eradicate: `pip uninstall`, delete `.venv`, remove rogue `*.pth` under `site-packages`.
-- Recover: pin known-good version (`litellm_like==1.82.6`); enforce hash pinning or vetting.
-- Rotate: API keys and PyPI maintainer tokens after confirmed incidents.
-- Scan `site-packages/*.pth` in CI after every `pip install`.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/22-litellm-pypi-compromise/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-enario-specific attack steps (Phase 2)
+### Scenario-specific attack steps (Phase 2)
 
 Same Phase-2 path as the diagrams above (for skimming / accessibility).
 

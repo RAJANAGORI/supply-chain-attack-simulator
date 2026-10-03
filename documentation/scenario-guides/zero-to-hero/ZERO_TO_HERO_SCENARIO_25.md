@@ -186,6 +186,23 @@ node detection-tools/action-compromise-detector.js victim-app
 
 *Code-level workflow for Scenario 25. Editable source: [`scas-codeflow-scenario-25.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-25.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/25-compromised-github-action/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin every reusable action to an immutable commit SHA, never a mutable tag.
+- Audit workflow files for tag references and enforce SHA pinning via CI lint or policy.
+- Apply least-privilege permissions and avoid passing secrets to third-party actions as environment variables.
+- Monitor CI runners for unexpected outbound network calls.
+- Rotate CI secrets immediately when a reusable action compromise is reported or suspected.
+- Use tools like `step-security/harden-runner` to block unexpected egress from action steps.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/25-compromised-github-action/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **25 - Compromised Reusable GitHub Action** is indexed in Elasticsearch when the observability stack is running.
@@ -203,24 +220,7 @@ Compromised reusable GitHub Action: force-pushed v3 tag runs malicious action co
 | **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
 | **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
 | **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/25-compromised-github-action/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Pin every reusable action to an immutable commit SHA, never a mutable tag.
-- Audit workflow files for tag references and enforce SHA pinning via CI lint or policy.
-- Apply least-privilege permissions and avoid passing secrets to third-party actions as environment variables.
-- Monitor CI runners for unexpected outbound network calls.
-- Rotate CI secrets immediately when a reusable action compromise is reported or suspected.
-- Use tools like `step-security/harden-runner` to block unexpected egress from action steps.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/25-compromised-github-action/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
- saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
 
 > **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 

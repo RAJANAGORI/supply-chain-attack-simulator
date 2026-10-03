@@ -620,7 +620,23 @@ Implement preventive measures:
 
 *Code-level workflow for Scenario 06. Editable source: [`scas-codeflow-scenario-06.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-06.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/06-sha-hulud/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Store npm publish tokens only in CI/CD secrets; never keep them on developer machines.
+- Run `npm ci --ignore-scripts` by default and allowlist only required lifecycle scripts.
+- Require 2FA and publish provenance on npm maintainer accounts.
+- Restrict GitHub personal access tokens to the smallest scope and shortest lifetime.
+- Monitor CI and developer machines for unexpected `npm publish` or registry writes.
+- Alert on postinstall scripts that read `~/.npmrc`, `~/.git-credentials`, or environment tokens.
+- Rotate npm and GitHub tokens immediately after suspected compromise.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/06-sha-hulud/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -701,25 +717,7 @@ sequenceDiagram
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
-### Scenario-specific attack## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/06-sha-hulud/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Store npm publish tokens only in CI/CD secrets; never keep them on developer machines.
-- Run `npm ci --ignore-scripts` by default and allowlist only required lifecycle scripts.
-- Require 2FA and publish provenance on npm maintainer accounts.
-- Restrict GitHub personal access tokens to the smallest scope and shortest lifetime.
-- Monitor CI and developer machines for unexpected `npm publish` or registry writes.
-- Alert on postinstall scripts that read `~/.npmrc`, `~/.git-credentials`, or environment tokens.
-- Rotate npm and GitHub tokens immediately after suspected compromise.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/06-sha-hulud/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
- steps (Phase 2)
+### Scenario-specific attack steps (Phase 2)
 
 Same Phase-2 path as the diagrams above (for skimming / accessibility).
 

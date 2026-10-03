@@ -600,7 +600,22 @@ node detection-tools/multi-stage-correlator.js .
 
 *Code-level workflow for Scenario 17. Editable source: [`scas-codeflow-scenario-17.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-17.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/17-multi-stage-attack-chain/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Correlate initial dependency access, lateral CI token abuse, and registry publish events before closing alerts.
+- Segment CI service accounts so build runners cannot publish packages or deploy to production.
+- Trigger auto-containment when dependency install, secret access, and publish events occur in short windows.
+- Preserve per-stage forensic artifacts and run attack-chain tabletop exercises quarterly.
+- Enforce least privilege on CI tokens and require approval gates for registry publishes.
+- Maintain dependency allowlists and anomaly thresholds for first-seen packages or rapid version jumps.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/17-multi-stage-attack-chain/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -681,24 +696,7 @@ sequenceDiagram
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
-### Scenario-s## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/17-multi-stage-attack-chain/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Correlate initial dependency access, lateral CI token abuse, and registry publish events before closing alerts.
-- Segment CI service accounts so build runners cannot publish packages or deploy to production.
-- Trigger auto-containment when dependency install, secret access, and publish events occur in short windows.
-- Preserve per-stage forensic artifacts and run attack-chain tabletop exercises quarterly.
-- Enforce least privilege on CI tokens and require approval gates for registry publishes.
-- Maintain dependency allowlists and anomaly thresholds for first-seen packages or rapid version jumps.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/17-multi-stage-attack-chain/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-pecific attack steps (Phase 2)
+### Scenario-specific attack steps (Phase 2)
 
 Same Phase-2 path as the diagrams above (for skimming / accessibility).
 

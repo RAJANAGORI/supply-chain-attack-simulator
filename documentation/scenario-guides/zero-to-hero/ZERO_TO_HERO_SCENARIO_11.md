@@ -648,7 +648,21 @@ node detection-tools/mirror-validator.js compromised-mirror legitimate-packages
 
 *Code-level workflow for Scenario 11. Editable source: [`scas-codeflow-scenario-11.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-11.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/11-registry-mirror-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Secure mirror access - limit who can publish or modify mirror storage.
+- Audit mirror configuration and cached packages on a schedule.
+- Verify mirror packages match upstream registry digests.
+- Implement strict access controls and MFA on mirror admin paths.
+- Monitor mirror behavior and alert on unexpected package mutations.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/11-registry-mirror-poisoning/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -729,23 +743,7 @@ sequenceDiagram
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
-### Scenario-## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/11-registry-mirror-poisoning/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Secure mirror access - limit who can publish or modify mirror storage.
-- Audit mirror configuration and cached packages on a schedule.
-- Verify mirror packages match upstream registry digests.
-- Implement strict access controls and MFA on mirror admin paths.
-- Monitor mirror behavior and alert on unexpected package mutations.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/11-registry-mirror-poisoning/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-specific attack steps (Phase 2)
+### Scenario-specific attack steps (Phase 2)
 
 Same Phase-2 path as the diagrams above (for skimming / accessibility).
 

@@ -546,7 +546,23 @@ node detection-tools/version-confusion-detector.js victim-app
 
 *Code-level workflow for Scenario 20. Editable source: [`scas-codeflow-scenario-20.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-20.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/20-package-version-confusion/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Treat npm provenance and GitHub artifact attestations as identity and integrity signals, not safety guarantees.
+- Pin expected builder identity, repository, and ref in a verification policy that fails closed.
+- Run behavioral scans on installed packages even when signatures and provenance verify.
+- Monitor CI workflow changes and signing-credential usage for unexpected events.
+- Segment CI jobs so build runners cannot sign arbitrary artifacts or access signing keys.
+- Publish to and verify against a transparency log when the registry supports it.
+- Require lockfiles and deterministic npm ci installs in CI pipelines.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/20-package-version-confusion/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -624,25 +640,7 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 20
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/20-package-version-confusion/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Treat npm provenance and GitHub artifact attestations as identity and integrity signals, not safety guarantees.
-- Pin expected builder identity, repository, and ref in a verification policy that fails closed.
-- Run behavioral scans on installed packages even when signatures and provenance verify.
-- Monitor CI workflow changes and signing-credential usage for unexpected events.
-- Segment CI jobs so build runners cannot sign arbitrary artifacts or access signing keys.
-- Publish to and verify against a transparency log when the registry supports it.
-- Require lockfiles and deterministic npm ci installs in CI pipelines.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/20-package-version-confusion/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-->>Learner: Correlate capture detail with runbook IOCs
+    Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

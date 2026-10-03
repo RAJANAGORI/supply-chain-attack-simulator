@@ -331,7 +331,22 @@ git commit -m "Remove malicious submodule"
 
 *Code-level workflow for Scenario 10. Editable source: [`scas-codeflow-scenario-10.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-10.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/10-git-submodule-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Review every submodule, subtree, or vendored dependency addition in pull requests.
+- Validate embedded repository URLs against an allowlist; reject local `file://` and relative paths.
+- Pin embedded dependencies to verified commits; do not track floating branch heads.
+- Set `protocol.file.allow=never` globally and in CI runners to block CVE-2022-39253-style local protocol abuse.
+- Scan subtree and vendored code with the same rules as git submodule code.
+- Monitor initialization behavior and lifecycle scripts in build pipelines.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/10-git-submodule-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -409,24 +424,7 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 10
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learne## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/10-git-submodule-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Review every submodule, subtree, or vendored dependency addition in pull requests.
-- Validate embedded repository URLs against an allowlist; reject local `file://` and relative paths.
-- Pin embedded dependencies to verified commits; do not track floating branch heads.
-- Set `protocol.file.allow=never` globally and in CI runners to block CVE-2022-39253-style local protocol abuse.
-- Scan subtree and vendored code with the same rules as git submodule code.
-- Monitor initialization behavior and lifecycle scripts in build pipelines.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/10-git-submodule-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-r->>Learner: Correlate capture detail with runbook IOCs
+    Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

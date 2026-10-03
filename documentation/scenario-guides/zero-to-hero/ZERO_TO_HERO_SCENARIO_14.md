@@ -577,7 +577,21 @@ docker run --rm scas-legit
 
 *Code-level workflow for Scenario 14. Editable source: [`scas-codeflow-scenario-14.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-14.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/14-container-image-supply-chain-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Enforce image provenance and signature verification in CI/CD.
+- Pin immutable image digests (not mutable tags only).
+- Add policy checks for entrypoint/CMD changes on critical images.
+- Restrict outbound network from build and runtime where possible.
+- Require reproducible image builds and signed attestations.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/14-container-image-supply-chain-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -658,23 +672,7 @@ sequenceDiagram
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
-### ## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/14-container-image-supply-chain-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Enforce image provenance and signature verification in CI/CD.
-- Pin immutable image digests (not mutable tags only).
-- Add policy checks for entrypoint/CMD changes on critical images.
-- Restrict outbound network from build and runtime where possible.
-- Require reproducible image builds and signed attestations.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/14-container-image-supply-chain-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-Scenario-specific attack steps (Phase 2)
+### Scenario-specific attack steps (Phase 2)
 
 Same Phase-2 path as the diagrams above (for skimming / accessibility).
 

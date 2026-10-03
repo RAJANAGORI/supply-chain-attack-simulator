@@ -591,7 +591,22 @@ test ! -f node_modules/target-lib/.infected-by-plugin && echo "Clean"
 
 *Code-level workflow for Scenario 18. Editable source: [`scas-codeflow-scenario-18.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-18.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/18-package-manager-plugin-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Treat `.pnpmfile.cjs` and `.yarn/plugins/*` as code requiring the same review as build scripts.
+- Require CODEOWNERS approval for any hook file or plugin change.
+- Run `pnpm install --frozen-lockfile` in CI and fail if the lockfile changes unexpectedly.
+- Compare resolved dependencies against `package.json` declared dependencies in CI.
+- Use isolated CI runners with restricted egress for install steps.
+- Pin pnpm version and validate its checksum in CI.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/18-package-manager-plugin-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -674,24 +689,7 @@ sequenceDiagram
 
 ### Scenario-specific attack steps (Phase 2)
 
-Same Phase-2 path as the diagrams above (for s## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/18-package-manager-plugin-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Treat `.pnpmfile.cjs` and `.yarn/plugins/*` as code requiring the same review as build scripts.
-- Require CODEOWNERS approval for any hook file or plugin change.
-- Run `pnpm install --frozen-lockfile` in CI and fail if the lockfile changes unexpectedly.
-- Compare resolved dependencies against `package.json` declared dependencies in CI.
-- Use isolated CI runners with restricted egress for install steps.
-- Pin pnpm version and validate its checksum in CI.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/18-package-manager-plugin-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-kimming / accessibility).
+Same Phase-2 path as the diagrams above (for skimming / accessibility).
 
 | # | From | To | Action |
 |---|------|----|--------|

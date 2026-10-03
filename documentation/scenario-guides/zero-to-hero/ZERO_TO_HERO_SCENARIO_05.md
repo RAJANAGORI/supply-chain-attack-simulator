@@ -394,7 +394,23 @@ gpg --verify dist/app.js.asc
 
 *Code-level workflow for Scenario 05. Editable source: [`scas-codeflow-scenario-05.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-05.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/05-build-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Pin every third-party action to an immutable commit SHA and verify it with an allowlist check.
+- Set the minimum `permissions` on each workflow job and avoid granting `contents: write` when only read is needed.
+- Do not pass repository secrets into third-party or reusable actions unless absolutely necessary; prefer OIDC and short-lived tokens.
+- Protect reusable workflows and actions with branch rules, tag protection, CODEOWNERS, and signed tags.
+- Monitor CI runner process trees and egress for unexpected secret access or outbound connections.
+- Require security review of every workflow diff, especially new `uses` lines and mutable tag changes.
+- Rotate CI secrets and revoke `GITHUB_TOKEN` after any suspected workflow injection incident.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/05-build-compromise/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -472,25 +488,7 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 05
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learner: Correlate capture detail with## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/05-build-compromise/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Pin every third-party action to an immutable commit SHA and verify it with an allowlist check.
-- Set the minimum `permissions` on each workflow job and avoid granting `contents: write` when only read is needed.
-- Do not pass repository secrets into third-party or reusable actions unless absolutely necessary; prefer OIDC and short-lived tokens.
-- Protect reusable workflows and actions with branch rules, tag protection, CODEOWNERS, and signed tags.
-- Monitor CI runner process trees and egress for unexpected secret access or outbound connections.
-- Require security review of every workflow diff, especially new `uses` lines and mutable tag changes.
-- Rotate CI secrets and revoke `GITHUB_TOKEN` after any suspected workflow injection incident.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/05-build-compromise/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
- runbook IOCs
+    Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

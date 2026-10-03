@@ -691,7 +691,22 @@ cat package-lock.json | grep evil-utils
 
 *Code-level workflow for Scenario 08. Editable source: [`scas-codeflow-scenario-08.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-08.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Validate lockfiles before install in CI and locally.
+- Use git pre-commit hooks to detect unexpected lockfile changes.
+- Require careful code review of every `package-lock.json` diff.
+- Store and verify lockfile checksums as part of release gates.
+- Compare `package.json` declared deps against lockfile entries automatically.
+- Verify package integrity hashes match trusted registry metadata.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -774,24 +789,7 @@ sequenceDiagram
 
 ### Scenario-specific attack steps (Phase 2)
 
-Same Phase-2## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Validate lockfiles before install in CI and locally.
-- Use git pre-commit hooks to detect unexpected lockfile changes.
-- Require careful code review of every `package-lock.json` diff.
-- Store and verify lockfile checksums as part of release gates.
-- Compare `package.json` declared deps against lockfile entries automatically.
-- Verify package integrity hashes match trusted registry metadata.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/08-package-lock-file-manipulation/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
- path as the diagrams above (for skimming / accessibility).
+Same Phase-2 path as the diagrams above (for skimming / accessibility).
 
 | # | From | To | Action |
 |---|------|----|--------|

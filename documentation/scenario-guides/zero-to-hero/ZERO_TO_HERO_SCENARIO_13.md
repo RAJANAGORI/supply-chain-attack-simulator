@@ -620,7 +620,21 @@ node detection-tools/metadata-validator.js victim-app/node_modules/clean-utils
 
 *Code-level workflow for Scenario 13. Editable source: [`scas-codeflow-scenario-13.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-13.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/13-package-metadata-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Compare README, homepage, and repository URLs against a trusted source-of-truth; do not trust marketing copy.
+- Validate registry API metadata against tarball `package.json`; reject mismatches in author, repository, homepage, or dist integrity.
+- Pin exact versions and verify lockfile integrity hashes in CI.
+- Maintain an internal mirror of approved artifacts with signed metadata.
+- Require human review for dependency additions that change homepage, repository, or author fields.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/13-package-metadata-manipulation/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -699,23 +713,7 @@ sequenceDiagram
     Learner->>Kibana: Open SCAS Rules - Scenario 13
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
     Learner->>Learner: Correlate capture detail with runbook IOCs
-```## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/13-package-metadata-manipulation/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Compare README, homepage, and repository URLs against a trusted source-of-truth; do not trust marketing copy.
-- Validate registry API metadata against tarball `package.json`; reject mismatches in author, repository, homepage, or dist integrity.
-- Pin exact versions and verify lockfile integrity hashes in CI.
-- Maintain an internal mirror of approved artifacts with signed metadata.
-- Require human review for dependency additions that change homepage, repository, or author fields.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/13-package-metadata-manipulation/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-
+```
 
 ### Scenario-specific attack steps (Phase 2)
 

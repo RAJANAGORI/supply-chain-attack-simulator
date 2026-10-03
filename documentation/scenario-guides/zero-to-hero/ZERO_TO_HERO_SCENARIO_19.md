@@ -561,7 +561,21 @@ npm ci 2>/dev/null || npm install
 
 *Code-level workflow for Scenario 19. Editable source: [`scas-codeflow-scenario-19.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-19.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/19-sbom-manipulation-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Regenerate SBOM from lockfile/build artifacts in trusted CI only.
+- Require SBOM signing and provenance attestation.
+- Enforce fail-closed CI policy for SBOM-lockfile mismatches.
+- Keep truth-source and SBOM generation isolated from app code tampering.
+- Periodically diff production SBOM against runtime inventory scans.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/19-sbom-manipulation-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -639,23 +653,7 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 19
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learn## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/19-sbom-manipulation-attack/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Regenerate SBOM from lockfile/build artifacts in trusted CI only.
-- Require SBOM signing and provenance attestation.
-- Enforce fail-closed CI policy for SBOM-lockfile mismatches.
-- Keep truth-source and SBOM generation isolated from app code tampering.
-- Periodically diff production SBOM against runtime inventory scans.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/19-sbom-manipulation-attack/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-er->>Learner: Correlate capture detail with runbook IOCs
+    Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

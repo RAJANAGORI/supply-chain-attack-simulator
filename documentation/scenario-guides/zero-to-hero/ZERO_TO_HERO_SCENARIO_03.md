@@ -585,7 +585,22 @@ Implement preventive measures:
 
 *Code-level workflow for Scenario 03. Editable source: [`scas-codeflow-scenario-03.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-03.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/03-compromised-package/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Require MFA and admin approval for maintainer role changes and publish tokens.
+- Pin exact versions and enforce lockfile-only installs (`npm ci --ignore-scripts`) in CI.
+- Alert on new maintainers, unexpected patch-version changes, and dependency additions in trusted packages.
+- Run supply-chain scanners and diff reviews on every dependency update before merge.
+- Segment CI permissions so a build job cannot publish packages or alter registry metadata.
+- Maintain a known-good artifact mirror and rotate credentials after any suspected maintainer compromise.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/03-compromised-package/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -662,24 +677,7 @@ sequenceDiagram
     Kibana->>ES: Query scenario_id + sort by @timestamp desc
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 03
-    ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/03-compromised-package/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Require MFA and admin approval for maintainer role changes and publish tokens.
-- Pin exact versions and enforce lockfile-only installs (`npm ci --ignore-scripts`) in CI.
-- Alert on new maintainers, unexpected patch-version changes, and dependency additions in trusted packages.
-- Run supply-chain scanners and diff reviews on every dependency update before merge.
-- Segment CI permissions so a build job cannot publish packages or alter registry metadata.
-- Maintain a known-good artifact mirror and rotate credentials after any suspected maintainer compromise.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/03-compromised-package/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-md
+    ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
     Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 

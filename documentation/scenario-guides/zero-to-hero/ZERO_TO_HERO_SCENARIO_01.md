@@ -553,7 +553,21 @@ For internal packages:
 
 *Code-level workflow for Scenario 01. Editable source: [`scas-codeflow-scenario-01.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-01.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
 
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/01-typosquatting/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Commit `package-lock.json` and use `npm ci` in production pipelines.
+- Configure registry scope restrictions and verify package signatures where supported.
+- Run automated dependency scanning (e.g. `npm audit`, Snyk, Socket.dev).
+- Require a code-review checklist for every new dependency (name, maintainer, reputation).
+- Prefer private registries and scope-based routing for internal package names.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/01-typosquatting/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
 
 ## Elasticsearch + Kibana observability (optional)
 
@@ -631,23 +645,7 @@ sequenceDiagram
     ES-->>Kibana: Return capture events for this lab
     Learner->>Kibana: Open SCAS Rules - Scenario 01
     ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learne## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/01-typosquatting/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Commit `package-lock.json` and use `npm ci` in production pipelines.
-- Configure registry scope restrictions and verify package signatures where supported.
-- Run automated dependency scanning (e.g. `npm audit`, Snyk, Socket.dev).
-- Require a code-review checklist for every new dependency (name, maintainer, reputation).
-- Prefer private registries and scope-based routing for internal package names.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/01-typosquatting/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-r: Correlate capture detail with runbook IOCs
+    Learner->>Learner: Correlate capture detail with runbook IOCs
 ```
 
 ### Scenario-specific attack steps (Phase 2)

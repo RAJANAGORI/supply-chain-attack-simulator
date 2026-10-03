@@ -172,6 +172,23 @@ node detection-tools/slopsquat-detector.js victim-app
 
 *Code-level workflow for Scenario 24. Editable source: [`scas-codeflow-scenario-24.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-24.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
 
+## Mitigation Playbook
+
+Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/24-slopsquatting/README.md)). Lab walkthroughs above expand each control with hands-on steps.
+
+- Verify every package name on the public registry before installing a command copied from generated content.
+- Prefer internal or scoped packages for reusable utility code.
+- Run `npm install --ignore-scripts` and inspect package contents before allowing scripts.
+- Maintain an approved-dependency allowlist and require security review for every new name.
+- Pin exact versions and commit lockfiles so a slopsquat cannot slip in through a loose semver range.
+- Scan dependency diffs for network requests, environment access, and eval-like patterns.
+
+## Straightforward Implementation
+
+The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/24-slopsquatting/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
+
+---
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **24 - Slopsquatting** is indexed in Elasticsearch when the observability stack is running.
@@ -195,24 +212,7 @@ Slopsquatting: an LLM-hallucinated package name (`array-sortify`) is installed a
 
 ### End-to-end flow
 
-![Scenario 24 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-sc## Mitigation Playbook
-
-Canonical prevention and mitigation controls (aligned with the [scenario README](../../../scenarios/24-slopsquatting/README.md)). Lab walkthroughs above expand each control with hands-on steps.
-
-- Verify every package name on the public registry before installing a command copied from generated content.
-- Prefer internal or scoped packages for reusable utility code.
-- Run `npm install --ignore-scripts` and inspect package contents before allowing scripts.
-- Maintain an approved-dependency allowlist and require security review for every new name.
-- Pin exact versions and commit lockfiles so a slopsquat cannot slip in through a loose semver range.
-- Scan dependency diffs for network requests, environment access, and eval-like patterns.
-
-## Straightforward Implementation
-
-The full step-by-step implementation flow lives in the [scenario README](../../../scenarios/24-slopsquatting/README.md#straightforward-implementation) so this walkthrough stays focused on the attack and detection story.
-
----
-
-enario-24.svg)
+![Scenario 24 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-24.svg)
 
 *Swimlane diagram for Scenario 24. Editable source: [`scas-observability-scenario-24.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-24.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
 
