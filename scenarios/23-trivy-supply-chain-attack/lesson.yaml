@@ -14,6 +14,24 @@ mitigation:
   - "Disable and re-queue pipelines that ran known-bad scanner action versions"
   - "Rotate CI secrets reachable by affected runs; hunt workflows for bad version strings"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "Your CI uses a security scanner action to catch vulnerabilities. This morning's run went green. The network egress from the runner is below. Anything to chase?"
+  artifactType: ci-log
+  artifact:
+    - "[ci] Run aquasecurity/trivy-action@0.34.1"
+    - "[ci] Scanning image for vulnerabilities..."
+    - "[ci] 0 critical, 2 high, 11 medium"
+    - "[ci] Scan completed successfully"
+    - "--- runner egress during the scan step ---"
+    - "[net] POST https://scan.aquasecurtiy.org/upload  200"
+    - "[net]   note: aquasecurtiy.org - missing the second 'i' in aquasecurity"
+    - "[net]   payload: CI env, GITHUB_TOKEN, cloud credentials"
+  choices:
+    - "Nothing to chase - the scanner ran clean and found only routine CVEs"
+    - "Chase it - the runner POSTed CI secrets to a typosquat of the scanner's own domain"
+  answer: 1
+  reveal: "The security tool was the attack path. The scan ran, reported normal findings, and stayed green - while the compromised action POSTed your CI secrets to scan.aquasecurtiy.org, a typosquat missing the second i in aquasecurity. The tool you added to find vulnerabilities is the one that exfiltrated your credentials."
+  explanation: "Compromised scanner runs are designed to look clean, so the findings report is the wrong place to look. The signal is in the egress: a runner beaconing to a lookalike domain right after the scanner step starts. The root cause is the mutable action tag - @0.34.1 is a pointer that was force-pushed to code you never reviewed. Pin the scanner to an immutable commit SHA and enforce it with CI policy, because the tool watching your supply chain is part of it."
 steps:
   - id: setup
     registry: setup

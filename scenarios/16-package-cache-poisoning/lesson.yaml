@@ -14,6 +14,25 @@ mitigation:
   - "Clear caches after registry incidents; prefer npm ci with immutable mirrors"
   - "Monitor cache directories for unauthorized mutations"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A build got flagged for a malicious package. You deleted node_modules, wiped the lockfile, and reinstalled from scratch. The incident timeline is below. Are you clean?"
+  artifactType: ci-log
+  artifact:
+    - "[incident] malicious package detected in build #114"
+    - "[response] rm -rf node_modules package-lock.json"
+    - "[response] npm install   (fresh, from registry)"
+    - "[response] build #115: deploy"
+    - "---"
+    - "[detect] build #115 beaconing to 127.0.0.1:3016"
+    - "[detect] build #116 beaconing to 127.0.0.1:3016"
+    - "[detect] node_modules was rebuilt from cache, not the registry"
+    - "[detect] poisoned entry still present in ~/.npm/_cacache"
+  choices:
+    - "We are clean - we deleted node_modules and reinstalled fresh"
+    - "Still compromised - the poison lives in the cache, so the reinstall just pulled it back"
+  answer: 1
+  reveal: "You cleaned the wrong layer. node_modules is a copy; the cache is the source. The poisoned tarball survived in ~/.npm/_cacache, so every fresh install silently reused it. Deleting the tree and reinstalling felt like remediation but changed nothing - the compromise came back on the very next build, and the one after that."
+  explanation: "Cache poisoning is built to outlive exactly the response most teams reach for. Reinstalling, rebooting, even wiping node_modules all reuse the same poisoned cache. The tell is reinfection after a clean reinstall - that is the signature that the payload lives outside the tree. Real response means invalidating the cache itself: purge npm, pnpm, Yarn, and CI caches, then bind cache keys to lockfile hashes so a restored entry must match the reviewed lockfile."
 steps:
   - id: setup
     registry: setup

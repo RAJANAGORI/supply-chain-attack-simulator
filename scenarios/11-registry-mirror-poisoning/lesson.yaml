@@ -14,6 +14,24 @@ mitigation:
   - "Audit mirrors on a schedule and verify digests against upstream"
   - "Alert on unexpected package mutations in the mirror cache"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "Your team installs everything through the internal npm mirror on :4873 for speed. A routine integrity audit pulled the record below for a package you install daily. Act on it?"
+  artifactType: ci-log
+  artifact:
+    - "[audit] package: enterprise-logger"
+    - "[audit] version: 3.2.0"
+    - "[audit] source: internal mirror (localhost:4873)"
+    - "[audit] mirror sha512:  a1b2c3d4e5f6..."
+    - "[audit] upstream sha512: 9f8e7d6c5b4a...  (npmjs.com)"
+    - "[audit] name + version match upstream: YES"
+    - "[audit] digest match upstream: NO"
+    - "[audit] mirror tarball contains postinstall not present upstream"
+  choices:
+    - "Ignore it - same name and version, so it is the same package"
+    - "Treat it as an incident - same name and version but a different digest means someone mutated the artifact"
+  answer: 1
+  reveal: "Same name, same version, different bytes. The mirror is serving a tarball that does not match upstream, and the extra postinstall is the payload. Once a mirror is writable, cached packages diverge from upstream silently - package.json never changes, so nothing in your repo tells you the artifact under you was swapped."
+  explanation: "The whole point of a mirror is that it is trusted to be a faithful copy. The integrity check is the only thing that can see the lie: identical name and version, mismatched sha512. That mismatch is the poison. The defense is write-side - lock down who can mutate mirror storage, require MFA on admin paths, and verify mirror digests against upstream on a schedule so tampering alerts in hours, not months."
 steps:
   - id: setup
     registry: setup

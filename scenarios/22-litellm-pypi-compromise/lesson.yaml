@@ -14,6 +14,25 @@ mitigation:
   - "Enforce hash pinning or vetted indexes; rotate PyPI and API tokens after incidents"
   - "Scan site-packages for unexpected *.pth files after every pip install in CI"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "You bumped litellm-like from 1.82.6 to 1.82.7 in your Python service. After deploy, your EDR flags the process below. Investigate or dismiss?"
+  artifactType: ci-log
+  artifact:
+    - "[edr] process: python3 run_victim.py"
+    - "[edr] outbound connection: 127.0.0.1:3022"
+    - "[edr] note: no import of any network client in app code"
+    - "---"
+    - "[scan] site-packages contents after pip install:"
+    - "[scan]   litellm_like/  (1.82.7)"
+    - "[scan]   zzz_testbench_litellm_like.pth   <- new, nobody added this"
+    - "---"
+    - "[note] .pth files execute at every python interpreter startup"
+  choices:
+    - "Dismiss - the app only imports litellm_like, and that is a known dependency"
+    - "Investigate - a Python process is beaconing with no import to explain it, and a rogue .pth appeared in site-packages"
+  answer: 1
+  reveal: "The .pth file is the payload. Python executes every .pth in site-packages at interpreter startup, before your code runs and without any import. The compromised 1.82.7 dropped zzz_testbench_litellm_like.pth there, so every Python process in that virtualenv beacons out - and your import tracing never sees it because nothing was ever imported."
+  explanation: "This is why import-based detection misses the LiteLLM-style compromise. The hook fires at startup, so watching for an import of the malicious package finds nothing. The catches are a Python process with network activity and no import to explain it, and a .pth file in site-packages that nobody added. The prevention is hash pinning with --require-hashes so a swapped artifact fails the install, plus a site-packages .pth scan in CI after every pip install."
 steps:
   - id: setup
     registry: setup

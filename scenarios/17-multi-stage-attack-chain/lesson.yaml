@@ -14,6 +14,22 @@ mitigation:
   - "Segment CI accounts so build runners cannot publish or deploy to production"
   - "Require approval gates for registry publishes; preserve per-stage forensics"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "Your SIEM fired three low-severity alerts from the same CI runner over six minutes. Each one was auto-closed as benign. The timeline is below. Was closing them right?"
+  artifactType: ci-log
+  artifact:
+    - "14:02:11  [LOW] npm install completed on ci-runner-7  -> auto-closed (routine)"
+    - "14:04:38  [LOW] process read ~/.npmrc on ci-runner-7  -> auto-closed (common)"
+    - "14:07:55  [LOW] registry publish from ci-runner-7    -> auto-closed (expected)"
+    - ""
+    - "each alert below the severity threshold on its own"
+    - "no rule joins events across the six-minute window"
+  choices:
+    - "Right call - three low-severity alerts, all routine CI activity"
+    - "Wrong call - install, then token access, then a publish from one host is a single attack chain"
+  answer: 1
+  reveal: "Three benign events are one breach. The install pulled a stage-1 package, the .npmrc read stole the CI publish token, and the publish shipped a poisoned release - all from the same runner in six minutes. Each alert was below threshold on its own, so per-alert triage closed every one. The attack only exists in the correlation."
+  explanation: "Multi-stage operations are engineered to look like noise when you read alerts one at a time. Install, secret access, and publish are each routine in isolation; joined into a timeline from a single host, they are unambiguous. The fix is a correlator that connects the stages, plus segmentation so the build runner's identity cannot publish in the first place - then stage 3 fails on permissions even if stage 1 succeeds."
 steps:
   - id: setup
     registry: setup

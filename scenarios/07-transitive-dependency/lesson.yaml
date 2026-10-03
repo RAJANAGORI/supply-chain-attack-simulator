@@ -16,6 +16,26 @@ mitigation:
   - "Full blue-team runbook: DETECT.md in this lab folder"
 reversal:
   blockedPackage: "data-processor"
+drill:
+  prompt: "You reviewed package.json before merging - two dependencies, both well-known. The resolved install tree is below. Anything wrong?"
+  artifactType: diff
+  artifact:
+    - "my-app@1.0.0"
+    - "+-- express@4.18.2"
+    - "+-- request-helper@2.1.0"
+    - "|   +-- data-processor@1.4.2"
+    - "|   |   postinstall: node ./init.js"
+    - "|   |   init.js: reads process.env, POST 127.0.0.1:3000"
+    - "+-- lodash@4.17.21"
+    - ""
+    - "package.json dependencies: express, request-helper"
+    - "3 packages reviewed. 4 packages installed."
+  choices:
+    - "Looks fine - I reviewed every dependency in package.json"
+    - "Stop - data-processor was never in my package.json and it runs a postinstall"
+  answer: 1
+  reveal: "You reviewed two packages and installed four. data-processor came in one level down, pulled by request-helper, and it carries a postinstall that reads your environment and beacons out. Your package.json review walked right past it because the name never appears there."
+  explanation: "This is the event-stream transitive pattern: the payload hides behind a direct dependency you trust, deep enough that a package.json review never sees it. The count mismatch is the tell - reviewed 3, installed 4. You cannot defend what you cannot see, which is why the tree, not the manifest, is what needs scanning. An SBOM or full-tree audit surfaces the nested package; reading package.json never will."
 steps:
   - id: setup
     registry: setup

@@ -14,6 +14,30 @@ mitigation:
   - "Use frozen lockfiles in CI and fail if the lockfile changes unexpectedly"
   - "Pin the package manager version and validate its checksum"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A PR adds a .pnpmfile.cjs to customize how pnpm resolves packages. The hook and the resulting lockfile diff are below. Merge it?"
+  artifactType: diff
+  artifact:
+    - "diff --git a/.pnpmfile.cjs b/.pnpmfile.cjs"
+    - "new file"
+    - "+function readPackage(pkg) {"
+    - "+  if (pkg.name === 'target-lib') {"
+    - "+    pkg.dependencies['malicious-logger'] = '1.0.0';"
+    - "+  }"
+    - "+  return pkg;"
+    - "+}"
+    - "+module.exports = { hooks: { readPackage } };"
+    - ""
+    - "diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml"
+    - "+  malicious-logger: 1.0.0"
+    - ""
+    - "package.json dependencies: unchanged"
+  choices:
+    - "Merge - package.json is unchanged, so no new dependency was added"
+    - "Reject - the hook injects a dependency package.json never declared, and the lockfile proves it"
+  answer: 1
+  reveal: "package.json is clean and the lockfile is not. The readPackage hook rewrites resolution at install time, injecting malicious-logger into target-lib without touching the manifest you reviewed. The only record of the injection is the lockfile, which now lists a package nobody asked for."
+  explanation: "This attack lives in the gap between what you declare and what the package manager resolves. .pnpmfile.cjs and Yarn plugins are code that runs during install, but they rarely get reviewed like code. The smoking gun is drift: pnpm-lock.yaml gains entries package.json never declared. The catch is a frozen lockfile in CI - --frozen-lockfile turns the injection into a build failure, and a git diff gate on the lockfile makes the drift visible before it ships."
 steps:
   - id: setup
     registry: setup

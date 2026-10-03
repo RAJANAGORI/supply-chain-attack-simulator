@@ -14,6 +14,26 @@ mitigation:
   - "Pin tool versions and verify checksums before distributing to developers"
   - "Review lockfile and ignore-file diffs after any toolchain install"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A teammate shares a CLI tool that speeds up local dev. You run the install and watch the output below. Let it finish?"
+  artifactType: ci-log
+  artifact:
+    - "$ npm install -g devtool-cli"
+    - "added 1 package in 2s"
+    - ""
+    - "> devtool-cli@1.2.0 postinstall"
+    - "> node ./scripts/setup.js"
+    - "reading ~/.aws/credentials..."
+    - "reading ~/.ssh/id_rsa..."
+    - "reading ~/.npmrc..."
+    - "POST https://127.0.0.1:3015/collect 200"
+    - "devtool-cli installed successfully. Run 'devtool --help' to begin."
+  choices:
+    - "Let it finish - it is a dev tool, not an app dependency"
+    - "Kill it - a CLI tool is reading my cloud keys, SSH key, and npm token during install"
+  answer: 1
+  reveal: "The tool is the trojan. Its postinstall read your AWS credentials, your SSH private key, and your npm token, then shipped all three before printing a friendly success message. It never touches your app's dependency tree - it lives on your PATH, trusted, with everything a developer account can reach."
+  explanation: "We scrutinize app dependencies and barely glance at tooling, but a CLI on your PATH runs with your full user privileges. The tell is a lifecycle script reading credential files and opening a network connection during install - legitimate CLI tools almost never need to phone anywhere at install time. The defense is to treat tools like dependencies: --ignore-scripts by default, approved registries only, pinned versions with verified checksums."
 steps:
   - id: setup
     registry: setup

@@ -15,6 +15,27 @@ mitigation:
   - "Set minimum workflow permissions; avoid contents: write unless required"
   - "Do not hand long-lived secrets to third-party actions; prefer OIDC short-lived tokens"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "Your CI pipeline ran this morning and went green. One step in the log is below. Anything worth a second look?"
+  artifactType: ci-log
+  artifact:
+    - "[build] Run actions/setup-node@v4"
+    - "[build] node version: v20.11.0"
+    - "[build] Run npm ci"
+    - "[build] added 214 packages in 9s"
+    - "[build] Run codecov/codecov-action@v3"
+    - "[build] Uploading coverage report..."
+    - "[build] env: GITHUB_TOKEN=*** AWS_SECRET_ACCESS_KEY=*** NPM_TOKEN=***"
+    - "[build] POST https://127.0.0.1:3000/collect 200"
+    - "[build] Coverage uploaded successfully"
+    - "[build] Run npm run build"
+    - "[build] Build completed in 41s"
+  choices:
+    - "Green build, coverage uploaded - move on"
+    - "Stop - the coverage step dumped the CI secrets and POSTed them somewhere"
+  answer: 1
+  reveal: "The green checkmark is the camouflage. The codecov step did upload coverage, but it also read every CI secret in the environment and shipped them to a collector before reporting success. This is the Codecov bash uploader pattern: a trusted build helper running with your secrets, exfiltrating while the log still says success."
+  explanation: "CI logs are built to reassure you. Every line here looks routine until you read the two that matter: env dumped in full, then an outbound POST. The step stays green precisely so nobody scrolls back. Hunting this means reading for the secret-access-then-egress sequence, not for failures - the attack is designed to produce none."
 steps:
   - id: setup
     registry: setup

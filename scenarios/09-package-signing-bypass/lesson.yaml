@@ -14,6 +14,24 @@ mitigation:
   - "Treat signatures as identity signals; still run behavioral and content scanning"
   - "Protect signing keys in HSM/KMS with MFA, rotation, and audit logs"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "Your pipeline verifies package signatures before install. The verification output for a new release is below. Let the install through?"
+  artifactType: ci-log
+  artifact:
+    - "[verify] package: secure-utils@1.0.1"
+    - "[verify] signature algorithm: ed25519"
+    - "[verify] keyId: maintainer-key-01"
+    - "[verify] crypto.verify(signature, package, publicKey)"
+    - "[verify] result: VALID"
+    - "[verify] signature check PASSED - proceeding to install"
+    - "[behavioral-scan] postinstall opens socket to 127.0.0.1:3000"
+    - "[behavioral-scan] keyCompromised: true"
+  choices:
+    - "Let it through - the signature verified, so the package is authentic"
+    - "Block it - a valid signature proves who signed it, not what the code does"
+  answer: 1
+  reveal: "The signature is valid and the package is still malicious. The attacker stole the maintainer's Ed25519 key, so v1.0.1 verifies under the exact same keyId as every good release before it. crypto.verify() answers one question - was this signed by the holder of this key - and says nothing about whether that holder is still the person you trust."
+  explanation: "A signature is an identity check, not a behavior check. Once the key is compromised, verification passes on attacker code and every failure-based alert stays silent. The behavioral scanner is what caught this: a signed package that still beacons out at install time. Treat signatures as one signal, keep behavioral scanning even when they verify, and protect keys in an HSM so theft is hard and visible."
 steps:
   - id: setup
     registry: setup

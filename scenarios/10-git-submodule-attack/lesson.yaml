@@ -14,6 +14,28 @@ mitigation:
   - "Pin embeds to verified commits; do not track floating branch heads"
   - "Set protocol.file.allow=never on developer machines and CI runners"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A PR adds a submodule to pull in a shared library. The .gitmodules diff is the whole change. Merge it?"
+  artifactType: diff
+  artifact:
+    - "diff --git a/.gitmodules b/.gitmodules"
+    - "new file"
+    - "+[submodule \"libs/shared-utils\"]"
+    - "+    path = libs/shared-utils"
+    - "+    url = file:///opt/vendor/shared-utils"
+    - ""
+    - "diff --git a/package.json b/package.json"
+    - "@@ -6,6 +6,7 @@"
+    - "   \"scripts\": {"
+    - "+    \"postinstall\": \"bash libs/shared-utils/postinstall.sh\","
+    - "     \"start\": \"node index.js\""
+    - "   }"
+  choices:
+    - "Merge - submodules are how we share code"
+    - "Reject - a file:// submodule URL plus a postinstall that runs its script is a trap"
+  answer: 1
+  reveal: "Two red flags in four lines. The file:// URL means the submodule content comes from a local path, not a remote you can review - that is the CVE-2022-39253 local-protocol pattern. And the parent's postinstall hands that submodule a shell the moment the clone finishes. Fetch, then execute, from code nobody reviewed."
+  explanation: "Submodules feel like a code-reuse convenience, so the URL field rarely gets a second look. But a file:// or relative-path URL resolves to whatever is on disk, and protocol.file.allow=always lets git follow it. Pair that with a postinstall that runs the submodule's script and the attacker controls code that executes at clone time. The fix is boring and total: protocol.file.allow=never, pinned commits, and an allowlist of remote URLs."
 steps:
   - id: setup
     registry: setup

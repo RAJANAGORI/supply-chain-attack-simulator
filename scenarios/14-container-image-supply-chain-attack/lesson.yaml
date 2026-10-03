@@ -14,6 +14,25 @@ mitigation:
   - "Enforce image provenance and signature verification in CI/CD"
   - "Policy-check ENTRYPOINT/CMD changes on critical images"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A deploy is queued. The image reference and the container's startup behavior are below. Ship it?"
+  artifactType: ci-log
+  artifact:
+    - "[deploy] image: registry.internal/payments/api:latest"
+    - "[deploy] tag: latest (mutable)   digest: (not pinned)"
+    - "[deploy] signature verification: skipped"
+    - "--- container boot ---"
+    - "[boot] entrypoint: node /app/malicious-start.js"
+    - "[boot] baseline entrypoint was: node /app/server.js"
+    - "[boot] t+0.4s  POST https://127.0.0.1:3002/capture  200"
+    - "[boot] t+0.6s  starting application normally..."
+    - "[boot] health check: OK"
+  choices:
+    - "Ship it - health check passed and the app started"
+    - "Stop - the entrypoint drifted from baseline and the container beaconed before the app even came up"
+  answer: 1
+  reveal: "The image was swapped and the tag told you nothing. latest is a mutable pointer, the digest was never pinned, and the entrypoint changed from server.js to malicious-start.js - which fired a beacon 0.4 seconds into boot, then started the app normally so the health check passed. The container looks healthy because it is supposed to."
+  explanation: "Two failures stacked here. A mutable tag means the image under the name can change after review, and an unpinned digest plus skipped signature verification means nothing checks that it did. The runtime tell is the boot-window beacon and the entrypoint drift. The fix is fail-closed: pin immutable digests, verify signatures in CI/CD, and policy-check ENTRYPOINT/CMD changes on critical images so a retagged image never reaches production."
 steps:
   - id: setup
     registry: setup
