@@ -1,15 +1,29 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono, Oswald } from 'next/font/google';
+import { DM_Sans, JetBrains_Mono, Syne } from 'next/font/google';
 import { RouteWarmup } from '@/components/RouteWarmup';
 import { Sidebar } from '@/components/Sidebar';
 import { AttributionFooter } from '@/components/AttributionFooter';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { THEME_BOOTSTRAP_SCRIPT } from '@/lib/theme';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-lab-sans', display: 'swap' });
-const oswald = Oswald({ subsets: ['latin'], variable: '--font-lab-oswald', display: 'swap' });
-const jetbrains = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const syne = Syne({
+  subsets: ['latin'],
+  variable: '--font-display',
+  display: 'swap',
+});
+
+const jetbrains = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'SCAS — Control Center',
@@ -18,13 +32,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${oswald.variable} ${jetbrains.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${dmSans.variable} ${syne.variable} ${jetbrains.variable}`} suppressHydrationWarning>
       <head>
-        <meta name="theme-color" content="#0d1117" />
+        <meta name="theme-color" content="#2f27ce" />
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
       </head>
       <body className="font-sans">
