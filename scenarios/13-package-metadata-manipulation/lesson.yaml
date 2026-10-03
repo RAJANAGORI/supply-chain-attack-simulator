@@ -50,3 +50,25 @@ steps:
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
     hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "Which metadata signal is the strongest IOC that a clean-looking package is manipulated?"
+    choices:
+      - "The package has a polished README with a project logo"
+      - "The registry API and the tarball's package.json disagree on repository, author, or homepage"
+      - "The package description mentions enterprise use cases"
+    answer: 1
+    explain: "Attackers write metadata for humans and payloads for machines. When the registry listing and the tarball you actually install tell different stories about repository or author, one of them is lying - DETECT.md flags exactly this mismatch. Polished docs and enterprise language are marketing, not evidence."
+  - question: "How do you hunt metadata manipulation at scale before a package ever runs?"
+    choices:
+      - "Diffing runtime syscalls against a baseline"
+      - "Watching for outbound traffic to the capture port"
+      - "Comparing npm view metadata against the packed tarball's package.json and rejecting mismatches in CI"
+    answer: 2
+    explain: "This is a pre-execution catch - metadata-validator.js style checks compare registry API fields with tarball package.json and fail the build on author, repository, homepage, or dist.integrity drift. Syscall baselines and network watches only fire after the payload already ran, which is too late for a metadata attack."
+  - question: "Which mitigation stops metadata manipulation from reaching developers?"
+    choices:
+      - "Human review for any dependency change that alters homepage, repository, or author fields, backed by an approved-artifact mirror"
+      - "Trusting packages with high weekly download counts"
+      - "Reading the README more carefully before installing"
+    answer: 0
+    explain: "A field-change gate turns the attacker's best trick - a trusted-looking story - into a review trigger, and a signed internal mirror gives you a source of truth to compare against. Download counts are gameable and say nothing about metadata drift, and README reading is exactly the surface this attack exploits."

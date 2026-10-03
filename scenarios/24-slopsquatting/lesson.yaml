@@ -14,6 +14,25 @@ mitigation:
   - "Prefer scoped or internal packages; use --ignore-scripts until contents are inspected"
   - "Maintain an allowlist and pin exact versions with committed lockfiles"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+reversal:
+  blockedPackage: "array-sortify"
+drill:
+  prompt: "You asked an AI assistant how to sort an array of objects and it replied: npm install array-sortify. You look it up before installing. Install it?"
+  artifactType: package-page
+  artifact:
+    - "array-sortify"
+    - "version 0.1.1   published 3 days ago"
+    - "weekly downloads: 4"
+    - "maintainer: u/x9f2 (1 package)"
+    - "repository: (none)"
+    - "last publish: brand new"
+    - "readme: \"Blazing fast array sorting. npm install array-sortify\""
+  choices:
+    - "Install it - the AI suggested it"
+    - "Walk away - this package has no history"
+  answer: 1
+  reveal: "array-sortify does not solve your problem - it exists because models keep inventing that exact name. An attacker registered the hallucinated name and waited. Your install command, copied from a confident AI answer, is the delivery mechanism."
+  explanation: "The tell is not the readme, it is the gap between a confident recommendation and a package with four downloads, no repository, and a three-day-old account. Slopsquatting works because the AI sounds certain and the registry page looks real enough. Verify the name exists and has a history before you run anything a model hands you."
 steps:
   - id: setup
     registry: setup
@@ -50,3 +69,25 @@ steps:
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
     hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that array-sortify is a slopsquat?"
+    choices:
+      - "The package has a short readme"
+      - "A newly added dependency with no registry history that matches a name an AI assistant suggested"
+      - "The package version starts with 0.x"
+    answer: 1
+    explain: "Short readmes and 0.x versions show up in plenty of legitimate packages. The slopsquat signal is the gap between a confident model recommendation and a name with four downloads, no repository, and a three-day-old maintainer account."
+  - question: "Which detection catches the install in near-real time?"
+    choices:
+      - "Alerting on every npm install in CI"
+      - "Reviewing dependencies once a quarter"
+      - "Alerting on network activity right after a package that is not in the approved baseline gets installed"
+    answer: 2
+    explain: "Alerting on every install drowns the signal, and quarterly review leaves months of exposure. The high-signal hunt is tight in time and scope: a beacon to 127.0.0.1:3024 in the seconds after a brand-new, unapproved name lands."
+  - question: "Which control stops slopsquats at the door?"
+    choices:
+      - "Verifying the name on the registry and requiring security review for every new dependency, with ignore-scripts until contents are inspected"
+      - "Trusting install commands from AI assistants when they include a registry link"
+      - "Installing first and reading the code afterward if something breaks"
+    answer: 0
+    explain: "A registry link proves the name exists, not that it is safe - the attacker registered it precisely because models keep inventing it. Installing first runs the payload. Verification before install, an allowlist gate, and ignore-scripts close the delivery path."

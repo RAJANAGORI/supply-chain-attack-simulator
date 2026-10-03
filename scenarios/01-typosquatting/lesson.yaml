@@ -14,6 +14,53 @@ mitigation:
   - "Scope registry routes and review every new dependency name before merge"
   - "Prefer ignore-scripts in CI until a package is explicitly trusted"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A teammate opened this PR to add a helper to your app. The diff is the whole change. Merge it?"
+  artifactType: diff
+  artifact:
+    - "diff --git a/package.json b/package.json"
+    - "@@ -10,6 +10,7 @@"
+    - "   \"dependencies\": {"
+    - "     \"express\": \"^4.18.2\","
+    - "+    \"request-lib\": \"^1.0.0\","
+    - "     \"lodash\": \"^4.17.21\""
+    - "   }"
+    - ""
+    - "diff --git a/index.js b/index.js"
+    - "@@ -1,3 +1,4 @@"
+    - " const express = require('express');"
+    - "+const req = require('request-lib');"
+    - " const app = express();"
+  choices:
+    - "Merge it - it is a one-line helper"
+    - "Reject it - request-lib is not requests-lib"
+  answer: 1
+  reveal: "That one-line helper was the attack. The real package is requests-lib (with an s). request-lib is a typosquat with a postinstall script that reads your environment and posts it to a collector the moment npm finishes installing."
+  explanation: "Nothing in the diff says malicious. The only signal is a single missing letter in a name you have typed a hundred times. This is exactly how crossenv and the python3-dateutil lookalikes spread: the review that would have caught it takes three seconds, but only if you read the name instead of the diff shape."
+quiz:
+  - question: "Which signal in this lab is the strongest IOC that a package is a typosquat?"
+    choices:
+      - "The package has a postinstall script"
+      - "The package name is one character off a dependency you intended"
+      - "The package was installed with npm instead of yarn"
+    answer: 1
+    explain: "Install scripts are common and legitimate. The defining typosquat signal is a name that is a near-miss of the package you meant to add - request-lib versus requests-lib. Detection keys on that name drift plus install-time execution."
+  - question: "After npm install runs the malicious package, what network behavior should you hunt for first?"
+    choices:
+      - "An outbound connection right after install, before the app even starts"
+      - "DNS lookups for the registry over the next hour"
+      - "Inbound connections to the package's port"
+    answer: 0
+    explain: "The payload beacons immediately on install (here to 127.0.0.1:3000). EDR/SIEM should alert on child-process or network activity in the seconds right after npm install, not long after."
+  - question: "Which control would have stopped this lab at the door?"
+    choices:
+      - "ignore-scripts in CI until a package is trusted"
+      - "A faster CI runner"
+      - "Pinning the Node version"
+    answer: 0
+    explain: "The attack needs its install script to run. ignore-scripts (plus a committed lockfile and registry scoping) removes the execution path entirely until a package is reviewed."
+reversal:
+  blockedPackage: "request-lib"
 steps:
   - id: setup
     registry: setup

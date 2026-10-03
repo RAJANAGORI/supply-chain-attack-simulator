@@ -50,3 +50,25 @@ steps:
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
     hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "Which pattern is the strongest IOC of this multi-stage chain?"
+    choices:
+      - "A single npm install on a build runner"
+      - "Install, secret access, and registry publish events from the same host in a short window"
+      - "A dependency with a major version jump"
+    answer: 1
+    explain: "Each stage alone looks like normal CI noise. The IOC is the correlation: dependency install, then .npmrc or CI token access, then a publish, all from one host or run context within minutes."
+  - question: "Why does per-alert triage miss this attack, and what catches it?"
+    choices:
+      - "Alerts are too noisy, so muting them reveals the attack"
+      - "The attack is encrypted, so nothing can detect it"
+      - "Each stage is low-signal alone; a correlator that joins the stages into one chain catches it"
+    answer: 2
+    explain: "Stage events are individually benign-looking, so alert-by-alert review closes them as false positives. Detection has to join install, token access, and publish into a single timeline, like the lab's multi-stage-correlator does."
+  - question: "Which control breaks the chain even if stage 1 succeeds?"
+    choices:
+      - "Segmenting CI service accounts so build runners cannot publish packages"
+      - "Rotating the CI runner's hostname"
+      - "Updating dependencies more frequently"
+    answer: 0
+    explain: "The chain needs one identity to go from build to publish. If the build runner's token cannot publish, stage 3 fails on permissions; approval gates and auto-containment on the event sequence add more chances to stop it."

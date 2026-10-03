@@ -51,3 +51,25 @@ steps:
     title: Clear and audit caches
     teaching: "DETECT.md covers npm cache verify/clean and CI cache isolation."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC of package cache poisoning in this lab?"
+    choices:
+      - "The compromise returns after node_modules is deleted and reinstalled"
+      - "npm install takes longer than usual"
+      - "The package pulls in many transitive dependencies"
+    answer: 0
+    explain: "Slow installs and deep trees are normal. Reinfection after a clean reinstall is the signature: the poison lives outside node_modules, in the cache, so deleting the tree never removes it."
+  - question: "When a reinstall stays compromised, which artifact should investigators check first?"
+    choices:
+      - "The package README and description fields"
+      - "The app's environment variables"
+      - "Cache paths like ~/.npm/_cacache, the pnpm store, or the CI cache restore"
+    answer: 2
+    explain: "The attack persists in the cache layer, so that is where the evidence lives, including tarballs with mismatched integrity in remote caches like Artifactory. Package metadata tells you nothing about where the bytes actually came from."
+  - question: "Which response actually clears this attack out of a pipeline?"
+    choices:
+      - "Re-running npm install until the output looks clean"
+      - "Purging npm, pnpm, Yarn, and CI caches, then binding cache keys to lockfile hashes"
+      - "Restarting the CI runner"
+    answer: 1
+    explain: "Reinstalling or rebooting reuses the same poisoned cache. Incident response has to invalidate the cache itself, then re-key CI caches to lockfile hashes so restored entries match the reviewed lockfile."

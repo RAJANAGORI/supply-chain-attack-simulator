@@ -18,7 +18,7 @@ Creating and publishing this project establishes copyright in the original scena
 | **Software** - `scenarios/`, `scripts/`, `detection-tools/`, `observability/`, mock servers, CI, site app code | [MIT License](LICENSE) | `LICENSE` |
 | **Documentation** - `documentation/`, guides, modules, learning paths, web docs content | [CC BY-NC-ND 4.0](DOCUMENTATION-CC-BY-NC-ND.md) | `DOCUMENTATION-CC-BY-NC-ND.md` |
 
-See also [NOTICE](NOTICE) and [ATTRIBUTION.md](ATTRIBUTION.md).
+See also [NOTICE](NOTICE), [ATTRIBUTION.md](ATTRIBUTION.md), and [PROVENANCE.md](PROVENANCE.md) (how authorship is proved and enforced).
 
 ## What you must do when reusing
 

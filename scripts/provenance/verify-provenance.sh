@@ -32,4 +32,18 @@ fi
 echo "Canonical record:"
 grep -E '"creator"|"fingerprint"|"repository"' "${CANON}" | sed 's/^/  /'
 echo ""
+
+# Attestation status (signed proof of priority), if present.
+if [[ -f "${ROOT}/ATTESTATION.json" ]]; then
+  echo "Attestation present:"
+  grep -E '"commit"|"attestedAt"|"creator"' "${ROOT}/ATTESTATION.json" | sed 's/^/  /'
+  if [[ -f "${ROOT}/ATTESTATION.json.sig" ]]; then
+    echo "  signature: ATTESTATION.json.sig (verify: ./scripts/provenance/attest.sh --verify)"
+  else
+    echo "  signature: none (run ./scripts/provenance/attest.sh to sign)"
+  fi
+else
+  echo "No ATTESTATION.json (optional signed proof of priority - see scripts/provenance/attest.sh)."
+fi
+echo ""
 echo "If a copy lacks SCAS_PROVENANCE.json or these markers, compare git history and see LEGAL.md."

@@ -2,7 +2,14 @@
  * Minimal YAML subset parser for lesson.yaml files.
  * Supports maps, lists, quoted/unquoted scalars, null, and inline { k: v } objects.
  */
-import type { LessonAudience, LessonDefinition, LessonStep, LessonVerify } from './lesson-types.js';
+import type {
+  LessonAudience,
+  LessonDefinition,
+  LessonDrill,
+  LessonQuizQuestion,
+  LessonStep,
+  LessonVerify,
+} from './lesson-types.js';
 
 function stripQuotes(s: string): string {
   const t = s.trim();
@@ -229,5 +236,89 @@ export function normalizeLesson(raw: Record<string, unknown>, expectedId: string
     };
   });
 
-  return { id, etaMinutes, category, incidents, objectives, caseStudy, mitigation, steps };
+  const drill = normalizeDrill(raw.drill);
+  const quiz = normalizeQuiz(raw.quiz);
+  const reversal = normalizeReversal(raw.reversal);
+
+  return { id, etaMinutes, category, incidents, objectives, caseStudy, mitigation, steps, drill, quiz, reversal };
+}
+
+function normalizeReversal(raw: unknown): { blockedPackage: string } | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('reversal must be a mapping');
+  }
+  const r = raw as Record<string, unknown>;
+  const blockedPackage = asString(r.blockedPackage, 'reversal.blockedPackage').trim();
+  if (!blockedPackage) throw new Error('reversal.blockedPackage must be non-empty');
+  return { blockedPackage };
+}
+
+function normalizeQuiz(raw: unknown): LessonQuizQuestion[] | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (!Array.isArray(raw) || raw.length === 0) {
+    throw new Error('quiz must be a non-empty list of questions');
+  }
+  return raw.map((item, i) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      throw new Error(`quiz[${i}] must be a mapping`);
+    }
+    const q = item as Record<string, unknown>;
+    const question = asString(q.question, `quiz[${i}].question`).trim();
+    if (!Array.isArray(q.choices) || q.choices.length < 2) {
+      throw new Error(`quiz[${i}].choices must be a list of at least two options`);
+    }
+    const choices = q.choices.map((x, j) => asString(x, `quiz[${i}].choices[${j}]`));
+    const answer = typeof q.answer === 'number' ? q.answer : Number(q.answer);
+    if (!Number.isInteger(answer) || answer < 0 || answer >= choices.length) {
+      throw new Error(`quiz[${i}].answer must be a valid index into choices`);
+    }
+    const explain = asString(q.explain, `quiz[${i}].explain`).trim();
+    if (!question || !explain) {
+      throw new Error(`quiz[${i}].question and quiz[${i}].explain must be non-empty`);
+    }
+    return { question, choices, answer, explain };
+  });
+}
+
+const DRILL_ARTIFACT_TYPES = new Set(['diff', 'package-page', 'ci-log']);
+
+function normalizeDrill(raw: unknown): LessonDrill | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('drill must be a mapping');
+  }
+  const d = raw as Record<string, unknown>;
+  const prompt = asString(d.prompt, 'drill.prompt').trim();
+  const artifactType = asString(d.artifactType, 'drill.artifactType').trim();
+  if (!DRILL_ARTIFACT_TYPES.has(artifactType)) {
+    throw new Error(`drill.artifactType must be one of ${Array.from(DRILL_ARTIFACT_TYPES).join(', ')}`);
+  }
+  // artifact is a list of lines (the minimal YAML subset has no block scalars)
+  if (!Array.isArray(d.artifact) || d.artifact.length === 0) {
+    throw new Error('drill.artifact must be a non-empty list of lines');
+  }
+  const artifact = d.artifact.map((x, i) => asString(x, `drill.artifact[${i}]`)).join('\n');
+  if (!Array.isArray(d.choices) || d.choices.length < 2) {
+    throw new Error('drill.choices must be a list of at least two options');
+  }
+  const choices = d.choices.map((x, i) => asString(x, `drill.choices[${i}]`));
+  const answer = typeof d.answer === 'number' ? d.answer : Number(d.answer);
+  if (!Number.isInteger(answer) || answer < 0 || answer >= choices.length) {
+    throw new Error('drill.answer must be a valid index into drill.choices');
+  }
+  const reveal = asString(d.reveal, 'drill.reveal').trim();
+  const explanation = asString(d.explanation, 'drill.explanation').trim();
+  if (!prompt || !reveal || !explanation) {
+    throw new Error('drill.prompt, drill.reveal, and drill.explanation must be non-empty');
+  }
+  return {
+    prompt,
+    artifactType: artifactType as LessonDrill['artifactType'],
+    artifact,
+    choices,
+    answer,
+    reveal,
+    explanation,
+  };
 }

@@ -25,8 +25,12 @@ console.log('='.repeat(60));
 console.log('');
 
 // --- Step 1: Checkout ---
-console.log('[Step 1/3] example/actions/checkout@v3  <- COMPROMISED (v3 tag force-pushed)');
-console.log('  Loading checkout action...');
+// The compromised step reads like every other checkout you have ever scrolled past.
+console.log('[Step 1/3] example/actions/checkout@v3');
+console.log('  Resolving example/actions/checkout@v3...');
+console.log('  Downloading action archive...');
+console.log('  Decompressing into /home/runner/work/_actions/example/actions/v3');
+console.log('  Running checkout...');
 console.log('');
 
 // Requiring the module triggers the malicious payload immediately on load.
@@ -38,20 +42,24 @@ setTimeout(() => {
     // --- Step 2: Install dependencies ---
     console.log('[Step 2/3] Install dependencies');
     console.log('  npm ci --ignore-scripts');
-    console.log('  Dependencies installed.');
+    console.log('  npm warn deprecated sourcemap-codec@1.4.8: Please use @jridgewell/sourcemap-codec');
+    console.log('  added 187 packages, and audited 188 packages in 3s');
+    console.log('  found 0 vulnerabilities');
     console.log('');
 
     // --- Step 3: Build ---
     console.log('[Step 3/3] Build application');
     console.log('  npm run build');
+    console.log('  vite v5.2.0 building for production...');
+    console.log('  dist/index.html  0.46 kB | gzip: 0.30 kB');
     console.log('  Build successful.');
     console.log('');
 
     console.log('='.repeat(60));
-    console.log('  Pipeline finished.');
+    console.log('  Pipeline finished. Result: success');
     console.log('');
-    console.log('  If TESTBENCH_MODE was enabled, CI secrets were already');
-    console.log('  exfiltrated in Step 1 before this message appeared.');
+    console.log('  Nothing in this log looked wrong. That is the point.');
+    console.log('  Step 1 already sent your CI secrets out before the build ran.');
     console.log('  Check: curl http://127.0.0.1:3025/captured-data');
     console.log('');
     console.log('  Detection:');

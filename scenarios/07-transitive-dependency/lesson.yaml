@@ -14,6 +14,8 @@ mitigation:
   - "Scan the full dependency tree (npm audit, SBOM) not only direct deps"
   - "Watch postinstall scripts and unexpected localhost or outbound beacons"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+reversal:
+  blockedPackage: "data-processor"
 steps:
   - id: setup
     registry: setup
@@ -55,3 +57,25 @@ steps:
     teaching: "Scanner output and DETECT.md focus on unexpected postinstall scripts and hash mismatches in nested deps."
     hint: "node detection-tools/package-scanner.js scenarios/07-transitive-dependency/victim-app"
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC of a transitive dependency attack?"
+    choices:
+      - "The app has more than ten direct dependencies"
+      - "package.json lists a dependency with a caret range"
+      - "Malicious behavior traces to a package your direct dependencies pulled in, not one you named"
+    answer: 2
+    explain: "The defining signal is depth: the bad code sits in a nested package your package.json never names, so reviewing direct dependencies walks right past it. Caret ranges and dependency counts are common in healthy projects."
+  - question: "Where should detection focus when hunting this attack?"
+    choices:
+      - "Reading every line of your own application code"
+      - "Alerting on postinstall execution from nested node_modules paths"
+      - "Counting total lines in package-lock.json"
+    answer: 1
+    explain: "The payload runs from a deep path like node_modules/data-processor, so child processes spawning out of nested dependency directories are the hunt. Your own first-party code is not where this attack lives."
+  - question: "Which practice gives you visibility into transitive packages like data-processor?"
+    choices:
+      - "Generating an SBOM and scanning the full dependency tree, not just direct dependencies"
+      - "Reviewing only the packages listed in package.json"
+      - "Deleting node_modules once a month"
+    answer: 0
+    explain: "You cannot defend what you cannot see. An SBOM plus full-tree scanning surfaces nested packages that a package.json review never shows. Reviewing direct dependencies only is precisely the blind spot this attack exploits."

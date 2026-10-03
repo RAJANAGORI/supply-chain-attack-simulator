@@ -181,8 +181,47 @@ function normalizeLesson(raw, expectedId) {
     if (v.type === 'capture-count' && !(Number(v.min) >= 1)) {
       throw new Error(`steps[${i}].verify.min must be >= 1`);
     }
-    return { id: s.id, registry };
+    return { id: s.id, registry: s.registry === undefined ? null : s.registry };
   });
+
+  // Optional blind drill block.
+  if (raw.drill !== undefined && raw.drill !== null) {
+    const d = raw.drill;
+    if (typeof d !== 'object' || Array.isArray(d)) throw new Error('drill must be a mapping');
+    if (typeof d.prompt !== 'string' || !d.prompt.trim()) throw new Error('drill.prompt required');
+    if (!['diff', 'package-page', 'ci-log'].includes(d.artifactType)) {
+      throw new Error('drill.artifactType must be diff|package-page|ci-log');
+    }
+    if (!Array.isArray(d.artifact) || d.artifact.length === 0) {
+      throw new Error('drill.artifact must be a non-empty list of lines');
+    }
+    if (!Array.isArray(d.choices) || d.choices.length < 2) {
+      throw new Error('drill.choices needs at least two options');
+    }
+    const ans = Number(d.answer);
+    if (!Number.isInteger(ans) || ans < 0 || ans >= d.choices.length) {
+      throw new Error('drill.answer must be a valid index into drill.choices');
+    }
+    if (typeof d.reveal !== 'string' || !d.reveal.trim()) throw new Error('drill.reveal required');
+    if (typeof d.explanation !== 'string' || !d.explanation.trim()) {
+      throw new Error('drill.explanation required');
+    }
+  }
+
+  // Optional quiz gate.
+  if (raw.quiz !== undefined && raw.quiz !== null) {
+    if (!Array.isArray(raw.quiz) || raw.quiz.length === 0) {
+      throw new Error('quiz must be a non-empty list of questions');
+    }
+    raw.quiz.forEach((q, i) => {
+      if (!q || typeof q !== 'object' || Array.isArray(q)) throw new Error(`quiz[${i}] must be a mapping`);
+      if (typeof q.question !== 'string' || !q.question.trim()) throw new Error(`quiz[${i}].question required`);
+      if (!Array.isArray(q.choices) || q.choices.length < 2) throw new Error(`quiz[${i}].choices needs 2+ options`);
+      const a = Number(q.answer);
+      if (!Number.isInteger(a) || a < 0 || a >= q.choices.length) throw new Error(`quiz[${i}].answer out of range`);
+      if (typeof q.explain !== 'string' || !q.explain.trim()) throw new Error(`quiz[${i}].explain required`);
+    });
+  }
 
   return { id: String(raw.id), steps };
 }

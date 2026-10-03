@@ -47,3 +47,25 @@ steps:
     title: Trust but verify tooling
     teaching: "Compare legitimate-dev-tool vs malicious-dev-tool. DETECT.md focuses on tool allowlists and hash pins."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "Which signal most strongly indicates a developer tool was compromised in this lab?"
+    choices:
+      - "The tool is installed as a devDependency"
+      - "The tool was updated in the last month"
+      - "The tool's postinstall script makes network calls during install"
+    answer: 2
+    explain: "DevDependencies and recent updates are normal. A lifecycle script that opens network connections while npm is still installing is the red flag - legitimate CLI tools rarely need to phone anywhere at install time."
+  - question: "When hunting for this attack, where should process and network telemetry focus?"
+    choices:
+      - "The dependency installation phase, before the app ever starts"
+      - "Only production runtime traffic"
+      - "Weekly antivirus scans of the repository"
+    answer: 0
+    explain: "The payload fires during npm install, not at app runtime. EDR should correlate process and network events with the install window; watching only runtime traffic misses the entire attack."
+  - question: "Which default would have blocked this lab's payload?"
+    choices:
+      - "Committing node_modules so installs are skipped"
+      - "Installing dev tools with --ignore-scripts from approved registries"
+      - "Giving developers faster workstations"
+    answer: 1
+    explain: "The attack needs its postinstall hook to execute. --ignore-scripts removes that execution path, and approved registries plus pinned checksums keep untrusted tools off the PATH in the first place."

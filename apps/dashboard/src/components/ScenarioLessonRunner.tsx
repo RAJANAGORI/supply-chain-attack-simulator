@@ -4,6 +4,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Btn, Card, StatusPill } from '@/components/ui';
 import { useLabSession } from '@/components/LabSessionContext';
 import { LabAssistant } from '@/components/LabAssistant';
+import { BreachPanel } from '@/components/BreachPanel';
+import { DrillCard } from '@/components/DrillCard';
+import { QuizGate } from '@/components/QuizGate';
+import { PurpleReversal } from '@/components/PurpleReversal';
 import {
   cp,
   waitForSession,
@@ -39,11 +43,19 @@ async function syncClassroom(scenarioId: string, stepId: string, completedSteps:
   try {
     const studentId = localStorage.getItem(STUDENT_KEY);
     if (!studentId) return;
+    // Best-effort: include the learner's current assessment points for the leaderboard.
+    let points: number | undefined;
+    try {
+      points = (await cp.getAssessment()).totalPoints;
+    } catch {
+      points = undefined;
+    }
     await cp.reportClassroomProgress({
       studentId,
       lastScenarioId: scenarioId,
       lastStepId: stepId,
       completedSteps,
+      points,
     });
   } catch {
     /* classroom sync is optional */
@@ -319,6 +331,8 @@ export function ScenarioLessonRunner({
       {/* Balanced two-column lab chrome: run path | observe + context */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
         <div className="space-y-4 min-w-0">
+          {lesson.drill && <DrillCard drill={lesson.drill} scenarioId={scenarioId} />}
+
           {lesson.objectives.length > 0 && (
             <Card title="Objectives" subtitle="What you should walk away with">
               <ul className="space-y-2 text-sm text-ink-secondary">
@@ -498,6 +512,14 @@ export function ScenarioLessonRunner({
               </div>
             )}
           </Card>
+
+          {lesson.quiz && lesson.quiz.length > 0 && doneCount === visibleSteps.length && (
+            <QuizGate
+              scenarioId={scenarioId}
+              questions={lesson.quiz}
+              onPassed={() => void refreshVerify()}
+            />
+          )}
         </div>
 
         <div className="space-y-4 min-w-0">
@@ -533,8 +555,17 @@ export function ScenarioLessonRunner({
               <pre className="max-h-[min(28rem,50vh)] min-h-[12rem] overflow-auto rounded-xl border border-line bg-[#0c0b14] p-4 font-mono text-[11px] leading-relaxed text-white/70">
                 {JSON.stringify(captures, null, 2)}
               </pre>
+              {captureReady && (
+                <div className="mt-4">
+                  <BreachPanel captures={captures} />
+                </div>
+              )}
             </Card>
           </div>
+
+          {lesson.reversal && captureReady && (
+            <PurpleReversal scenarioId={scenarioId} blockedPackage={lesson.reversal.blockedPackage} />
+          )}
 
           {lesson.mitigation && lesson.mitigation.length > 0 && (
             <Card title="Mitigation" subtitle="Quick reference - full runbook in DETECT.md">

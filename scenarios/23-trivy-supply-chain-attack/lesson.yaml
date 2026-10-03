@@ -45,3 +45,25 @@ steps:
     title: Verify security tools too
     teaching: "Pin scanner versions by digest/SHA and monitor unexpected network from CI. See DETECT.md and Floci options."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that the Trivy supply chain attack hit your org?"
+    choices:
+      - "The trivy-action step completes without errors"
+      - "A workflow file references a third-party action"
+      - "An outbound POST from a CI runner to scan.aquasecurtiy.org, a typosquat of aquasecurity, right after the trivy-action step starts"
+    answer: 2
+    explain: "Clean step output is by design - the infostealer preserves normal logs to stay invisible - and third-party actions are everyday CI. A runner beaconing to a lookalike domain missing the t in aquasecurity is unambiguous exfiltration."
+  - question: "Where do you hunt for exposure across the org?"
+    choices:
+      - "Workflow YAML and Dockerfiles for trivy-action@v0.34.x, setup-trivy up to v0.2.5, and trivy:0.69.4 through 0.69.6, plus GitHub audit logs for a tpcp-docs repo"
+      - "Pipeline logs, looking for failed scanner steps"
+      - "The scanner findings, looking for missing CVEs"
+    answer: 0
+    explain: "Compromised runs finish green and scanner output looks normal, so failure-based checks find nothing. Exposure lives in version strings across workflow files and image tags, and the tpcp-docs repository is the attacker's backup exfil channel."
+  - question: "Which change keeps a force-pushed action tag from running attacker code in your CI again?"
+    choices:
+      - "Bumping every workflow to the newest trivy-action tag"
+      - "Pinning actions to immutable commit SHAs and enforcing it with CI policy"
+      - "Adding more secrets to the CI environment"
+    answer: 1
+    explain: "The attack worked because a tag moved to code you never reviewed, and a newer tag is just as mutable. A full SHA points at one immutable snapshot, and policy enforcement through harden-runner, Allstar, or CI lint keeps tags from creeping back."

@@ -50,3 +50,25 @@ steps:
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
     hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that an SBOM was manipulated in this lab?"
+    choices:
+      - "The SBOM is formatted as JSON"
+      - "sbom.json omits a dependency that the lockfile and runtime inventory still show"
+      - "The SBOM was produced by a different generator than usual"
+    answer: 1
+    explain: "Format and generator choice are cosmetic. The attack is an omission: the SBOM claims a clean tree while package-lock.json or a runtime scan still shows the risky package, and that mismatch is the IOC."
+  - question: "How should you hunt for SBOM manipulation in practice?"
+    choices:
+      - "Read the SBOM carefully by eye before each release"
+      - "Trust any SBOM that carries a signature"
+      - "Diff the generated SBOM against the lockfile and runtime inventory scans"
+    answer: 2
+    explain: "Manual review does not scale, and a signature alone says nothing about whether the contents match reality. Automated comparison of sbom.json against the install graph, plus periodic runtime scans, surfaces the hidden component."
+  - question: "Which pipeline policy stops a tampered SBOM from shipping?"
+    choices:
+      - "Regenerating the SBOM in trusted CI from the lockfile and failing closed on mismatch"
+      - "Letting the app generate its own SBOM at runtime"
+      - "Attaching the SBOM as a release asset without checks"
+    answer: 0
+    explain: "If the app or an untrusted job produces the SBOM, the attacker edits the story along with the code. Generating it in trusted CI from lockfile truth, signing it, and failing the build on any SBOM-lockfile mismatch removes the tamper path."

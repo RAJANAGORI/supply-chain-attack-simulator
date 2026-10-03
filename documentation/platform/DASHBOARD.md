@@ -88,14 +88,19 @@ curl http://127.0.0.1:3101/api/health
 
 - Welcome - product pitch and safety model inside the dashboard (`/welcome`)
 - Labs workspace - guided storyboard for all 25 scenarios via `lesson.yaml` (Red / Blue / Purple roles, hints, verify gates, live inspector)
+- Spot-the-attack drill - blind review of an unlabeled diff / registry page / CI log before the storyboard labels anything (`drill` block in `lesson.yaml`)
+- Breach moment - captured exfil rendered as a consequence (blast radius, leak-site paste) in the live inspector and the briefing
+- Purple-team reversal - author a `dependency-guard.json` blocklist, then re-run the attack against it to prove the control holds (`reversal` block)
+- Quiz gate - 2-3 blue-team questions from the lab's DETECT.md after the storyboard verifies (`quiz` block); feeds the assessment score
+- Campaign (`/campaign`) - chains labs into one continuous intrusion under a persistent attacker persona (`campaigns/*.yaml`)
+- Briefing (`/report`) - incident report with timeline reconstruction, blast radius, real-incident cost mapping, score, badges, and a printable certificate
 - Live terminal - side-by-side by default (drag the splitter to resize; Side / Bottom toggle; SM/MD/LG presets). Collapses to a thin bar when you do not need logs
 - Observatory (`/observe`) - Elasticsearch `scas-detections` timeline when the stack is up
 - Skills (`/skills`) - category matrix with Markdown/JSON export
-- Briefing (`/report`) - completion report with browser Print / PDF
-- Classroom (`/classroom`) - session code, join board, freeze for debrief (single control plane; not per-student isolation yet)
+- Classroom (`/classroom`) - session code, leaderboard sorted by assessment points, freeze for debrief (single control plane; not per-student isolation yet)
 - Lab coach - in-lab assistant (offline context by default; set `SCAS_AI_URL` + `SCAS_AI_API_KEY` for a live OpenAI-compatible model)
 - Stream stdout/stderr over WebSocket in the Labs dock
-- Persist progress under `~/.scas/progress.json`
+- Persist progress under `~/.scas/progress.json` (steps, hints, quiz and drill results)
 - Start/stop Elasticsearch, Kibana, Floci; global teardown
 
 ### Check inspector (detect steps)
@@ -117,9 +122,19 @@ Every lab under `scenarios/NN-slug/` ships `lesson.yaml`. Teaching metadata only
   - `caseStudy` - one or two sentences tying the lab to a named real-world supply chain incident
   - `mitigation` - short bullets distilled from that lab's `DETECT.md` (not a second runbook)
   - `incidents` - short name tags (already required-style list on every lab)
+- Optional learner-experience fields:
+  - `drill` - blind "spot the attack" review (`prompt`, `artifactType` = diff | package-page | ci-log, `artifact` as a list of lines, `choices`, `answer` index, `reveal`, `explanation`)
+  - `quiz` - blue-team gate, a list of `{ question, choices, answer, explain }` drawn from the lab's DETECT.md
+  - `reversal` - `{ blockedPackage }` the learner's `dependency-guard.json` must block; the control plane re-runs the attack with `scenarios/_shared/dependency-guard.js` preloaded
 - Validate with `node scripts/docs/check-lesson-yaml.js` (smoke CI)
 
 Lab **01** is the seed template for `caseStudy` / `mitigation`. Other labs can adopt the same fields later without schema changes.
+
+## Campaigns (`campaigns/*.yaml`)
+
+A campaign chains existing labs into one continuous intrusion under a persistent attacker persona. It never changes how labs run - it only orders them and adds narrative. Progress derives from the same per-scenario state the storyboard writes, so finishing a lab advances the campaign map at `/campaign`.
+
+Each campaign YAML: `id`, `title`, `persona`, `tagline`, `description`, `debrief`, and a `chapters` list of `{ scenario, beat, narrative }` where `scenario` is a two-digit lab id. Two ship today: `operation-quiet-carrier` (01 -> 05 -> 25 -> 11) and `operation-cold-key` (06 -> 14 -> 17 -> 21).
 
 ## App boundaries (current merge state)
 

@@ -46,3 +46,25 @@ steps:
     title: Validate mirror integrity
     teaching: "DETECT.md covers checksum pinning, mirror allowlists, and Floci cloud-track checks for this lab."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that your internal npm mirror has been poisoned?"
+    choices:
+      - "The mirror serves a tarball whose digest differs from upstream for the same name and version"
+      - "The mirror responds faster than npmjs.com"
+      - "The corporate .npmrc points at an internal registry host"
+    answer: 0
+    explain: "Same name and version but a different sha512 than upstream means someone mutated the artifact after publication - that is the poison. A fast mirror is the entire point of running one, and an internal registry in .npmrc is normal corporate configuration, not an IOC."
+  - question: "Which telemetry pattern best hunts mirror poisoning in build logs?"
+    choices:
+      - "DNS lookups for npmjs.com from developer laptops"
+      - "npm install traffic to the mirror host followed immediately by a postinstall child process"
+      - "Longer-than-average install times on the CI runner"
+    answer: 1
+    explain: "The DETECT.md Sigma rule joins install traffic to the mirror with postinstall execution because poisoned packages add lifecycle scripts the upstream baseline lacks. DNS lookups say nothing about artifact content, and slow installs are a capacity problem - confirm by comparing mirror digests against upstream."
+  - question: "Which control most directly stops mirror poisoning?"
+    choices:
+      - "Forcing all installs to bypass the mirror and hit npmjs.com directly"
+      - "Re-running npm install twice so the second pass catches tampering"
+      - "Scheduled digest verification of mirror content against upstream, with publish access locked down and MFA on admin paths"
+    answer: 2
+    explain: "Poisoning is a write-side problem - restrict who can mutate mirror storage, then continuously verify what the mirror serves against upstream digests so tampering alerts fast. Bypassing the mirror throws away caching and just moves trust to the public registry, and reinstalling the same poisoned tarball twice changes nothing."

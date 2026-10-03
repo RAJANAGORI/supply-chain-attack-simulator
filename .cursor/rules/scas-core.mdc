@@ -5,7 +5,7 @@ alwaysApply: true
 
 # SCAS
 
-23 localhost-only supply-chain attack labs (`scenarios/01-`...`23-`). Docs hub: `documentation/index.md` - `docs/` is a GitHub Pages mirror; do not edit both.
+25 localhost-only supply-chain attack labs (`scenarios/01-`...`25-`). Docs hub: `documentation/index.md` - `docs/` is a GitHub Pages mirror; do not edit both.
 
 ## Safety (never weaken)
 
@@ -28,7 +28,7 @@ alwaysApply: true
 
 **Exceptions:** **06** - `credential-harvester.js`, `mock-cdn.js`; **21**/**22** - npm/PyPI sims, **22** uses `mock_server.py`.
 
-Shared-pattern edits: implement in **01** (or exception), `grep` `scenarios/` + `documentation/scenario-guides/`, apply the same diff - do not open all 23 folders.
+Shared-pattern edits: implement in **01** (or exception), `grep` `scenarios/` + `documentation/scenario-guides/`, apply the same diff - do not open all 25 folders.
 
 **Public-count drift:** after adding/removing a lab, run `node scripts/docs/check-info-consistency.js` (CI-enforced in `smoke.yml`).
 **Diagrams:** what to draw lives in `scripts/lib/diagram-specs.js`; validate with `node scripts/diagrams/check-diagram-assets.js`.

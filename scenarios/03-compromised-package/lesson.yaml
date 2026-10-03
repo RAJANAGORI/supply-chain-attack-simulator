@@ -15,6 +15,8 @@ mitigation:
   - "Pin exact versions and use npm ci with ignore-scripts in CI until scripts are allowlisted"
   - "Alert on new maintainers, surprise patch bumps, and unexpected dependency additions"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+reversal:
+  blockedPackage: "secure-validator"
 steps:
   - id: setup
     registry: setup
@@ -58,3 +60,25 @@ steps:
     teaching: "Use the inspector plus forensics/compare-versions.js. DETECT.md lists IOCs for this compromise pattern."
     hint: "node forensics/compare-versions.js legitimate-package/secure-validator compromised-package/secure-validator"
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that a trusted package has been compromised?"
+    choices:
+      - "A trusted package starts making outbound requests it never made before"
+      - "The package version has three numeric segments"
+      - "The package installs faster than the previous release"
+    answer: 0
+    explain: "The name stays clean in this attack, so the signal is behavioral: new network activity from code you already trusted. Version shape and install speed say nothing about intent."
+  - question: "How should you hunt a silent malicious patch in a package you already run?"
+    choices:
+      - "Wait for the vendor to announce the compromise"
+      - "Count how many packages sit in node_modules"
+      - "Diff the new patch against the last known-good release and watch for first-time egress"
+    answer: 2
+    explain: "A silent patch only stands out when you compare it to what the package used to do. Version drift aligned with new behavior, plus a first-ever outbound connection, is the hunt. Vendor announcements arrive after the damage is done."
+  - question: "Which control most directly stops this class of compromise?"
+    choices:
+      - "Trusting packages with high weekly download counts"
+      - "Requiring MFA and admin approval for maintainer role changes and publish tokens"
+      - "Deleting the lockfile so updates flow faster"
+    answer: 1
+    explain: "This attack starts with a maintainer account or publish path, so that is where the gate belongs. Download counts are what make a compromised package dangerous, and dropping the lockfile makes silent patches easier to pull, not harder."

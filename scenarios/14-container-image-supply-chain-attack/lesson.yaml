@@ -41,3 +41,25 @@ steps:
     title: Harden image supply chain
     teaching: "DETECT.md covers digest pins, entrypoint review, and Floci cloud-track options for this scenario."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that a container image in this lab was swapped for a malicious one?"
+    choices:
+      - "The image is larger than the previous build"
+      - "Entrypoint/CMD drift from the baseline image, like a new malicious-start.js"
+      - "The container runs as root"
+    answer: 1
+    explain: "Large images and root users are hygiene issues, not proof of compromise. The defining signal here is entrypoint/CMD drift: the start path changed from the baseline, and that new start path is what runs the attacker's code at boot."
+  - question: "What runtime behavior should you alert on first for this attack?"
+    choices:
+      - "An outbound network request in the first seconds of container boot"
+      - "A slow increase in container memory over several days"
+      - "DNS lookups for the container registry"
+    answer: 0
+    explain: "The malicious entrypoint beacons immediately at startup (here to host.docker.internal:3002). Hunt for network activity in the container boot window; gradual resource drift could be any leak and misses the signal."
+  - question: "Which control stops a retagged or tampered image from reaching production?"
+    choices:
+      - "Pulling base images more frequently"
+      - "Naming images with semantic version tags"
+      - "Pinning immutable digests and verifying image signatures in CI/CD"
+    answer: 2
+    explain: "Tags are mutable, so a version tag can be repointed to a poisoned image. Digest pinning plus signature verification (cosign, admission control) makes the deploy path reject anything that is not the exact reviewed image."

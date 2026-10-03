@@ -50,3 +50,25 @@ steps:
     teaching: "Use DETECT.md for rotation, publish freeze, and registry monitoring. Optional Floci seed/verify covers the cloud track."
     hint: "Compare harvested credentials against what a real CI token grant would look like."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC of a Shai-Hulud-style token-theft worm?"
+    choices:
+      - "The package name contains a dictionary word"
+      - "A postinstall script reads ~/.npmrc and ~/.git-credentials during npm install"
+      - "The install prints a deprecation warning"
+    answer: 1
+    explain: "Install scripts have no legitimate reason to open your credential files. That read is the theft in progress, and it separates this worm from a noisy but harmless package. Deprecation warnings come from npm itself and mean nothing here."
+  - question: "Which correlated behavior should you hunt for on developer machines?"
+    choices:
+      - "A single npm install process that reads credential files and then makes multiple outbound POSTs"
+      - "Packages being installed in alphabetical order"
+      - "A lockfile that changes after an install"
+    answer: 0
+    explain: "The worm shape is one process doing two things that never belong together: harvesting tokens and beaconing them out before republishing. Correlating the file reads with the egress catches the whole chain. Lockfile churn after installs is normal npm behavior."
+  - question: "Which mitigation breaks the worm propagation loop?"
+    choices:
+      - "Storing npm publish tokens in every developer home directory for convenience"
+      - "Giving all maintainers admin rights on every repository"
+      - "Keeping publish tokens in CI secrets only, so a compromised dev machine has nothing to steal"
+    answer: 2
+    explain: "The worm spreads by republishing with stolen tokens. If tokens only live in CI, the postinstall runs and finds nothing, and the chain stops with one victim. Tokens on developer machines are what turn one install into an ecosystem incident."

@@ -44,3 +44,25 @@ steps:
     teaching: "Inspect the capture, then open DETECT.md. Pin actions by commit SHA, drop unnecessary permissions, and treat reusable actions like any other dependency."
     hint: "Optional Floci seed/verify buttons exist on this lab if you are on the cloud track."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that a workflow is exposed to action hijacking?"
+    choices:
+      - "A workflow references a third-party action by a mutable tag like @v1 instead of a commit SHA"
+      - "The workflow runs on ubuntu-latest"
+      - "The workflow has more than three steps"
+    answer: 0
+    explain: "A mutable tag is a pointer the action owner can move, and a force-push turns your trusted build step into their code. Runner image and step count are ordinary choices with no security meaning on their own."
+  - question: "Which CI behavior should trigger an alert during a build?"
+    choices:
+      - "Build times that vary by a few seconds between runs"
+      - "A build step that enumerates process.env and then opens an outbound connection"
+      - "Developers pushing commits during business hours"
+    answer: 1
+    explain: "Secret harvesting has a signature sequence: read the environment, then ship it. A runner process that touches GITHUB_TOKEN or cloud keys and immediately makes an HTTP request is the alert. Build-time jitter is normal noise."
+  - question: "Which control stops a force-pushed action tag from executing in your pipeline?"
+    choices:
+      - "Granting every job contents: write so builds never fail"
+      - "Passing all repository secrets to every action for convenience"
+      - "Pinning every third-party action to an immutable commit SHA and verifying with an allowlist"
+    answer: 2
+    explain: "SHA pinning freezes the exact code you reviewed, so a force-pushed tag can no longer swap it. The other two options are the conditions that made this lab work: broad permissions and secrets handed to code you do not control."

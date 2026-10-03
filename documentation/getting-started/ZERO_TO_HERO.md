@@ -2,7 +2,7 @@
 
 > **Which "Zero to Hero" is this?** This is the short hands-on start: clone, set up, run a first scenario.
 > - Conceptual curriculum (trust-edge model, staged learning) → [Curriculum overview](../learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md)
-> - All 23 step-by-step walkthroughs → [Zero-to-hero walkthroughs](../scenario-guides/zero-to-hero/index.md)
+> - All 25 step-by-step walkthroughs → [Zero-to-hero walkthroughs](../scenario-guides/zero-to-hero/index.md)
 
 From zero to a running lab, with the safety controls in mind.
 

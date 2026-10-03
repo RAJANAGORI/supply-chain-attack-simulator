@@ -50,3 +50,25 @@ steps:
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
     hint: "Detection tools under detection-tools/ can scan work/victim-clone from the scenario folder."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "Which .gitmodules entry should fail code review on sight?"
+    choices:
+      - "A submodule pinned to a full 40-character commit SHA"
+      - "A submodule cloned over https from an allowlisted org remote"
+      - "A submodule with a file:// or relative-path URL"
+    answer: 2
+    explain: "Local protocol URLs are the CVE-2022-39253 pattern - they let a clone pull attacker-planted content from local paths, and this lab works only because protocol.file.allow is set to always. Pinned SHAs and allowlisted https remotes are the state you want, not IOCs."
+  - question: "Which process chain should your EDR alert on during a build?"
+    choices:
+      - "npm ci resolving packages from the registry"
+      - "git clone --recurse-submodules followed by bash executing postinstall.sh from inside the submodule path"
+      - "git submodule status printing commit SHAs"
+    answer: 1
+    explain: "The kill chain is fetch-then-execute: the submodule lands on disk and the parent postinstall hands it a shell, which is the Sigma rule in DETECT.md. Registry resolution and status output are read-only noise - alert on the sequence, not on git commands in isolation."
+  - question: "Which change would have blocked this lab's attack outright?"
+    choices:
+      - "Setting protocol.file.allow=never in git config on developer machines and CI runners"
+      - "Cloning with --depth 1 to limit history"
+      - "Renaming .gitmodules so tooling cannot find it"
+    answer: 0
+    explain: "The attack needs the local file protocol to resolve, and protocol.file.allow=never closes that hole everywhere the config is set. Shallow clones still fetch submodule content, and renaming .gitmodules breaks legitimate submodules instead of the attacker. Pair the config with pinned commits and URL allowlists for the remote cases."

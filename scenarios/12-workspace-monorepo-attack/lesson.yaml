@@ -65,3 +65,25 @@ steps:
     title: Review workspace trust
     teaching: "Treat internal packages like third-party deps. DETECT.md lists review gates for workspace publishes."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "Which change in a monorepo pull request is the strongest IOC of a workspace substitution attack?"
+    choices:
+      - "A new test file added under packages/utils"
+      - "A version bump in the root package.json"
+      - "Replaced contents under packages/utils, or an nx.json or turbo.json edit that widens which packages a task touches"
+    answer: 2
+    explain: "The attack is a local package silently swapped under packages/ - workspace resolution prefers the sibling, so every consumer inherits the payload, and a widened task dependency does the same damage through the build graph. New tests and version bumps are everyday monorepo noise."
+  - question: "What should you hunt for after a workspace install runs in CI?"
+    choices:
+      - "File writes under packages/ during npm install, plus script or network behavior from a workspace-local package"
+      - "Any npm WARN lines in the install log"
+      - "Cache hits in the CI artifact store"
+    answer: 0
+    explain: "The Sigma rule in DETECT.md pairs npm install with file paths under packages/ because legitimate installs do not rewrite workspace sources, and unexpected postinstall or beacons from a workspace-local package confirm the swap. Warnings and cache hits fire on clean builds too - they carry no signal here."
+  - question: "Which control set best contains a compromised workspace package?"
+    choices:
+      - "Giving the build runner org-wide deploy permissions so it can replace bad packages quickly"
+      - "CODEOWNERS on packages/, root package.json, and nx.json or turbo.json, plus --ignore-scripts in CI with an allowlist"
+      - "Moving all packages into a single folder to simplify review"
+    answer: 1
+    explain: "Ownership gates force security review on exactly the files this attack edits, and --ignore-scripts removes the lifecycle execution path until a package is allowlisted. Broader runner permissions increase the blast radius, and folder layout does nothing about who can merge changes - treat every workspace package as a third-party dependency."
