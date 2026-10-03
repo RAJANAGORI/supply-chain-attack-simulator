@@ -30,6 +30,9 @@ import {
   setClassroomFrozen,
   skillMatrixMarkdown,
 } from '../learning-platform.js';
+import { getCampaignStatus, listCampaignStatus } from '../registry/campaigns.js';
+import { buildAssessment } from '../assessment.js';
+import { getProvenance } from '../provenance.js';
 
 const REPO = getRepoRoot();
 
@@ -116,6 +119,10 @@ export function createApiRouter(): Router {
       if (await checkPort(port)) conflicts.push(port);
     }
     res.json({ ok: true, port: Number(process.env.CONTROL_PLANE_PORT ?? 3101), portConflicts: conflicts });
+  });
+
+  router.get('/provenance', (_req, res) => {
+    res.json(getProvenance());
   });
 
   router.get('/scenarios', (_req, res) => {
@@ -229,6 +236,57 @@ export function createApiRouter(): Router {
     res.json(buildBriefing(scenarioId));
   });
 
+  router.get('/campaigns', (_req, res) => {
+    try {
+      res.json(listCampaignStatus());
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to load campaigns' });
+    }
+  });
+
+  router.get('/campaigns/:id', (req, res) => {
+    try {
+      const status = getCampaignStatus(req.params.id);
+      if (!status) return res.status(404).json({ error: 'Campaign not found' });
+      res.json(status);
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to load campaign' });
+    }
+  });
+
+  router.get('/assessment', (_req, res) => {
+    res.json(buildAssessment());
+  });
+
+  // Record a quiz or drill outcome against a scenario's progress entry.
+  router.post('/scenarios/:id/assessment', (req, res) => {
+    const scenario = getScenario(req.params.id);
+    if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
+    const body = req.body as {
+      quiz?: { score: number; total: number };
+      drill?: { picked: number; correct: boolean };
+    };
+    const entry: Partial<ScenarioProgressEntry> = {};
+    if (body.quiz && Number.isFinite(body.quiz.score) && Number.isFinite(body.quiz.total)) {
+      entry.quiz = {
+        score: Math.max(0, Math.floor(body.quiz.score)),
+        total: Math.max(1, Math.floor(body.quiz.total)),
+        passedAt: new Date().toISOString(),
+      };
+    }
+    if (body.drill && Number.isFinite(body.drill.picked)) {
+      entry.drill = {
+        picked: Math.floor(body.drill.picked),
+        correct: Boolean(body.drill.correct),
+        answeredAt: new Date().toISOString(),
+      };
+    }
+    if (!entry.quiz && !entry.drill) {
+      return res.status(400).json({ error: 'Expected quiz or drill result' });
+    }
+    res.json(mergeScenarioProgress(scenario.id, entry));
+  });
+
   router.get('/observe/timeline', async (req, res) => {
     const limit = Number(req.query.limit ?? 50);
     res.json(await fetchEsTimeline(Number.isFinite(limit) ? limit : 50));
@@ -271,6 +329,7 @@ export function createApiRouter(): Router {
           lastScenarioId: req.body?.lastScenarioId,
           lastStepId: req.body?.lastStepId,
           completedSteps: req.body?.completedSteps,
+          points: req.body?.points,
         }),
       );
     } catch (err) {
@@ -532,6 +591,71 @@ export function createApiRouter(): Router {
       scenarioId: scenario.id,
     });
     res.json({ async: true, started: true, sessionId: record.id, record });
+  });
+
+  /**
+   * Purple-team reversal. Re-runs the scenario's "run" step with the learner's
+   * dependency-guard preloaded (node -r _shared/dependency-guard.js) and reports
+   * whether the attack still produced a capture. If the guard blocked the
+   * malicious package, capture count stays flat and the control held.
+   */
+  router.post('/scenarios/:id/reversal', async (req, res) => {
+    const scenario = getScenario(req.params.id);
+    if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
+    const runStep = scenario.steps.find((s) => s.id === 'run') ?? scenario.steps[scenario.steps.length - 1];
+    if (!runStep) return res.status(400).json({ error: 'Scenario has no runnable step' });
+
+    const countCaptures = async (): Promise<number> => {
+      let n = 0;
+      for (const cap of scenario.captures) {
+        try {
+          const r = await fetch(rewriteLabUrl(cap.url), { signal: AbortSignal.timeout(3000) });
+          const body = (await r.json()) as Record<string, unknown>;
+          for (const key of ['captures', 'events', 'beacons'] as const) {
+            const arr = body[key];
+            if (Array.isArray(arr)) n += arr.length;
+          }
+        } catch {
+          /* capture source offline */
+        }
+      }
+      return n;
+    };
+
+    const before = await countCaptures();
+    const guardPath = resolve(REPO, 'scenarios/_shared/dependency-guard.js');
+    const cwd = resolveScenarioCwd(scenario.setup.cwd, runStep.cwd);
+
+    // Prepend the guard to any existing -r preloads so both apply.
+    const args = ['-r', guardPath, ...(runStep.args ?? [])];
+    const record = processManager.runCommand({
+      label: `Reversal: ${runStep.label} (guarded)`,
+      command: runStep.command,
+      args,
+      cwd,
+      scenarioId: scenario.id,
+      stepId: 'reversal',
+      shell: runStep.shell,
+    });
+
+    // Give the guarded run a moment to either fire or be blocked, then compare.
+    await new Promise((r) => setTimeout(r, 2500));
+    const after = await countCaptures();
+    const held = after <= before;
+
+    res.json({
+      async: true,
+      sessionId: record.id,
+      record,
+      reversal: {
+        held,
+        capturesBefore: before,
+        capturesAfter: after,
+        message: held
+          ? 'Your control held - the guarded run produced no new capture. The attack was blocked.'
+          : 'The attack still fired. Check that dependency-guard.json names the malicious package and sits in the victim working directory.',
+      },
+    });
   });
 
   router.get('/platform/status', async (_req, res) => {

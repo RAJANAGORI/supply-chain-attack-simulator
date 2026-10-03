@@ -69,6 +69,8 @@ export function mergeScenarioProgress(
     completedSteps,
     hintsOpened,
     currentStepId: patch.currentStepId ?? prev.currentStepId,
+    quiz: patch.quiz ?? prev.quiz,
+    drill: patch.drill ?? prev.drill,
     updatedAt: new Date().toISOString(),
   };
 

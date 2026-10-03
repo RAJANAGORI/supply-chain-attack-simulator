@@ -14,6 +14,26 @@ mitigation:
   - "Require SBOM signing or provenance; fail closed on SBOM-lockfile mismatches"
   - "Periodically diff production SBOM against runtime inventory scans"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A release is ready to ship. Compliance requires a clean SBOM, and the generated one is below next to the lockfile. Sign off?"
+  artifactType: ci-log
+  artifact:
+    - "[sbom] generated sbom.json - 41 components"
+    - "[sbom] components: express, lodash, react, ..."
+    - "[sbom] no high-risk packages found"
+    - "[sbom] status: CLEAN"
+    - "---"
+    - "[lockfile] package-lock.json - 42 resolved packages"
+    - "[lockfile] includes: data-harvester@2.1.0 (postinstall)"
+    - "---"
+    - "[runtime] container inventory scan: 42 packages, incl. data-harvester"
+    - "[runtime] data-harvester POST 127.0.0.1:3000 at boot"
+  choices:
+    - "Sign off - the SBOM says the tree is clean"
+    - "Hold the release - the SBOM dropped a package the lockfile and runtime both still show"
+  answer: 1
+  reveal: "The SBOM is lying by omission. It reports 41 clean components, but the lockfile resolved 42 and a runtime scan sees 42 - the missing one is data-harvester, which beacons at boot. The SBOM was generated to tell a clean story, not to describe reality, and a signature on it would only prove who signed the lie."
+  explanation: "An SBOM is a claim, not ground truth. When it disagrees with the lockfile or a runtime inventory, the SBOM is the thing to distrust - the attack is the gap. Manual review does not scale and a signature only attests to authorship, not accuracy. The control is to regenerate the SBOM in trusted CI from the lockfile, sign it there, and fail the build closed on any SBOM-to-lockfile mismatch so a tampered story never ships."
 steps:
   - id: setup
     registry: setup
@@ -50,3 +70,25 @@ steps:
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
     hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that an SBOM was manipulated in this lab?"
+    choices:
+      - "The SBOM is formatted as JSON"
+      - "sbom.json omits a dependency that the lockfile and runtime inventory still show"
+      - "The SBOM was produced by a different generator than usual"
+    answer: 1
+    explain: "Format and generator choice are cosmetic. The attack is an omission: the SBOM claims a clean tree while package-lock.json or a runtime scan still shows the risky package, and that mismatch is the IOC."
+  - question: "How should you hunt for SBOM manipulation in practice?"
+    choices:
+      - "Read the SBOM carefully by eye before each release"
+      - "Trust any SBOM that carries a signature"
+      - "Diff the generated SBOM against the lockfile and runtime inventory scans"
+    answer: 2
+    explain: "Manual review does not scale, and a signature alone says nothing about whether the contents match reality. Automated comparison of sbom.json against the install graph, plus periodic runtime scans, surfaces the hidden component."
+  - question: "Which pipeline policy stops a tampered SBOM from shipping?"
+    choices:
+      - "Regenerating the SBOM in trusted CI from the lockfile and failing closed on mismatch"
+      - "Letting the app generate its own SBOM at runtime"
+      - "Attaching the SBOM as a release asset without checks"
+    answer: 0
+    explain: "If the app or an untrusted job produces the SBOM, the attacker edits the story along with the code. Generating it in trusted CI from lockfile truth, signing it, and failing the build on any SBOM-lockfile mismatch removes the tamper path."

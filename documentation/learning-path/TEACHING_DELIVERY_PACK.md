@@ -64,6 +64,12 @@ You can teach the same core material as a live session, written guide, course, o
 - Detection quality (signal fidelity and explainability)
 - Mitigation quality (policy enforceability and coverage)
 
+The dashboard scores this for you. Each lab carries a quiz gate drawn from its DETECT.md, a blind spot-the-attack drill, and (on applicable labs) a purple-team reversal where the learner's own blocklist has to hold. Results roll into an assessment score on the briefing page (`/report`) with a printable certificate, and the classroom leaderboard (`/classroom`) sorts by those points. Use the score as the objective backbone and the rubric above for the judgment calls.
+
+## Campaigns as a Capstone
+
+Two multi-lab campaigns ship under `campaigns/*.yaml` and run at `/campaign`: `operation-quiet-carrier` (01 -> 05 -> 25 -> 11) and `operation-cold-key` (06 -> 14 -> 17 -> 21). Each chains labs into one continuous intrusion under a persistent attacker persona. A campaign works well as the Session D capstone - learners finish the chapters, then you debrief the reconstructed timeline and blast radius on the briefing page.
+
 ## 4) Simulator Walkthrough Variant
 
 ### Hands-On Sequence

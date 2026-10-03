@@ -14,6 +14,27 @@ mitigation:
   - "Compare package.json declarations to lockfile entries automatically"
   - "Verify integrity hashes against trusted registry metadata"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A contributor's PR touches only package-lock.json. They say it is a regen after an npm upgrade. The diff is below. Merge it?"
+  artifactType: diff
+  artifact:
+    - "diff --git a/package-lock.json b/package-lock.json"
+    - "@@ -88,8 +88,8 @@"
+    - "     \"left-pad\": {"
+    - "       \"version\": \"1.3.0\","
+    - "-      \"resolved\": \"https://registry.npmjs.org/left-pad/-/left-pad-1.3.0.tgz\","
+    - "+      \"resolved\": \"https://npmjs-mirror.cdn-fast.net/left-pad/-/left-pad-1.3.0.tgz\","
+    - "       \"integrity\": \"sha512-abc1...\""
+    - "     },"
+    - "     \"chalk\": {"
+    - "       \"version\": \"4.1.2\","
+    - "       \"resolved\": \"https://registry.npmjs.org/chalk/-/chalk-4.1.2.tgz\","
+  choices:
+    - "Merge - same version, just a faster mirror"
+    - "Reject - the resolved host changed and that is never routine"
+  answer: 1
+  reveal: "Same version, same integrity line at a glance, but the tarball now comes from a host the attacker controls. npm ci will dutifully fetch left-pad from npmjs-mirror.cdn-fast.net, and whatever is in that tarball runs in your build."
+  explanation: "The lockfile is the install. Reviewing package.json while waving through package-lock.json is checking the menu and ignoring the kitchen. A changed resolved URL with an unchanged version is the single strongest lockfile IOC there is - legitimate regenerations do not move hosts mid-file. This is why CI should diff lockfiles and verify integrity against the real registry."
 steps:
   - id: setup
     registry: setup
@@ -50,3 +71,25 @@ steps:
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
     hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "A PR regenerates package-lock.json after a routine npm upgrade. Which diff line is the strongest IOC of lockfile manipulation?"
+    choices:
+      - "An unchanged version whose resolved URL now points at a different host"
+      - "A handful of new transitive dependencies under existing packages"
+      - "Integrity fields using sha512 instead of sha1"
+    answer: 0
+    explain: "Version unchanged but resolved host moved means npm ci will fetch that tarball from infrastructure the attacker controls - legitimate regenerations do not move hosts mid-file. New transitive deps are normal after upgrades, and sha512 is the modern default, not a red flag."
+  - question: "Your SIEM shows npm ci in a build pulling one tarball from a host outside the approved registry list, and the build succeeds. What is the most likely cause?"
+    choices:
+      - "npm falling back to a public mirror during a registry outage"
+      - "The build cache serving a stale artifact"
+      - "A lockfile whose resolved entries were repointed at an attacker-controlled host"
+    answer: 2
+    explain: "npm ci follows the lockfile exactly, so an off-list host means the lockfile itself was rewritten - that is the lockfile_source_drift event in DETECT.md. Registry outages cause failed installs rather than silent redirects, and caches do not invent new hosts."
+  - question: "Which control stops a manipulated lockfile before it reaches a production install?"
+    choices:
+      - "Deleting the lockfile so npm resolves fresh versions every build"
+      - "A CI gate that diffs package-lock.json and lints resolved hosts and schemes against an allowlist"
+      - "Pinning the Node.js version used by the CI image"
+    answer: 1
+    explain: "lockfile-lint with --allowed-hosts and --allowed-schemes https: plus git diff --exit-code package-lock.json fails the build on exactly this drift. Deleting the lockfile is worse - it removes the pin and lets anything resolve - and the Node version has no say in where tarballs come from."

@@ -14,6 +14,26 @@ mitigation:
   - "Pin a known-good exact version; rotate npm tokens and CI secrets"
   - "Enable provenance checks and hunt org lockfiles for the bad version"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "axios just published 1.8.3. Your bot PR bumps to it. The release diff below is what changed inside the package. Merge?"
+  artifactType: diff
+  artifact:
+    - "axios 1.8.2 -> 1.8.3 (diff of the published tarball)"
+    - ""
+    - " package.json"
+    - "   \"dependencies\": {"
+    - "+    \"plain-crypto-js\": \"^4.2.0\""
+    - "   }"
+    - ""
+    - " index.js"
+    - "+try { require('plain-crypto-js'); } catch (e) {}"
+    - " module.exports = axios;"
+  choices:
+    - "Merge - patch release from a trusted name"
+    - "Hold - axios never needed a crypto dependency before"
+  answer: 1
+  reveal: "This is the shape of the real axios compromise: a poisoned release that pulls in plain-crypto-js, a package whose only job is to run on install and call home. The familiar name did all the work. Nothing about the axios brand protected anyone who auto-merged the bump."
+  explanation: "Trust attaches to names, but attacks attach to versions. A brand-new runtime dependency with a try/catch require is not a feature, it is a loader. When a project you trust suddenly gains an unexplained dependency, the release is guilty until the changelog proves it innocent. Pin exact versions and diff the tarball, not the marketing."
 steps:
   - id: setup
     registry: setup
@@ -50,3 +70,25 @@ steps:
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
     hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that the axios-like 1.14.1 release is compromised?"
+    choices:
+      - "The version moved from 1.14.0 to 1.14.1"
+      - "A patch upgrade silently gained a transitive dependency, plain-crypto-js-like, with a postinstall script"
+      - "The package was installed from a tarball"
+    answer: 1
+    explain: "Patch bumps and tarballs are routine. The compromise signal is a brand-new transitive dependency the project never needed, paired with lifecycle script execution and the .testbench-axios-ioc.json marker file it drops."
+  - question: "The app never imports plain-crypto-js-like, so where does the hunt have to happen?"
+    choices:
+      - "In org lockfiles and package trees, searching for the unexpected transitive package"
+      - "In the victim app's import graph"
+      - "In the top-level dependencies of package.json"
+    answer: 0
+    explain: "The payload fires at install time and nothing in the app requires it, so import-based review and package.json review both come up empty. The IOC lives in the lockfile and the installed tree, which is why the runbook says to search org lockfiles for it."
+  - question: "Which CI control would have kept the beacon to 127.0.0.1:3021 from ever firing?"
+    choices:
+      - "Auto-merging patch bumps from packages with good reputations"
+      - "Skipping the lockfile to keep CI fast"
+      - "Lockfile-only installs with ignore-scripts until a release is reviewed"
+    answer: 2
+    explain: "Reputation is exactly what the attacker borrowed, and dropping the lockfile destroys your best forensic evidence. npm ci against a committed lockfile freezes what installs, and ignore-scripts removes the postinstall execution path the beacon depends on."

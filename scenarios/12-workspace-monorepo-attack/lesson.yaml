@@ -14,6 +14,28 @@ mitigation:
   - "Review cross-package task graphs before adding new workspace deps"
   - "Use --ignore-scripts in CI and allowlist required lifecycle scripts"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A PR in your monorepo touches one workspace package. The diff summary is below. Merge it?"
+  artifactType: diff
+  artifact:
+    - "PR #418: chore(utils): internal cleanup"
+    - ""
+    - " packages/utils/index.js        |  40 ++++++++++--"
+    - " packages/utils/package.json    |   3 ++"
+    - ""
+    - "+ packages/utils/package.json:"
+    - "+   \"scripts\": { \"postinstall\": \"node ./report.js\" }"
+    - ""
+    - "+ packages/utils/report.js:"
+    - "+   POST workspace tree + process.env to 127.0.0.1:3000"
+    - ""
+    - "Consumers of @devcorp/utils: api, auth, victim-app (all resolve the workspace copy)"
+  choices:
+    - "Merge - it is an internal package, not a third-party dependency"
+    - "Block - a workspace package every app resolves just grew a postinstall that exfiltrates"
+  answer: 1
+  reveal: "Internal does not mean safe. Workspace resolution prefers the sibling copy, so the moment packages/utils is swapped, every app that depends on @devcorp/utils inherits the payload - api, auth, victim-app, all of them. One edited file under packages/ becomes an org-wide compromise through the dependency graph you trust most."
+  explanation: "The blind spot is the phrase internal package. We review third-party deps and wave through our own, but the workspace graph does not care about that distinction - a poisoned sibling resolves exactly like a clean one. The tell is a workspace package growing lifecycle scripts or exfil behavior. Treat every workspace package as a third-party dependency: CODEOWNERS on packages/, --ignore-scripts in CI, and review on anything that widens what a task touches."
 steps:
   - id: setup
     registry: setup
@@ -65,3 +87,25 @@ steps:
     title: Review workspace trust
     teaching: "Treat internal packages like third-party deps. DETECT.md lists review gates for workspace publishes."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "Which change in a monorepo pull request is the strongest IOC of a workspace substitution attack?"
+    choices:
+      - "A new test file added under packages/utils"
+      - "A version bump in the root package.json"
+      - "Replaced contents under packages/utils, or an nx.json or turbo.json edit that widens which packages a task touches"
+    answer: 2
+    explain: "The attack is a local package silently swapped under packages/ - workspace resolution prefers the sibling, so every consumer inherits the payload, and a widened task dependency does the same damage through the build graph. New tests and version bumps are everyday monorepo noise."
+  - question: "What should you hunt for after a workspace install runs in CI?"
+    choices:
+      - "File writes under packages/ during npm install, plus script or network behavior from a workspace-local package"
+      - "Any npm WARN lines in the install log"
+      - "Cache hits in the CI artifact store"
+    answer: 0
+    explain: "The Sigma rule in DETECT.md pairs npm install with file paths under packages/ because legitimate installs do not rewrite workspace sources, and unexpected postinstall or beacons from a workspace-local package confirm the swap. Warnings and cache hits fire on clean builds too - they carry no signal here."
+  - question: "Which control set best contains a compromised workspace package?"
+    choices:
+      - "Giving the build runner org-wide deploy permissions so it can replace bad packages quickly"
+      - "CODEOWNERS on packages/, root package.json, and nx.json or turbo.json, plus --ignore-scripts in CI with an allowlist"
+      - "Moving all packages into a single folder to simplify review"
+    answer: 1
+    explain: "Ownership gates force security review on exactly the files this attack edits, and --ignore-scripts removes the lifecycle execution path until a package is allowlisted. Broader runner permissions increase the blast radius, and folder layout does nothing about who can merge changes - treat every workspace package as a third-party dependency."

@@ -14,6 +14,31 @@ mitigation:
   - "Commit lockfiles and use npm ci in CI/CD"
   - "Require changelog and diff review before merging dependency bumps"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A bot opened a dependency-bump PR while you were out. The whole diff is below. Approve it?"
+  artifactType: diff
+  artifact:
+    - "diff --git a/package.json b/package.json"
+    - "@@ -14,7 +14,7 @@"
+    - "     \"leftpad-utils\": \"^2.1.0\","
+    - "-    \"format-lite\": \"1.3.0\""
+    - "+    \"format-lite\": \"1.4.0\""
+    - "   }"
+    - ""
+    - "diff --git a/package-lock.json b/package-lock.json"
+    - "@@ -311,6 +311,7 @@"
+    - "     \"format-lite\": {"
+    - "-      \"version\": \"1.3.0\","
+    - "+      \"version\": \"1.4.0\","
+    - "+      \"hasInstallScript\": true,"
+    - "       \"integrity\": \"sha512-9f2c...\""
+    - "     }"
+  choices:
+    - "Approve - it is a patch-level bump"
+    - "Block it - why does a formatter suddenly need an install script"
+  answer: 1
+  reveal: "The version bump was camouflage. The real change is one line in the lockfile: hasInstallScript. The 1.4.0 release of a library you already trusted now runs code at install time, which is exactly how the coa, rc, and ua-parser-js hijacks shipped miners and stealers to thousands of projects."
+  explanation: "A familiar name plus a small bump feels safe, and that feeling is the vulnerability. The only new capability in this diff is install-time execution, and no string-formatting library needs it. When a dependency update adds an install script out of nowhere, that is the attack surface announcing itself. Pin what matters and read the lockfile diff, not just package.json."
 steps:
   - id: setup
     registry: setup
@@ -50,3 +75,25 @@ steps:
     teaching: "Inspector data plus detection-tools/update-scanner.js show what changed. Pin versions and review diffs before you trust an update in production."
     hint: "From the scenario root: node detection-tools/update-scanner.js victim-app"
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that a dependency update is malicious?"
+    choices:
+      - "The update bumps the minor version number"
+      - "The update adds install or runtime script behavior the package never had"
+      - "The update was published outside business hours"
+    answer: 1
+    explain: "A version number changing is the definition of an update, so it cannot be a signal. New install-time execution in a package that never had it, like hasInstallScript appearing in the lockfile diff, is the attack surface announcing itself."
+  - question: "Which pattern should your detection stack alert on for this attack?"
+    choices:
+      - "CPU usage spikes on developer laptops"
+      - "The star count on the package repository"
+      - "A dependency update closely followed by new outbound connections or script execution"
+    answer: 2
+    explain: "The temporal pattern is the hunt: an update lands, then egress or postinstall execution appears right behind it. Stars and laptop CPU never enter the picture."
+  - question: "Which control would have kept the malicious update out of your build?"
+    choices:
+      - "Pinning exact versions and dropping caret ranges on sensitive dependencies"
+      - "Updating everything daily so you always run the latest code"
+      - "Renaming package.json so bots cannot find it"
+    answer: 0
+    explain: "A caret range is standing permission to install whatever patch ships next. Pinning plus a committed lockfile means a bad update only arrives through a reviewed PR, not an automatic pull. Daily updates increase exposure; they do not reduce it."

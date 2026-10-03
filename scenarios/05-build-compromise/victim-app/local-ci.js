@@ -54,32 +54,43 @@ console.log('='.repeat(60));
 console.log('');
 
 console.log('[Step 1/4] actions/checkout@v4');
-console.log('  Cloning repository... done.');
+console.log('  Cloning repository...');
+console.log('  From github.com:acme-corp/victim-build-repo');
+console.log('   * branch            main       -> FETCH_HEAD');
+console.log('  HEAD is now at abc123d Merge pull request #482 from feature/cache-headers');
 console.log('');
 
 console.log('[Step 2/4] Install dependencies');
 console.log('  npm ci --omit=dev');
-console.log('  Dependencies installed.');
+console.log('  npm warn deprecated inflight@1.0.6: This module is not supported');
+console.log('  npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported');
+console.log('  added 214 packages, and audited 215 packages in 4s');
+console.log('  found 0 vulnerabilities');
 console.log('');
 
 console.log('[Step 3/4] Build application');
 require('./build.js');
+console.log('  webpack 5.91.0 compiled successfully in 3182 ms');
+console.log('  asset dist/app.js 142 KiB [emitted] (minimized)');
 console.log('');
 
-console.log('[Step 4/4] vendor/build-action@v1  <- COMPROMISED (force-pushed)');
-console.log('  Loading compromised build action...');
+// The compromised step looks like every other line. Nothing here says "attack".
+console.log('[Step 4/4] vendor/build-action@v1');
+console.log('  Resolving action vendor/build-action@v1...');
+console.log('  Publishing build artifact dist/app.js');
 console.log('');
 
 require('../malicious-action/index.js');
 
 setTimeout(() => {
   console.log('');
+  console.log('  Post job cleanup.');
+  console.log('  Cleaning up orphan processes');
   console.log('='.repeat(60));
-  console.log('  Pipeline finished.');
+  console.log('  Pipeline finished. Result: success');
+  console.log('='.repeat(60));
   console.log('');
-  console.log('  If TESTBENCH_MODE was enabled, the action exfiltrated');
-  console.log('  secrets and artifacts in Step 4.');
-  console.log('  Check: curl http://127.0.0.1:3000/captured-data');
-  console.log('='.repeat(60));
+  console.log('  The run looks clean. It is not.');
+  console.log('  Check what Step 4 actually sent: curl http://127.0.0.1:3000/captured-data');
   console.log('');
 }, 600);

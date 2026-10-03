@@ -1,0 +1,10 @@
+{
+  "type": "scas-authorship-attestation",
+  "creator": "Raja Nagori",
+  "repository": "https://github.com/rajanagori/supply-chain-attack-simulator",
+  "fingerprint": "SCAS-FP-RN-8d4f2c9a1e7b3065",
+  "commit": "2135859af764a3e9bf882a9b1a3ebd3185059cb2",
+  "attestedAt": "2026-10-03T08:56:20Z",
+  "provenanceSha256": "9fe8fbfa72ed43704e239f6fbdce3b3db4f9373167e08633b72012ad1382087e",
+  "statement": "I, Raja Nagori, am the original author of the Supply Chain Attack Simulator. This attestation binds my identity to commit 2135859af764a3e9bf882a9b1a3ebd3185059cb2 and provenance fingerprint SCAS-FP-RN-8d4f2c9a1e7b3065 at the time above."
+}

@@ -14,6 +14,25 @@ mitigation:
   - "Enforce image provenance and signature verification in CI/CD"
   - "Policy-check ENTRYPOINT/CMD changes on critical images"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A deploy is queued. The image reference and the container's startup behavior are below. Ship it?"
+  artifactType: ci-log
+  artifact:
+    - "[deploy] image: registry.internal/payments/api:latest"
+    - "[deploy] tag: latest (mutable)   digest: (not pinned)"
+    - "[deploy] signature verification: skipped"
+    - "--- container boot ---"
+    - "[boot] entrypoint: node /app/malicious-start.js"
+    - "[boot] baseline entrypoint was: node /app/server.js"
+    - "[boot] t+0.4s  POST https://127.0.0.1:3002/capture  200"
+    - "[boot] t+0.6s  starting application normally..."
+    - "[boot] health check: OK"
+  choices:
+    - "Ship it - health check passed and the app started"
+    - "Stop - the entrypoint drifted from baseline and the container beaconed before the app even came up"
+  answer: 1
+  reveal: "The image was swapped and the tag told you nothing. latest is a mutable pointer, the digest was never pinned, and the entrypoint changed from server.js to malicious-start.js - which fired a beacon 0.4 seconds into boot, then started the app normally so the health check passed. The container looks healthy because it is supposed to."
+  explanation: "Two failures stacked here. A mutable tag means the image under the name can change after review, and an unpinned digest plus skipped signature verification means nothing checks that it did. The runtime tell is the boot-window beacon and the entrypoint drift. The fix is fail-closed: pin immutable digests, verify signatures in CI/CD, and policy-check ENTRYPOINT/CMD changes on critical images so a retagged image never reaches production."
 steps:
   - id: setup
     registry: setup
@@ -41,3 +60,25 @@ steps:
     title: Harden image supply chain
     teaching: "DETECT.md covers digest pins, entrypoint review, and Floci cloud-track options for this scenario."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that a container image in this lab was swapped for a malicious one?"
+    choices:
+      - "The image is larger than the previous build"
+      - "Entrypoint/CMD drift from the baseline image, like a new malicious-start.js"
+      - "The container runs as root"
+    answer: 1
+    explain: "Large images and root users are hygiene issues, not proof of compromise. The defining signal here is entrypoint/CMD drift: the start path changed from the baseline, and that new start path is what runs the attacker's code at boot."
+  - question: "What runtime behavior should you alert on first for this attack?"
+    choices:
+      - "An outbound network request in the first seconds of container boot"
+      - "A slow increase in container memory over several days"
+      - "DNS lookups for the container registry"
+    answer: 0
+    explain: "The malicious entrypoint beacons immediately at startup (here to host.docker.internal:3002). Hunt for network activity in the container boot window; gradual resource drift could be any leak and misses the signal."
+  - question: "Which control stops a retagged or tampered image from reaching production?"
+    choices:
+      - "Pulling base images more frequently"
+      - "Naming images with semantic version tags"
+      - "Pinning immutable digests and verifying image signatures in CI/CD"
+    answer: 2
+    explain: "Tags are mutable, so a version tag can be repointed to a poisoned image. Digest pinning plus signature verification (cosign, admission control) makes the deploy path reject anything that is not the exact reviewed image."

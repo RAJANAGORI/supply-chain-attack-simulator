@@ -151,3 +151,14 @@ documentation/talks
 
 # Local tool installs (nektos/act from ensure-act.sh)
 .tools/
+
+.agents/
+.archify/
+assets/
+data/
+logs/
+results/
+reports/
+results/
+brag-output/
+skills-lock.json

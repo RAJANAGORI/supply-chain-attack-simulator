@@ -14,6 +14,24 @@ mitigation:
   - "Audit mirrors on a schedule and verify digests against upstream"
   - "Alert on unexpected package mutations in the mirror cache"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "Your team installs everything through the internal npm mirror on :4873 for speed. A routine integrity audit pulled the record below for a package you install daily. Act on it?"
+  artifactType: ci-log
+  artifact:
+    - "[audit] package: enterprise-logger"
+    - "[audit] version: 3.2.0"
+    - "[audit] source: internal mirror (localhost:4873)"
+    - "[audit] mirror sha512:  a1b2c3d4e5f6..."
+    - "[audit] upstream sha512: 9f8e7d6c5b4a...  (npmjs.com)"
+    - "[audit] name + version match upstream: YES"
+    - "[audit] digest match upstream: NO"
+    - "[audit] mirror tarball contains postinstall not present upstream"
+  choices:
+    - "Ignore it - same name and version, so it is the same package"
+    - "Treat it as an incident - same name and version but a different digest means someone mutated the artifact"
+  answer: 1
+  reveal: "Same name, same version, different bytes. The mirror is serving a tarball that does not match upstream, and the extra postinstall is the payload. Once a mirror is writable, cached packages diverge from upstream silently - package.json never changes, so nothing in your repo tells you the artifact under you was swapped."
+  explanation: "The whole point of a mirror is that it is trusted to be a faithful copy. The integrity check is the only thing that can see the lie: identical name and version, mismatched sha512. That mismatch is the poison. The defense is write-side - lock down who can mutate mirror storage, require MFA on admin paths, and verify mirror digests against upstream on a schedule so tampering alerts in hours, not months."
 steps:
   - id: setup
     registry: setup
@@ -46,3 +64,25 @@ steps:
     title: Validate mirror integrity
     teaching: "DETECT.md covers checksum pinning, mirror allowlists, and Floci cloud-track checks for this lab."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that your internal npm mirror has been poisoned?"
+    choices:
+      - "The mirror serves a tarball whose digest differs from upstream for the same name and version"
+      - "The mirror responds faster than npmjs.com"
+      - "The corporate .npmrc points at an internal registry host"
+    answer: 0
+    explain: "Same name and version but a different sha512 than upstream means someone mutated the artifact after publication - that is the poison. A fast mirror is the entire point of running one, and an internal registry in .npmrc is normal corporate configuration, not an IOC."
+  - question: "Which telemetry pattern best hunts mirror poisoning in build logs?"
+    choices:
+      - "DNS lookups for npmjs.com from developer laptops"
+      - "npm install traffic to the mirror host followed immediately by a postinstall child process"
+      - "Longer-than-average install times on the CI runner"
+    answer: 1
+    explain: "The DETECT.md Sigma rule joins install traffic to the mirror with postinstall execution because poisoned packages add lifecycle scripts the upstream baseline lacks. DNS lookups say nothing about artifact content, and slow installs are a capacity problem - confirm by comparing mirror digests against upstream."
+  - question: "Which control most directly stops mirror poisoning?"
+    choices:
+      - "Forcing all installs to bypass the mirror and hit npmjs.com directly"
+      - "Re-running npm install twice so the second pass catches tampering"
+      - "Scheduled digest verification of mirror content against upstream, with publish access locked down and MFA on admin paths"
+    answer: 2
+    explain: "Poisoning is a write-side problem - restrict who can mutate mirror storage, then continuously verify what the mirror serves against upstream digests so tampering alerts fast. Bypassing the mirror throws away caching and just moves trust to the public registry, and reinstalling the same poisoned tarball twice changes nothing."

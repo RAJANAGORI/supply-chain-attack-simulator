@@ -14,6 +14,22 @@ mitigation:
   - "Segment CI accounts so build runners cannot publish or deploy to production"
   - "Require approval gates for registry publishes; preserve per-stage forensics"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "Your SIEM fired three low-severity alerts from the same CI runner over six minutes. Each one was auto-closed as benign. The timeline is below. Was closing them right?"
+  artifactType: ci-log
+  artifact:
+    - "14:02:11  [LOW] npm install completed on ci-runner-7  -> auto-closed (routine)"
+    - "14:04:38  [LOW] process read ~/.npmrc on ci-runner-7  -> auto-closed (common)"
+    - "14:07:55  [LOW] registry publish from ci-runner-7    -> auto-closed (expected)"
+    - ""
+    - "each alert below the severity threshold on its own"
+    - "no rule joins events across the six-minute window"
+  choices:
+    - "Right call - three low-severity alerts, all routine CI activity"
+    - "Wrong call - install, then token access, then a publish from one host is a single attack chain"
+  answer: 1
+  reveal: "Three benign events are one breach. The install pulled a stage-1 package, the .npmrc read stole the CI publish token, and the publish shipped a poisoned release - all from the same runner in six minutes. Each alert was below threshold on its own, so per-alert triage closed every one. The attack only exists in the correlation."
+  explanation: "Multi-stage operations are engineered to look like noise when you read alerts one at a time. Install, secret access, and publish are each routine in isolation; joined into a timeline from a single host, they are unambiguous. The fix is a correlator that connects the stages, plus segmentation so the build runner's identity cannot publish in the first place - then stage 3 fails on permissions even if stage 1 succeeds."
 steps:
   - id: setup
     registry: setup
@@ -50,3 +66,25 @@ steps:
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
     hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "Which pattern is the strongest IOC of this multi-stage chain?"
+    choices:
+      - "A single npm install on a build runner"
+      - "Install, secret access, and registry publish events from the same host in a short window"
+      - "A dependency with a major version jump"
+    answer: 1
+    explain: "Each stage alone looks like normal CI noise. The IOC is the correlation: dependency install, then .npmrc or CI token access, then a publish, all from one host or run context within minutes."
+  - question: "Why does per-alert triage miss this attack, and what catches it?"
+    choices:
+      - "Alerts are too noisy, so muting them reveals the attack"
+      - "The attack is encrypted, so nothing can detect it"
+      - "Each stage is low-signal alone; a correlator that joins the stages into one chain catches it"
+    answer: 2
+    explain: "Stage events are individually benign-looking, so alert-by-alert review closes them as false positives. Detection has to join install, token access, and publish into a single timeline, like the lab's multi-stage-correlator does."
+  - question: "Which control breaks the chain even if stage 1 succeeds?"
+    choices:
+      - "Segmenting CI service accounts so build runners cannot publish packages"
+      - "Rotating the CI runner's hostname"
+      - "Updating dependencies more frequently"
+    answer: 0
+    explain: "The chain needs one identity to go from build to publish. If the build runner's token cannot publish, stage 3 fails on permissions; approval gates and auto-containment on the event sequence add more chances to stop it."

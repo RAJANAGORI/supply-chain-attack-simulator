@@ -14,6 +14,25 @@ mitigation:
   - "Enforce hash pinning or vetted indexes; rotate PyPI and API tokens after incidents"
   - "Scan site-packages for unexpected *.pth files after every pip install in CI"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "You bumped litellm-like from 1.82.6 to 1.82.7 in your Python service. After deploy, your EDR flags the process below. Investigate or dismiss?"
+  artifactType: ci-log
+  artifact:
+    - "[edr] process: python3 run_victim.py"
+    - "[edr] outbound connection: 127.0.0.1:3022"
+    - "[edr] note: no import of any network client in app code"
+    - "---"
+    - "[scan] site-packages contents after pip install:"
+    - "[scan]   litellm_like/  (1.82.7)"
+    - "[scan]   zzz_testbench_litellm_like.pth   <- new, nobody added this"
+    - "---"
+    - "[note] .pth files execute at every python interpreter startup"
+  choices:
+    - "Dismiss - the app only imports litellm_like, and that is a known dependency"
+    - "Investigate - a Python process is beaconing with no import to explain it, and a rogue .pth appeared in site-packages"
+  answer: 1
+  reveal: "The .pth file is the payload. Python executes every .pth in site-packages at interpreter startup, before your code runs and without any import. The compromised 1.82.7 dropped zzz_testbench_litellm_like.pth there, so every Python process in that virtualenv beacons out - and your import tracing never sees it because nothing was ever imported."
+  explanation: "This is why import-based detection misses the LiteLLM-style compromise. The hook fires at startup, so watching for an import of the malicious package finds nothing. The catches are a Python process with network activity and no import to explain it, and a .pth file in site-packages that nobody added. The prevention is hash pinning with --require-hashes so a swapped artifact fails the install, plus a site-packages .pth scan in CI after every pip install."
 steps:
   - id: setup
     registry: setup
@@ -48,3 +67,25 @@ steps:
     title: Review PyPI IOCs
     teaching: "DETECT.md covers hash pins, index URL hardening, and venv isolation for Python labs."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC of the litellm_like compromise in this lab?"
+    choices:
+      - "An unexpected .pth file, zzz_testbench_litellm_like.pth, sitting in site-packages"
+      - "A requirements.txt entry pinned to an exact version"
+      - "A virtualenv created with python3 -m venv"
+    answer: 0
+    explain: "Pinned requirements and fresh venvs are hygiene, not indicators. A .pth file nobody added is the IOC because Python executes it at every interpreter startup, which is how the hook runs without ever being imported."
+  - question: "Which hunting behavior actually catches a .pth startup hook?"
+    choices:
+      - "Alerting only when application code explicitly imports litellm_like"
+      - "Reading the package readme on PyPI"
+      - "Watching for Python processes with network activity and no matching import, plus scanning site-packages for .pth drift after every pip install"
+    answer: 2
+    explain: "The hook fires at interpreter startup, so import tracing never sees it, and the readme is attacker-written marketing. A Python process beaconing to 127.0.0.1:3022 with no import to explain it, or a new .pth appearing in site-packages, is the catch."
+  - question: "Which mitigation stops a tampered litellm_like artifact from installing in the first place?"
+    choices:
+      - "Upgrading to the newest release as soon as it publishes"
+      - "Installing with --require-hashes from pip-compile output and scanning site-packages for rogue .pth files in CI"
+      - "Trusting PyPI to delist malicious packages quickly"
+    answer: 1
+    explain: "Chasing the newest release is what pulled in 1.82.7, and delisting only happens after someone gets burned. Hash pinning makes a swapped artifact fail the install outright, and the .pth scan catches anything that still lands."

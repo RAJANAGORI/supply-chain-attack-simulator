@@ -14,6 +14,24 @@ mitigation:
   - "Treat signatures as identity signals; still run behavioral and content scanning"
   - "Protect signing keys in HSM/KMS with MFA, rotation, and audit logs"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "Your pipeline verifies package signatures before install. The verification output for a new release is below. Let the install through?"
+  artifactType: ci-log
+  artifact:
+    - "[verify] package: secure-utils@1.0.1"
+    - "[verify] signature algorithm: ed25519"
+    - "[verify] keyId: maintainer-key-01"
+    - "[verify] crypto.verify(signature, package, publicKey)"
+    - "[verify] result: VALID"
+    - "[verify] signature check PASSED - proceeding to install"
+    - "[behavioral-scan] postinstall opens socket to 127.0.0.1:3000"
+    - "[behavioral-scan] keyCompromised: true"
+  choices:
+    - "Let it through - the signature verified, so the package is authentic"
+    - "Block it - a valid signature proves who signed it, not what the code does"
+  answer: 1
+  reveal: "The signature is valid and the package is still malicious. The attacker stole the maintainer's Ed25519 key, so v1.0.1 verifies under the exact same keyId as every good release before it. crypto.verify() answers one question - was this signed by the holder of this key - and says nothing about whether that holder is still the person you trust."
+  explanation: "A signature is an identity check, not a behavior check. Once the key is compromised, verification passes on attacker code and every failure-based alert stays silent. The behavioral scanner is what caught this: a signed package that still beacons out at install time. Treat signatures as one signal, keep behavioral scanning even when they verify, and protect keys in an HSM so theft is hard and visible."
 steps:
   - id: setup
     registry: setup
@@ -50,3 +68,25 @@ steps:
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
     hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "Which finding is the strongest IOC that a properly signed package is actually compromised?"
+    choices:
+      - "The package ships without a package.sig file"
+      - "The compromised version and the last good version both verify under the same key fingerprint"
+      - "The package jumped a minor version number"
+    answer: 1
+    explain: "A stolen Ed25519 key means v1.0.0 and v1.0.1 both pass crypto.verify() with one keyId - the signature is valid but the key is compromised, which is the keyCompromised: true capture in this lab. A missing signature is a different, noisier failure, and version bumps are routine."
+  - question: "crypto.verify() returns VALID for a package your behavioral scanner flags for postinstall exfiltration. How should you treat that?"
+    choices:
+      - "Treat it as critical - a valid signature proves who signed the package, not what the code does"
+      - "Trust the signature and close the behavioral alert as a false positive"
+      - "Re-run verification with a different algorithm before deciding"
+    answer: 0
+    explain: "Signature checks answer identity and integrity only. With a stolen key, verification passes while postinstall beacons out - the DETECT.md Sigma rule keys on exactly that postinstall-plus-network pattern. Re-verifying with another algorithm changes nothing because the math was never the problem."
+  - question: "Which control actually limits the damage of a stolen signing key?"
+    choices:
+      - "Publishing every package with a longer Ed25519 key"
+      - "Requiring two maintainers to approve every release pull request"
+      - "Keys in an HSM or KMS with MFA, rotation, and signing audit logs, paired with behavioral scanning of signed artifacts"
+    answer: 2
+    explain: "Hardware-backed keys with MFA and audit logs make key theft hard and visible, and rotation bounds how long a stolen key stays useful. Longer keys do nothing once the key leaves the HSM, and pull request approvals do not stop an attacker who already holds the key - behavioral scanning is what catches the signed-but-malicious package."

@@ -14,6 +14,24 @@ mitigation:
   - "Lint workflows for tag references; apply least-privilege job permissions"
   - "Rotate CI secrets when an action compromise is suspected; monitor runner egress"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "A teammate wants to clean up your CI workflow. Their PR makes one change. Merge it?"
+  artifactType: diff
+  artifact:
+    - "diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml"
+    - "@@ -22,7 +22,7 @@ jobs:"
+    - "     steps:"
+    - "       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4"
+    - "-      - uses: tj-actions/changed-files@a139dc7bca6bcb7543e1b4637c13b648a4b96d1c  # v46"
+    - "+      - uses: tj-actions/changed-files@v46"
+    - "         with:"
+    - "           files: 'src/**'"
+  choices:
+    - "Merge - a tag is easier to read than a SHA"
+    - "Reject - never trade a pinned SHA for a mutable tag"
+  answer: 1
+  reveal: "That cleanup removed the only thing protecting you. The SHA points at one immutable snapshot of the action; the v46 tag points at whatever the maintainer, or whoever compromised the maintainer, moved it to last night. This is exactly how the tj-actions incident in March 2025 turned thousands of CI runs into secret-dumpers."
+  explanation: "A tag is a pointer someone else controls. The moment you swap a SHA for a tag, every future run of your workflow executes code chosen after your review, with your CI secrets in scope. Readability is not a control. Pin by SHA, and treat any PR that loosens a pin as hostile until proven otherwise."
 steps:
   - id: setup
     registry: setup
@@ -40,3 +58,25 @@ steps:
     title: Pin and least-privilege
     teaching: "DETECT.md: pin by SHA, drop unused permissions, review reusable actions like dependencies."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that a reusable GitHub Action reference is dangerous?"
+    choices:
+      - "A workflow uses actions from outside the organization"
+      - "The checkout step logs show a successful clone"
+      - "A third-party action referenced by a mutable tag like @v3 instead of a full commit SHA"
+    answer: 2
+    explain: "Third-party actions and successful clones are normal CI. The exposure indicator is the mutable tag: @v3 points at whatever the maintainer, or whoever force-pushed the maintainer's repo, moved it to after your review."
+  - question: "The compromised step completes normally, so which hunt still catches it?"
+    choices:
+      - "Looking for failing checkout steps in pipeline logs"
+      - "Correlating runner egress right after an action step starts with force-push or tag-update events on the action repository"
+      - "Counting how many workflows use the checkout action"
+    answer: 1
+    explain: "The infostealer keeps the step green, so failure hunts come up empty, and usage counts say nothing about compromise. The trail is a POST to 127.0.0.1:3025 timed to the step start, plus audit-log evidence that the tag moved."
+  - question: "Which mitigation prevents a force-pushed tag from running attacker code with your CI secrets?"
+    choices:
+      - "Pinning every reusable action to a full commit SHA and linting workflows against tag references"
+      - "Rotating CI secrets after each incident while leaving tags in place"
+      - "Forking every third-party action into the org without review"
+    answer: 0
+    explain: "Rotation cleans up after the theft but the next force-push steals the new secrets too, and an unreviewed fork just relocates the trust problem. A SHA pins one immutable snapshot, and linting for @vN references keeps the pin from regressing."

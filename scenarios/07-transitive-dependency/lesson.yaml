@@ -14,6 +14,28 @@ mitigation:
   - "Scan the full dependency tree (npm audit, SBOM) not only direct deps"
   - "Watch postinstall scripts and unexpected localhost or outbound beacons"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+reversal:
+  blockedPackage: "data-processor"
+drill:
+  prompt: "You reviewed package.json before merging - two dependencies, both well-known. The resolved install tree is below. Anything wrong?"
+  artifactType: diff
+  artifact:
+    - "my-app@1.0.0"
+    - "+-- express@4.18.2"
+    - "+-- request-helper@2.1.0"
+    - "|   +-- data-processor@1.4.2"
+    - "|   |   postinstall: node ./init.js"
+    - "|   |   init.js: reads process.env, POST 127.0.0.1:3000"
+    - "+-- lodash@4.17.21"
+    - ""
+    - "package.json dependencies: express, request-helper"
+    - "3 packages reviewed. 4 packages installed."
+  choices:
+    - "Looks fine - I reviewed every dependency in package.json"
+    - "Stop - data-processor was never in my package.json and it runs a postinstall"
+  answer: 1
+  reveal: "You reviewed two packages and installed four. data-processor came in one level down, pulled by request-helper, and it carries a postinstall that reads your environment and beacons out. Your package.json review walked right past it because the name never appears there."
+  explanation: "This is the event-stream transitive pattern: the payload hides behind a direct dependency you trust, deep enough that a package.json review never sees it. The count mismatch is the tell - reviewed 3, installed 4. You cannot defend what you cannot see, which is why the tree, not the manifest, is what needs scanning. An SBOM or full-tree audit surfaces the nested package; reading package.json never will."
 steps:
   - id: setup
     registry: setup
@@ -55,3 +77,25 @@ steps:
     teaching: "Scanner output and DETECT.md focus on unexpected postinstall scripts and hash mismatches in nested deps."
     hint: "node detection-tools/package-scanner.js scenarios/07-transitive-dependency/victim-app"
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC of a transitive dependency attack?"
+    choices:
+      - "The app has more than ten direct dependencies"
+      - "package.json lists a dependency with a caret range"
+      - "Malicious behavior traces to a package your direct dependencies pulled in, not one you named"
+    answer: 2
+    explain: "The defining signal is depth: the bad code sits in a nested package your package.json never names, so reviewing direct dependencies walks right past it. Caret ranges and dependency counts are common in healthy projects."
+  - question: "Where should detection focus when hunting this attack?"
+    choices:
+      - "Reading every line of your own application code"
+      - "Alerting on postinstall execution from nested node_modules paths"
+      - "Counting total lines in package-lock.json"
+    answer: 1
+    explain: "The payload runs from a deep path like node_modules/data-processor, so child processes spawning out of nested dependency directories are the hunt. Your own first-party code is not where this attack lives."
+  - question: "Which practice gives you visibility into transitive packages like data-processor?"
+    choices:
+      - "Generating an SBOM and scanning the full dependency tree, not just direct dependencies"
+      - "Reviewing only the packages listed in package.json"
+      - "Deleting node_modules once a month"
+    answer: 0
+    explain: "You cannot defend what you cannot see. An SBOM plus full-tree scanning surfaces nested packages that a package.json review never shows. Reviewing direct dependencies only is precisely the blind spot this attack exploits."

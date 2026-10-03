@@ -98,6 +98,8 @@ export interface ClassroomStudent {
   lastScenarioId?: string;
   lastStepId?: string;
   completedSteps: number;
+  /** Assessment points at last report, for the leaderboard. */
+  points?: number;
   frozen?: boolean;
 }
 
@@ -176,7 +178,7 @@ export function joinClassroom(code: string, name: string): ClassroomState {
 
 export function reportClassroomProgress(
   studentId: string,
-  patch: { lastScenarioId?: string; lastStepId?: string; completedSteps?: number },
+  patch: { lastScenarioId?: string; lastStepId?: string; completedSteps?: number; points?: number },
 ): ClassroomState {
   const current = readClassroom();
   if (!current.code) throw new Error('No classroom');
@@ -188,6 +190,7 @@ export function reportClassroomProgress(
           lastScenarioId: patch.lastScenarioId ?? s.lastScenarioId,
           lastStepId: patch.lastStepId ?? s.lastStepId,
           completedSteps: patch.completedSteps ?? s.completedSteps,
+          points: patch.points ?? s.points,
         }
       : s,
   );

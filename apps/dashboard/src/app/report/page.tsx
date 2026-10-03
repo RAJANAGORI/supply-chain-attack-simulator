@@ -3,16 +3,35 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Alert, Btn, Card, PageHeader, StatusPill } from '@/components/ui';
-import { cp, type BriefingPayload } from '@/lib/api';
+import { BreachPanel } from '@/components/BreachPanel';
+import { IncidentReport } from '@/components/IncidentReport';
+import { Certificate } from '@/components/Certificate';
+import { cp, type Assessment, type BriefingPayload } from '@/lib/api';
 
 export default function ReportPage() {
   const [briefing, setBriefing] = useState<BriefingPayload | null>(null);
+  const [assessment, setAssessment] = useState<Assessment | null>(null);
+  const [capturesByLab, setCapturesByLab] = useState<Record<string, Record<string, unknown>>>({});
   const [error, setError] = useState('');
 
   const load = useCallback(async () => {
     try {
-      setBriefing(await cp.getBriefing());
+      const data = await cp.getBriefing();
+      setBriefing(data);
       setError('');
+      void cp.getAssessment().then(setAssessment).catch(() => setAssessment(null));
+      // Pull captures for completed labs so the breach moment shows up in the debrief.
+      const done = data.labs.filter((l) => l.completed);
+      const entries = await Promise.all(
+        done.map(async (l) => {
+          try {
+            return [l.id, await cp.getCaptures(l.id)] as const;
+          } catch {
+            return [l.id, {}] as const;
+          }
+        }),
+      );
+      setCapturesByLab(Object.fromEntries(entries));
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load briefing');
     }
@@ -52,6 +71,46 @@ export default function ReportPage() {
             </p>
           </Card>
 
+          {/* The incident report is the centerpiece once at least one lab is done. */}
+          <IncidentReport briefing={briefing} capturesByLab={capturesByLab} />
+
+          {assessment && (
+            <Card
+              title="Score and badges"
+              subtitle="Earned from completed labs, quiz gates, and blind-drill calls"
+            >
+              <div className="flex flex-wrap items-center gap-6">
+                <div>
+                  <p className="text-3xl font-semibold tabular-nums text-ink-primary">
+                    {assessment.totalPoints}
+                    <span className="text-base text-ink-faint">/{assessment.maxPoints}</span>
+                  </p>
+                  <p className="mt-1 text-xs text-ink-muted">points</p>
+                </div>
+                <div className="text-sm text-ink-secondary">
+                  <p>{assessment.labsCompleted}/{assessment.totalLabs} labs complete</p>
+                  <p>{assessment.quizzesPassed} quiz gates passed</p>
+                  <p>{assessment.drillsCorrect} blind drills caught</p>
+                </div>
+              </div>
+              {assessment.badges.length > 0 && (
+                <ul className="mt-4 flex flex-wrap gap-2 border-t border-line pt-4">
+                  {assessment.badges.map((b) => (
+                    <li
+                      key={b.id}
+                      title={b.reason}
+                      className="rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-medium text-brand"
+                    >
+                      {b.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+          )}
+
+          {assessment?.certificateReady && <Certificate assessment={assessment} />}
+
           <Card title="What you practiced" subtitle="Completed labs">
             {completed.length === 0 ? (
               <p className="text-sm text-ink-muted">No labs fully verified yet. Finish a storyboard to populate this.</p>
@@ -71,6 +130,11 @@ export default function ReportPage() {
                         <li key={o}>· {o}</li>
                       ))}
                     </ul>
+                    {capturesByLab[lab.id] && (
+                      <div className="mt-3">
+                        <BreachPanel captures={capturesByLab[lab.id]} />
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -14,6 +14,22 @@ mitigation:
   - "Commit lockfiles and install with npm ci; pin critical packages to exact versions"
   - "Reserve or claim internal namespaces on public registries where the ecosystem allows it"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "Your build pulls the internal package acme-payments-utils from your private registry. This morning CI resolved it from the public registry instead. Here is the public page it found. Let the build run?"
+  artifactType: package-page
+  artifact:
+    - "acme-payments-utils"
+    - "version 99.1.0   published 6 hours ago"
+    - "weekly downloads: 11,402 (was 0 last week)"
+    - "maintainer: pub-user-881 (1 package)"
+    - "repository: (none)"
+    - "internal latest on your registry: 1.4.2"
+  choices:
+    - "Let it build - 99.1.0 is newer than 1.4.2"
+    - "Stop the build - internal names must never resolve publicly"
+  answer: 1
+  reveal: "That public package exists because someone guessed your internal naming convention and published a sky-high version. Your resolver saw 99.1.0 beat 1.4.2 and grabbed the public one. The version number was the lure."
+  explanation: "Version comparison has no concept of where a package came from. When scope routing is missing, the highest version wins, and an attacker controls that number. This is the exact mechanism behind Alex Birsan's 2021 dependency confusion run that hit Apple, Microsoft, and others. The fix is routing, not vigilance: scope internal names to your registry so the public one is never consulted."
 steps:
   - id: setup
     registry: setup
@@ -50,3 +66,25 @@ steps:
     teaching: "Compare what corporate-app resolved against the internal package. The dependency-confusion scanner under detection-tools/ flags scope and registry mismatches."
     hint: "From the scenario root: node detection-tools/dependency-confusion-scanner.js corporate-app"
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "What is the strongest IOC that @techcorp/auth-lib was dependency-confused?"
+    choices:
+      - "The package tarball is larger than 1 MB"
+      - "The package README has spelling mistakes"
+      - "An internal scope resolved from a non-internal registry at version 999.999.999"
+    answer: 2
+    explain: "Dependency confusion is defined by where a package resolved from. An internal scope landing from a public or attacker registry, at a version far above the approved 1.0.x baseline, is the tell. Tarball size and README quality are noise."
+  - question: "Which behavior should you alert on first when hunting this attack?"
+    choices:
+      - "postinstall child processes and beacon traffic while npm install is still running"
+      - "npm audit findings published the same week"
+      - "Any install that takes longer than five minutes"
+    answer: 0
+    explain: "The payload fires in the postinstall phase, so the hunt is child-process execution and outbound connections during the install itself, not after the app starts. Waiting for runtime behavior misses the window this attack lives in."
+  - question: "Which control stops dependency confusion at the door?"
+    choices:
+      - "Running npm install twice and comparing the results"
+      - "Scope routing in .npmrc so @techcorp only ever resolves from the internal registry"
+      - "Renaming internal packages to longer, harder-to-guess names"
+    answer: 1
+    explain: "Confusion happens because the resolver is allowed to consult a public registry for an internal scope. Scope-specific routing removes that path, so the public 999.999.999 is never even seen. Repeat installs and longer names do not change where resolution goes."

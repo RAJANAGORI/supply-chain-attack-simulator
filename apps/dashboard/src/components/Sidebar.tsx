@@ -13,6 +13,7 @@ const mainNav = [
   { href: '/welcome', label: 'Welcome', icon: '◈' },
   { href: '/', label: 'Overview', icon: '▣' },
   { href: '/scenarios', label: 'Labs', icon: '⬡' },
+  { href: '/campaign', label: 'Campaign', icon: '⛓' },
   { href: '/observe', label: 'Observatory', icon: '◎' },
   { href: '/skills', label: 'Skills', icon: '▤' },
   { href: '/report', label: 'Briefing', icon: '☰' },

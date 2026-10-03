@@ -14,6 +14,28 @@ mitigation:
   - "Reject registry metadata that disagrees with tarball package.json fields"
   - "Require human review when author, homepage, or repository fields change on a dependency"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+drill:
+  prompt: "You are vetting a package called clean-utils before adding it. The registry listing and the actual tarball's package.json are below. Install it?"
+  artifactType: package-page
+  artifact:
+    - "clean-utils"
+    - "version 2.4.1   weekly downloads: 84,000"
+    - "description: Enterprise-grade string utilities, trusted by platform teams"
+    - "homepage: https://cleanutils.dev"
+    - "repository: github.com/cleanutils/clean-utils"
+    - "author: CleanUtils Team <oss@cleanutils.dev>"
+    - "readme: polished docs, logo, badges, enterprise case studies"
+    - "---"
+    - "tarball package.json:"
+    - "  repository: (none)"
+    - "  author: u/x9f2"
+    - "  scripts: { postinstall: node ./setup.js }"
+  choices:
+    - "Install it - 84k weekly downloads and a polished homepage"
+    - "Walk away - the registry story and the tarball tell two different stories"
+  answer: 1
+  reveal: "The metadata was written for you; the payload was written for your machine. The registry listing shows a company, a homepage, a repository, and 84,000 downloads. The tarball you actually install has no repository, a throwaway author, and a postinstall that runs the moment it lands. One of those two is lying, and it is the one humans read."
+  explanation: "Attackers invest in the surface you review - the README, the homepage, the download count - because that is what earns trust. The tarball is where the truth lives. When registry metadata and the packed package.json disagree on author, repository, or homepage, that mismatch is the IOC. The catch is pre-execution: compare npm view output against the tarball's package.json and reject on drift, before the postinstall ever runs."
 steps:
   - id: setup
     registry: setup
@@ -50,3 +72,25 @@ steps:
     teaching: "Open the inspector and the scenario DETECT.md. Map what you see to IOCs and mitigations."
     hint: "Detection tools under detection-tools/ can scan the victim tree from the repo root."
     verify: { type: capture-count, min: 1 }
+quiz:
+  - question: "Which metadata signal is the strongest IOC that a clean-looking package is manipulated?"
+    choices:
+      - "The package has a polished README with a project logo"
+      - "The registry API and the tarball's package.json disagree on repository, author, or homepage"
+      - "The package description mentions enterprise use cases"
+    answer: 1
+    explain: "Attackers write metadata for humans and payloads for machines. When the registry listing and the tarball you actually install tell different stories about repository or author, one of them is lying - DETECT.md flags exactly this mismatch. Polished docs and enterprise language are marketing, not evidence."
+  - question: "How do you hunt metadata manipulation at scale before a package ever runs?"
+    choices:
+      - "Diffing runtime syscalls against a baseline"
+      - "Watching for outbound traffic to the capture port"
+      - "Comparing npm view metadata against the packed tarball's package.json and rejecting mismatches in CI"
+    answer: 2
+    explain: "This is a pre-execution catch - metadata-validator.js style checks compare registry API fields with tarball package.json and fail the build on author, repository, homepage, or dist.integrity drift. Syscall baselines and network watches only fire after the payload already ran, which is too late for a metadata attack."
+  - question: "Which mitigation stops metadata manipulation from reaching developers?"
+    choices:
+      - "Human review for any dependency change that alters homepage, repository, or author fields, backed by an approved-artifact mirror"
+      - "Trusting packages with high weekly download counts"
+      - "Reading the README more carefully before installing"
+    answer: 0
+    explain: "A field-change gate turns the attacker's best trick - a trusted-looking story - into a review trigger, and a signed internal mirror gives you a source of truth to compare against. Download counts are gameable and say nothing about metadata drift, and README reading is exactly the surface this attack exploits."

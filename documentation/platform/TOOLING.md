@@ -93,6 +93,7 @@ Keeps scenario docs, table-of-contents blocks, and mitigation playbooks consiste
 | Script | Purpose |
 |--------|---------|
 | [`scripts/provenance/embed-scenario-provenance.sh`](../../scripts/provenance/embed-scenario-provenance.sh) | Embed SCAS authorship fingerprints across scenario trees (idempotent) |
+| [`scripts/provenance/attest.sh`](../../scripts/provenance/attest.sh) | Generate a signed `ATTESTATION.json` binding your identity to a commit SHA (re-run each release) |
 | [`scripts/provenance/verify-provenance.sh`](../../scripts/provenance/verify-provenance.sh) | Verify fingerprints in a checkout (yours or a suspect copy) |
 
 ### Project management

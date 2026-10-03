@@ -39,6 +39,26 @@ export interface LessonDefinition {
   caseStudy?: string;
   mitigation?: string[];
   steps: LessonStep[];
+  drill?: LessonDrill;
+  quiz?: LessonQuizQuestion[];
+  reversal?: { blockedPackage: string };
+}
+
+export interface LessonQuizQuestion {
+  question: string;
+  choices: string[];
+  answer: number;
+  explain: string;
+}
+
+export interface LessonDrill {
+  prompt: string;
+  artifactType: 'diff' | 'package-page' | 'ci-log';
+  artifact: string;
+  choices: string[];
+  answer: number;
+  reveal: string;
+  explanation: string;
 }
 
 export interface LessonSummary {
@@ -51,6 +71,8 @@ export interface ScenarioProgressEntry {
   completedSteps: string[];
   hintsOpened: string[];
   currentStepId?: string;
+  quiz?: { score: number; total: number; passedAt: string };
+  drill?: { picked: number; correct: boolean; answeredAt: string };
   updatedAt: string;
 }
 
@@ -71,7 +93,7 @@ export interface ScenarioSummary {
   lesson?: LessonSummary | null;
 }
 
-export interface ScenarioDetail extends ScenarioSummary {
+export interface ScenarioDetail extends Omit<ScenarioSummary, 'lesson'> {
   setup: { command: string; cwd: string };
   services: { id: string; label: string; port?: number }[];
   steps: { id: string; label: string }[];
@@ -88,6 +110,17 @@ export interface PlatformStatus {
   kibana: { ok: boolean; url: string };
   floci: { ok: boolean; url: string };
   portConflicts: number[];
+}
+
+export interface Provenance {
+  project: string;
+  name: string;
+  creator: string;
+  creatorUrl: string;
+  repository: string;
+  website?: string;
+  copyright: string;
+  fingerprint: string;
 }
 
 export interface LogEntry {
@@ -116,6 +149,13 @@ export interface ActionResult {
   message?: string;
   port?: number;
   output?: string;
+}
+
+export interface ReversalResult {
+  held: boolean;
+  capturesBefore: number;
+  capturesAfter: number;
+  message: string;
 }
 
 export interface LessonVerifyResult {
@@ -158,6 +198,30 @@ export interface TimelinePayload {
   error?: string;
 }
 
+export interface CampaignChapterStatus {
+  scenario: string;
+  beat: string;
+  narrative: string;
+  scenarioId: string;
+  title: string;
+  slug: string;
+  completed: boolean;
+  current: boolean;
+}
+
+export interface CampaignStatus {
+  id: string;
+  title: string;
+  persona: string;
+  tagline: string;
+  description: string;
+  debrief: string;
+  chapters: CampaignChapterStatus[];
+  completedChapters: number;
+  totalChapters: number;
+  done: boolean;
+}
+
 export interface ClassroomStudent {
   id: string;
   name: string;
@@ -165,6 +229,7 @@ export interface ClassroomStudent {
   lastScenarioId?: string;
   lastStepId?: string;
   completedSteps: number;
+  points?: number;
 }
 
 export interface ClassroomState {
@@ -179,6 +244,35 @@ export interface AssistantReply {
   answer: string;
   provider: string;
   offline?: boolean;
+}
+
+export interface Badge {
+  id: string;
+  label: string;
+  reason: string;
+}
+
+export interface LabScore {
+  scenarioId: string;
+  title: string;
+  completed: boolean;
+  quizPassed: boolean;
+  quizScore?: number;
+  quizTotal?: number;
+  drillCorrect?: boolean;
+  points: number;
+}
+
+export interface Assessment {
+  totalPoints: number;
+  maxPoints: number;
+  labsCompleted: number;
+  totalLabs: number;
+  quizzesPassed: number;
+  drillsCorrect: number;
+  badges: Badge[];
+  labs: LabScore[];
+  certificateReady: boolean;
 }
 
 async function sleep(ms: number) {
@@ -226,6 +320,13 @@ export const cp = {
   },
   getBriefing: (scenario?: string) =>
     api<BriefingPayload>(scenario ? `/briefing?scenario=${scenario}` : '/briefing'),
+  getCampaigns: () => api<CampaignStatus[]>('/campaigns'),
+  getCampaign: (id: string) => api<CampaignStatus>(`/campaigns/${id}`),
+  getAssessment: () => api<Assessment>('/assessment'),
+  recordAssessment: (id: string, body: {
+    quiz?: { score: number; total: number };
+    drill?: { picked: number; correct: boolean };
+  }) => api<ProgressState>(`/scenarios/${id}/assessment`, { method: 'POST', body: JSON.stringify(body) }),
   getTimeline: (limit = 50) => api<TimelinePayload>(`/observe/timeline?limit=${limit}`),
   getClassroom: () => api<ClassroomState>('/classroom'),
   createClassroom: (title?: string) =>
@@ -239,12 +340,16 @@ export const cp = {
     lastScenarioId?: string;
     lastStepId?: string;
     completedSteps?: number;
+    points?: number;
   }) => api<ClassroomState>('/classroom/progress', { method: 'POST', body: JSON.stringify(body) }),
   askAssistant: (body: { question: string; scenarioId?: string; stepId?: string }) =>
     api<AssistantReply>('/assistant', { method: 'POST', body: JSON.stringify(body) }),
   floci: (id: string, action: 'seed' | 'verify') =>
     api<ActionResult>(`/scenarios/${id}/floci/${action}`, { method: 'POST' }),
+  runReversal: (id: string) =>
+    api<ActionResult & { reversal?: ReversalResult }>(`/scenarios/${id}/reversal`, { method: 'POST' }),
   platformStatus: () => api<PlatformStatus>('/platform/status'),
+  getProvenance: () => api<Provenance>('/provenance'),
   esUp: () => api<ActionResult>('/platform/elasticsearch/up', { method: 'POST' }),
   esDown: () => api<ActionResult>('/platform/elasticsearch/down', { method: 'POST' }),
   flociSetup: () => api<ActionResult>('/platform/floci/setup', { method: 'POST' }),

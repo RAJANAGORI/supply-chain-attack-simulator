@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { DM_Sans, JetBrains_Mono, Syne } from 'next/font/google';
 import { RouteWarmup } from '@/components/RouteWarmup';
 import { Sidebar } from '@/components/Sidebar';
+import { AttributionFooter } from '@/components/AttributionFooter';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { THEME_BOOTSTRAP_SCRIPT } from '@/lib/theme';
 
@@ -41,7 +42,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <RouteWarmup />
           <Sidebar />
           <div className="pl-[var(--scas-sidebar-w,15rem)] transition-[padding] duration-200 ease-out">
-            <main className="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">{children}</main>
+            <main className="mx-auto max-w-6xl px-6 py-8 lg:px-10 lg:py-10">
+              {children}
+              <AttributionFooter />
+            </main>
           </div>
         </ThemeProvider>
       </body>

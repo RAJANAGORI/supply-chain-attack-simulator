@@ -161,24 +161,42 @@ export default function ClassroomPage() {
 
       <div className="mt-6">
         <Card
-          title="Progress board"
+          title="Leaderboard"
           subtitle={room?.code ? `${room.students.length} joined · ${room.title}` : 'Create or join a session'}
         >
           {!room?.code || room.students.length === 0 ? (
             <p className="text-sm text-ink-muted">No students yet.</p>
           ) : (
-            <ul className="divide-y divide-line">
-              {room.students.map((s) => (
-                <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
-                  <span className="font-medium text-ink-primary">{s.name}</span>
-                  <span className="text-xs text-ink-muted">
-                    {s.lastScenarioId ? `Lab ${s.lastScenarioId}` : '-'}
-                    {s.lastStepId ? ` · ${s.lastStepId}` : ''}
-                    {` · ${s.completedSteps} steps`}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <ol className="divide-y divide-line">
+              {[...room.students]
+                .sort((a, b) => (b.points ?? 0) - (a.points ?? 0) || b.completedSteps - a.completedSteps)
+                .map((s, rank) => (
+                  <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
+                    <span className="flex items-center gap-3">
+                      <span
+                        className={`flex h-6 w-6 items-center justify-center rounded-md text-[11px] font-semibold ${
+                          rank === 0
+                            ? 'bg-brand text-white'
+                            : 'bg-canvas-hover text-ink-muted'
+                        }`}
+                      >
+                        {rank + 1}
+                      </span>
+                      <span className="font-medium text-ink-primary">{s.name}</span>
+                    </span>
+                    <span className="text-xs text-ink-muted">
+                      {s.lastScenarioId ? `Lab ${s.lastScenarioId}` : '-'}
+                      {s.lastStepId ? ` · ${s.lastStepId}` : ''}
+                      {` · ${s.completedSteps} steps`}
+                      {s.points != null && (
+                        <span className="ml-2 rounded-full border border-brand/30 bg-brand/10 px-2 py-0.5 font-medium text-brand">
+                          {s.points} pts
+                        </span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+            </ol>
           )}
         </Card>
       </div>
