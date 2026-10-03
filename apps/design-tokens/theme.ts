@@ -3,8 +3,8 @@ export type ScasTheme = 'light' | 'dark';
 
 export const SCAS_THEME_KEY = 'scas-theme';
 export const SCAS_THEME_META: Record<ScasTheme, string> = {
-  light: '#2f27ce',
-  dark: '#050315',
+  light: '#d81f3f',
+  dark: '#0d1117',
 };
 
 export function readStoredTheme(): ScasTheme {
