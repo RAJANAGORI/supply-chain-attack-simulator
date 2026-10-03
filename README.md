@@ -23,7 +23,9 @@ Pick one path. The rest of the docs are linked so you do not have to read this w
 
 ## What this is
 
-Twenty-five small labs under `scenarios/` (`01-` through `23-`). Each one walks through an attack, shows how you might detect it, and points at mitigations. You mostly work from the CLI; there is an optional [localhost dashboard](documentation/platform/DASHBOARD.md) if you want a UI.
+Twenty-five small labs under `scenarios/` (`01-` through `25-`). Each one walks through an attack, shows how you might detect it, and points at mitigations. You mostly work from the CLI; there is an optional [localhost dashboard](documentation/platform/DASHBOARD.md) if you want a UI.
+
+The dashboard turns each lab into a graded exercise: a blind **spot-the-attack drill** before anything is labeled, a **quiz gate** drawn from the lab's DETECT.md, a **purple-team reversal** where your own blocklist has to hold, **campaigns** that chain labs into one intrusion, and an **assessment score** with a printable certificate. See [DASHBOARD.md](documentation/platform/DASHBOARD.md).
 
 Guides and learning paths live in [`documentation/`](documentation/index.md). Malicious bits only run when you opt in (for example `TESTBENCH_MODE=enabled`), and exfiltration stays aimed at localhost - see [Security notice](#security-notice).
 
