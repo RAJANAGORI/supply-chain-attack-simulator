@@ -1,96 +1,103 @@
 /**
- * SCAS shared design tokens — aligned with docs site (Realtime Colors brand).
+ * SCAS shared design tokens - Red Team brand.
  * Storage key for theme toggle: localStorage['scas-theme'] = 'light' | 'dark'
  * Apply via <html data-theme="light|dark">
+ *
+ * Brand: charcoal + blood-red primary, cyan alert accent.
+ * Display: Oswald (condensed). Body: Inter. Mono: JetBrains Mono.
  */
 
 :root,
 [data-theme='light'] {
-  --scas-text: #050315;
-  --scas-bg: #fbfbfe;
-  --scas-primary: #2f27ce;
-  --scas-secondary: #dedcff;
-  --scas-accent: #433bff;
+  --scas-text: #17130f;
+  --scas-bg: #f6f4f1;
+  --scas-primary: #d81f3f;
+  --scas-secondary: #e9e4dd;
+  --scas-accent: #0e7490;
 
-  --scas-text-muted: rgba(5, 3, 21, 0.62);
-  --scas-text-faint: rgba(5, 3, 21, 0.42);
-  --scas-border: rgba(5, 3, 21, 0.1);
-  --scas-border-strong: rgba(47, 39, 206, 0.28);
+  --scas-text-muted: rgba(23, 19, 15, 0.62);
+  --scas-text-faint: rgba(23, 19, 15, 0.42);
+  --scas-border: rgba(23, 19, 15, 0.12);
+  --scas-border-strong: rgba(216, 31, 63, 0.4);
   --scas-surface: #ffffff;
-  --scas-surface-soft: #dedcff;
-  --scas-primary-soft: rgba(47, 39, 206, 0.1);
-  --scas-accent-glow: rgba(67, 59, 255, 0.22);
-  --scas-nav-bg: rgba(251, 251, 254, 0.78);
-  --scas-panel-shadow: 0 8px 28px rgba(47, 39, 206, 0.08);
+  --scas-surface-soft: #efe9e2;
+  --scas-primary-soft: rgba(216, 31, 63, 0.08);
+  --scas-accent-glow: rgba(14, 116, 144, 0.2);
+  --scas-nav-bg: rgba(246, 244, 241, 0.8);
+  --scas-panel-shadow: 0 8px 28px rgba(216, 31, 63, 0.08);
 
-  --scas-canvas: #fbfbfe;
+  --scas-canvas: #f6f4f1;
   --scas-canvas-elevated: #ffffff;
   --scas-canvas-surface: #ffffff;
-  --scas-canvas-hover: #dedcff;
-  --scas-canvas-overlay: #f3f2ff;
-  --scas-line: rgba(5, 3, 21, 0.1);
-  --scas-line-subtle: rgba(5, 3, 21, 0.06);
-  --scas-line-strong: rgba(47, 39, 206, 0.28);
-  --scas-ink: #050315;
-  --scas-ink-secondary: rgba(5, 3, 21, 0.72);
-  --scas-ink-muted: rgba(5, 3, 21, 0.55);
-  --scas-ink-faint: rgba(5, 3, 21, 0.4);
-  --scas-brand: #2f27ce;
-  --scas-brand-light: #433bff;
-  --scas-brand-dark: #241d9e;
-  --scas-brand-glow: rgba(67, 59, 255, 0.18);
+  --scas-canvas-hover: #efe9e2;
+  --scas-canvas-overlay: #f0ebe6;
+  --scas-line: rgba(23, 19, 15, 0.12);
+  --scas-line-subtle: rgba(23, 19, 15, 0.06);
+  --scas-line-strong: rgba(216, 31, 63, 0.4);
+  --scas-ink: #17130f;
+  --scas-ink-secondary: rgba(23, 19, 15, 0.74);
+  --scas-ink-muted: rgba(23, 19, 15, 0.56);
+  --scas-ink-faint: rgba(23, 19, 15, 0.4);
+  --scas-brand: #d81f3f;
+  --scas-brand-light: #ff2d55;
+  --scas-brand-dark: #a51530;
+  --scas-brand-glow: rgba(216, 31, 63, 0.16);
 
-  --scas-ok: #059669;
-  --scas-warn: #d97706;
-  --scas-error: #e11d48;
+  --scas-ok: #0e7490;
+  --scas-warn: #b45309;
+  --scas-error: #d81f3f;
 
-  --scas-font-display: 'Syne', system-ui, sans-serif;
-  --scas-font-sans: 'DM Sans', system-ui, sans-serif;
-  --scas-font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --scas-font-display: var(--font-lab-oswald, 'Oswald'), system-ui, sans-serif;
+  --scas-font-sans: var(--font-lab-sans, 'Inter'), system-ui, sans-serif;
+  --scas-font-mono: var(--font-mono, 'JetBrains Mono'), ui-monospace, Menlo, monospace;
 
-  --scas-aurora: linear-gradient(115deg, #2f27ce 0%, #433bff 42%, #dedcff 78%, #2f27ce 100%);
+  --scas-aurora: linear-gradient(115deg, #d81f3f 0%, #ff2d55 45%, #0e7490 100%);
   color-scheme: light;
 }
 
 [data-theme='dark'] {
-  --scas-text: #fbfbfe;
-  --scas-bg: #050315;
-  --scas-primary: #433bff;
-  --scas-secondary: #16142a;
-  --scas-accent: #dedcff;
+  --scas-text: #eceff1;
+  --scas-bg: #0d1117;
+  --scas-primary: #ff2d55;
+  --scas-secondary: #161d27;
+  --scas-accent: #22d3ee;
 
-  --scas-text-muted: rgba(251, 251, 254, 0.72);
-  --scas-text-faint: rgba(251, 251, 254, 0.48);
-  --scas-border: rgba(251, 251, 254, 0.1);
-  --scas-border-strong: rgba(67, 59, 255, 0.4);
-  --scas-surface: #0c0b14;
-  --scas-surface-soft: #16142a;
-  --scas-primary-soft: rgba(67, 59, 255, 0.18);
-  --scas-accent-glow: rgba(67, 59, 255, 0.35);
-  --scas-nav-bg: rgba(5, 3, 21, 0.82);
-  --scas-panel-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --scas-text-muted: rgba(236, 239, 241, 0.68);
+  --scas-text-faint: rgba(236, 239, 241, 0.44);
+  --scas-border: rgba(236, 239, 241, 0.12);
+  --scas-border-strong: rgba(255, 45, 85, 0.5);
+  --scas-surface: #131a23;
+  --scas-surface-soft: #161d27;
+  --scas-primary-soft: rgba(255, 45, 85, 0.14);
+  --scas-accent-glow: rgba(34, 211, 238, 0.3);
+  --scas-nav-bg: rgba(13, 17, 23, 0.86);
+  --scas-panel-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
 
-  --scas-canvas: #050315;
-  --scas-canvas-elevated: #0c0b14;
-  --scas-canvas-surface: #12101c;
-  --scas-canvas-hover: #16142a;
-  --scas-canvas-overlay: #1a1730;
-  --scas-line: rgba(251, 251, 254, 0.1);
-  --scas-line-subtle: rgba(251, 251, 254, 0.06);
-  --scas-line-strong: rgba(67, 59, 255, 0.4);
-  --scas-ink: #fbfbfe;
-  --scas-ink-secondary: rgba(251, 251, 254, 0.72);
-  --scas-ink-muted: rgba(251, 251, 254, 0.55);
-  --scas-ink-faint: rgba(251, 251, 254, 0.4);
-  --scas-brand: #433bff;
-  --scas-brand-light: #dedcff;
-  --scas-brand-dark: #2f27ce;
-  --scas-brand-glow: rgba(67, 59, 255, 0.28);
+  --scas-canvas: #0d1117;
+  --scas-canvas-elevated: #131a23;
+  --scas-canvas-surface: #161d27;
+  --scas-canvas-hover: #1b232e;
+  --scas-canvas-overlay: #1f2833;
+  --scas-line: rgba(236, 239, 241, 0.12);
+  --scas-line-subtle: rgba(236, 239, 241, 0.06);
+  --scas-line-strong: rgba(255, 45, 85, 0.5);
+  --scas-ink: #eceff1;
+  --scas-ink-secondary: rgba(236, 239, 241, 0.74);
+  --scas-ink-muted: rgba(236, 239, 241, 0.56);
+  --scas-ink-faint: rgba(236, 239, 241, 0.4);
+  --scas-brand: #ff2d55;
+  --scas-brand-light: #ff6b85;
+  --scas-brand-dark: #c81e3f;
+  --scas-brand-glow: rgba(255, 45, 85, 0.32);
 
-  --scas-ok: #34d399;
-  --scas-warn: #fbbf24;
-  --scas-error: #ff4d5e;
+  --scas-ok: #22d3ee;
+  --scas-warn: #ffb020;
+  --scas-error: #ff2d55;
 
-  --scas-aurora: linear-gradient(115deg, #2f27ce 0%, #433bff 42%, #dedcff 78%, #2f27ce 100%);
+  --scas-font-display: var(--font-lab-oswald, 'Oswald'), system-ui, sans-serif;
+  --scas-font-sans: var(--font-lab-sans, 'Inter'), system-ui, sans-serif;
+  --scas-font-mono: var(--font-mono, 'JetBrains Mono'), ui-monospace, Menlo, monospace;
+
+  --scas-aurora: linear-gradient(115deg, #0d1117 0%, #ff2d55 55%, #22d3ee 100%);
   color-scheme: dark;
 }
