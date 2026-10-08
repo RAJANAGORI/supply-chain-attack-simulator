@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "53811c4f-06b6-44ce-85d5-43b238c9396c",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-22-litellm-pypi-compromise/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-22-litellm-pypi-compromise/scenario-22.html",
+  "specification": {
+    "sha256": "3862dad9f58026b3a453ee5cfbfc7e237335e57960341f7d83203cdf365ea47f",
+    "bytes": 8652
+  },
+  "artifact": {
+    "sha256": "1e382760d25fd68970a9c9421507d8571e95e314f2edd35cd0aa479ee679b34b",
+    "bytes": 768361
+  }
+}

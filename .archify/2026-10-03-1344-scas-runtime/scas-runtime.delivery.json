@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "8d1be331-511a-4ffe-b20d-4e0e532226b5",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-1344-scas-runtime/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-1344-scas-runtime/scas-runtime.html",
+  "specification": {
+    "sha256": "74ff98542a044c04b8f4cb12f11489d64cb53777cb533359b9fc008d40405e00",
+    "bytes": 7188
+  },
+  "artifact": {
+    "sha256": "df1847d1256e055176a8f4ecdc0a8677f5f7dafb969117ed9028303ee74fe247",
+    "bytes": 763366
+  }
+}

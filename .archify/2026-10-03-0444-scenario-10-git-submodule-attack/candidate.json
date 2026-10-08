@@ -1,0 +1,348 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SCAS scenario 10 git submodule",
+    "locale": "en",
+    "output": ".archify/2026-10-03-0444-scenario-10-git-submodule-attack/scenario-10.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "2135859af764a3e9bf882a9b1a3ebd3185059cb2"
+    }
+  },
+  "components": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "operator shell",
+      "pos": [
+        84,
+        220
+      ],
+      "size": [
+        132,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/setup.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "Scenario setup",
+      "sublabel": "10/setup.sh",
+      "pos": [
+        66,
+        430
+      ],
+      "size": [
+        168,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/setup.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "TESTBENCH_MODE",
+      "sublabel": "must be enabled",
+      "pos": [
+        354,
+        430
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/_shared/enable-testbench.sh",
+          "line": 15,
+          "end_line": 15,
+          "label": "export enabled"
+        },
+        {
+          "path": "scenarios/10-git-submodule-attack/malicious-submodule/postinstall.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "payload gate"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "Victim app",
+      "sublabel": "postinstall.sh",
+      "pos": [
+        326,
+        220
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/run-attack.sh",
+          "line": 21,
+          "end_line": 22,
+          "label": "npm install clone"
+        }
+      ]
+    },
+    {
+      "id": "payload",
+      "type": "security",
+      "label": "Lab payload",
+      "sublabel": "postinstall.sh",
+      "pos": [
+        596,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/malicious-submodule/postinstall.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "gate before send"
+        },
+        {
+          "path": "scenarios/10-git-submodule-attack/malicious-submodule/postinstall.sh",
+          "line": 24,
+          "end_line": 24,
+          "label": "localhost collector"
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": "HTTP :3000",
+      "pos": [
+        952,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/infrastructure/mock-server.js",
+          "line": 5,
+          "end_line": 5,
+          "label": "listen port"
+        },
+        {
+          "path": "scenarios/10-git-submodule-attack/infrastructure/mock-server.js",
+          "line": 13,
+          "end_line": 13,
+          "label": "POST route"
+        },
+        {
+          "path": "scenarios/10-git-submodule-attack/infrastructure/mock-server.js",
+          "line": 38,
+          "end_line": 38,
+          "label": "optional ES forward"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "database",
+      "label": "Capture file",
+      "sublabel": "captured-data.json",
+      "pos": [
+        860,
+        500
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/infrastructure/mock-server.js",
+          "line": 6,
+          "end_line": 6,
+          "label": "capture path"
+        }
+      ]
+    },
+    {
+      "id": "esIndex",
+      "type": "database",
+      "label": "scas-detections",
+      "sublabel": "optional ES",
+      "pos": [
+        1188,
+        500
+      ],
+      "size": [
+        176,
+        64
+      ],
+      "sources": [
+        {
+          "path": "detection-tools/es/forward-capture.js",
+          "line": 27,
+          "end_line": 33,
+          "label": "no-op without URL"
+        }
+      ]
+    },
+    {
+      "id": "twist",
+      "type": "backend",
+      "label": "gitmodules",
+      "sublabel": "malicious-submodule",
+      "pos": [
+        580,
+        48
+      ],
+      "size": [
+        188,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/compromised-repo/.gitmodules",
+          "line": 5,
+          "end_line": 7,
+          "label": "extra submodule"
+        },
+        {
+          "path": "scenarios/10-git-submodule-attack/legitimate-repo/.gitmodules",
+          "line": 1,
+          "end_line": 1,
+          "label": "only legitimate-lib"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Scenario 10 lab host",
+      "wraps": [
+        "setup",
+        "gate",
+        "victim",
+        "payload",
+        "mock",
+        "capture",
+        "twist"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "learner-setup",
+      "from": "learner",
+      "to": "setup",
+      "label": "run setup.sh",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "setup-gate",
+      "from": "setup",
+      "to": "gate",
+      "label": "export enabled",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "learner-victim",
+      "from": "learner",
+      "to": "victim",
+      "label": "run hook",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-payload",
+      "from": "victim",
+      "to": "payload",
+      "label": "postinstall"
+    },
+    {
+      "id": "payload-mock",
+      "from": "payload",
+      "to": "mock",
+      "label": "POST /collect if enabled",
+      "variant": "security"
+    },
+    {
+      "id": "mock-capture",
+      "from": "mock",
+      "to": "capture",
+      "label": "append JSON",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "mock-es",
+      "from": "mock",
+      "to": "esIndex",
+      "label": "if SCAS_ES_URL",
+      "variant": "dashed"
+    },
+    {
+      "id": "payload-twist",
+      "from": "payload",
+      "to": "twist",
+      "label": "submodule url",
+      "fromSide": "top",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Submodule",
+      "items": [
+        "compromised-repo/.gitmodules adds libs/malicious-submodule",
+        "legitimate-repo/.gitmodules only lists legitimate-lib",
+        "run-attack.sh clones with --recurse-submodules, then npm install runs postinstall.sh"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Collector",
+      "items": [
+        "postinstall.sh curls localhost:3000/collect only when TESTBENCH_MODE is enabled"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Optional sink",
+      "items": [
+        "forwardCaptureIfEnabled returns null when SCAS_ES_URL is unset"
+      ]
+    }
+  ]
+}

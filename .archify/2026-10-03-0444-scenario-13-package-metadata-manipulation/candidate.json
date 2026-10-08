@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SCAS scenario 13 metadata manipulation",
+    "locale": "en",
+    "output": ".archify/2026-10-03-0444-scenario-13-package-metadata-manipulation/scenario-13.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "2135859af764a3e9bf882a9b1a3ebd3185059cb2"
+    }
+  },
+  "components": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "operator shell",
+      "pos": [
+        84,
+        220
+      ],
+      "size": [
+        132,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/setup.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "Scenario setup",
+      "sublabel": "13/setup.sh",
+      "pos": [
+        66,
+        430
+      ],
+      "size": [
+        168,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/setup.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "TESTBENCH_MODE",
+      "sublabel": "must be enabled",
+      "pos": [
+        354,
+        430
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/_shared/enable-testbench.sh",
+          "line": 15,
+          "end_line": 15,
+          "label": "export enabled"
+        },
+        {
+          "path": "scenarios/13-package-metadata-manipulation/compromised-packages/clean-utils/postinstall.js",
+          "line": 4,
+          "end_line": 4,
+          "label": "payload gate"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "Victim app",
+      "sublabel": "clean-utils",
+      "pos": [
+        326,
+        220
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/victim-app/index.js",
+          "line": 1,
+          "end_line": 1,
+          "label": "require clean-utils"
+        }
+      ]
+    },
+    {
+      "id": "payload",
+      "type": "security",
+      "label": "Lab payload",
+      "sublabel": "clean-utils",
+      "pos": [
+        596,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/compromised-packages/clean-utils/postinstall.js",
+          "line": 4,
+          "end_line": 4,
+          "label": "gate before send"
+        },
+        {
+          "path": "scenarios/13-package-metadata-manipulation/compromised-packages/clean-utils/postinstall.js",
+          "line": 19,
+          "end_line": 21,
+          "label": "localhost collector"
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": "HTTP :3001",
+      "pos": [
+        952,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/infrastructure/mock-server.js",
+          "line": 68,
+          "end_line": 68,
+          "label": "listen port"
+        },
+        {
+          "path": "scenarios/13-package-metadata-manipulation/infrastructure/mock-server.js",
+          "line": 31,
+          "end_line": 31,
+          "label": "POST route"
+        },
+        {
+          "path": "scenarios/13-package-metadata-manipulation/infrastructure/mock-server.js",
+          "line": 46,
+          "end_line": 46,
+          "label": "optional ES forward"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "database",
+      "label": "Capture file",
+      "sublabel": "captured-data.json",
+      "pos": [
+        860,
+        500
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/infrastructure/mock-server.js",
+          "line": 6,
+          "end_line": 6,
+          "label": "capture path"
+        }
+      ]
+    },
+    {
+      "id": "esIndex",
+      "type": "database",
+      "label": "scas-detections",
+      "sublabel": "optional ES",
+      "pos": [
+        1188,
+        500
+      ],
+      "size": [
+        176,
+        64
+      ],
+      "sources": [
+        {
+          "path": "detection-tools/es/forward-capture.js",
+          "line": 27,
+          "end_line": 33,
+          "label": "no-op without URL"
+        }
+      ]
+    },
+    {
+      "id": "twist",
+      "type": "backend",
+      "label": "Registry meta",
+      "sublabel": "repo URL differs",
+      "pos": [
+        580,
+        48
+      ],
+      "size": [
+        188,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/legitimate-packages/clean-utils/package.json",
+          "line": 2,
+          "end_line": 8,
+          "label": "clean repository"
+        },
+        {
+          "path": "scenarios/13-package-metadata-manipulation/compromised-packages/clean-utils/package.json",
+          "line": 6,
+          "end_line": 9,
+          "label": "mirror repository"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Scenario 13 lab host",
+      "wraps": [
+        "setup",
+        "gate",
+        "victim",
+        "payload",
+        "mock",
+        "capture",
+        "twist"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "learner-setup",
+      "from": "learner",
+      "to": "setup",
+      "label": "run setup.sh",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "setup-gate",
+      "from": "setup",
+      "to": "gate",
+      "label": "export enabled",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "learner-victim",
+      "from": "learner",
+      "to": "victim",
+      "label": "npm install",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-payload",
+      "from": "victim",
+      "to": "payload",
+      "label": "postinstall"
+    },
+    {
+      "id": "payload-mock",
+      "from": "payload",
+      "to": "mock",
+      "label": "POST /capture if enabled",
+      "variant": "security"
+    },
+    {
+      "id": "mock-capture",
+      "from": "mock",
+      "to": "capture",
+      "label": "append JSON",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "mock-es",
+      "from": "mock",
+      "to": "esIndex",
+      "label": "if SCAS_ES_URL",
+      "variant": "dashed"
+    },
+    {
+      "id": "payload-twist",
+      "from": "payload",
+      "to": "twist",
+      "label": "URL mismatch",
+      "fromSide": "top",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Metadata mismatch",
+      "items": [
+        "Legitimate clean-utils 1.0.0 points repository at github.com/example/clean-utils",
+        "Compromised 1.0.1 points repository at malicious-mirror.example and adds a postinstall",
+        "postinstall returns unless TESTBENCH_MODE is enabled"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Collector",
+      "items": [
+        "POST /capture goes to 127.0.0.1:3001",
+        "The mock also accepts /collect"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Optional sink",
+      "items": [
+        "forwardCaptureIfEnabled returns null when SCAS_ES_URL is unset"
+      ]
+    }
+  ]
+}

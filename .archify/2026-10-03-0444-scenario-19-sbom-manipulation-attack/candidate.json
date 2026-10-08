@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SCAS scenario 19 SBOM manipulation",
+    "locale": "en",
+    "output": ".archify/2026-10-03-0444-scenario-19-sbom-manipulation-attack/scenario-19.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "2135859af764a3e9bf882a9b1a3ebd3185059cb2"
+    }
+  },
+  "components": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "operator shell",
+      "pos": [
+        84,
+        220
+      ],
+      "size": [
+        132,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/setup.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "Scenario setup",
+      "sublabel": "19/setup.sh",
+      "pos": [
+        66,
+        430
+      ],
+      "size": [
+        168,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/setup.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "TESTBENCH_MODE",
+      "sublabel": "must be enabled",
+      "pos": [
+        354,
+        430
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/_shared/enable-testbench.sh",
+          "line": 15,
+          "end_line": 15,
+          "label": "export enabled"
+        },
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/sbom/malicious-sbom-generator.js",
+          "line": 8,
+          "end_line": 9,
+          "label": "payload gate"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "Victim app",
+      "sublabel": "sbom generator",
+      "pos": [
+        326,
+        220
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/victim-app/index.js",
+          "line": 13,
+          "end_line": 13,
+          "label": "require generator"
+        }
+      ]
+    },
+    {
+      "id": "payload",
+      "type": "security",
+      "label": "Lab payload",
+      "sublabel": "sbom generator",
+      "pos": [
+        596,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/sbom/malicious-sbom-generator.js",
+          "line": 8,
+          "end_line": 9,
+          "label": "gate before send"
+        },
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/sbom/malicious-sbom-generator.js",
+          "line": 17,
+          "end_line": 19,
+          "label": "localhost collector"
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": "HTTP :3019",
+      "pos": [
+        952,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/infrastructure/mock-server.js",
+          "line": 12,
+          "end_line": 12,
+          "label": "listen port"
+        },
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/infrastructure/mock-server.js",
+          "line": 31,
+          "end_line": 31,
+          "label": "POST route"
+        },
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/infrastructure/mock-server.js",
+          "line": 45,
+          "end_line": 45,
+          "label": "optional ES forward"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "database",
+      "label": "Capture file",
+      "sublabel": "captured-data.json",
+      "pos": [
+        860,
+        500
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/infrastructure/mock-server.js",
+          "line": 13,
+          "end_line": 13,
+          "label": "capture path"
+        }
+      ]
+    },
+    {
+      "id": "esIndex",
+      "type": "database",
+      "label": "scas-detections",
+      "sublabel": "optional ES",
+      "pos": [
+        1188,
+        500
+      ],
+      "size": [
+        176,
+        64
+      ],
+      "sources": [
+        {
+          "path": "detection-tools/es/forward-capture.js",
+          "line": 27,
+          "end_line": 33,
+          "label": "no-op without URL"
+        }
+      ]
+    },
+    {
+      "id": "twist",
+      "type": "database",
+      "label": "Ground truth",
+      "sublabel": "malicious-lib",
+      "pos": [
+        580,
+        48
+      ],
+      "size": [
+        188,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/truth/dependencies.json",
+          "line": 2,
+          "end_line": 7,
+          "label": "omitted name"
+        },
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/sbom/malicious-sbom-generator.js",
+          "line": 40,
+          "end_line": 41,
+          "label": "filter omit list"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Scenario 19 lab host",
+      "wraps": [
+        "setup",
+        "gate",
+        "victim",
+        "payload",
+        "mock",
+        "capture",
+        "twist"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "learner-setup",
+      "from": "learner",
+      "to": "setup",
+      "label": "run setup.sh",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "setup-gate",
+      "from": "setup",
+      "to": "gate",
+      "label": "export enabled",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "learner-victim",
+      "from": "learner",
+      "to": "victim",
+      "label": "run victim",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-payload",
+      "from": "victim",
+      "to": "payload",
+      "label": "generate"
+    },
+    {
+      "id": "payload-mock",
+      "from": "payload",
+      "to": "mock",
+      "label": "POST /collect if enabled",
+      "variant": "security"
+    },
+    {
+      "id": "mock-capture",
+      "from": "mock",
+      "to": "capture",
+      "label": "append JSON",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "mock-es",
+      "from": "mock",
+      "to": "esIndex",
+      "label": "if SCAS_ES_URL",
+      "variant": "dashed"
+    },
+    {
+      "id": "payload-twist",
+      "from": "payload",
+      "to": "twist",
+      "label": "omitted name",
+      "fromSide": "top",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Omitted name",
+      "items": [
+        "truth/dependencies.json lists safe-lib and malicious-lib",
+        "maliciousOmitted is malicious-lib",
+        "generateSbom filters that name out of the written SBOM, and POSTs only if TESTBENCH_MODE is enabled"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Two files",
+      "items": [
+        "The public SBOM is victim-app/sbom.json",
+        "The mock on port 3019 receives the evidence POST at /collect"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Optional sink",
+      "items": [
+        "forwardCaptureIfEnabled returns null when SCAS_ES_URL is unset"
+      ]
+    }
+  ]
+}

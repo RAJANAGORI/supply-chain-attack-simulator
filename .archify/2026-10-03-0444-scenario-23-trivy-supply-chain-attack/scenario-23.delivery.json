@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "9f7e5c6f-62b7-4c32-a4bd-840a9efdb9ec",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-23-trivy-supply-chain-attack/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-23-trivy-supply-chain-attack/scenario-23.html",
+  "specification": {
+    "sha256": "1572fa51b5a26864b191930495d33401184ecd89317e9aed1b200f2b7d2a0c63",
+    "bytes": 7458
+  },
+  "artifact": {
+    "sha256": "ac2294fe2358ee263f8be0668b327bab5a660257b13968693cef89c9addb9674",
+    "bytes": 765002
+  }
+}

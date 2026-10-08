@@ -1,0 +1,342 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SCAS scenario 23 Trivy action",
+    "locale": "en",
+    "output": ".archify/2026-10-03-0444-scenario-23-trivy-supply-chain-attack/scenario-23.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "2135859af764a3e9bf882a9b1a3ebd3185059cb2"
+    }
+  },
+  "components": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "operator shell",
+      "pos": [
+        84,
+        220
+      ],
+      "size": [
+        132,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/setup.sh",
+          "line": 7,
+          "end_line": 7,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "Scenario setup",
+      "sublabel": "23/setup.sh",
+      "pos": [
+        66,
+        430
+      ],
+      "size": [
+        168,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/setup.sh",
+          "line": 7,
+          "end_line": 7,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "TESTBENCH_MODE",
+      "sublabel": "must be enabled",
+      "pos": [
+        354,
+        430
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/_shared/enable-testbench.sh",
+          "line": 15,
+          "end_line": 15,
+          "label": "export enabled"
+        },
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/malicious-trivy/v0.69.4/trivy-action-like.js",
+          "line": 38,
+          "end_line": 38,
+          "label": "payload gate"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "Victim app",
+      "sublabel": "trivy-action-like",
+      "pos": [
+        326,
+        220
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/victim-ci/run-pipeline.js",
+          "line": 41,
+          "end_line": 41,
+          "label": "require trivy action"
+        }
+      ]
+    },
+    {
+      "id": "payload",
+      "type": "security",
+      "label": "Lab payload",
+      "sublabel": "trivy-action-like",
+      "pos": [
+        596,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/malicious-trivy/v0.69.4/trivy-action-like.js",
+          "line": 38,
+          "end_line": 38,
+          "label": "gate before send"
+        },
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/malicious-trivy/v0.69.4/trivy-action-like.js",
+          "line": 82,
+          "end_line": 84,
+          "label": "localhost collector"
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": "HTTP :3023",
+      "pos": [
+        952,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/infrastructure/mock-c2-server.js",
+          "line": 15,
+          "end_line": 15,
+          "label": "listen port"
+        },
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/infrastructure/mock-c2-server.js",
+          "line": 24,
+          "end_line": 24,
+          "label": "POST route"
+        },
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/infrastructure/mock-c2-server.js",
+          "line": 52,
+          "end_line": 52,
+          "label": "optional ES forward"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "database",
+      "label": "Capture file",
+      "sublabel": "captured-data.json",
+      "pos": [
+        860,
+        500
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/infrastructure/mock-c2-server.js",
+          "line": 16,
+          "end_line": 16,
+          "label": "capture path"
+        }
+      ]
+    },
+    {
+      "id": "esIndex",
+      "type": "database",
+      "label": "scas-detections",
+      "sublabel": "optional ES",
+      "pos": [
+        1188,
+        500
+      ],
+      "size": [
+        176,
+        64
+      ],
+      "sources": [
+        {
+          "path": "detection-tools/es/forward-capture.js",
+          "line": 27,
+          "end_line": 33,
+          "label": "no-op without URL"
+        }
+      ]
+    },
+    {
+      "id": "twist",
+      "type": "backend",
+      "label": "Workflow",
+      "sublabel": "local trivy action",
+      "pos": [
+        580,
+        48
+      ],
+      "size": [
+        188,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/victim-ci/.github/workflows/ci.yml",
+          "line": 38,
+          "end_line": 40,
+          "label": "uses local action"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Scenario 23 lab host",
+      "wraps": [
+        "setup",
+        "gate",
+        "victim",
+        "payload",
+        "mock",
+        "capture",
+        "twist"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "learner-setup",
+      "from": "learner",
+      "to": "setup",
+      "label": "run setup.sh",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "setup-gate",
+      "from": "setup",
+      "to": "gate",
+      "label": "export enabled",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "learner-victim",
+      "from": "learner",
+      "to": "victim",
+      "label": "run victim",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-payload",
+      "from": "victim",
+      "to": "payload",
+      "label": "on require"
+    },
+    {
+      "id": "payload-mock",
+      "from": "payload",
+      "to": "mock",
+      "label": "POST /collect if enabled",
+      "variant": "security"
+    },
+    {
+      "id": "mock-capture",
+      "from": "mock",
+      "to": "capture",
+      "label": "append JSON",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "mock-es",
+      "from": "mock",
+      "to": "esIndex",
+      "label": "if SCAS_ES_URL",
+      "variant": "dashed"
+    },
+    {
+      "id": "payload-twist",
+      "from": "payload",
+      "to": "twist",
+      "label": "not a SHA",
+      "fromSide": "top",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Workflow pin",
+      "items": [
+        "victim-ci workflow uses ./.github/actions/trivy-compromised",
+        "The comment records the lab story: a force-pushed tag, not a SHA pin",
+        "trivy-action-like returns before POST unless TESTBENCH_MODE is enabled"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Collector",
+      "items": [
+        "POST /collect goes to 127.0.0.1:3023"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Optional sink",
+      "items": [
+        "forwardCaptureIfEnabled returns null when SCAS_ES_URL is unset"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SCAS lab runtime",
+    "locale": "en",
+    "output": ".archify/2026-10-03-1344-scas-runtime/scas-runtime.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "2135859af764a3e9bf882a9b1a3ebd3185059cb2"
+    }
+  },
+  "components": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "operator shell",
+      "pos": [80, 56],
+      "size": [136, 64],
+      "sources": [
+        {
+          "path": "README.md",
+          "line": 107,
+          "end_line": 113,
+          "label": "canonical lab commands"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "Scenario setup",
+      "sublabel": "setup.sh",
+      "pos": [64, 276],
+      "size": [168, 64],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/setup.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "TESTBENCH_MODE",
+      "sublabel": "must be enabled",
+      "pos": [352, 276],
+      "size": [176, 64],
+      "sources": [
+        {
+          "path": "scenarios/_shared/enable-testbench.sh",
+          "line": 15,
+          "end_line": 15,
+          "label": "export enabled"
+        },
+        {
+          "path": "scenarios/01-typosquatting/malicious-packages/request-lib/index.js",
+          "line": 34,
+          "end_line": 37,
+          "label": "return unless enabled"
+        },
+        {
+          "path": "scenarios/_shared/testbench-env.js",
+          "line": 1,
+          "end_line": 3,
+          "label": "preload if unset"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "Victim app",
+      "sublabel": "lab process",
+      "pos": [326, 56],
+      "size": [156, 64],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/victim-app/package.json",
+          "line": 7,
+          "end_line": 7,
+          "label": "npm start preload"
+        },
+        {
+          "path": "scenarios/01-typosquatting/victim-app/index.js",
+          "line": 12,
+          "end_line": 12,
+          "label": "require request-lib"
+        }
+      ]
+    },
+    {
+      "id": "payload",
+      "type": "security",
+      "label": "Lab payload",
+      "sublabel": "gated package",
+      "pos": [612, 56],
+      "size": [156, 64],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/malicious-packages/request-lib/index.js",
+          "line": 34,
+          "end_line": 37,
+          "label": "gate before send"
+        },
+        {
+          "path": "scenarios/01-typosquatting/malicious-packages/request-lib/index.js",
+          "line": 65,
+          "end_line": 69,
+          "label": "localhost:3000/collect"
+        },
+        {
+          "path": "scenarios/01-typosquatting/malicious-packages/request-lib/index.js",
+          "line": 96,
+          "end_line": 97,
+          "label": "runs on require"
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "type": "backend",
+      "label": "Mock collector",
+      "sublabel": "HTTP :3000",
+      "pos": [958, 56],
+      "size": [156, 64],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/infrastructure/mock-server.js",
+          "line": 19,
+          "end_line": 19,
+          "label": "POST /collect"
+        },
+        {
+          "path": "scenarios/01-typosquatting/infrastructure/mock-server.js",
+          "line": 41,
+          "end_line": 42,
+          "label": "append capture entry"
+        },
+        {
+          "path": "scenarios/01-typosquatting/infrastructure/mock-server.js",
+          "line": 75,
+          "end_line": 75,
+          "label": "listen on 3000"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "database",
+      "label": "Capture file",
+      "sublabel": "captured-data.json",
+      "pos": [944, 240],
+      "size": [184, 64],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/infrastructure/mock-server.js",
+          "line": 11,
+          "end_line": 11,
+          "label": "log file path"
+        }
+      ]
+    },
+    {
+      "id": "esIndex",
+      "type": "database",
+      "label": "scas-detections",
+      "sublabel": "optional ES",
+      "pos": [1208, 240],
+      "size": [168, 64],
+      "sources": [
+        {
+          "path": "detection-tools/es/forward-capture.js",
+          "line": 27,
+          "end_line": 33,
+          "label": "no-op without URL"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Localhost lab host",
+      "wraps": ["setup", "gate", "victim", "payload", "mock", "capture"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "learner-victim",
+      "from": "learner",
+      "to": "victim",
+      "label": "npm start",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-payload",
+      "from": "victim",
+      "to": "payload",
+      "label": "require package"
+    },
+    {
+      "id": "payload-mock",
+      "from": "payload",
+      "to": "mock",
+      "label": "POST /collect if enabled",
+      "variant": "security"
+    },
+    {
+      "id": "mock-capture",
+      "from": "mock",
+      "to": "capture",
+      "label": "append JSON",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "learner-setup",
+      "from": "learner",
+      "to": "setup",
+      "label": "run setup.sh",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "setup-gate",
+      "from": "setup",
+      "to": "gate",
+      "label": "export enabled",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "mock-es",
+      "from": "mock",
+      "to": "esIndex",
+      "label": "if SCAS_ES_URL",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Trust boundary",
+      "items": [
+        "Payloads return before any POST unless TESTBENCH_MODE is enabled",
+        "The canonical payload posts to localhost:3000/collect. Floci upload runs only if SCAS_FLOCI_ENABLED=1",
+        "The Node mock listens on port 3000 and does not pass a bind host"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Same contract, other labs",
+      "items": [
+        "Scenario 01 is the canonical collector. Other labs keep the same gate and forward hook",
+        "06 uses three localhost collectors. 22 uses a Python server bound to 127.0.0.1:3022",
+        "02 and 11 add a localhost registry. Ports and POST paths differ by lab"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Optional, not on this path",
+      "items": [
+        "forwardCaptureIfEnabled returns null when SCAS_ES_URL is unset",
+        "The dashboard script defaults Elasticsearch to 127.0.0.1:9200 and Kibana to 127.0.0.1:5601",
+        "start-dashboard.sh binds 0.0.0.0:3100 by default and probes 127.0.0.1:3100"
+      ]
+    }
+  ]
+}

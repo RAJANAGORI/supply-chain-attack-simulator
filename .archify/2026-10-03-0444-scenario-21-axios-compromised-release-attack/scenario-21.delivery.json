@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "5dcffd49-f503-49b8-8d7c-a948a6d7044e",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-21-axios-compromised-release-attack/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-21-axios-compromised-release-attack/scenario-21.html",
+  "specification": {
+    "sha256": "841095dc4f0c81c4eea7d81d61aa934b7006ae977267fc174c92a5781a5c24b8",
+    "bytes": 8310
+  },
+  "artifact": {
+    "sha256": "82ae6929357c8184c02640807ace6b4260c8b82fda3b7374179fd80f43547068",
+    "bytes": 767859
+  }
+}

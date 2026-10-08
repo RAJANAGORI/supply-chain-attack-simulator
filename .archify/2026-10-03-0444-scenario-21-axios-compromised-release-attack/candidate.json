@@ -1,0 +1,374 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SCAS scenario 21 compromised release",
+    "locale": "en",
+    "output": ".archify/2026-10-03-0444-scenario-21-axios-compromised-release-attack/scenario-21.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "2135859af764a3e9bf882a9b1a3ebd3185059cb2"
+    }
+  },
+  "components": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "operator shell",
+      "pos": [
+        84,
+        220
+      ],
+      "size": [
+        132,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/setup.sh",
+          "line": 7,
+          "end_line": 7,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "Scenario setup",
+      "sublabel": "21/setup.sh",
+      "pos": [
+        66,
+        430
+      ],
+      "size": [
+        168,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/setup.sh",
+          "line": 7,
+          "end_line": 7,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "TESTBENCH_MODE",
+      "sublabel": "must be enabled",
+      "pos": [
+        354,
+        430
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/_shared/enable-testbench.sh",
+          "line": 15,
+          "end_line": 15,
+          "label": "export enabled"
+        },
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/packages/plain-crypto-js-like/postinstall.js",
+          "line": 12,
+          "end_line": 12,
+          "label": "payload gate"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "Victim app",
+      "sublabel": "plain-crypto-js-like",
+      "pos": [
+        326,
+        220
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/victim-app/index.js",
+          "line": 8,
+          "end_line": 8,
+          "label": "transitive not imported"
+        }
+      ]
+    },
+    {
+      "id": "payload",
+      "type": "security",
+      "label": "Lab payload",
+      "sublabel": "plain-crypto-js-like",
+      "pos": [
+        596,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/packages/plain-crypto-js-like/postinstall.js",
+          "line": 12,
+          "end_line": 12,
+          "label": "gate before send"
+        },
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/packages/plain-crypto-js-like/postinstall.js",
+          "line": 43,
+          "end_line": 45,
+          "label": "localhost collector"
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": "HTTP :3021",
+      "pos": [
+        952,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/infrastructure/mock-server.js",
+          "line": 13,
+          "end_line": 13,
+          "label": "listen port"
+        },
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/infrastructure/mock-server.js",
+          "line": 41,
+          "end_line": 41,
+          "label": "POST route"
+        },
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/infrastructure/mock-server.js",
+          "line": 59,
+          "end_line": 59,
+          "label": "optional ES forward"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "database",
+      "label": "Capture file",
+      "sublabel": "captured-data.json",
+      "pos": [
+        860,
+        500
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/infrastructure/mock-server.js",
+          "line": 14,
+          "end_line": 14,
+          "label": "capture path"
+        }
+      ]
+    },
+    {
+      "id": "esIndex",
+      "type": "database",
+      "label": "scas-detections",
+      "sublabel": "optional ES",
+      "pos": [
+        1188,
+        500
+      ],
+      "size": [
+        176,
+        64
+      ],
+      "sources": [
+        {
+          "path": "detection-tools/es/forward-capture.js",
+          "line": 27,
+          "end_line": 33,
+          "label": "no-op without URL"
+        }
+      ]
+    },
+    {
+      "id": "twist",
+      "type": "backend",
+      "label": "axios-like",
+      "sublabel": "bundled 1.14.1",
+      "pos": [
+        580,
+        48
+      ],
+      "size": [
+        188,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/packages/axios-like-1.14.1/package.json",
+          "line": 3,
+          "end_line": 10,
+          "label": "bundledDependencies"
+        }
+      ]
+    },
+    {
+      "id": "decoy",
+      "type": "database",
+      "label": "Decoy manifest",
+      "sublabel": "package.clean.json",
+      "pos": [
+        580,
+        404
+      ],
+      "size": [
+        188,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/packages/plain-crypto-js-like/postinstall.js",
+          "line": 70,
+          "end_line": 78,
+          "label": "rewrite package.json"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Scenario 21 lab host",
+      "wraps": [
+        "setup",
+        "gate",
+        "victim",
+        "payload",
+        "mock",
+        "capture",
+        "twist",
+        "decoy"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "learner-setup",
+      "from": "learner",
+      "to": "setup",
+      "label": "run setup.sh",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "setup-gate",
+      "from": "setup",
+      "to": "gate",
+      "label": "export enabled",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "learner-victim",
+      "from": "learner",
+      "to": "victim",
+      "label": "npm install",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-payload",
+      "from": "victim",
+      "to": "payload",
+      "label": "postinstall"
+    },
+    {
+      "id": "payload-mock",
+      "from": "payload",
+      "to": "mock",
+      "label": "POST /beacon if enabled",
+      "variant": "security"
+    },
+    {
+      "id": "mock-capture",
+      "from": "mock",
+      "to": "capture",
+      "label": "append JSON",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "mock-es",
+      "from": "mock",
+      "to": "esIndex",
+      "label": "if SCAS_ES_URL",
+      "variant": "dashed"
+    },
+    {
+      "id": "payload-twist",
+      "from": "payload",
+      "to": "twist",
+      "label": "bundled dep",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "payload-decoy",
+      "from": "payload",
+      "to": "decoy",
+      "label": "swap manifest",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Bundled transitive",
+      "items": [
+        "axios-like 1.14.1 lists plain-crypto-js-like in bundledDependencies",
+        "That package postinstall exits unless TESTBENCH_MODE is enabled",
+        "TESTBENCH_OFFLINE=1 exits before the beacon"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Beacon and decoy",
+      "items": [
+        "The beacon is POST /beacon on 127.0.0.1:3021",
+        "Outside the source tree, postinstall then overwrites package.json with package.clean.json"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Optional sink",
+      "items": [
+        "forwardCaptureIfEnabled returns null when SCAS_ES_URL is unset"
+      ]
+    }
+  ]
+}

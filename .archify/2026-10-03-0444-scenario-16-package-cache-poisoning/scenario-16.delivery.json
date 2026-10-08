@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "02ee50c8-489d-4f05-b14c-e24a7ad8c479",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-16-package-cache-poisoning/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-16-package-cache-poisoning/scenario-16.html",
+  "specification": {
+    "sha256": "51e265acbb5ca0a779eb87f8f397be76fd74549205240fd1688ce0931736aae7",
+    "bytes": 7557
+  },
+  "artifact": {
+    "sha256": "2062737bc645a2c6739de47b59dd37096c6b944df758e30c02aa40fbe77575a5",
+    "bytes": 765174
+  }
+}

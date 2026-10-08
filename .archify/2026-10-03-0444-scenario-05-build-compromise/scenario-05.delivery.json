@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "7c0718d4-fcb5-41fc-ac21-59ce60898a1a",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-05-build-compromise/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-05-build-compromise/scenario-05.html",
+  "specification": {
+    "sha256": "c24311b0cc0e23771fe6a777e94989cb079655afe308c3b86213b1eacc0f159b",
+    "bytes": 7294
+  },
+  "artifact": {
+    "sha256": "098a3d124d9eaa247def7ef21aa8e65f2ec42fccf4d04e350a4acab4c31d58fa",
+    "bytes": 764637
+  }
+}

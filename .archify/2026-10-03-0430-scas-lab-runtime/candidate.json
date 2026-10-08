@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SCAS scenario 01 lab runtime",
+    "locale": "en",
+    "output": ".archify/2026-10-03-0430-scas-lab-runtime/scas-lab-runtime.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "2135859af764a3e9bf882a9b1a3ebd3185059cb2"
+    }
+  },
+  "components": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "operator shell",
+      "pos": [
+        84,
+        220
+      ],
+      "size": [
+        132,
+        64
+      ],
+      "sources": [
+        {
+          "path": "README.md",
+          "line": 107,
+          "end_line": 113,
+          "label": "scenario 01 commands"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "Scenario setup",
+      "sublabel": "01/setup.sh",
+      "pos": [
+        66,
+        430
+      ],
+      "size": [
+        168,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/setup.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "TESTBENCH_MODE",
+      "sublabel": "must be enabled",
+      "pos": [
+        354,
+        430
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/_shared/enable-testbench.sh",
+          "line": 15,
+          "end_line": 15,
+          "label": "export enabled"
+        },
+        {
+          "path": "scenarios/_shared/testbench-env.js",
+          "line": 1,
+          "end_line": 3,
+          "label": "preload if unset"
+        },
+        {
+          "path": "scenarios/01-typosquatting/malicious-packages/request-lib/index.js",
+          "line": 34,
+          "end_line": 37,
+          "label": "return unless enabled"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "Victim app",
+      "sublabel": "npm start",
+      "pos": [
+        316,
+        220
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/victim-app/package.json",
+          "line": 7,
+          "end_line": 7,
+          "label": "preload testbench-env"
+        },
+        {
+          "path": "scenarios/01-typosquatting/victim-app/index.js",
+          "line": 12,
+          "end_line": 12,
+          "label": "require request-lib"
+        }
+      ]
+    },
+    {
+      "id": "payload",
+      "type": "security",
+      "label": "Lab payload",
+      "sublabel": "request-lib",
+      "pos": [
+        626,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/malicious-packages/request-lib/index.js",
+          "line": 34,
+          "end_line": 37,
+          "label": "gate before send"
+        },
+        {
+          "path": "scenarios/01-typosquatting/malicious-packages/request-lib/index.js",
+          "line": 65,
+          "end_line": 69,
+          "label": "localhost:3000/collect"
+        },
+        {
+          "path": "scenarios/01-typosquatting/malicious-packages/request-lib/index.js",
+          "line": 96,
+          "end_line": 97,
+          "label": "runs on require"
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": "HTTP :3000",
+      "pos": [
+        972,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/infrastructure/mock-server.js",
+          "line": 19,
+          "end_line": 19,
+          "label": "POST /collect"
+        },
+        {
+          "path": "scenarios/01-typosquatting/infrastructure/mock-server.js",
+          "line": 41,
+          "end_line": 42,
+          "label": "append capture entry"
+        },
+        {
+          "path": "scenarios/01-typosquatting/infrastructure/mock-server.js",
+          "line": 75,
+          "end_line": 75,
+          "label": "listen on 3000"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "database",
+      "label": "Capture file",
+      "sublabel": "captured-data.json",
+      "pos": [
+        854,
+        500
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/infrastructure/mock-server.js",
+          "line": 11,
+          "end_line": 11,
+          "label": "log file path"
+        },
+        {
+          "path": "scenarios/01-typosquatting/infrastructure/mock-server.js",
+          "line": 36,
+          "end_line": 42,
+          "label": "read then append"
+        }
+      ]
+    },
+    {
+      "id": "esIndex",
+      "type": "database",
+      "label": "scas-detections",
+      "sublabel": "optional ES",
+      "pos": [
+        1148,
+        500
+      ],
+      "size": [
+        176,
+        64
+      ],
+      "sources": [
+        {
+          "path": "detection-tools/es/forward-capture.js",
+          "line": 27,
+          "end_line": 33,
+          "label": "no-op without URL"
+        }
+      ]
+    },
+    {
+      "id": "twist",
+      "type": "backend",
+      "label": "Intended pkg",
+      "sublabel": "requests-lib",
+      "pos": [
+        297,
+        48
+      ],
+      "size": [
+        188,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/legitimate/requests-lib/package.json",
+          "line": 2,
+          "end_line": 2,
+          "label": "package name"
+        },
+        {
+          "path": "scenarios/01-typosquatting/victim-app/index.js",
+          "line": 4,
+          "end_line": 5,
+          "label": "wanted requests-lib"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Scenario 01 lab host",
+      "wraps": [
+        "setup",
+        "gate",
+        "victim",
+        "payload",
+        "mock",
+        "capture",
+        "twist"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "learner-setup",
+      "from": "learner",
+      "to": "setup",
+      "label": "run setup.sh",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "setup-gate",
+      "from": "setup",
+      "to": "gate",
+      "label": "export enabled",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "learner-victim",
+      "from": "learner",
+      "to": "victim",
+      "label": "npm start",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-payload",
+      "from": "victim",
+      "to": "payload",
+      "label": "require request-lib"
+    },
+    {
+      "id": "payload-mock",
+      "from": "payload",
+      "to": "mock",
+      "label": "POST /collect if enabled",
+      "variant": "security"
+    },
+    {
+      "id": "mock-capture",
+      "from": "mock",
+      "to": "capture",
+      "label": "append JSON",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "mock-es",
+      "from": "mock",
+      "to": "esIndex",
+      "label": "if SCAS_ES_URL",
+      "variant": "dashed"
+    },
+    {
+      "id": "victim-twist",
+      "from": "victim",
+      "to": "twist",
+      "label": "intended pkg",
+      "fromSide": "top",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Name mixup",
+      "items": [
+        "The app comments say the developer wanted requests-lib",
+        "package.json depends on request-lib, missing the s",
+        "request-lib still returns before POST unless TESTBENCH_MODE is enabled"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Collector",
+      "items": [
+        "POST /collect on port 3000 appends captured-data.json",
+        "The host string in the payload is localhost",
+        "GET and DELETE /captured-data read or clear the file"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Optional sink",
+      "items": [
+        "forwardCaptureIfEnabled returns null when SCAS_ES_URL is unset",
+        "When set, it POSTs to {url}/scas-detections/_doc"
+      ]
+    }
+  ]
+}

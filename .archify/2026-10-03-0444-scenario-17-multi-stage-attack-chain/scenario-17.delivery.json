@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "ad932014-0b32-4800-8ccb-3a85fd2240ed",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-17-multi-stage-attack-chain/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-17-multi-stage-attack-chain/scenario-17.html",
+  "specification": {
+    "sha256": "73b46196ccaaaf302425101eb8673a2cb1efe61ef25b681c6360f5b86a072c8b",
+    "bytes": 9342
+  },
+  "artifact": {
+    "sha256": "90894feceb5a999186be9d28fab5440697fa7d918f1b7cb6667bf95a7c1f72d8",
+    "bytes": 771869
+  }
+}

@@ -1,0 +1,407 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "SCAS scenario 02 dependency confusion",
+    "locale": "en",
+    "output": ".archify/2026-10-03-0444-scenario-02-dependency-confusion/scenario-02.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "2135859af764a3e9bf882a9b1a3ebd3185059cb2"
+    }
+  },
+  "components": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "operator shell",
+      "pos": [
+        84,
+        220
+      ],
+      "size": [
+        132,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/setup.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "Scenario setup",
+      "sublabel": "02/setup.sh",
+      "pos": [
+        66,
+        430
+      ],
+      "size": [
+        168,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/setup.sh",
+          "line": 6,
+          "end_line": 6,
+          "label": "source enable-testbench"
+        }
+      ]
+    },
+    {
+      "id": "gate",
+      "type": "security",
+      "label": "TESTBENCH_MODE",
+      "sublabel": "must be enabled",
+      "pos": [
+        354,
+        430
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/_shared/enable-testbench.sh",
+          "line": 15,
+          "end_line": 15,
+          "label": "export enabled"
+        },
+        {
+          "path": "scenarios/02-dependency-confusion/attacker-packages/@techcorp/auth-lib/postinstall.js",
+          "line": 17,
+          "end_line": 17,
+          "label": "payload gate"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "Victim app",
+      "sublabel": "auth-lib",
+      "pos": [
+        326,
+        220
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/corporate-app/index.js",
+          "line": 9,
+          "end_line": 9,
+          "label": "require auth-lib"
+        },
+        {
+          "path": "scenarios/02-dependency-confusion/corporate-app/.npmrc",
+          "line": 9,
+          "end_line": 9,
+          "label": "scope to :4874"
+        }
+      ]
+    },
+    {
+      "id": "payload",
+      "type": "security",
+      "label": "Lab payload",
+      "sublabel": "auth-lib",
+      "pos": [
+        596,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/attacker-packages/@techcorp/auth-lib/postinstall.js",
+          "line": 17,
+          "end_line": 17,
+          "label": "gate before send"
+        },
+        {
+          "path": "scenarios/02-dependency-confusion/attacker-packages/@techcorp/auth-lib/postinstall.js",
+          "line": 55,
+          "end_line": 57,
+          "label": "localhost collector"
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": "HTTP :3000",
+      "pos": [
+        952,
+        220
+      ],
+      "size": [
+        156,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/infrastructure/mock-server.js",
+          "line": 8,
+          "end_line": 8,
+          "label": "listen port"
+        },
+        {
+          "path": "scenarios/02-dependency-confusion/infrastructure/mock-server.js",
+          "line": 16,
+          "end_line": 16,
+          "label": "POST route"
+        },
+        {
+          "path": "scenarios/02-dependency-confusion/infrastructure/mock-server.js",
+          "line": 36,
+          "end_line": 36,
+          "label": "optional ES forward"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "database",
+      "label": "Capture file",
+      "sublabel": "captured-data.json",
+      "pos": [
+        860,
+        500
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/infrastructure/mock-server.js",
+          "line": 9,
+          "end_line": 9,
+          "label": "capture path"
+        }
+      ]
+    },
+    {
+      "id": "esIndex",
+      "type": "database",
+      "label": "scas-detections",
+      "sublabel": "optional ES",
+      "pos": [
+        1188,
+        500
+      ],
+      "size": [
+        176,
+        64
+      ],
+      "sources": [
+        {
+          "path": "detection-tools/es/forward-capture.js",
+          "line": 27,
+          "end_line": 33,
+          "label": "no-op without URL"
+        }
+      ]
+    },
+    {
+      "id": "registry",
+      "type": "backend",
+      "label": "Local registry",
+      "sublabel": "serves 999.999.999",
+      "pos": [
+        40,
+        620
+      ],
+      "size": [
+        200,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/infrastructure/registry-server.js",
+          "line": 27,
+          "end_line": 27,
+          "label": "registry port"
+        },
+        {
+          "path": "scenarios/02-dependency-confusion/infrastructure/registry-server.js",
+          "line": 83,
+          "end_line": 83,
+          "label": "bind 127.0.0.1"
+        },
+        {
+          "path": "scenarios/02-dependency-confusion/attacker-packages/@techcorp/auth-lib/package.json",
+          "line": 3,
+          "end_line": 3,
+          "label": "attacker version"
+        }
+      ]
+    },
+    {
+      "id": "twist",
+      "type": "backend",
+      "label": "Internal pkg",
+      "sublabel": "auth-lib 1.2.3",
+      "pos": [
+        307,
+        48
+      ],
+      "size": [
+        188,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/internal-packages/@techcorp/auth-lib/package.json",
+          "line": 1,
+          "end_line": 3,
+          "label": "internal version"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Scenario 02 lab host",
+      "wraps": [
+        "setup",
+        "gate",
+        "victim",
+        "payload",
+        "mock",
+        "capture",
+        "registry",
+        "twist"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "learner-setup",
+      "from": "learner",
+      "to": "setup",
+      "label": "run setup.sh",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "setup-gate",
+      "from": "setup",
+      "to": "gate",
+      "label": "export enabled",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "learner-victim",
+      "from": "learner",
+      "to": "victim",
+      "label": "npm install",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-payload",
+      "from": "victim",
+      "to": "payload",
+      "label": "postinstall"
+    },
+    {
+      "id": "payload-mock",
+      "from": "payload",
+      "to": "mock",
+      "label": "POST /collect if enabled",
+      "variant": "security"
+    },
+    {
+      "id": "mock-capture",
+      "from": "mock",
+      "to": "capture",
+      "label": "append JSON",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "mock-es",
+      "from": "mock",
+      "to": "esIndex",
+      "label": "if SCAS_ES_URL",
+      "variant": "dashed"
+    },
+    {
+      "id": "victim-registry",
+      "from": "victim",
+      "to": "registry",
+      "label": "install :4874",
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [
+        [
+          540,
+          252
+        ],
+        [
+          540,
+          652
+        ],
+        [
+          250,
+          652
+        ]
+      ]
+    },
+    {
+      "id": "victim-twist",
+      "from": "victim",
+      "to": "twist",
+      "label": "vs v1.2.3",
+      "fromSide": "top",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Version race",
+      "items": [
+        "Internal @techcorp/auth-lib is version 1.2.3 and marked private",
+        "The attacker package is the same name at version 999.999.999",
+        "corporate-app/.npmrc sends the @techcorp scope to localhost:4874"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Then the postinstall",
+      "items": [
+        "npm takes the higher version from that registry",
+        "postinstall POSTs to localhost:3000/collect only if TESTBENCH_MODE is enabled",
+        "The mock appends captured-data.json"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Optional sink",
+      "items": [
+        "forwardCaptureIfEnabled returns null when SCAS_ES_URL is unset"
+      ]
+    }
+  ]
+}

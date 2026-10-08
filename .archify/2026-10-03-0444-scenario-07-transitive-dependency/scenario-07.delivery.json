@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "5cc6743c-0612-4d35-8d3e-41d601285cf5",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-07-transitive-dependency/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-07-transitive-dependency/scenario-07.html",
+  "specification": {
+    "sha256": "9d664fc23edbe1125cc22f0a8a19d2d31160631b13b0752e79727482ba10c180",
+    "bytes": 7640
+  },
+  "artifact": {
+    "sha256": "c9aaf0d799e6b5bc4fdd6b37c5608acc63a3fdb60c395e2575ac6e7ed50173ce",
+    "bytes": 765261
+  }
+}
