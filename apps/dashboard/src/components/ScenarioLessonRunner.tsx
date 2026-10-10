@@ -357,7 +357,7 @@ export function ScenarioLessonRunner({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 items-start gap-4 @3xl:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
         <div className="space-y-4 min-w-0">
           {lesson.objectives.length > 0 && (
             <Card title="Objectives" subtitle="What you should walk away with">
@@ -648,7 +648,7 @@ export function ScenarioLessonRunner({
       )}
 
       {section === 'reference' && (
-        <div className="grid grid-cols-1 items-start gap-4 @3xl:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
           <div className="space-y-4 min-w-0">
             {lesson.drill && <DrillCard drill={lesson.drill} scenarioId={scenarioId} />}
             {lesson.mitigation && lesson.mitigation.length > 0 && (
