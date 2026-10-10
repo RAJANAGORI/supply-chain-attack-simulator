@@ -35,15 +35,19 @@ function uploadJson(scenarioId, keySuffix, payload, prefix = 'exfil') {
   if (process.env.TESTBENCH_MODE !== 'enabled') return false;
   if (process.env.SCAS_FLOCI_ENABLED !== '1') return false;
   const script = findUploadScript();
-  if (!script) return false;
+  if (!script) {
+    console.error(`SCAS runner: Floci CLI was not called for scenario ${scenarioId}. floci-upload-json.sh was not found.`);
+    return false;
+  }
   try {
     execFileSync(script, [String(scenarioId), keySuffix, prefix], {
       input: JSON.stringify(payload),
-      stdio: ['pipe', 'pipe', 'pipe'],
+      stdio: ['pipe', 'inherit', 'inherit'],
       env: process.env,
     });
     return true;
   } catch {
+    console.error(`SCAS runner: Floci CLI failed for scenario ${scenarioId}. The mock-server capture is a separate channel.`);
     return false;
   }
 }

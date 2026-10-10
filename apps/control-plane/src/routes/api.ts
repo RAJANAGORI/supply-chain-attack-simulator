@@ -5,6 +5,8 @@ import { resolve } from 'node:path';
 import { SCENARIOS, getScenario } from '../registry/scenarios.js';
 import type { PlatformStatus } from '../registry/types.js';
 import { processManager } from '../process-manager.js';
+import { probeAct } from '../act-status.js';
+import { probeFloci } from '../floci-status.js';
 import { buildLabEnv, getRepoRoot, resolveScenarioCwd } from '../env.js';
 import {
   dockerLabSetup,
@@ -149,7 +151,7 @@ export function createApiRouter(): Router {
     res.json(list);
   });
 
-  router.get('/scenarios/:id', (req, res) => {
+  router.get('/scenarios/:id', async (req, res) => {
     const scenario = getScenario(req.params.id);
     if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
     let lesson = null;
@@ -158,10 +160,13 @@ export function createApiRouter(): Router {
     } catch (err) {
       console.error(`lesson load failed for ${scenario.id}:`, err);
     }
+    const flociRuntime = await probeFloci(scenario.id, scenario.floci);
     res.json({
       ...scenario,
       lesson,
       processes: processManager.list().filter((p) => p.scenarioId === scenario.id),
+      ...(scenario.act ? { actRuntime: probeAct() } : {}),
+      flociRuntime,
     });
   });
 

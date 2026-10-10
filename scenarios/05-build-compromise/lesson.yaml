@@ -55,8 +55,8 @@ steps:
     registry: run-ci
     audience: attack
     title: Run the compromised CI pipeline
-    teaching: "run-ci.sh simulates the GitHub Actions job locally. The compromised action still looks like a normal build step while it exfiltrates."
-    hint: "Watch the live terminal for the action steps. Failures often mean the mock server was not up yet."
+    teaching: "This step runs build.yml with nektos/act when act is installed. The runner card lists each uses: line and the folder act binds it to. The terminal prints that same map, then the act log. A banner that says Node simulator means build.yml did not run."
+    hint: "Read the SCAS runner banner before the act log. The publish step is vendor/build-action@v1."
     verify: { type: capture-count, min: 1 }
   - id: detect
     registry: null

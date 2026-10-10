@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -39,15 +40,22 @@ def upload_json(
         return False
     script = find_upload_script()
     if script is None:
+        print(
+            f"SCAS runner: Floci CLI was not called for scenario {scenario_id}. floci-upload-json.sh was not found.",
+            file=sys.stderr,
+        )
         return False
     try:
         subprocess.run(
             [str(script), str(scenario_id), key_suffix, prefix],
             input=json.dumps(payload).encode("utf-8"),
             check=True,
-            capture_output=True,
             env=os.environ.copy(),
         )
         return True
     except (subprocess.CalledProcessError, OSError):
+        print(
+            f"SCAS runner: Floci CLI failed for scenario {scenario_id}. The mock-server capture is a separate channel.",
+            file=sys.stderr,
+        )
         return False

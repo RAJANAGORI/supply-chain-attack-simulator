@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActRunnerCard } from '@/components/ActRunnerCard';
+import { FlociRunnerCard } from '@/components/FlociRunnerCard';
 import { Alert, Btn, Card, StatusPill } from '@/components/ui';
 import { useLabSession } from '@/components/LabSessionContext';
 import { LabAssistant } from '@/components/LabAssistant';
@@ -392,6 +394,12 @@ export function ScenarioLessonRunner({
             </ol>
           </Card>
 
+          {scenario.act &&
+            activeStep &&
+            (activeStep.registry === 'run' || activeStep.registry === 'run-ci') && (
+              <ActRunnerCard act={scenario.act} runtime={scenario.actRuntime} />
+            )}
+
           {activeStep && (
             <Card title={activeStep.title} subtitle="Context for this step">
               <p className="text-sm leading-relaxed text-ink-secondary">{activeStep.teaching}</p>
@@ -523,6 +531,50 @@ export function ScenarioLessonRunner({
         </div>
 
         <div className="space-y-4 min-w-0">
+          {scenario.flociRuntime && (
+            <FlociRunnerCard
+              runtime={scenario.flociRuntime}
+              busy={busy}
+              onSeed={
+                scenario.floci?.seed
+                  ? () =>
+                      void (async () => {
+                        setBusy('floci-seed');
+                        setError('');
+                        try {
+                          const res = await cp.floci(scenarioId, 'seed');
+                          if (res.sessionId) setSessionId(res.sessionId, { followAll: true });
+                          if (res.sessionId) await waitForSession(res.sessionId);
+                          await onReload();
+                        } catch (e) {
+                          setError(e instanceof Error ? e.message : 'Floci seed failed');
+                        } finally {
+                          setBusy('');
+                        }
+                      })()
+                  : undefined
+              }
+              onVerify={
+                scenario.floci?.verify
+                  ? () =>
+                      void (async () => {
+                        setBusy('floci-verify');
+                        setError('');
+                        try {
+                          const res = await cp.floci(scenarioId, 'verify');
+                          if (res.sessionId) setSessionId(res.sessionId, { followAll: true });
+                          if (res.sessionId) await waitForSession(res.sessionId);
+                          await onReload();
+                        } catch (e) {
+                          setError(e instanceof Error ? e.message : 'Floci verify failed');
+                        } finally {
+                          setBusy('');
+                        }
+                      })()
+                  : undefined
+              }
+            />
+          )}
           <div id="live-inspector" className="scroll-mt-4">
             <Card
               title="Live inspector"

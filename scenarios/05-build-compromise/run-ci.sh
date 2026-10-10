@@ -39,4 +39,6 @@ exec "${SHARED_DIR}/run-act.sh" \
   --secret AWS_ACCESS_KEY_ID \
   --secret AWS_SECRET_ACCESS_KEY \
   --secret DATABASE_PASSWORD \
+  --note "The step that matters is uses: vendor/build-action@v1. That tag is bound to malicious-action/." \
+  --note "actions/checkout and actions/setup-node are SHA pins mapped to local stubs, so act can start the job without calling GitHub." \
   --fallback "npm run ci"

@@ -122,7 +122,7 @@ export TESTBENCH_MODE=enabled
 ./run-ci.sh
 ```
 
-`run-ci.sh` sources `victim-app/.env.lab` and prefers [nektos/act](https://github.com/nektos/act). `vendor/build-action@v1` maps to `malicious-action/`. SHA-pinned `actions/checkout` and `actions/setup-node` map to local no-op stubs so act never talks to GitHub. Docker is not required. If act is missing, you get `npm run ci` (the Node stand-in).
+`run-ci.sh` sources `victim-app/.env.lab` and prefers [nektos/act](https://github.com/nektos/act). Before act's own log, the command prints an `SCAS runner` banner: the workflow file, each `uses:` ref, and the folder that ref is bound to. `vendor/build-action@v1` maps to `malicious-action/`. SHA-pinned `actions/checkout` and `actions/setup-node` map to local no-op stubs so act never talks to GitHub. Docker is not required. If act is missing, the banner says `Node simulator` and you get `npm run ci`, which does not execute `build.yml`.
 
 Do not push this workflow to a real GitHub repo.
 

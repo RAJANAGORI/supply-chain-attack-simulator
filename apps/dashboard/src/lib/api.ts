@@ -93,12 +93,52 @@ export interface ScenarioSummary {
   lesson?: LessonSummary | null;
 }
 
+export interface ScenarioActMap {
+  uses: string;
+  local: string;
+  why: string;
+}
+
+export interface ScenarioActRunner {
+  tool: 'nektos/act';
+  workflow: string;
+  summary: string;
+  maps: ScenarioActMap[];
+  fallback: string;
+}
+
+export interface ActRuntime {
+  mode: 'ready' | 'skipped' | 'missing' | 'too-old';
+  version?: string;
+  bin?: string;
+  required: boolean;
+}
+
+export interface FlociCall {
+  when: string;
+  script: string;
+  what: string;
+}
+
+export interface FlociRuntime {
+  attackCalls: boolean;
+  enabled: boolean;
+  endpoint: string;
+  reachable: boolean;
+  bucket: string;
+  calls: FlociCall[];
+  seedNote?: string;
+}
+
 export interface ScenarioDetail extends Omit<ScenarioSummary, 'lesson'> {
   setup: { command: string; cwd: string };
   services: { id: string; label: string; port?: number }[];
   steps: { id: string; label: string }[];
   captures: { id: string; label: string; url: string }[];
   floci?: { seed?: string; verify?: string };
+  act?: ScenarioActRunner;
+  actRuntime?: ActRuntime;
+  flociRuntime?: FlociRuntime;
   docs: { readme: string; detect: string };
   processes?: { id: string; label: string; status: string; serviceId?: string; stepId?: string }[];
   lesson?: LessonDefinition | null;

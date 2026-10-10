@@ -2,6 +2,8 @@
 
 import { use, useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { ActRunnerCard } from '@/components/ActRunnerCard';
+import { FlociRunnerCard } from '@/components/FlociRunnerCard';
 import { Alert, Btn, Card, LevelBadge, PageHeader, StatusPill, WorkflowTabs } from '@/components/ui';
 import { useLabSession } from '@/components/LabSessionContext';
 import { ScenarioLessonRunner } from '@/components/ScenarioLessonRunner';
@@ -224,30 +226,28 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
                   </Card>
                 </div>
 
-                {scenario.floci && (
-                  <Card title="Floci (optional)" subtitle="Cloud-track seed and verification">
-                    <div className="flex gap-2">
-                      <Btn
-                        variant="secondary"
-                        disabled={!!busy}
-                        onClick={() => action('floci-seed', () => cp.floci(id, 'seed'))}
-                      >
-                        Seed
-                      </Btn>
-                      <Btn
-                        variant="secondary"
-                        disabled={!!busy}
-                        onClick={() => action('floci-verify', () => cp.floci(id, 'verify'))}
-                      >
-                        Verify
-                      </Btn>
-                    </div>
-                  </Card>
+                {scenario.flociRuntime && (
+                  <FlociRunnerCard
+                    runtime={scenario.flociRuntime}
+                    busy={busy}
+                    onSeed={
+                      scenario.floci?.seed
+                        ? () => action('floci-seed', () => cp.floci(id, 'seed'))
+                        : undefined
+                    }
+                    onVerify={
+                      scenario.floci?.verify
+                        ? () => action('floci-verify', () => cp.floci(id, 'verify'))
+                        : undefined
+                    }
+                  />
                 )}
               </div>
             )}
 
             {phase === 'execute' && (
+              <div className="space-y-4">
+              {scenario.act && <ActRunnerCard act={scenario.act} runtime={scenario.actRuntime} />}
               <Card title="Attack steps" subtitle="Each Run streams to the live terminal below">
                 <ul className="divide-y divide-line">
                   {scenario.steps.map((step, i) => (
@@ -276,6 +276,7 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
                   ))}
                 </ul>
               </Card>
+              </div>
             )}
 
             {phase === 'observe' && (

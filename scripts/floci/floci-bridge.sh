@@ -216,9 +216,140 @@ scas_floci_aws() {
   scas_floci_aws_on_host "$@"
 }
 
+scas_floci_announce() {
+  local id="${1:?scenario id}"
+  if [[ "${SCAS_FLOCI_ANNOUNCED:-}" == "1" ]]; then
+    return 0
+  fi
+  export SCAS_FLOCI_ANNOUNCED=1
+  local bucket
+  bucket="$(printf 'scas-sc%02d-artifacts' "$id")"
+  echo "" >&2
+  echo "-------- SCAS runner: Floci CLI --------" >&2
+  echo "Scenario ${id} is calling the Floci CLI." >&2
+  echo "Command path: aws, via scripts/floci/floci-bridge.sh" >&2
+  echo "Endpoint: ${SCAS_FLOCI_ENDPOINT}" >&2
+  echo "Bucket: s3://${bucket}" >&2
+  echo "This is the local emulator on that endpoint. The lab mock server is a separate channel." >&2
+  echo "--------" >&2
+}
+
 scas_floci_bucket_for_scenario() {
   local id="${1:?scenario id}"
+  scas_floci_announce "$id"
   printf 'scas-sc%02d-artifacts' "$id"
+}
+
+scas_floci_pad_id() {
+  local id="${1:?scenario id}"
+  if [[ "$id" =~ ^[0-9]$ ]]; then
+    printf '0%s' "$id"
+  else
+    printf '%s' "$id"
+  fi
+}
+
+# Durable cloud objects for this lab. Called from every seed.sh via scas_floci_seed_scenario.
+# Stdout stays empty so callers can capture the bucket name. Details go to stderr.
+scas_floci_enrich_seed() {
+  local id bucket role queue topic qurl tarn repo
+  id="$(scas_floci_pad_id "$1")"
+  bucket="$(printf 'scas-sc%s-artifacts' "$id")"
+  role="scas-sc${id}-ci-role"
+  queue="scas-sc${id}-events"
+  topic="scas-sc${id}-alerts"
+
+  echo "Floci seed services for scenario ${id} (local emulator only):" >&2
+
+  scas_floci_iam_create_role "$role"
+  echo "  iam ${role}" >&2
+
+  scas_floci_ssm_put_parameter "/scas/sc${id}/pipeline" "scenario ${id} trusted pipeline"
+  echo "  ssm /scas/sc${id}/pipeline" >&2
+
+  qurl="$(scas_floci_sqs_create_queue "$queue" || true)"
+  echo "  sqs ${queue} ${qurl}" >&2
+
+  tarn="$(scas_floci_sns_create_topic "$topic" || true)"
+  echo "  sns ${topic} ${tarn}" >&2
+
+  scas_floci_logs_put "/scas/sc${id}/runtime" "seed" "baseline before the lab payload runs"
+  echo "  logs /scas/sc${id}/runtime" >&2
+
+  scas_floci_eventbridge_put "scas.supply-chain.seed" "{\"scenario\":\"${id}\"}"
+  echo "  events scas.supply-chain.seed" >&2
+
+  case "$id" in
+    01|03|04|09|15|22|24|25)
+      scas_floci_seed_lookalike_secrets "$id" || true
+      echo "  secretsmanager lookalike for scenario ${id}" >&2
+      ;;
+  esac
+
+  case "$id" in
+    05|08|10|12|17|21|23|25)
+      scas_floci_codepipeline_create "scas-sc${id}-pipeline" "$bucket" "arn:aws:iam::000000000000:role/${role}"
+      echo "  codepipeline scas-sc${id}-pipeline" >&2
+      ;;
+  esac
+
+  case "$id" in
+    11|14|23)
+      repo="$(scas_floci_ecr_repo_for_scenario "$id")"
+      scas_floci_ecr_create "$repo"
+      echo "  ecr ${repo}" >&2
+      ;;
+  esac
+
+  case "$id" in
+    14)
+      scas_floci_ecs_create_cluster "scas-sc14"
+      echo "  ecs cluster scas-sc14" >&2
+      ;;
+    17)
+      scas_floci_sqs_create_queue "scas-sc17-stage1" >/dev/null || true
+      scas_floci_sqs_create_queue "scas-sc17-stage2" >/dev/null || true
+      scas_floci_sqs_create_queue "scas-sc17-stage3" >/dev/null || true
+      echo "  sqs scas-sc17-stage1 stage2 stage3" >&2
+      ;;
+  esac
+}
+
+# Side effects after an exfil object lands in S3. Same CLI, same emulator.
+scas_floci_enrich_exfil() {
+  local id suffix qurl tarn repo
+  id="$(scas_floci_pad_id "$1")"
+  suffix="${2:-exfil}"
+
+  qurl="$(scas_floci_sqs_create_queue "scas-sc${id}-events" || true)"
+  tarn="$(scas_floci_sns_create_topic "scas-sc${id}-alerts" || true)"
+
+  scas_floci_logs_put "/scas/sc${id}/runtime" "exfil" "mirrored ${suffix}"
+  scas_floci_eventbridge_put "scas.supply-chain.exfil" "{\"scenario\":\"${id}\",\"suffix\":\"${suffix}\"}"
+  if [[ -n "${qurl}" ]]; then
+    scas_floci_sqs_send "$qurl" "{\"scenario\":\"${id}\",\"suffix\":\"${suffix}\"}" || true
+  fi
+  if [[ -n "${tarn}" ]]; then
+    scas_floci_sns_publish "$tarn" "{\"scenario\":\"${id}\",\"suffix\":\"${suffix}\"}" || true
+  fi
+  scas_floci_sts_get_caller >/dev/null 2>&1 || true
+  scas_floci_iam_create_role "scas-sc${id}-ci-role"
+
+  echo "Floci exfil services for scenario ${id}: logs, events, sqs, sns, sts, iam" >&2
+
+  case "$id" in
+    11|14|23)
+      repo="$(scas_floci_ecr_repo_for_scenario "$id")"
+      scas_floci_ecr_create "$repo"
+      echo "  ecr ${repo}" >&2
+      ;;
+  esac
+  case "$id" in
+    14)
+      scas_floci_ecs_create_cluster "scas-sc14"
+      echo "  ecs cluster scas-sc14" >&2
+      ;;
+  esac
 }
 
 scas_floci_seed_scenario() {
@@ -229,6 +360,7 @@ scas_floci_seed_scenario() {
   if ! scas_floci_aws s3 ls "s3://${bucket}" >/dev/null 2>&1; then
     scas_floci_aws s3 mb "s3://${bucket}" >/dev/null 2>&1
   fi
+  scas_floci_enrich_seed "$id" || true
   echo "$bucket"
 }
 
@@ -512,6 +644,20 @@ scas_floci_seed_lookalike_secrets() {
       scas_floci_ssm_put_parameter "/scas/sc23/github-pat" "$github_token"
       scas_floci_secret_put "scas/sc23/ci-aws" "$aws_json"
       scas_floci_secret_put "scas/sc23/ci-docker" "$(scas_floci_lookalike_json docker)"
+      ;;
+    01|03|04|15|24)
+      scas_floci_secret_put "scas/sc${id}/decoy-npm-token" "$npm_json"
+      ;;
+    09)
+      scas_floci_ssm_put_parameter "/scas/sc09/signing-key-id" "lab-signing-key"
+      scas_floci_secret_put "scas/sc09/signing-material" "$npm_json"
+      ;;
+    22)
+      scas_floci_secret_put "scas/sc22/decoy-pypi-token" "$npm_json"
+      ;;
+    25)
+      scas_floci_ssm_put_parameter "/scas/sc25/github-pat" "$github_token"
+      scas_floci_secret_put "scas/sc25/ci-aws" "$aws_json"
       ;;
     *)
       echo "   (no Floci lookalike SM/SSM map for scenario ${id})" >&2

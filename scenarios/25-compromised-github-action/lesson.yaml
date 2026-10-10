@@ -49,8 +49,8 @@ steps:
     registry: run
     audience: attack
     title: Run the compromised workflow
-    teaching: "run-ci.sh simulates the GitHub Actions job that calls the bad reusable action."
-    hint: "Similar lesson to lab 05, focused on reusable action compromise."
+    teaching: "This step runs ci.yml with nektos/act when act is installed. The runner card shows how example/actions/checkout@v3 is bound to the local checkout folder. The terminal prints that map before the act log. A banner that says Node simulator means ci.yml did not run."
+    hint: "Read the SCAS runner banner. act looks up example/actions@v3, then runs the checkout directory."
     verify: { type: capture-count, min: 1 }
   - id: detect
     registry: null
