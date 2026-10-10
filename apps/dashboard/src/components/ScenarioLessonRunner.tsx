@@ -480,71 +480,6 @@ export function ScenarioLessonRunner({
             </Card>
           )}
 
-          <Card
-            title="Services"
-            subtitle="Mock collectors and registries for this lab"
-          >
-            <ul className="space-y-2 text-sm text-ink-muted">
-              {scenario.services.map((svc) => {
-                const running = scenario.processes?.some(
-                  (p) => p.serviceId === svc.id && p.status === 'running',
-                );
-                return (
-                  <li key={svc.id} className="flex items-center justify-between gap-2">
-                    <span>{svc.label}</span>
-                    <StatusPill
-                      status={running ? 'online' : 'offline'}
-                      label={running ? 'Running' : 'Stopped'}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-            {freePortTarget != null && (
-              <div className="mt-4 rounded-xl border border-brand/35 bg-brand/10 px-3 py-3">
-                <p className="text-xs font-medium text-ink-primary">
-                  Port busy / EADDRINUSE?
-                </p>
-                <p className="mt-1 text-[11px] leading-relaxed text-ink-muted">
-                  {freePortTarget === 3000
-                    ? 'Labs 01-05 and 07-12 share :3000. Click Free port below, then Start services again.'
-                    : `UI may show Stopped while something still holds :${freePortTarget}. Free the port, then Start services.`}
-                </p>
-                <div className="mt-3">
-                  <Btn
-                    variant="primary"
-                    size="sm"
-                    disabled={!!busy}
-                    className="w-full sm:w-auto"
-                    onClick={() =>
-                      void (async () => {
-                        setBusy('free-port');
-                        setError('');
-                        try {
-                          const res = await cp.freePort(freePortTarget);
-                          if (res.sessionId) await waitForSession(res.sessionId);
-                          if (res.ok === false) {
-                            setError(res.message || `Port :${freePortTarget} still busy`);
-                          }
-                          await onReload();
-                          await refreshVerify();
-                        } catch (e) {
-                          setError(
-                            e instanceof Error ? e.message : `Failed to free :${freePortTarget}`,
-                          );
-                        } finally {
-                          setBusy('');
-                        }
-                      })()
-                    }
-                  >
-                    {busy === 'free-port' ? 'Freeing port…' : `Free port :${freePortTarget}`}
-                  </Btn>
-                </div>
-              </div>
-            )}
-          </Card>
-
           {lesson.quiz && lesson.quiz.length > 0 && doneCount === visibleSteps.length && (
             <QuizGate
               scenarioId={scenarioId}
@@ -638,6 +573,71 @@ export function ScenarioLessonRunner({
               )}
             </Card>
           </div>
+
+          <Card
+            title="Services"
+            subtitle="Mock collectors and registries for this lab"
+          >
+            <ul className="space-y-2 text-sm text-ink-muted">
+              {scenario.services.map((svc) => {
+                const running = scenario.processes?.some(
+                  (p) => p.serviceId === svc.id && p.status === 'running',
+                );
+                return (
+                  <li key={svc.id} className="flex items-center justify-between gap-2">
+                    <span>{svc.label}</span>
+                    <StatusPill
+                      status={running ? 'online' : 'offline'}
+                      label={running ? 'Running' : 'Stopped'}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+            {freePortTarget != null && (
+              <div className="mt-4 rounded-xl border border-brand/35 bg-brand/10 px-3 py-3">
+                <p className="text-xs font-medium text-ink-primary">
+                  Port busy / EADDRINUSE?
+                </p>
+                <p className="mt-1 text-[11px] leading-relaxed text-ink-muted">
+                  {freePortTarget === 3000
+                    ? 'Labs 01-05 and 07-12 share :3000. Click Free port below, then Start services again.'
+                    : `UI may show Stopped while something still holds :${freePortTarget}. Free the port, then Start services.`}
+                </p>
+                <div className="mt-3">
+                  <Btn
+                    variant="primary"
+                    size="sm"
+                    disabled={!!busy}
+                    className="w-full sm:w-auto"
+                    onClick={() =>
+                      void (async () => {
+                        setBusy('free-port');
+                        setError('');
+                        try {
+                          const res = await cp.freePort(freePortTarget);
+                          if (res.sessionId) await waitForSession(res.sessionId);
+                          if (res.ok === false) {
+                            setError(res.message || `Port :${freePortTarget} still busy`);
+                          }
+                          await onReload();
+                          await refreshVerify();
+                        } catch (e) {
+                          setError(
+                            e instanceof Error ? e.message : `Failed to free :${freePortTarget}`,
+                          );
+                        } finally {
+                          setBusy('');
+                        }
+                      })()
+                    }
+                  >
+                    {busy === 'free-port' ? 'Freeing port…' : `Free port :${freePortTarget}`}
+                  </Btn>
+                </div>
+              </div>
+            )}
+          </Card>
 
           {lesson.reversal && captureReady && (
             <PurpleReversal scenarioId={scenarioId} blockedPackage={lesson.reversal.blockedPackage} />
