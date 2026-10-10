@@ -357,11 +357,18 @@ scas_floci_seed_scenario() {
   local bucket
   bucket="$(scas_floci_bucket_for_scenario "$id")"
   scas_floci_require
-  if ! scas_floci_aws s3 ls "s3://${bucket}" >/dev/null 2>&1; then
-    scas_floci_aws s3 mb "s3://${bucket}" >/dev/null 2>&1
-  fi
+  scas_floci_s3_ensure_bucket "$bucket" >/dev/null
   scas_floci_enrich_seed "$id" || true
   echo "$bucket"
+}
+
+scas_floci_s3_ensure_bucket() {
+  local bucket="${1:?bucket}"
+  if scas_floci_aws s3 ls "s3://${bucket}" >/dev/null 2>&1; then
+    return 0
+  fi
+  echo "Bucket s3://${bucket} was missing. Creating it on the local emulator." >&2
+  scas_floci_aws s3 mb "s3://${bucket}"
 }
 
 scas_floci_s3_put() {

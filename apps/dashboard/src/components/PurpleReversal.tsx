@@ -71,8 +71,14 @@ export function PurpleReversal({
         </Btn>
         {result && (
           <StatusPill
-            status={result.held ? 'online' : 'warn'}
-            label={result.held ? 'Control held' : 'Attack still fired'}
+            status={result.commandOk === false ? 'warn' : result.held ? 'online' : 'warn'}
+            label={
+              result.commandOk === false
+                ? 'Run failed'
+                : result.held
+                  ? 'Control held'
+                  : 'Attack still fired'
+            }
           />
         )}
       </div>

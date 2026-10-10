@@ -193,6 +193,8 @@ export interface ActionResult {
 
 export interface ReversalResult {
   held: boolean;
+  /** False when the victim command itself failed, so the control was never tested. */
+  commandOk?: boolean;
   capturesBefore: number;
   capturesAfter: number;
   message: string;

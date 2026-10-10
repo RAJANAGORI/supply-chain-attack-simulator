@@ -600,7 +600,7 @@ export function createApiRouter(): Router {
 
   /**
    * Purple-team reversal. Re-runs the scenario's "run" step with the learner's
-   * dependency-guard preloaded (node -r _shared/dependency-guard.js) and reports
+   * dependency-guard preloaded (node -r, or NODE_OPTIONS --require for npm) and reports
    * whether the attack still produced a capture. If the guard blocked the
    * malicious package, capture count stays flat and the control held.
    */
@@ -631,8 +631,18 @@ export function createApiRouter(): Router {
     const guardPath = resolve(REPO, 'scenarios/_shared/dependency-guard.js');
     const cwd = resolveScenarioCwd(scenario.setup.cwd, runStep.cwd);
 
-    // Prepend the guard to any existing -r preloads so both apply.
-    const args = ['-r', guardPath, ...(runStep.args ?? [])];
+    // `node -r guard script` is valid. `npm -r guard start` is not: npm treats
+    // -r as a subcommand. npm labs inherit the guard through NODE_OPTIONS, which
+    // Node applies to the process npm spawns for the start script.
+    const nodeCmd = runStep.command === 'node' || runStep.command === 'nodejs';
+    const args = nodeCmd ? ['-r', guardPath, ...(runStep.args ?? [])] : [...(runStep.args ?? [])];
+    const env: Record<string, string> = {};
+    if (!nodeCmd) {
+      const flag = `--require ${JSON.stringify(guardPath)}`;
+      const prev = (process.env.NODE_OPTIONS ?? '').trim();
+      env.NODE_OPTIONS = prev ? `${prev} ${flag}` : flag;
+    }
+
     const record = processManager.runCommand({
       label: `Reversal: ${runStep.label} (guarded)`,
       command: runStep.command,
@@ -641,12 +651,34 @@ export function createApiRouter(): Router {
       scenarioId: scenario.id,
       stepId: 'reversal',
       shell: runStep.shell,
+      env,
     });
 
     // Give the guarded run a moment to either fire or be blocked, then compare.
     await new Promise((r) => setTimeout(r, 2500));
     const after = await countCaptures();
-    const held = after <= before;
+    const logs = processManager.getLogs(record.id).map((l) => l.line).join('\n');
+    const finished = processManager.get(record.id);
+    const guardBlocked = logs.includes('[dependency-guard] blocked require');
+    const commandOk =
+      guardBlocked ||
+      finished?.status === 'running' ||
+      finished?.status === 'completed' ||
+      finished?.exitCode === 0;
+    const held = commandOk && after <= before;
+
+    let message: string;
+    if (!commandOk) {
+      message =
+        'The guarded run failed before the control could be tested. The victim command did not start. Check the terminal for the error.';
+    } else if (held) {
+      message = guardBlocked
+        ? 'Your control held. The guard refused the package, so the payload did not run and no new capture landed.'
+        : 'Your control held - the guarded run produced no new capture. The attack was blocked.';
+    } else {
+      message =
+        'The attack still fired. Check that dependency-guard.json names the malicious package and sits in the victim working directory.';
+    }
 
     res.json({
       async: true,
@@ -654,11 +686,10 @@ export function createApiRouter(): Router {
       record,
       reversal: {
         held,
+        commandOk,
         capturesBefore: before,
         capturesAfter: after,
-        message: held
-          ? 'Your control held - the guarded run produced no new capture. The attack was blocked.'
-          : 'The attack still fired. Check that dependency-guard.json names the malicious package and sits in the victim working directory.',
+        message,
       },
     });
   });

@@ -133,7 +133,7 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
         title={scenario.title}
         description={
           lesson
-            ? `${scenario.level} · ~${lesson.etaMinutes} min · ${lesson.category} · live terminal below`
+            ? `${scenario.level} · ~${lesson.etaMinutes} min · ${lesson.category} · live output in the dock`
             : `${scenario.level} · ports ${scenario.ports.join(', ')} · live output beside the lab`
         }
         action={

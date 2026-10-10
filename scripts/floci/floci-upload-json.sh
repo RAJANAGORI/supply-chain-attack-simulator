@@ -23,6 +23,7 @@ echo "Next step: aws s3, through scripts/floci/floci-bridge.sh, endpoint ${SCAS_
 
 scas_floci_require || exit 0
 BUCKET="$(scas_floci_bucket_for_scenario "$SCENARIO_ID")"
+scas_floci_s3_ensure_bucket "$BUCKET"
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 KEY="${PREFIX}/${KEY_SUFFIX}-${TS}.json"
 
