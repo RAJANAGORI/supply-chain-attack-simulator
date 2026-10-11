@@ -30,6 +30,8 @@ cd scenarios/NN-slug
 ../../detection-tools/floci/s3-exfil-check.sh NN
 ```
 
+When a payload or a seed/verify script actually calls the Floci CLI, the terminal prints an `SCAS runner: Floci CLI` banner with the scenario id, the endpoint, and the bucket `s3://scas-scNN-artifacts`. After the S3 put, the same run lists the extra services it wrote (logs, events, sqs, sns, sts, iam). The lab page shows that set for the scenario you have open. `SCAS_FLOCI_ENABLED` unset means the attack step does not call any of it.
+
 ## Architecture
 
 | Layer | Role |
@@ -61,28 +63,29 @@ cd scenarios/NN-slug
 | `detection-tools/floci/cloudtrail-hunt.sh` | Cloud API abuse hunt (05, 23) |
 | `detection-tools/floci/pipeline-artifact-check.sh` | CodePipeline (23) |
 
-**Buckets:** `scas-sc01-artifacts` ... `scas-sc23-artifacts`
+**Buckets:** `scas-sc01-artifacts` ... `scas-sc25-artifacts`
 
 ## Scenario matrix
 
-| # | Scenario | Floci services | Depth |
-|---|----------|----------------|-------|
-| 01-04, 07-10, 12-13, 15-16, 18, 20 | Standard npm/PyPI labs | **S3** exfil mirror | Universal |
-| 21 | Axios postinstall | **S3** | Reference hook |
-| 22 | LiteLLM PyPI | **S3** (Python) | Universal |
-| 05 | Build compromise | **S3**, IAM, STS, SSM, CloudWatch Logs | Extended |
-| 06 | Shai-Hulud | **S3**, Secrets Manager, SQS, SNS, EventBridge | Extended |
-| 11 | Registry mirror | **S3**, **ECR** | Extended |
-| 14 | Container image | **S3**, **ECR**, **ECS** | Extended |
-| 17 | Multi-stage chain | **S3** chain, Step Functions, EventBridge | Extended |
-| 19 | SBOM manipulation | **S3**, Glue, SSM (Athena), Config | Extended |
-| 23 | Trivy compromise | **S3**, **ECR**, CodePipeline, IAM/STS, CloudWatch Logs | Capstone |
+Every `seed.sh` calls `scas_floci_enrich_seed`. That provisions, on the local emulator, an IAM role, an SSM parameter, an SQS queue, an SNS topic, a CloudWatch log line, and an EventBridge seed event. A payload upload then calls `scas_floci_enrich_exfil`, which writes the log, the event, an SQS message, an SNS message, and an STS caller check.
+
+| # | Scenario | Extra services beyond that shared set |
+|---|----------|----------------------------------------|
+| 01, 03, 04, 15, 24 | npm-shaped labs | Secrets Manager lookalike token |
+| 09 | Signing bypass | SSM signing-key id, Secrets Manager object |
+| 22 | LiteLLM PyPI | Secrets Manager lookalike token |
+| 05, 08, 10, 12, 21, 25 | CI-shaped labs | CodePipeline. 05, 21, and 25 also store lookalike CI secrets |
+| 06 | Shai-Hulud | Existing worm SQS, SNS, EventBridge, and lookalike secrets |
+| 11, 14, 23 | Image labs | ECR. 14 also has an ECS cluster. 23 also has CodePipeline |
+| 17 | Multi-stage chain | Stage queues, CodePipeline, plus the existing Step Functions state machine |
+| 19 | SBOM manipulation | Existing Glue database and SBOM SSM parameter |
+| 02, 07, 13, 16, 18, 20 | Other package labs | Shared set only |
 
 Per-scenario docs: `scenarios/NN-*/FLOCI.md`
 
-### Universal track (S3 only)
+### Upload path
 
-Scenarios **01-04, 07-13, 15-16, 18-20, 22-23** mirror mock-server JSON to `s3://scas-scNN-artifacts/exfil/*` via `uploadJson()` / `floci_exfil.py` / `floci-upload-json.sh`.
+Scenarios that call `uploadJson()` or `floci_exfil.py` mirror the mock-server JSON to `s3://scas-scNN-artifacts/exfil/*`, then `scas_floci_enrich_exfil` writes the log, event, queue, topic, and STS check. Labs 05 and 20 call that same upload from the payload when `SCAS_FLOCI_ENABLED=1`.
 
 ### Extended tracks
 

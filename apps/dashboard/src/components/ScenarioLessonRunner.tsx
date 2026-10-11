@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActRunnerCard } from '@/components/ActRunnerCard';
+import { FlociRunnerCard } from '@/components/FlociRunnerCard';
 import { Alert, Btn, Card, StatusPill } from '@/components/ui';
 import { useLabSession } from '@/components/LabSessionContext';
 import { LabAssistant } from '@/components/LabAssistant';
@@ -75,6 +77,7 @@ export function ScenarioLessonRunner({
 }) {
   const { setSessionId, setFollowAll } = useLabSession();
   const [role, setRole] = useState<RoleMode>('purple');
+  const [section, setSection] = useState<'labs' | 'reference'>('labs');
   const [activeStepId, setActiveStepId] = useState(lesson.steps[0]?.id ?? '');
   const [verified, setVerified] = useState<Record<string, boolean>>({});
   const [captures, setCaptures] = useState<Record<string, unknown>>({});
@@ -286,6 +289,40 @@ export function ScenarioLessonRunner({
 
   return (
     <div className="space-y-4">
+      {error && <Alert variant="error">{error}</Alert>}
+      {inspectorNote && !error && <Alert variant="info">{inspectorNote}</Alert>}
+      {busy && (
+        <Alert variant="info">
+          <span className="font-medium">{busy}</span> running - watch the live terminal.
+        </Alert>
+      )}
+
+      <div className="flex flex-wrap gap-2 rounded-full liquid-glass p-1" role="tablist" aria-label="Lab sections">
+        {(
+          [
+            { id: 'labs', label: 'Labs' },
+            { id: 'reference', label: 'Quick reference' },
+          ] as const
+        ).map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={section === tab.id}
+            onClick={() => setSection(tab.id)}
+            className={`rounded-full px-4 py-1.5 text-xs font-medium transition ${
+              section === tab.id
+                ? 'bg-brand text-white shadow-glow'
+                : 'text-ink-muted hover:bg-canvas-hover hover:text-ink-primary'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {section === 'labs' && (
+      <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2 rounded-full liquid-glass p-1">
           {(
@@ -320,19 +357,8 @@ export function ScenarioLessonRunner({
         </div>
       </div>
 
-      {error && <Alert variant="error">{error}</Alert>}
-      {inspectorNote && !error && <Alert variant="info">{inspectorNote}</Alert>}
-      {busy && (
-        <Alert variant="info">
-          <span className="font-medium">{busy}</span> running - watch the live terminal.
-        </Alert>
-      )}
-
-      {/* Balanced two-column lab chrome: run path | observe + context */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+      <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
         <div className="space-y-4 min-w-0">
-          {lesson.drill && <DrillCard drill={lesson.drill} scenarioId={scenarioId} />}
-
           {lesson.objectives.length > 0 && (
             <Card title="Objectives" subtitle="What you should walk away with">
               <ul className="space-y-2 text-sm text-ink-secondary">
@@ -392,6 +418,12 @@ export function ScenarioLessonRunner({
             </ol>
           </Card>
 
+          {scenario.act &&
+            activeStep &&
+            (activeStep.registry === 'run' || activeStep.registry === 'run-ci') && (
+              <ActRunnerCard act={scenario.act} runtime={scenario.actRuntime} />
+            )}
+
           {activeStep && (
             <Card title={activeStep.title} subtitle="Context for this step">
               <p className="text-sm leading-relaxed text-ink-secondary">{activeStep.teaching}</p>
@@ -447,6 +479,100 @@ export function ScenarioLessonRunner({
               )}
             </Card>
           )}
+
+          {lesson.quiz && lesson.quiz.length > 0 && doneCount === visibleSteps.length && (
+            <QuizGate
+              scenarioId={scenarioId}
+              questions={lesson.quiz}
+              onPassed={() => void refreshVerify()}
+            />
+          )}
+        </div>
+
+        <div className="space-y-4 min-w-0">
+          {scenario.flociRuntime && (
+            <FlociRunnerCard
+              runtime={scenario.flociRuntime}
+              busy={busy}
+              onSeed={
+                scenario.floci?.seed
+                  ? () =>
+                      void (async () => {
+                        setBusy('floci-seed');
+                        setError('');
+                        try {
+                          const res = await cp.floci(scenarioId, 'seed');
+                          if (res.sessionId) setSessionId(res.sessionId, { followAll: true });
+                          if (res.sessionId) await waitForSession(res.sessionId);
+                          await onReload();
+                        } catch (e) {
+                          setError(e instanceof Error ? e.message : 'Floci seed failed');
+                        } finally {
+                          setBusy('');
+                        }
+                      })()
+                  : undefined
+              }
+              onVerify={
+                scenario.floci?.verify
+                  ? () =>
+                      void (async () => {
+                        setBusy('floci-verify');
+                        setError('');
+                        try {
+                          const res = await cp.floci(scenarioId, 'verify');
+                          if (res.sessionId) setSessionId(res.sessionId, { followAll: true });
+                          if (res.sessionId) await waitForSession(res.sessionId);
+                          await onReload();
+                        } catch (e) {
+                          setError(e instanceof Error ? e.message : 'Floci verify failed');
+                        } finally {
+                          setBusy('');
+                        }
+                      })()
+                  : undefined
+              }
+            />
+          )}
+          <div id="live-inspector" className="scroll-mt-4">
+            <Card
+              title="Live inspector"
+              subtitle={
+                captureReady
+                  ? 'Mock collector data for this lab'
+                  : 'Captures appear here after the attack steps fire'
+              }
+              action={
+                <Btn
+                  variant="ghost"
+                  size="sm"
+                  disabled={!!busy}
+                  onClick={() =>
+                    void (async () => {
+                      setBusy('clear');
+                      try {
+                        await cp.clearCaptures(scenarioId);
+                        await refreshVerify();
+                      } finally {
+                        setBusy('');
+                      }
+                    })()
+                  }
+                >
+                  Clear
+                </Btn>
+              }
+            >
+              <pre className="max-h-[min(28rem,50vh)] min-h-[12rem] overflow-auto rounded-xl border border-line bg-[#0c0b14] p-4 font-mono text-[11px] leading-relaxed text-white/70">
+                {JSON.stringify(captures, null, 2)}
+              </pre>
+              {captureReady && (
+                <div className="mt-4">
+                  <BreachPanel captures={captures} />
+                </div>
+              )}
+            </Card>
+          </div>
 
           <Card
             title="Services"
@@ -513,105 +639,64 @@ export function ScenarioLessonRunner({
             )}
           </Card>
 
-          {lesson.quiz && lesson.quiz.length > 0 && doneCount === visibleSteps.length && (
-            <QuizGate
-              scenarioId={scenarioId}
-              questions={lesson.quiz}
-              onPassed={() => void refreshVerify()}
-            />
-          )}
-        </div>
-
-        <div className="space-y-4 min-w-0">
-          <div id="live-inspector" className="scroll-mt-4">
-            <Card
-              title="Live inspector"
-              subtitle={
-                captureReady
-                  ? 'Mock collector data for this lab'
-                  : 'Captures appear here after the attack steps fire'
-              }
-              action={
-                <Btn
-                  variant="ghost"
-                  size="sm"
-                  disabled={!!busy}
-                  onClick={() =>
-                    void (async () => {
-                      setBusy('clear');
-                      try {
-                        await cp.clearCaptures(scenarioId);
-                        await refreshVerify();
-                      } finally {
-                        setBusy('');
-                      }
-                    })()
-                  }
-                >
-                  Clear
-                </Btn>
-              }
-            >
-              <pre className="max-h-[min(28rem,50vh)] min-h-[12rem] overflow-auto rounded-xl border border-line bg-[#0c0b14] p-4 font-mono text-[11px] leading-relaxed text-white/70">
-                {JSON.stringify(captures, null, 2)}
-              </pre>
-              {captureReady && (
-                <div className="mt-4">
-                  <BreachPanel captures={captures} />
-                </div>
-              )}
-            </Card>
-          </div>
-
           {lesson.reversal && captureReady && (
             <PurpleReversal scenarioId={scenarioId} blockedPackage={lesson.reversal.blockedPackage} />
           )}
+        </div>
+      </div>
+      </div>
+      )}
 
-          {lesson.mitigation && lesson.mitigation.length > 0 && (
-            <Card title="Mitigation" subtitle="Quick reference - full runbook in DETECT.md">
-              <ul className="space-y-2 text-sm text-ink-secondary">
-                {lesson.mitigation.map((m) => (
-                  <li key={m} className="flex gap-2">
-                    <span className="text-ink-faint">·</span>
-                    <span>{m}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
-
-          {(lesson.caseStudy || lesson.incidents.length > 0) && (
-            <Card
-              title="Real-world case"
-              subtitle={
-                lesson.incidents.length > 0
-                  ? 'Where this showed up in the wild, plus named incidents'
-                  : 'Where this pattern showed up in the wild'
-              }
-            >
-              {lesson.caseStudy && (
-                <p className="text-sm leading-relaxed text-ink-secondary">{lesson.caseStudy}</p>
-              )}
-              {lesson.incidents.length > 0 && (
-                <ul
-                  className={`flex flex-wrap gap-2 ${lesson.caseStudy ? 'mt-4 border-t border-line pt-4' : ''}`}
-                >
-                  {lesson.incidents.map((inc) => (
-                    <li
-                      key={inc}
-                      className="rounded-lg border border-line bg-canvas-hover/50 px-2.5 py-1 text-xs text-ink-secondary"
-                    >
-                      {inc}
+      {section === 'reference' && (
+        <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
+          <div className="space-y-4 min-w-0">
+            {lesson.drill && <DrillCard drill={lesson.drill} scenarioId={scenarioId} />}
+            {lesson.mitigation && lesson.mitigation.length > 0 && (
+              <Card title="Mitigation" subtitle="Full runbook in DETECT.md">
+                <ul className="space-y-2 text-sm text-ink-secondary">
+                  {lesson.mitigation.map((m) => (
+                    <li key={m} className="flex gap-2">
+                      <span className="text-ink-faint">·</span>
+                      <span>{m}</span>
                     </li>
                   ))}
                 </ul>
-              )}
-            </Card>
-          )}
-
-          <LabAssistant scenarioId={scenarioId} stepId={activeStep?.id} />
+              </Card>
+            )}
+          </div>
+          <div className="space-y-4 min-w-0">
+            {(lesson.caseStudy || lesson.incidents.length > 0) && (
+              <Card
+                title="Real-world case"
+                subtitle={
+                  lesson.incidents.length > 0
+                    ? 'Where this showed up in the wild, plus named incidents'
+                    : 'Where this pattern showed up in the wild'
+                }
+              >
+                {lesson.caseStudy && (
+                  <p className="text-sm leading-relaxed text-ink-secondary">{lesson.caseStudy}</p>
+                )}
+                {lesson.incidents.length > 0 && (
+                  <ul
+                    className={`flex flex-wrap gap-2 ${lesson.caseStudy ? 'mt-4 border-t border-line pt-4' : ''}`}
+                  >
+                    {lesson.incidents.map((inc) => (
+                      <li
+                        key={inc}
+                        className="rounded-lg border border-line bg-canvas-hover/50 px-2.5 py-1 text-xs text-ink-secondary"
+                      >
+                        {inc}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card>
+            )}
+            <LabAssistant scenarioId={scenarioId} stepId={activeStep?.id} />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

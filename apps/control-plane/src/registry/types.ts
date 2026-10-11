@@ -28,6 +28,25 @@ export interface ScenarioFloci {
   verify?: string;
 }
 
+/** Learner-facing description of a nektos/act lab (05, 25). */
+export interface ScenarioActMap {
+  /** The uses: line as it appears in the workflow. */
+  uses: string;
+  /** Folder act binds that ref to. */
+  local: string;
+  /** Why this binding exists. */
+  why: string;
+}
+
+export interface ScenarioActRunner {
+  tool: 'nektos/act';
+  /** Workflow path relative to the scenario directory. */
+  workflow: string;
+  summary: string;
+  maps: ScenarioActMap[];
+  fallback: string;
+}
+
 export interface ScenarioDefinition {
   id: string;
   slug: string;
@@ -39,6 +58,8 @@ export interface ScenarioDefinition {
   steps: ScenarioStep[];
   captures: ScenarioCapture[];
   floci?: ScenarioFloci;
+  /** Present only for labs whose attack step runs a workflow through nektos/act. */
+  act?: ScenarioActRunner;
   docs: { readme: string; detect: string };
 }
 

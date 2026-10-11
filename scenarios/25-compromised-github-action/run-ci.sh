@@ -36,4 +36,6 @@ exec "${SCENARIO_DIR}/../_shared/run-act.sh" \
   --secret DATABASE_URL \
   --secret DOCKER_USERNAME \
   --secret DOCKER_PASSWORD \
+  --note "The workflow line is uses: example/actions/checkout@v3." \
+  --note "act looks up example/actions@v3, then runs the checkout/ directory in that folder. The https map is the same folder, because act sometimes asks for the full URL." \
   --fallback "npm start"

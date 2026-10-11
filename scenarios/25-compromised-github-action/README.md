@@ -66,7 +66,7 @@ In this lab you will:
 ### Prerequisites
 
 - Node.js 16+ and npm.
-- Optional: [nektos/act](https://github.com/nektos/act) (`brew install act`) so `./run-ci.sh` executes `ci.yml` instead of the Node stand-in. Docker is not required. The runner maps `example/actions/checkout@v3` to the local action and never fetches from GitHub.
+- Optional: [nektos/act](https://github.com/nektos/act) (`brew install act`) so `./run-ci.sh` executes `ci.yml` instead of the Node stand-in. Docker is not required. The command prints an `SCAS runner` banner first: `example/actions/checkout@v3` is bound to `victim-app/.github/actions/checkout`, and act never fetches from GitHub. If the banner says `Node simulator`, `ci.yml` did not run.
 
 ### Environment setup
 
@@ -97,7 +97,7 @@ export TESTBENCH_MODE=enabled
 ./run-ci.sh
 ```
 
-`run-ci.sh` sources `.env.ci-lab` and prefers act. The workflow file still says `uses: example/actions/checkout@v3`. act resolves that ref to `victim-app/.github/actions/checkout` and runs `index.js` as a `node20` action. If act is missing or the run fails, the same payload is loaded with `npm start`.
+`run-ci.sh` sources `.env.ci-lab` and prefers act. Before act's own log it prints an `SCAS runner` banner with the workflow file and the folder each `uses:` ref is bound to. The workflow file still says `uses: example/actions/checkout@v3`. act resolves that ref to `victim-app/.github/actions/checkout` and runs `index.js` as a `node20` action. If act is missing or the run fails, the banner says `Node simulator` and the same payload is loaded with `npm start`, which does not execute `ci.yml`.
 
 Do not push this workflow to a real GitHub repo. Local act is the point.
 

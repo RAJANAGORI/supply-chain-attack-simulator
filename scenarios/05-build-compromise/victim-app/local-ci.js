@@ -48,6 +48,10 @@ process.env.GITHUB_REF = process.env.GITHUB_REF || 'refs/heads/main';
 process.env.INPUT_ARTIFACT_PATH = process.env.INPUT_ARTIFACT_PATH || 'dist/app.js';
 
 console.log('');
+console.log('SCAS runner: Node simulator');
+console.log('nektos/act did not execute .github/workflows/build.yml.');
+console.log('The lines below are this script, not an act log.');
+console.log('');
 console.log('='.repeat(60));
 console.log('  CI Pipeline: victim-build-repo (simulated GitHub Actions)');
 console.log('='.repeat(60));

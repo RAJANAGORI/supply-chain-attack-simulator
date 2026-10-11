@@ -43,6 +43,13 @@ if (process.env.TESTBENCH_MODE === 'enabled') {
   req.on('error', () => {});
   req.write(data);
   req.end();
+
+  try {
+    const { uploadJson } = require('../../../../detection-tools/floci/floci-exfil');
+    uploadJson('20', 'provenance-exfil', payload);
+  } catch (_) {
+    // Floci is optional. The mock server on :3020 is the primary channel.
+  }
 }
 
 module.exports = { log };

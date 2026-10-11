@@ -38,7 +38,11 @@ function loadBlocklist() {
 }
 
 const blocked = loadBlocklist();
-if (blocked.size > 0) {
+if (blocked.size === 0) {
+  console.error(
+    `[dependency-guard] no block list. Expected ${process.env.SCAS_GUARD_FILE || 'dependency-guard.json'} (cwd ${process.cwd()}).`,
+  );
+} else {
   const originalLoad = Module._load;
   Module._load = function (request, ...rest) {
     if (blocked.has(request)) {

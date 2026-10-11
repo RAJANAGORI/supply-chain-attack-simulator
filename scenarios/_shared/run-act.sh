@@ -19,10 +19,12 @@
 #     --local-repository example/actions/checkout@v3=.github/actions/checkout \
 #     --env TESTBENCH_MODE \
 #     --secret GITHUB_TOKEN \
+#     --note "one learner-facing sentence" \
 #     --fallback "npm start"
 #
 # Optional: SCAS_SKIP_ACT=1 forces the Node simulator.
 # Optional: SCAS_ACT_REQUIRED=1 fails instead of falling back when act errors.
+# The command prints which uses: ref is bound to which folder before act's own log.
 
 set -euo pipefail
 
@@ -35,6 +37,9 @@ SECRET_FILE=""
 LOCAL_REPOS=()
 ENV_NAMES=()
 SECRET_NAMES=()
+NOTES=()
+MAP_KEYS=()
+MAP_PATHS=()
 
 usage() {
   sed -n '2,28p' "$0" | sed 's/^# \{0,1\}//'
@@ -51,6 +56,7 @@ while [[ $# -gt 0 ]]; do
     --local-repository) LOCAL_REPOS+=("$2"); shift 2 ;;
     --env) ENV_NAMES+=("$2"); shift 2 ;;
     --secret) SECRET_NAMES+=("$2"); shift 2 ;;
+    --note) NOTES+=("$2"); shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *)
       echo "Unknown argument: $1" >&2
@@ -77,8 +83,57 @@ run_fallback() {
     echo "act was not used and no --fallback command was given." >&2
     return 1
   fi
-  echo "Using Node CI simulator: ${FALLBACK}"
+  echo "Next command: ${FALLBACK}"
+  echo "That command is a Node script. Step names it prints are the script, not act, and the workflow YAML is not executed."
+  echo "--------"
   (cd "$WORKDIR" && bash -lc "$FALLBACK")
+}
+
+print_runner_banner() {
+  local mode="$1"
+  local reason="$2"
+  echo ""
+  echo "-------- SCAS runner: ${mode} --------"
+  if [[ "$mode" == "nektos/act" ]]; then
+    echo "act is a local GitHub Actions runner. It reads the workflow YAML and runs those steps on this machine."
+    echo "Version: $(act --version 2>/dev/null | head -1)"
+    echo "GitHub is not contacted. No Docker image is pulled (ubuntu-latest=-self-hosted)."
+  else
+    echo "nektos/act is not executing the workflow file."
+    echo "Reason: ${reason}"
+  fi
+  echo "Workflow: ${WORKFLOW}"
+  echo "Workspace: ${WORKDIR}"
+  if [[ ${#MAP_KEYS[@]} -gt 0 ]]; then
+    echo ""
+    if [[ "$mode" == "nektos/act" ]]; then
+      echo "uses: bindings (what act is responsible for in this lab):"
+    else
+      echo "uses: bindings act would have applied if it had run:"
+    fi
+    local i key shown
+    for i in "${!MAP_KEYS[@]}"; do
+      key="${MAP_KEYS[$i]}"
+      shown="${MAP_PATHS[$i]}"
+      if [[ "$shown" == "$WORKDIR"/* ]]; then
+        shown="${shown#"$WORKDIR"/}"
+      fi
+      echo "  ${key}"
+      echo "    folder: ${shown}"
+    done
+  fi
+  if [[ ${#NOTES[@]} -gt 0 ]]; then
+    echo ""
+    echo "In this lab:"
+    local note
+    for note in "${NOTES[@]}"; do
+      echo "  - ${note}"
+    done
+  fi
+  if [[ "$mode" == "nektos/act" ]]; then
+    echo "-------- act log starts --------"
+  fi
+  echo ""
 }
 
 abs_local_path() {
@@ -98,30 +153,11 @@ act_ready() {
   return 0
 }
 
-if [[ "${SCAS_SKIP_ACT:-}" == "1" ]]; then
-  echo "SCAS_SKIP_ACT=1: skipping nektos/act."
-  run_fallback
-  exit $?
-fi
-
 # Prefer repo-local act from ensure-act.sh
 if [[ -n "${SCAS_REPO_ROOT:-}" && -x "${SCAS_REPO_ROOT}/.tools/bin/act" ]]; then
   export PATH="${SCAS_REPO_ROOT}/.tools/bin:${PATH}"
 elif [[ -x "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/.tools/bin/act" ]]; then
   export PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/.tools/bin:${PATH}"
-fi
-
-if ! act_ready; then
-  echo "nektos/act not found, or too old for --local-repository."
-  echo "Install: ./scripts/setup/ensure-act.sh"
-  echo "  or: brew install act"
-  echo "  https://github.com/nektos/act#installation"
-  if [[ "${SCAS_ACT_REQUIRED:-}" == "1" ]]; then
-    echo "SCAS_ACT_REQUIRED=1: refusing npm fallback. Fix act, or unset SCAS_ACT_REQUIRED / set SCAS_SKIP_ACT=1." >&2
-    exit 1
-  fi
-  run_fallback
-  exit $?
 fi
 
 ACT_CACHE="${SCAS_ACT_CACHE:-${TMPDIR:-/tmp}/scas-act-cache}"
@@ -153,6 +189,8 @@ for spec in "${LOCAL_REPOS[@]+"${LOCAL_REPOS[@]}"}"; do
     exit 2
   fi
   ACT_ARGS+=(--local-repository "${key}=${abs}")
+  MAP_KEYS+=("$key")
+  MAP_PATHS+=("$abs")
 done
 
 if [[ -n "$SECRET_FILE" ]]; then
@@ -176,9 +214,27 @@ if [[ -z "${TESTBENCH_MODE:-}" ]]; then
 fi
 ACT_ARGS+=(--env "TESTBENCH_MODE=${TESTBENCH_MODE}")
 
-echo "Running ${WORKFLOW} with nektos/act $(act --version 2>/dev/null | head -1)"
-echo "  host runner (no Docker image), local action map, no GitHub fetch"
-echo "  workspace: ${WORKDIR}"
+if [[ "${SCAS_SKIP_ACT:-}" == "1" ]]; then
+  print_runner_banner "Node simulator" "SCAS_SKIP_ACT=1 is set, so the workflow file is skipped on purpose."
+  run_fallback
+  exit $?
+fi
+
+if ! act_ready; then
+  echo "nektos/act not found, or too old for --local-repository."
+  echo "Install: ./scripts/setup/ensure-act.sh"
+  echo "  or: brew install act"
+  echo "  https://github.com/nektos/act#installation"
+  if [[ "${SCAS_ACT_REQUIRED:-}" == "1" ]]; then
+    echo "SCAS_ACT_REQUIRED=1: refusing npm fallback. Fix act, or unset SCAS_ACT_REQUIRED / set SCAS_SKIP_ACT=1." >&2
+    exit 1
+  fi
+  print_runner_banner "Node simulator" "nektos/act is missing, or too old to accept --local-repository."
+  run_fallback
+  exit $?
+fi
+
+print_runner_banner "nektos/act" ""
 
 set +e
 (cd "$WORKDIR" && act "${ACT_ARGS[@]}")
@@ -186,15 +242,19 @@ act_rc=$?
 set -e
 
 if [[ $act_rc -eq 0 ]]; then
-  echo "act finished."
+  echo ""
+  echo "-------- act finished --------"
+  echo "nektos/act executed ${WORKFLOW}. The Node simulator did not run."
+  echo "The uses: bindings above are the folders that actually ran."
   exit 0
 fi
 
+echo ""
 echo "act exited ${act_rc}."
 if [[ "${SCAS_ACT_REQUIRED:-}" == "1" ]]; then
-  echo "SCAS_ACT_REQUIRED=1: not falling back to the Node simulator." >&2
+  echo "SCAS_ACT_REQUIRED=1: refusing the Node simulator. Fix act, or unset SCAS_ACT_REQUIRED / set SCAS_SKIP_ACT=1." >&2
   exit "$act_rc"
 fi
 
-echo "Falling back to the Node CI simulator."
+print_runner_banner "Node simulator" "act exited ${act_rc}, so the lab is continuing with the Node stand-in."
 run_fallback

@@ -138,11 +138,18 @@ export class ProcessManager extends EventEmitter {
       this.emit('process-end', record);
     });
 
-    proc.on('close', (code) => {
-      record.status = code === 0 ? 'completed' : 'failed';
-      record.exitCode = code;
+    proc.on('close', (code, signal) => {
       record.endedAt = new Date().toISOString();
-      write('system', `Exited with code ${code ?? 'null'}`);
+      record.exitCode = code;
+      if (record.status === 'stopped') return;
+      if (code === null) {
+        record.status = 'stopped';
+        write('system', signal ? `Stopped (${signal})` : 'Stopped');
+        this.emit('process-end', record);
+        return;
+      }
+      record.status = code === 0 ? 'completed' : 'failed';
+      write('system', `Exited with code ${code}`);
       this.emit('process-end', record);
     });
 

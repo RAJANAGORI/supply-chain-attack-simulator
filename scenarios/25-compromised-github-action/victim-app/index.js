@@ -19,6 +19,10 @@
 'use strict';
 
 console.log('');
+console.log('SCAS runner: Node simulator');
+console.log('nektos/act did not execute .github/workflows/ci.yml.');
+console.log('The lines below are this script, not an act log.');
+console.log('');
 console.log('='.repeat(60));
 console.log('  CI Pipeline: acme-webapp (simulated GitHub Actions)');
 console.log('='.repeat(60));

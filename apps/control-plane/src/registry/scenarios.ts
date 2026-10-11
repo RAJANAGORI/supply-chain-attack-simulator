@@ -55,6 +55,7 @@ function baseScenario(
     steps,
     captures: extra.captures ?? [capture(port, capturePath)],
     floci: extra.floci,
+    act: extra.act,
     docs: {
       readme: `scenarios/${slug}/README.md`,
       detect: `scenarios/${slug}/DETECT.md`,
@@ -88,7 +89,34 @@ export const SCENARIOS: ScenarioDefinition[] = [
   ]),
   baseScenario('05', '05-build-compromise', 'GitHub Actions workflow injection', 'Advanced', 3000, [
     victimStep('run-ci', 'Run compromised CI pipeline', 'bash', ['../run-ci.sh'], 'victim-app'),
-  ], { floci: { seed: 'infrastructure/floci/seed.sh', verify: 'infrastructure/floci/verify.sh' } }),
+  ], {
+    floci: { seed: 'infrastructure/floci/seed.sh', verify: 'infrastructure/floci/verify.sh' },
+    act: {
+      tool: 'nektos/act',
+      workflow: 'victim-app/.github/workflows/build.yml',
+      summary:
+        'Run executes build.yml with nektos/act, a local GitHub Actions runner. act reads that file and runs the steps on this machine. It does not download the actions from GitHub. The bindings below are why the lab action runs.',
+      maps: [
+        {
+          uses: 'vendor/build-action@v1',
+          local: 'malicious-action/',
+          why: 'The publish step. The mutable tag is bound to the lab action folder.',
+        },
+        {
+          uses: 'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683',
+          local: 'scenarios/_shared/act-stubs/checkout',
+          why: 'Stub so the job can start. act does not fetch the real checkout action.',
+        },
+        {
+          uses: 'actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b',
+          local: 'scenarios/_shared/act-stubs/setup-node',
+          why: 'Stub, for the same reason.',
+        },
+      ],
+      fallback:
+        'If act is missing or SCAS_SKIP_ACT=1, this button runs npm run ci. That Node script prints CI-looking lines. It does not execute build.yml. The terminal banner says which one you got.',
+    },
+  }),
   {
     id: '06',
     slug: '06-sha-hulud',
@@ -289,7 +317,24 @@ export const SCENARIOS: ScenarioDefinition[] = [
   ], { ports: [3024] }),
   baseScenario('25', '25-compromised-github-action', 'Compromised reusable GitHub Action', 'Advanced', 3025, [
     victimStep('run', 'Run compromised workflow', 'bash', ['../run-ci.sh'], 'victim-app'),
-  ], { ports: [3025] }),
+  ], {
+    ports: [3025],
+    act: {
+      tool: 'nektos/act',
+      workflow: 'victim-app/.github/workflows/ci.yml',
+      summary:
+        'Run executes ci.yml with nektos/act, a local GitHub Actions runner. act reads that file and runs the steps on this machine. It does not download the action from GitHub. The binding below is why the lab checkout runs.',
+      maps: [
+        {
+          uses: 'example/actions/checkout@v3',
+          local: 'victim-app/.github/actions/checkout',
+          why: 'act looks up example/actions@v3, then runs the checkout directory in that folder. The @v3 tag in the workflow is bound to the lab copy.',
+        },
+      ],
+      fallback:
+        'If act is missing or SCAS_SKIP_ACT=1, this button runs npm start. That script prints CI-looking lines and loads the action with require(). It does not execute ci.yml. The terminal banner says which one you got.',
+    },
+  }),
 ];
 
 export function getScenario(id: string): ScenarioDefinition | undefined {

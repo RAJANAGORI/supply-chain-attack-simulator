@@ -49,11 +49,11 @@ export function PurpleReversal({
       }
     >
       <p className="text-sm leading-relaxed text-ink-secondary">
-        You ran the attack and saw the capture. Now stop it. Write a file named{' '}
+        You ran the attack and saw the capture. Now stop it. Re-run writes{' '}
         <code className="rounded bg-canvas-hover px-1.5 py-0.5 font-mono text-[11px] text-ink-primary">
           dependency-guard.json
         </code>{' '}
-        in this lab's victim directory that blocks the malicious package:
+        into this lab's victim directory with the block list below, then starts the app with that guard loaded:
       </p>
       <pre className="mt-3 overflow-auto rounded-xl border border-line bg-[#0c0b14] p-4 font-mono text-[11px] leading-relaxed text-white/80">
         {`{
@@ -71,8 +71,14 @@ export function PurpleReversal({
         </Btn>
         {result && (
           <StatusPill
-            status={result.held ? 'online' : 'warn'}
-            label={result.held ? 'Control held' : 'Attack still fired'}
+            status={result.commandOk === false ? 'warn' : result.held ? 'online' : 'warn'}
+            label={
+              result.commandOk === false
+                ? 'Run failed'
+                : result.held
+                  ? 'Control held'
+                  : 'Attack still fired'
+            }
           />
         )}
       </div>

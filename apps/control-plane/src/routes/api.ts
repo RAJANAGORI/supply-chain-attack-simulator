@@ -1,10 +1,13 @@
 import { Router } from 'express';
 import { spawn } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { resolve } from 'node:path';
 import { SCENARIOS, getScenario } from '../registry/scenarios.js';
 import type { PlatformStatus } from '../registry/types.js';
 import { processManager } from '../process-manager.js';
+import { probeAct } from '../act-status.js';
+import { probeFloci } from '../floci-status.js';
 import { buildLabEnv, getRepoRoot, resolveScenarioCwd } from '../env.js';
 import {
   dockerLabSetup,
@@ -149,7 +152,7 @@ export function createApiRouter(): Router {
     res.json(list);
   });
 
-  router.get('/scenarios/:id', (req, res) => {
+  router.get('/scenarios/:id', async (req, res) => {
     const scenario = getScenario(req.params.id);
     if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
     let lesson = null;
@@ -158,10 +161,13 @@ export function createApiRouter(): Router {
     } catch (err) {
       console.error(`lesson load failed for ${scenario.id}:`, err);
     }
+    const flociRuntime = await probeFloci(scenario.id, scenario.floci);
     res.json({
       ...scenario,
       lesson,
       processes: processManager.list().filter((p) => p.scenarioId === scenario.id),
+      ...(scenario.act ? { actRuntime: probeAct() } : {}),
+      flociRuntime,
     });
   });
 
@@ -595,14 +601,17 @@ export function createApiRouter(): Router {
 
   /**
    * Purple-team reversal. Re-runs the scenario's "run" step with the learner's
-   * dependency-guard preloaded (node -r _shared/dependency-guard.js) and reports
+   * dependency-guard preloaded (node -r, or NODE_OPTIONS --require for npm) and reports
    * whether the attack still produced a capture. If the guard blocked the
    * malicious package, capture count stays flat and the control held.
    */
   router.post('/scenarios/:id/reversal', async (req, res) => {
     const scenario = getScenario(req.params.id);
     if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
-    const runStep = scenario.steps.find((s) => s.id === 'run') ?? scenario.steps[scenario.steps.length - 1];
+    const runStep =
+      scenario.steps.find((s) => s.id === 'run' || s.id === 'run-bad' || s.id === 'run-ci') ??
+      scenario.steps.find((s) => s.id.startsWith('run')) ??
+      scenario.steps[scenario.steps.length - 1];
     if (!runStep) return res.status(400).json({ error: 'Scenario has no runnable step' });
 
     const countCaptures = async (): Promise<number> => {
@@ -625,23 +634,67 @@ export function createApiRouter(): Router {
     const before = await countCaptures();
     const guardPath = resolve(REPO, 'scenarios/_shared/dependency-guard.js');
     const cwd = resolveScenarioCwd(scenario.setup.cwd, runStep.cwd);
+    const lesson = loadLesson(scenario);
+    const blockedPackage = lesson?.reversal?.blockedPackage?.trim();
+    const guardFile = resolve(cwd, 'dependency-guard.json');
+    if (blockedPackage) {
+      ensureGuardFile(guardFile, blockedPackage);
+    }
 
-    // Prepend the guard to any existing -r preloads so both apply.
-    const args = ['-r', guardPath, ...(runStep.args ?? [])];
+    // `npm start` prints `node -r testbench-env.js index.js` and npm does not
+    // keep a NODE_OPTIONS --require on that process. Run that node command
+    // ourselves and put the guard in front of the other -r flags.
+    const nodeCmd = runStep.command === 'node' || runStep.command === 'nodejs';
+    const fromNpm = !nodeCmd ? nodeArgsFromNpmStart(cwd, guardPath) : null;
+    const command = fromNpm?.command ?? runStep.command;
+    const args = fromNpm
+      ? fromNpm.args
+      : nodeCmd
+        ? ['-r', guardPath, ...(runStep.args ?? [])]
+        : [...(runStep.args ?? [])];
+    const env: Record<string, string> = { SCAS_GUARD_FILE: guardFile };
+    if (!nodeCmd && !fromNpm) {
+      const flag = `--require ${JSON.stringify(guardPath)}`;
+      const prev = (process.env.NODE_OPTIONS ?? '').trim();
+      env.NODE_OPTIONS = prev ? `${prev} ${flag}` : flag;
+    }
+
     const record = processManager.runCommand({
       label: `Reversal: ${runStep.label} (guarded)`,
-      command: runStep.command,
+      command,
       args,
       cwd,
       scenarioId: scenario.id,
       stepId: 'reversal',
       shell: runStep.shell,
+      env,
     });
 
     // Give the guarded run a moment to either fire or be blocked, then compare.
     await new Promise((r) => setTimeout(r, 2500));
     const after = await countCaptures();
-    const held = after <= before;
+    const logs = processManager.getLogs(record.id).map((l) => l.line).join('\n');
+    const finished = processManager.get(record.id);
+    const guardBlocked = logs.includes('[dependency-guard] blocked require');
+    const commandOk =
+      guardBlocked ||
+      finished?.status === 'running' ||
+      finished?.status === 'completed' ||
+      finished?.exitCode === 0;
+    const held = commandOk && after <= before;
+
+    let message: string;
+    if (!commandOk) {
+      message =
+        'The guarded run failed before the control could be tested. The victim command did not start. Check the terminal for the error.';
+    } else if (held) {
+      message = guardBlocked
+        ? 'Your control held. The guard refused the package, so the payload did not run and no new capture landed.'
+        : 'Your control held - the guarded run produced no new capture. The attack was blocked.';
+    } else {
+      message =
+        'The attack still fired. Check that dependency-guard.json names the malicious package and sits in the victim working directory.';
+    }
 
     res.json({
       async: true,
@@ -649,11 +702,10 @@ export function createApiRouter(): Router {
       record,
       reversal: {
         held,
+        commandOk,
         capturesBefore: before,
         capturesAfter: after,
-        message: held
-          ? 'Your control held - the guarded run produced no new capture. The attack was blocked.'
-          : 'The attack still fired. Check that dependency-guard.json names the malicious package and sits in the victim working directory.',
+        message,
       },
     });
   });
@@ -821,4 +873,49 @@ export function createApiRouter(): Router {
   });
 
   return router;
+}
+
+function splitShellWords(input: string): string[] {
+  const out: string[] = [];
+  const re = /"([^"]*)"|'([^']*)'|(\S+)/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(input))) out.push(match[1] ?? match[2] ?? match[3]);
+  return out;
+}
+
+/** Turn `npm start` into `node -r <guard> …` using the victim package.json start script. */
+function nodeArgsFromNpmStart(
+  cwd: string,
+  guardPath: string,
+): { command: string; args: string[] } | null {
+  const pkgPath = resolve(cwd, 'package.json');
+  if (!existsSync(pkgPath)) return null;
+  try {
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as { scripts?: { start?: string } };
+    const start = pkg.scripts?.start?.trim();
+    if (!start) return null;
+    const parts = splitShellWords(start);
+    if (parts[0] !== 'node' && parts[0] !== 'nodejs') return null;
+    return { command: parts[0], args: ['-r', guardPath, ...parts.slice(1)] };
+  } catch {
+    return null;
+  }
+}
+
+/** Place the lesson block list where the guard reads it, without wiping a file the learner already edited. */
+function ensureGuardFile(file: string, blockedPackage: string): void {
+  let names: string[] = [];
+  if (existsSync(file)) {
+    try {
+      const raw = JSON.parse(readFileSync(file, 'utf8')) as { block?: unknown };
+      if (Array.isArray(raw.block)) {
+        names = raw.block.filter((x): x is string => typeof x === 'string');
+      }
+    } catch {
+      names = [];
+    }
+  }
+  if (names.includes(blockedPackage)) return;
+  names.push(blockedPackage);
+  writeFileSync(file, `${JSON.stringify({ block: names }, null, 2)}\n`);
 }
