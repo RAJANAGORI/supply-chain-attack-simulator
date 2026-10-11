@@ -36,6 +36,7 @@ coverage/
 tmp/
 temp/
 *.tmp
+**/dependency-guard.json
 
 # Docker volumes
 verdaccio-storage/

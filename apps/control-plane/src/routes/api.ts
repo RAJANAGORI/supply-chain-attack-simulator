@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { spawn } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { resolve } from 'node:path';
 import { SCENARIOS, getScenario } from '../registry/scenarios.js';
@@ -607,7 +608,10 @@ export function createApiRouter(): Router {
   router.post('/scenarios/:id/reversal', async (req, res) => {
     const scenario = getScenario(req.params.id);
     if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
-    const runStep = scenario.steps.find((s) => s.id === 'run') ?? scenario.steps[scenario.steps.length - 1];
+    const runStep =
+      scenario.steps.find((s) => s.id === 'run' || s.id === 'run-bad' || s.id === 'run-ci') ??
+      scenario.steps.find((s) => s.id.startsWith('run')) ??
+      scenario.steps[scenario.steps.length - 1];
     if (!runStep) return res.status(400).json({ error: 'Scenario has no runnable step' });
 
     const countCaptures = async (): Promise<number> => {
@@ -630,14 +634,26 @@ export function createApiRouter(): Router {
     const before = await countCaptures();
     const guardPath = resolve(REPO, 'scenarios/_shared/dependency-guard.js');
     const cwd = resolveScenarioCwd(scenario.setup.cwd, runStep.cwd);
+    const lesson = loadLesson(scenario);
+    const blockedPackage = lesson?.reversal?.blockedPackage?.trim();
+    const guardFile = resolve(cwd, 'dependency-guard.json');
+    if (blockedPackage) {
+      ensureGuardFile(guardFile, blockedPackage);
+    }
 
-    // `node -r guard script` is valid. `npm -r guard start` is not: npm treats
-    // -r as a subcommand. npm labs inherit the guard through NODE_OPTIONS, which
-    // Node applies to the process npm spawns for the start script.
+    // `npm start` prints `node -r testbench-env.js index.js` and npm does not
+    // keep a NODE_OPTIONS --require on that process. Run that node command
+    // ourselves and put the guard in front of the other -r flags.
     const nodeCmd = runStep.command === 'node' || runStep.command === 'nodejs';
-    const args = nodeCmd ? ['-r', guardPath, ...(runStep.args ?? [])] : [...(runStep.args ?? [])];
-    const env: Record<string, string> = {};
-    if (!nodeCmd) {
+    const fromNpm = !nodeCmd ? nodeArgsFromNpmStart(cwd, guardPath) : null;
+    const command = fromNpm?.command ?? runStep.command;
+    const args = fromNpm
+      ? fromNpm.args
+      : nodeCmd
+        ? ['-r', guardPath, ...(runStep.args ?? [])]
+        : [...(runStep.args ?? [])];
+    const env: Record<string, string> = { SCAS_GUARD_FILE: guardFile };
+    if (!nodeCmd && !fromNpm) {
       const flag = `--require ${JSON.stringify(guardPath)}`;
       const prev = (process.env.NODE_OPTIONS ?? '').trim();
       env.NODE_OPTIONS = prev ? `${prev} ${flag}` : flag;
@@ -645,7 +661,7 @@ export function createApiRouter(): Router {
 
     const record = processManager.runCommand({
       label: `Reversal: ${runStep.label} (guarded)`,
-      command: runStep.command,
+      command,
       args,
       cwd,
       scenarioId: scenario.id,
@@ -857,4 +873,49 @@ export function createApiRouter(): Router {
   });
 
   return router;
+}
+
+function splitShellWords(input: string): string[] {
+  const out: string[] = [];
+  const re = /"([^"]*)"|'([^']*)'|(\S+)/g;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(input))) out.push(match[1] ?? match[2] ?? match[3]);
+  return out;
+}
+
+/** Turn `npm start` into `node -r <guard> …` using the victim package.json start script. */
+function nodeArgsFromNpmStart(
+  cwd: string,
+  guardPath: string,
+): { command: string; args: string[] } | null {
+  const pkgPath = resolve(cwd, 'package.json');
+  if (!existsSync(pkgPath)) return null;
+  try {
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as { scripts?: { start?: string } };
+    const start = pkg.scripts?.start?.trim();
+    if (!start) return null;
+    const parts = splitShellWords(start);
+    if (parts[0] !== 'node' && parts[0] !== 'nodejs') return null;
+    return { command: parts[0], args: ['-r', guardPath, ...parts.slice(1)] };
+  } catch {
+    return null;
+  }
+}
+
+/** Place the lesson block list where the guard reads it, without wiping a file the learner already edited. */
+function ensureGuardFile(file: string, blockedPackage: string): void {
+  let names: string[] = [];
+  if (existsSync(file)) {
+    try {
+      const raw = JSON.parse(readFileSync(file, 'utf8')) as { block?: unknown };
+      if (Array.isArray(raw.block)) {
+        names = raw.block.filter((x): x is string => typeof x === 'string');
+      }
+    } catch {
+      names = [];
+    }
+  }
+  if (names.includes(blockedPackage)) return;
+  names.push(blockedPackage);
+  writeFileSync(file, `${JSON.stringify({ block: names }, null, 2)}\n`);
 }
