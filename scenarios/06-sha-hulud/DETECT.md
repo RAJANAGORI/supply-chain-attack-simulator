@@ -5,8 +5,9 @@
 - Unexpected `postinstall` scripts in installed packages.
 - File-system reads of `~/.npmrc`, `~/.git-credentials`, project `.npmrc`, and project `.env` during `npm install`.
 - Local beacons to `127.0.0.1:3001` (credential harvester), `127.0.0.1:3003/publish` (mock registry), and `127.0.0.1:3002/backdoor-pr` (GitHub simulator).
-- Evidence of a malicious publish for `victim-utils` or another victim-maintained package.
-- Evidence of a backdoor PR opened against a victim repository.
+- Evidence of a malicious publish for each `@victim-org/*` package named in `package-lock.json` (`victim-utils`, `victim-api`, `victim-logger`, `victim-auth`).
+- Evidence of a backdoor PR opened against each of those package repositories.
+- A `propagation_complete` event on the harvester whose `packagesInfecting` count matches the publish log.
 
 ## Sample Log Lines
 
@@ -65,7 +66,7 @@ rule Shai_Hulud_Token_Theft_Indicator {
 
 ## EDR/SIEM What To Expect
 
-- A single `npm install` process that reads credential files and makes multiple localhost HTTP POSTs.
+- A single `npm install` process that reads credential files, then makes one harvest POST followed by a publish POST and a backdoor-PR POST for every `@victim-org/*` package in the lockfile.
 - Three mock-server processes running concurrently: credential harvester, mock registry, and GitHub simulator.
 - Artifacts written to:
   - `infrastructure/captured-credentials.json`

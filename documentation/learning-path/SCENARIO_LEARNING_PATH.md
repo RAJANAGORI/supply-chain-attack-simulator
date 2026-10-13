@@ -73,7 +73,7 @@ Use these modules for deeper engineering teams who need production-grade detecti
 ### Scenario 06: SHA-Hulud
 
 - **Path**: `scenarios/06-sha-hulud/`
-- **Outcome**: analyze self-propagating attack behavior and incident-response priorities.
+- **Outcome**: trace one install that steals npm and GitHub tokens, then republishes every `@victim-org/*` package in the lockfile and opens a backdoor PR per repo.
 
 ### Scenario 09: Package Signing Bypass
 

@@ -68,16 +68,16 @@
     "scenario_id": "06",
     "title": "Shai-Hulud (Self-Replicating)",
     "folder": "06-sha-hulud",
-    "victim_label": "victim-app (npm install + npm start)",
-    "malicious_label": "data-processor (postinstall)",
+    "victim_label": "victim-app (npm install)",
+    "malicious_label": "shai-hulud (postinstall)",
     "mock_label": "credential-harvester :3001",
     "mock_endpoint": "POST /collect",
-    "trigger_action": "postinstall harvests credentials",
-    "mock_start": "cd infrastructure && node credential-harvester.js",
-    "lab_run": "cd victim-app && npm install ../compromised-package/data-processor && npm start",
-    "verify_cli": "curl -s http://localhost:3001/captured-credentials",
+    "trigger_action": "postinstall harvests tokens, then republishes @victim-org/* from the lockfile",
+    "mock_start": "cd infrastructure && node credential-harvester.js & node github-actions-simulator.js & node mock-registry.js",
+    "lab_run": "cd victim-app && npm install && npm start",
+    "verify_cli": "curl -s http://localhost:3001/captured-credentials; curl -s http://localhost:3003/published-packages; curl -s http://localhost:3002/backdoor-prs",
     "capture_file": "captured-credentials.json",
-    "notes": "Also runs mock-cdn :3000 and github-actions-simulator :3002 for replication simulation."
+    "notes": "Harvester :3001, GitHub sim :3002, mock registry :3003. One install fans out to every @victim-org package in package-lock.json."
   },
   {
     "scenario_id": "07",

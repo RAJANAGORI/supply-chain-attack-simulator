@@ -33,76 +33,75 @@
 
 <rect width="1520" height="2224" fill="#ffffff"/>
 <text class="title" x="28" y="32" font-size="22">Scenario 06 — code-level Shai-Hulud (Self-Replicating) workflow (detailed)</text>
-<text class="caption" x="28" y="54" font-size="13">What the developer sees vs what actually runs — postinstall fetches /bundle.js from mock CDN; IIFE harvests to credential-harvester :3001</text>
+<text class="caption" x="28" y="54" font-size="13">What the developer sees vs what actually runs — shai-hulud postinstall reads the lockfile and republishes every @victim-org package</text>
 
 <rect class="box" x="28" y="72" width="1464" height="40" rx="8" fill="#fffbeb" stroke="#d97706" filter="url(#soft)"/>
-<text x="44" y="97" text-anchor="start" font-size="12" font-weight="600" fill="#0f172a">Trigger: postinstall fetch+eval → IIFE harvest  ·  Gate: TESTBENCH_MODE === 'enabled'  ·  Exfil: POST localhost:3001/collect  ·  Evidence: infrastructure/captured-credentials.json  ·  Cover: data-processor API</text>
+<text x="44" y="97" text-anchor="start" font-size="12" font-weight="600" fill="#0f172a">Trigger: postinstall.js  ·  Gate: TESTBENCH_MODE === 'enabled'  ·  Harvest: POST localhost:3001/collect  ·  Fan-out: :3003/publish + :3002/backdoor-pr  ·  Evidence: captured-credentials.json</text>
 
 <!-- ========== PANEL A ========== -->
 <rect class="box" x="28" y="132" width="1464" height="360" rx="12" fill="#f8fafc" stroke="#cbd5e1" filter="url(#soft)"/>
-<text class="panel-title" x="44" y="158">Panel A — Identity / deception: same name; CDN bundle (what manifests expose)</text>
+<text class="panel-title" x="44" y="158">Panel A — Identity / deception: lockfile fan-out (what manifests expose)</text>
 
 <rect class="box" x="80" y="178" width="500" height="52" rx="8" fill="#dbeafe" stroke="#2563eb" filter="url(#soft)"/>
 <text x="96" y="196" font-size="13" font-weight="500" fill="#0f172a">Intended (review-only)</text>
-<text x="96" y="214" font-size="13" font-weight="500" fill="#0f172a">legitimate-package/data-processor</text>
+<text x="96" y="214" font-size="13" font-weight="500" fill="#0f172a">victim-app/packages/@victim-org/*</text>
 <rect class="box" x="820" y="178" width="600" height="52" rx="8" fill="#fee2e2" stroke="#dc2626" filter="url(#soft)"/>
 <text x="836" y="196" font-size="13" font-weight="500" fill="#0f172a">Installed / active (victim uses)</text>
-<text x="836" y="214" font-size="13" font-weight="500" fill="#0f172a">compromised-package/data-processor</text>
+<text x="836" y="214" font-size="13" font-weight="500" fill="#0f172a">malicious-packages/shai-hulud</text>
 
 <path class="arrow" d="M580 204 L820 204" stroke="#dc2626" stroke-width="2.75" stroke-dasharray="7 5" marker-end="url(#arrowhead-mal)"/>
-<rect class="edge-pill" x="605" y="192.5" width="190" height="23" rx="999" fill="#ffffff" stroke="#dc2626"/>
-<text class="edge-pill-text" x="700" y="205" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="#dc2626">same name; CDN bundle</text>
+<rect class="edge-pill" x="625.5" y="192.5" width="149" height="23" rx="999" fill="#ffffff" stroke="#dc2626"/>
+<text class="edge-pill-text" x="700" y="205" text-anchor="middle" dominant-baseline="middle" font-size="13" font-weight="700" fill="#dc2626">lockfile fan-out</text>
 
 <text x="80" y="258" text-anchor="start" font-size="12" font-weight="600" fill="#64748b">Field</text>
-<text x="260" y="258" text-anchor="start" font-size="12" font-weight="600" fill="#2563eb">legitimate-package/data-processor</text>
-<text x="820" y="258" text-anchor="start" font-size="12" font-weight="600" fill="#dc2626">compromised-package/data-processor</text>
+<text x="260" y="258" text-anchor="start" font-size="12" font-weight="600" fill="#2563eb">victim-app/packages/@victim-org/*</text>
+<text x="820" y="258" text-anchor="start" font-size="12" font-weight="600" fill="#dc2626">malicious-packages/shai-hulud</text>
 <path d="M80 268 H1440" stroke="#e2e8f0" stroke-width="2" fill="none"/>
 
 <text x="80" y="292" text-anchor="start" font-size="12" font-weight="600" fill="#64748b">name</text>
-<text x="260" y="292" text-anchor="start" font-size="12" font-weight="500" fill="#0f172a">data-processor</text>
-<text x="820" y="292" text-anchor="start" font-size="12" font-weight="500" fill="#0f172a">data-processor</text>
-<text x="80" y="314" text-anchor="start" font-size="12" font-weight="600" fill="#64748b">version</text>
-<text x="260" y="314" text-anchor="start" font-size="12" font-weight="500" fill="#0f172a">1.2.0</text>
-<text x="820" y="314" text-anchor="start" font-size="12" font-weight="700" fill="#dc2626">1.2.1</text>
-<text x="80" y="336" text-anchor="start" font-size="12" font-weight="600" fill="#64748b">lifecycle</text>
-<text x="260" y="336" text-anchor="start" font-size="12" font-weight="500" fill="#0f172a">(none)</text>
-<text x="820" y="336" text-anchor="start" font-size="12" font-weight="700" fill="#dc2626">postinstall→eval bundle</text>
+<text x="260" y="292" text-anchor="start" font-size="12" font-weight="500" fill="#0f172a">@victim-org/*</text>
+<text x="820" y="292" text-anchor="start" font-size="12" font-weight="700" fill="#dc2626">shai-hulud</text>
+<text x="80" y="314" text-anchor="start" font-size="12" font-weight="600" fill="#64748b">lifecycle</text>
+<text x="260" y="314" text-anchor="start" font-size="12" font-weight="500" fill="#0f172a">(none)</text>
+<text x="820" y="314" text-anchor="start" font-size="12" font-weight="700" fill="#dc2626">postinstall.js</text>
+<text x="80" y="336" text-anchor="start" font-size="12" font-weight="600" fill="#64748b">targets</text>
+<text x="260" y="336" text-anchor="start" font-size="12" font-weight="500" fill="#0f172a">4 maintained pkgs</text>
+<text x="820" y="336" text-anchor="start" font-size="12" font-weight="700" fill="#dc2626">republish each one</text>
 <text x="80" y="358" text-anchor="start" font-size="12" font-weight="600" fill="#64748b">evidence</text>
 <text x="260" y="358" text-anchor="start" font-size="12" font-weight="500" fill="#0f172a">N/A</text>
-<text x="820" y="358" text-anchor="start" font-size="12" font-weight="700" fill="#dc2626">captured-credentials.json</text>
+<text x="820" y="358" text-anchor="start" font-size="12" font-weight="700" fill="#dc2626">credentials + publishes + PRs</text>
 <text x="80" y="380" text-anchor="start" font-size="12" font-weight="600" fill="#64748b">deception</text>
-<text x="260" y="380" text-anchor="start" font-size="12" font-weight="500" fill="#0f172a">trusted</text>
-<text x="820" y="380" text-anchor="start" font-size="12" font-weight="700" fill="#dc2626">CDN second-stage payload</text>
+<text x="260" y="380" text-anchor="start" font-size="12" font-weight="500" fill="#0f172a">internal packages</text>
+<text x="820" y="380" text-anchor="start" font-size="12" font-weight="700" fill="#dc2626">stolen publish token</text>
 
 <rect class="box" x="80" y="400" width="1340" height="78" rx="8" fill="#fef2f2" stroke="#dc2626" filter="url(#soft)"/>
 <text x="96" y="418" text-anchor="start" font-size="11" font-weight="600" fill="#dc2626">victim-app/package.json</text>
 <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="438" font-size="12" font-weight="600" fill="#dc2626">dependencies: {</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="453" font-size="12" font-weight="600" fill="#dc2626">  &quot;data-processor&quot;: &quot;file:../compromised-package/data-processor&quot;</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="468" font-size="12" font-weight="600" fill="#dc2626">}</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="453" font-size="12" font-weight="600" fill="#dc2626">  &quot;shai-hulud&quot;: &quot;file:../malicious-packages/shai-hulud&quot;,</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="468" font-size="12" font-weight="600" fill="#dc2626">  &quot;@victim-org/victim-utils&quot;: &quot;file:./packages/victim-utils&quot;</text>
 
 <!-- ========== PANEL B ========== -->
 <rect class="box" x="28" y="516" width="1464" height="300" rx="12" fill="#f8fafc" stroke="#cbd5e1" filter="url(#soft)"/>
-<text class="panel-title" x="44" y="542">Panel B — Code surfaces side-by-side (CDN payload / harvest; not a thin step list)</text>
+<text class="panel-title" x="44" y="542">Panel B — Code surfaces side-by-side (harvest then republish; not a thin step list)</text>
 
 <rect class="box" x="80" y="562" width="560" height="228" rx="8" fill="#eff6ff" stroke="#2563eb" filter="url(#soft)"/>
-<text x="96" y="586" text-anchor="start" font-size="13" font-weight="600" fill="#2563eb">legitimate-package/data-processor</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="612" font-size="12" font-weight="500" fill="#0f172a">exports clean processing API</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="628" font-size="12" font-weight="500" fill="#0f172a">✓ No postinstall script</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="644" font-size="12" font-weight="500" fill="#0f172a">✓ No CDN fetch / eval</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="660" font-size="12" font-weight="500" fill="#0f172a">version 1.2.0</text>
+<text x="96" y="586" text-anchor="start" font-size="13" font-weight="600" fill="#2563eb">victim-app/packages/@victim-org/*</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="612" font-size="12" font-weight="500" fill="#0f172a">@victim-org/victim-utils@1.0.0</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="628" font-size="12" font-weight="500" fill="#0f172a">also api, logger, auth</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="644" font-size="12" font-weight="500" fill="#0f172a">✓ No postinstall script</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="660" font-size="12" font-weight="500" fill="#0f172a">repository: github.com/victim-org/…</text>
 
 <path class="arrow" d="M640 676 L780 676" stroke="#64748b" stroke-width="2.75" marker-end="url(#arrowhead)"/>
-<rect class="edge-pill" x="621.5" y="665" width="177" height="22" rx="999" fill="#ffffff" stroke="#64748b"/>
-<text class="edge-pill-text" x="710" y="677" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#64748b">CDN payload / harvest</text>
+<rect class="edge-pill" x="618" y="665" width="184" height="22" rx="999" fill="#ffffff" stroke="#64748b"/>
+<text class="edge-pill-text" x="710" y="677" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#64748b">harvest then republish</text>
 
 <rect class="box" x="780" y="562" width="640" height="228" rx="8" fill="#fef2f2" stroke="#dc2626" filter="url(#soft)"/>
-<text x="796" y="586" text-anchor="start" font-size="13" font-weight="600" fill="#dc2626">postinstall + templates/bundle.js</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="612" font-size="12" font-weight="500" fill="#0f172a">package.json postinstall: node -e …</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="628" font-size="12" font-weight="500" fill="#0f172a">  http.get localhost:3000/bundle.js</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="644" font-size="12" font-weight="500" fill="#0f172a">  → eval(d) when TESTBENCH_MODE</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="660" font-size="12" font-weight="500" fill="#0f172a">bundle.js: anonymous IIFE</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="676" font-size="12" font-weight="500" fill="#0f172a">  scan .npmrc/.env + env tokens</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="692" font-size="12" font-weight="500" fill="#0f172a">  POST localhost:3001/collect</text>
+<text x="796" y="586" text-anchor="start" font-size="13" font-weight="600" fill="#dc2626">malicious-packages/shai-hulud/postinstall.js</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="612" font-size="12" font-weight="500" fill="#0f172a">if (TESTBENCH_MODE !== 'enabled') return</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="628" font-size="12" font-weight="500" fill="#0f172a">read ~/.npmrc + ~/.git-credentials</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="644" font-size="12" font-weight="500" fill="#0f172a">POST localhost:3001/collect</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="660" font-size="12" font-weight="500" fill="#0f172a">discover @victim-org/* in lockfile</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="796" y="676" font-size="12" font-weight="500" fill="#0f172a">POST :3003/publish + :3002/backdoor-pr</text>
 
 <!-- ========== PANEL C ========== -->
 <rect class="box" x="28" y="840" width="1464" height="220" rx="12" fill="#f8fafc" stroke="#cbd5e1" filter="url(#soft)"/>
@@ -112,8 +111,8 @@
 <text x="96" y="912" text-anchor="start" font-size="13" font-weight="600" fill="#475569">1) ./setup.sh</text>
 <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="936" font-size="11" font-weight="500" fill="#0f172a">source enable-testbench.sh</text>
 <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="951" font-size="11" font-weight="500" fill="#0f172a">  → TESTBENCH_MODE=enabled</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="966" font-size="11" font-weight="500" fill="#0f172a">start mock-cdn.js (:3000) + harvester (:3001)</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="981" font-size="11" font-weight="500" fill="#0f172a">seed compromised-package/data-processor</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="966" font-size="11" font-weight="500" fill="#0f172a">harvester :3001, GitHub sim :3002</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="981" font-size="11" font-weight="500" fill="#0f172a">mock registry :3003</text>
 <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="996" font-size="11" font-weight="500" fill="#0f172a">cd victim-app &amp;&amp; npm install</text>
 
 <path class="arrow" d="M440 960 L520 960" stroke="#334155" stroke-width="2.75" marker-end="url(#arrowhead)"/>
@@ -122,11 +121,11 @@
 
 <rect class="box" x="520" y="890" width="380" height="140" rx="8" fill="#f0fdf4" stroke="#16a34a" filter="url(#soft)"/>
 <text x="536" y="912" text-anchor="start" font-size="13" font-weight="600" fill="#16a34a">2) Terminal A — mock collector</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="936" font-size="11" font-weight="500" fill="#0f172a">node infrastructure/mock-cdn.js :3000</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="951" font-size="11" font-weight="500" fill="#0f172a">  GET /bundle.js</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="966" font-size="11" font-weight="500" fill="#0f172a">node infrastructure/credential-harvester.js</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="981" font-size="11" font-weight="500" fill="#0f172a">listen http://localhost:3001</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="996" font-size="11" font-weight="500" fill="#0f172a">POST /collect · GET /captured-credentials</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="936" font-size="11" font-weight="500" fill="#0f172a">credential-harvester.js :3001</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="951" font-size="11" font-weight="500" fill="#0f172a">  POST /collect</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="966" font-size="11" font-weight="500" fill="#0f172a">mock-registry.js :3003</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="981" font-size="11" font-weight="500" fill="#0f172a">  POST /publish</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="536" y="996" font-size="11" font-weight="500" fill="#0f172a">github-actions-simulator.js :3002</text>
 
 <path class="arrow" d="M900 960 L980 960" stroke="#334155" stroke-width="2.75" marker-end="url(#arrowhead)"/>
 <rect class="edge-pill" x="892" y="949.5" width="96" height="21" rx="999" fill="#ffffff" stroke="#334155"/>
@@ -135,12 +134,13 @@
 <rect class="box" x="980" y="890" width="440" height="140" rx="8" fill="#fff7ed" stroke="#ea580c" filter="url(#soft)"/>
 <text x="996" y="912" text-anchor="start" font-size="13" font-weight="600" fill="#ea580c">3) Terminal B — lab run</text>
 <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="936" font-size="11" font-weight="500" fill="#0f172a">cd victim-app &amp;&amp; npm install</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="951" font-size="11" font-weight="500" fill="#0f172a">  postinstall pulls /bundle.js</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="966" font-size="11" font-weight="500" fill="#0f172a">  eval → harvest → :3001/collect</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="981" font-size="11" font-weight="500" fill="#0f172a">npm start (cover API)</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="951" font-size="11" font-weight="500" fill="#0f172a">  postinstall harvests tokens</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="966" font-size="11" font-weight="500" fill="#0f172a">  lockfile → 4 @victim-org pkgs</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="981" font-size="11" font-weight="500" fill="#0f172a">  publish + PR each</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="996" y="996" font-size="11" font-weight="500" fill="#0f172a">npm start (cover only)</text>
 
 <rect class="box" x="80" y="1036" width="1340" height="18" rx="6" fill="#fffbeb" stroke="#d97706" filter="url(#soft)"/>
-<text x="96" y="1049" text-anchor="start" font-size="10" font-weight="600" fill="#d97706">Attack steps (compact): 1:Learner→Victim · 2:Victim→MalPkg · 3:MalPkg→MalPkg · 4:Learner→Victim</text>
+<text x="96" y="1049" text-anchor="start" font-size="10" font-weight="600" fill="#d97706">Attack steps (compact): 1:Learner→Victim · 2:Victim→MalPkg · 3:MalPkg→Mock · 4:MalPkg→MalPkg · 5:MalPkg→Mock</text>
 
 <!-- ========== PANEL D ========== -->
 <rect class="box" x="28" y="1084" width="1464" height="720" rx="12" fill="#f8fafc" stroke="#cbd5e1" filter="url(#soft)"/>
@@ -155,8 +155,8 @@
 <text class="edge-pill-text" x="290" y="1173" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#dc2626">loads</text>
 
 <rect class="box" x="330" y="1140" width="190" height="64" rx="8" fill="#fee2e2" stroke="#dc2626" filter="url(#soft)"/>
-<text x="342" y="1162" font-size="12" font-weight="500" fill="#0f172a">eval(bundle.js)</text>
-<text x="342" y="1180" font-size="12" font-weight="500" fill="#0f172a">anonymous IIFE</text>
+<text x="342" y="1162" font-size="12" font-weight="500" fill="#0f172a">postinstall.js</text>
+<text x="342" y="1180" font-size="12" font-weight="500" fill="#0f172a">lockfile discovery</text>
 
 <path class="arrow" d="M520 1172 L600 1172" stroke="#d97706" stroke-width="2.75" marker-end="url(#arrowhead-gate)"/>
 <rect class="edge-pill" x="531" y="1161" width="58" height="22" rx="999" fill="#ffffff" stroke="#d97706"/>
@@ -181,11 +181,11 @@
 <text class="edge-pill-text" x="920" y="1221" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#2563eb">yes</text>
 
 <rect class="box" x="80" y="1252" width="560" height="240" rx="8" fill="#1e293b" stroke="#0f172a" filter="url(#soft)"/>
-<text x="96" y="1276" text-anchor="start" font-size="13" font-weight="600" fill="#e2e8f0">HTTP from anonymous IIFE in bundle.js</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1300" font-size="11" font-weight="500" fill="#e2e8f0">EXFIL_URL = 'http://localhost:3001/collect'</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1315" font-size="11" font-weight="500" fill="#e2e8f0">POST credentials { files, env, npmrc }</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1330" font-size="11" font-weight="500" fill="#e2e8f0">CDN: GET http://localhost:3000/bundle.js</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1345" font-size="11" font-weight="500" fill="#e2e8f0">Body: hostname, username, tokens…</text>
+<text x="96" y="1276" text-anchor="start" font-size="13" font-weight="600" fill="#e2e8f0">HTTP from shai-hulud/postinstall.js</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1300" font-size="11" font-weight="500" fill="#e2e8f0">harvester http://127.0.0.1:3001/collect</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1315" font-size="11" font-weight="500" fill="#e2e8f0">registry http://127.0.0.1:3003/publish</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1330" font-size="11" font-weight="500" fill="#e2e8f0">github http://127.0.0.1:3002/backdoor-pr</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1345" font-size="11" font-weight="500" fill="#e2e8f0">one publish + one PR per package</text>
 <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1360" font-size="11" font-weight="500" fill="#e2e8f0"></text>
 <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1375" font-size="11" font-weight="500" fill="#e2e8f0"></text>
 <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1390" font-size="11" font-weight="500" fill="#e2e8f0"></text>
@@ -195,9 +195,9 @@
 <text class="edge-pill-text" x="820" y="1261" text-anchor="middle" dominant-baseline="middle" font-size="12" font-weight="700" fill="#2563eb">build payload</text>
 
 <rect class="box" x="900" y="1332" width="520" height="88" rx="8" fill="#f0fdf4" stroke="#16a34a" filter="url(#soft)"/>
-<text x="916" y="1354" text-anchor="start" font-size="13" font-weight="600" fill="#16a34a">credential-harvester :3001 POST /collect</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="916" y="1376" font-size="11" font-weight="500" fill="#0f172a">parse JSON → log credentials</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="916" y="1391" font-size="11" font-weight="500" fill="#0f172a">append → captured-credentials.json → 200</text>
+<text x="916" y="1354" text-anchor="start" font-size="13" font-weight="600" fill="#16a34a">harvester :3001, registry :3003, GitHub :3002</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="916" y="1376" font-size="11" font-weight="500" fill="#0f172a">captures → captured-credentials.json</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="916" y="1391" font-size="11" font-weight="500" fill="#0f172a">publishes → published-packages.json</text>
 
 <path class="arrow" d="M640 1376 L900 1376" stroke="#16a34a" stroke-width="2.75" marker-end="url(#arrowhead-mock)"/>
 <rect class="edge-pill" x="711.5" y="1365" width="117" height="22" rx="999" fill="#ffffff" stroke="#16a34a"/>
@@ -218,10 +218,10 @@
 <text class="edge-pill-text" x="770" y="1501" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="700" fill="#4338ca">SCAS_FLOCI_ENABLED</text>
 
 <rect class="box" x="80" y="1592" width="560" height="100" rx="8" fill="#eff6ff" stroke="#2563eb" filter="url(#soft)"/>
-<text x="96" y="1616" text-anchor="start" font-size="13" font-weight="600" fill="#2563eb">After harvest: package still loads</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1640" font-size="11" font-weight="500" fill="#0f172a">data-processor exports remain usable</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1655" font-size="11" font-weight="500" fill="#0f172a">GET evidence: /captured-credentials</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1670" font-size="11" font-weight="500" fill="#0f172a">file: captured-credentials.json</text>
+<text x="96" y="1616" text-anchor="start" font-size="13" font-weight="600" fill="#2563eb">After fan-out: victim app still starts</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1640" font-size="11" font-weight="500" fill="#0f172a">npm start loads shai-hulud index.js</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1655" font-size="11" font-weight="500" fill="#0f172a">GET /captured-credentials</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1670" font-size="11" font-weight="500" fill="#0f172a">GET /published-packages</text>
 
 <path class="arrow" d="M360 1492 L360 1592" stroke="#2563eb" stroke-width="2.75" marker-end="url(#arrowhead)"/>
 <rect class="edge-pill" x="335" y="1531" width="50" height="22" rx="999" fill="#ffffff" stroke="#2563eb"/>
@@ -230,8 +230,8 @@
 <rect class="box" x="900" y="1592" width="520" height="100" rx="8" fill="#fff7ed" stroke="#ea580c" filter="url(#soft)"/>
 <text x="916" y="1616" text-anchor="start" font-size="13" font-weight="600" fill="#ea580c">What is visible vs invisible</text>
 <text x="916" y="1640" font-size="11" font-weight="500" fill="#0f172a">VISIBLE: install succeeds</text>
-<text x="916" y="1655" font-size="11" font-weight="500" fill="#0f172a">HIDDEN: CDN eval + credential POST</text>
-<text x="916" y="1670" font-size="11" font-weight="500" fill="#0f172a">HINT: curl …/captured-credentials</text>
+<text x="916" y="1655" font-size="11" font-weight="500" fill="#0f172a">HIDDEN: token POST + 4 republishes</text>
+<text x="916" y="1670" font-size="11" font-weight="500" fill="#0f172a">HINT: worm-status.js + the three curls</text>
 
 <path class="arrow" d="M640 1642 L900 1642" stroke="#ea580c" stroke-width="2.75" marker-end="url(#arrowhead)"/>
 <rect class="edge-pill" x="715.5" y="1631.5" width="109" height="21" rx="999" fill="#ffffff" stroke="#ea580c"/>
@@ -243,21 +243,21 @@
 
 <rect class="box" x="80" y="1882" width="400" height="210" rx="8" fill="#f0fdf4" stroke="#16a34a" filter="url(#soft)"/>
 <text x="96" y="1906" text-anchor="start" font-size="13" font-weight="600" fill="#16a34a">Verify evidence</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1932" font-size="11" font-weight="500" fill="#0f172a">curl -s http://localhost:3001/captured-credentials</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1948" font-size="11" font-weight="500" fill="#0f172a">→ { &quot;captures&quot;: [ { timestamp, data } ] }</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1964" font-size="11" font-weight="500" fill="#0f172a"></text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1980" font-size="11" font-weight="500" fill="#0f172a">or read:</text>
-<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1996" font-size="11" font-weight="500" fill="#0f172a">  infrastructure/captured-credentials.json</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1932" font-size="11" font-weight="500" fill="#0f172a">curl -s localhost:3001/captured-credentials</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1948" font-size="11" font-weight="500" fill="#0f172a">curl -s localhost:3003/published-packages</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1964" font-size="11" font-weight="500" fill="#0f172a">curl -s localhost:3002/backdoor-prs</text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1980" font-size="11" font-weight="500" fill="#0f172a"></text>
+<text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="1996" font-size="11" font-weight="500" fill="#0f172a">node detection-tools/worm-status.js</text>
 <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="2012" font-size="11" font-weight="500" fill="#0f172a"></text>
 <text font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" x="96" y="2028" font-size="11" font-weight="500" fill="#0f172a">Optional: floci/verify.sh</text>
 
 <rect class="box" x="560" y="1882" width="420" height="210" rx="8" fill="#fef2f2" stroke="#dc2626" filter="url(#soft)"/>
 <text x="576" y="1906" text-anchor="start" font-size="13" font-weight="600" fill="#dc2626">Code-review red flags</text>
-<text x="576" y="1932" font-size="11" font-weight="500" fill="#0f172a">1. postinstall http.get + eval(bundle)</text>
-<text x="576" y="1948" font-size="11" font-weight="500" fill="#0f172a">2. Evidence at /captured-credentials (not /captured-data)</text>
-<text x="576" y="1964" font-size="11" font-weight="500" fill="#0f172a">3. Dual ports: CDN :3000 + harvester :3001</text>
-<text x="576" y="1980" font-size="11" font-weight="500" fill="#0f172a">4. Scans .npmrc / tokens / .env</text>
-<text x="576" y="1996" font-size="11" font-weight="500" fill="#0f172a">5. Self-replicating worm narrative</text>
+<text x="576" y="1932" font-size="11" font-weight="500" fill="#0f172a">1. postinstall reads ~/.npmrc</text>
+<text x="576" y="1948" font-size="11" font-weight="500" fill="#0f172a">2. postinstall reads ~/.git-credentials</text>
+<text x="576" y="1964" font-size="11" font-weight="500" fill="#0f172a">3. lockfile scan for @victim-org/*</text>
+<text x="576" y="1980" font-size="11" font-weight="500" fill="#0f172a">4. POST /publish and /backdoor-pr</text>
+<text x="576" y="1996" font-size="11" font-weight="500" fill="#0f172a">5. propagation_complete on :3001</text>
 
 <rect class="box" x="1060" y="1882" width="360" height="210" rx="8" fill="#fffbeb" stroke="#d97706" filter="url(#soft)"/>
 <text x="1076" y="1906" text-anchor="start" font-size="13" font-weight="600" fill="#d97706">Safety contract (do not weaken)</text>

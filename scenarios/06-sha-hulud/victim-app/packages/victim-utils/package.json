@@ -1,5 +1,5 @@
 {
-  "name": "victim-utils",
+  "name": "@victim-org/victim-utils",
   "version": "1.0.0",
   "description": "Internal utilities maintained by the victim team",
   "main": "index.js",
@@ -8,5 +8,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/victim-org/victim-utils"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }

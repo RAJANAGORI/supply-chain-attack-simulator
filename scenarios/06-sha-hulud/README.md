@@ -37,10 +37,10 @@ By completing this scenario, you will learn:
 
 ## Background
 
-**Shai-Hulud** (named after the giant sandworms from Dune) now models a realistic token-theft and re-publishing worm. In this lab, a malicious package called `shai-hulud` is installed via `npm install`. Its `postinstall` script harvests npm and GitHub tokens from the local environment and then uses those tokens to spread:
+**Shai-Hulud** (named after the giant sandworms from Dune) models a token-theft and re-publishing worm. In this lab, `npm install` in `victim-app` pulls a package called `shai-hulud`. Its `postinstall` script harvests npm and GitHub tokens, then walks `package-lock.json` for every `@victim-org/*` package the workspace maintains:
 
-1. The stolen **npm token** is used to publish a new, infected version of a package the victim maintains.
-2. The stolen **GitHub token** is used to open a backdoor pull request.
+1. The stolen **npm token** is used to publish a new, infected version of each of those packages (`victim-utils`, `victim-api`, `victim-logger`, `victim-auth`).
+2. The stolen **GitHub token** is used to open a backdoor pull request against each package's repo.
 
 The payload is gated by `TESTBENCH_MODE=enabled` and only communicates with three local mock servers:
 
@@ -50,15 +50,16 @@ The payload is gated by `TESTBENCH_MODE=enabled` and only communicates with thre
 
 ## Scenario Description
 
-A development team installs a small utility called `shai-hulud` in their private workspace. The workspace also contains an internal package called `victim-utils` that the team maintains. The attacker controls `shai-hulud` and has added a malicious `postinstall` script.
+A development team installs a small utility called `shai-hulud` in their private workspace. That workspace also maintains four internal packages under `@victim-org`: `victim-utils`, `victim-api`, `victim-logger`, and `victim-auth`. The attacker controls `shai-hulud` and has added a malicious `postinstall` script.
 
 During `npm install`, the script:
 
 1. Reads `~/.npmrc` and `~/.git-credentials` (plus the project `.npmrc` and `.env` as fallbacks).
 2. Extracts the npm `_authToken` and a GitHub personal access token.
-3. POSTs the harvested tokens to the credential harvester at `127.0.0.1:3001`.
-4. Bumps the patch version of `victim-utils`, adds the same `postinstall` script, and POSTs a simulated malicious publish to `127.0.0.1:3003/publish`.
-5. POSTs a simulated backdoor PR to `127.0.0.1:3002/backdoor-pr`.
+3. POSTs the harvested tokens to the credential harvester at `127.0.0.1:3001/collect`. Harvest happens before any republish.
+4. Reads `package-lock.json` and keeps entries whose name starts with `@victim-org/`.
+5. For each match, bumps the patch version, POSTs a simulated malicious publish to `127.0.0.1:3003/publish`, and POSTs a simulated backdoor PR to `127.0.0.1:3002/backdoor-pr`.
+6. POSTs a `propagation_complete` report back to the harvester, including how many packages it touched.
 
 The application still works normally, so the compromise is easy to miss.
 
@@ -66,9 +67,9 @@ The application still works normally, so the compromise is easy to miss.
 
 The worm does not self-replicate through unknown magic. It replicates because it stole the **ability to publish**:
 
-- The npm token gives the attacker write access to the victim's packages.
+- The npm token gives the attacker write access to every package that token can publish. In this workspace that is the four `@victim-org/*` packages named in the lockfile.
 - Every newly published infected version repeats the same `postinstall` script.
-- Anyone who installs the updated package also exposes their tokens, and the cycle continues.
+- Anyone who installs one of those updated packages also exposes their tokens, and the cycle continues. One install on one laptop is enough to fan out.
 
 This is the core learning point: **worms spread by stealing publish tokens and re-publishing.**
 
@@ -84,7 +85,7 @@ export TESTBENCH_MODE=enabled
 
 - `malicious-packages/shai-hulud/` - the malicious package with `postinstall.js`.
 - `templates/shai-hulud-postinstall.js` - a reusable template of the payload.
-- `victim-app/` - the workspace that installs `shai-hulud` and maintains `victim-utils`.
+- `victim-app/` - the workspace that installs `shai-hulud` and maintains `@victim-org/victim-utils`, `victim-api`, `victim-logger`, and `victim-auth`.
 - `infrastructure/credential-harvester.js` - mock C2 for tokens on port `3001`.
 - `infrastructure/mock-registry.js` - mock npm registry on port `3003`.
 - `infrastructure/github-actions-simulator.js` - mock GitHub on port `3002`.
@@ -114,7 +115,9 @@ cat malicious-packages/shai-hulud/postinstall.js
 
 # Review the victim workspace
 cat victim-app/package.json
+cat victim-app/package-lock.json
 cat victim-app/packages/victim-utils/package.json
+ls victim-app/packages
 
 # Trigger the attack
 cd victim-app
@@ -133,6 +136,9 @@ curl -s http://localhost:3003/published-packages
 
 # Simulated backdoor PR
 curl -s http://localhost:3002/backdoor-prs
+
+# One report across all three logs
+node detection-tools/worm-status.js victim-app
 ```
 
 ### Run the victim application
@@ -171,9 +177,10 @@ Note the `TESTBENCH_MODE` gate. If the environment variable is not set, the payl
 
 ### Part 3: Observe the re-publishing chain (20 minutes)
 
-1. Check `http://localhost:3003/published-packages` for the simulated malicious publish of `victim-utils`.
-2. Check `http://localhost:3002/backdoor-prs` for the simulated backdoor PR.
-3. Compare the original `victim-app/packages/victim-utils/package.json` with the published payload to see what changed.
+1. Check `http://localhost:3003/published-packages`. You should see one `malicious_publish` for each of `@victim-org/victim-utils`, `victim-api`, `victim-logger`, and `victim-auth`, each one patch version higher than the lockfile. The registry rejects the publish (401) when the harvest did not find an npm token. `./setup.sh` plants the fixture `.npmrc` the script sends as `Authorization: Bearer`.
+2. Check `http://localhost:3002/backdoor-prs` for a simulated backdoor PR per repo (`victim-org/victim-utils` and the other three).
+3. Run `node detection-tools/worm-status.js victim-app` and confirm the discovered count matches the publish count.
+4. Compare a local `victim-app/packages/*/package.json` with the published payload. The files on disk stay clean. The infection is the publish the mock registry recorded.
 
 ### Part 4: Detection (25 minutes)
 
@@ -280,8 +287,8 @@ You have completed this scenario when you can:
 
 - [ ] Explain how the `shai-hulud` postinstall script steals tokens.
 - [ ] Show harvested tokens in the credential harvester.
-- [ ] Show a simulated malicious publish in the mock registry.
-- [ ] Show a simulated backdoor PR in the GitHub simulator.
+- [ ] Show a simulated malicious publish for each `@victim-org/*` package in the mock registry.
+- [ ] Show a simulated backdoor PR per package repo in the GitHub simulator.
 - [ ] Detect the payload with the provided scanners.
 - [ ] List concrete prevention controls for publish-token theft.
 - [ ] Explain why worms spread through stolen publish tokens.

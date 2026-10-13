@@ -1,0 +1,16 @@
+{
+  "name": "@victim-org/victim-api",
+  "version": "2.1.0",
+  "description": "Internal API client used across victim org services",
+  "main": "index.js",
+  "author": "Victim Org",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/victim-org/victim-api"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "@victim-org/victim-utils": "^1.0.0"
+  }
+}

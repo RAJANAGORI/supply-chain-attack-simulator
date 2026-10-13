@@ -53,12 +53,13 @@ const SCENARIO_DIAGRAMS = {
     ]
   },
   '06': {
-    intro: 'Shai-Hulud simulation: postinstall on data-processor harvests credentials to credential-harvester :3001.',
+    intro: 'Shai-Hulud: shai-hulud postinstall harvests tokens, then republishes every @victim-org package in the lockfile.',
     attack_steps: [
-      { from: 'Learner', to: 'Victim', message: 'npm install ../compromised-package/data-processor' },
-      { from: 'Victim', to: 'MalPkg', message: 'npm lifecycle runs postinstall script' },
-      { from: 'MalPkg', to: 'MalPkg', message: 'Scan for tokens / npmrc paths (simulated)' },
-      { from: 'Learner', to: 'Victim', message: 'npm start (optional second-stage behavior)' }
+      { from: 'Learner', to: 'Victim', message: 'cd victim-app && npm install' },
+      { from: 'Victim', to: 'MalPkg', message: 'npm lifecycle runs shai-hulud postinstall.js' },
+      { from: 'MalPkg', to: 'Mock', message: 'POST harvested npm and GitHub tokens to :3001/collect' },
+      { from: 'MalPkg', to: 'MalPkg', message: 'Read package-lock.json for @victim-org/*' },
+      { from: 'MalPkg', to: 'Mock', message: 'POST /publish :3003 and /backdoor-pr :3002 once per package' }
     ]
   },
   '07': {

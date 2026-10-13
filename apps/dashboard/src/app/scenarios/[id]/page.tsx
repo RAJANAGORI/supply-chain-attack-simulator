@@ -113,11 +113,19 @@ export default function ScenarioDetailPage({ params }: { params: Promise<{ id: s
   const hasCaptures = Object.values(captures).some((v) => {
     if (!v || typeof v !== 'object') return false;
     if (Array.isArray(v) && v.length > 0) return true;
-    const obj = v as { captures?: unknown[]; beacons?: unknown[]; events?: unknown[] };
+    const obj = v as {
+      captures?: unknown[];
+      beacons?: unknown[];
+      events?: unknown[];
+      publishes?: unknown[];
+      prs?: unknown[];
+    };
     return (
       (Array.isArray(obj.captures) && obj.captures.length > 0) ||
       (Array.isArray(obj.beacons) && obj.beacons.length > 0) ||
-      (Array.isArray(obj.events) && obj.events.length > 0)
+      (Array.isArray(obj.events) && obj.events.length > 0) ||
+      (Array.isArray(obj.publishes) && obj.publishes.length > 0) ||
+      (Array.isArray(obj.prs) && obj.prs.length > 0)
     );
   });
   const lesson = scenario.lesson && 'steps' in scenario.lesson ? scenario.lesson : null;

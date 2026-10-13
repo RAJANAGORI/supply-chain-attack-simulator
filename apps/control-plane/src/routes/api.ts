@@ -620,7 +620,7 @@ export function createApiRouter(): Router {
         try {
           const r = await fetch(rewriteLabUrl(cap.url), { signal: AbortSignal.timeout(3000) });
           const body = (await r.json()) as Record<string, unknown>;
-          for (const key of ['captures', 'events', 'beacons'] as const) {
+          for (const key of ['captures', 'events', 'beacons', 'publishes', 'prs'] as const) {
             const arr = body[key];
             if (Array.isArray(arr)) n += arr.length;
           }

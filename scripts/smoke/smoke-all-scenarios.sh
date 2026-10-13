@@ -188,7 +188,12 @@ free_common_ports
   TESTBENCH_MODE=enabled npm install >/tmp/tb06-npm.log 2>&1
   sleep 2
   C="$(curl -s http://127.0.0.1:3001/captured-credentials)"
-  if has_capture_payload "$C" && echo "$C" | grep -q 'token_harvest'; then ok "06"; else bad "06"; fi
+  P="$(curl -s http://127.0.0.1:3003/published-packages)"
+  B="$(curl -s http://127.0.0.1:3002/backdoor-prs)"
+  if has_capture_payload "$C" && echo "$C" | grep -q 'token_harvest' \
+    && echo "$P" | grep -q 'malicious_publish' \
+    && echo "$P" | grep -q '@victim-org/victim-api' \
+    && echo "$B" | grep -q 'backdoor_pr'; then ok "06"; else bad "06"; fi
   kill "$(cat /tmp/tb06-harv.pid)" "$(cat /tmp/tb06-github.pid)" "$(cat /tmp/tb06-reg.pid)" 2>/dev/null || true
 }
 fi
