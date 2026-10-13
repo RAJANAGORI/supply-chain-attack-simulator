@@ -279,67 +279,15 @@ module.exports = {
 };
 EOF
 
-# Simulate package-lock.json for the victim workspace
-cat > victim-app/package-lock.json << 'EOF'
-{
-  "name": "victim-workspace",
-  "version": "1.0.0",
-  "lockfileVersion": 3,
-  "requires": true,
-  "packages": {
-    "": {
-      "name": "victim-workspace",
-      "version": "1.0.0",
-      "dependencies": {
-        "shai-hulud": "file:../malicious-packages/shai-hulud",
-        "@victim-org/victim-utils": "file:./packages/victim-utils",
-        "@victim-org/victim-api": "file:./packages/victim-api",
-        "@victim-org/victim-logger": "file:./packages/victim-logger",
-        "@victim-org/victim-auth": "file:./packages/victim-auth"
-      }
-    },
-    "node_modules/shai-hulud": {
-      "version": "1.0.0",
-      "resolved": "file:../malicious-packages/shai-hulud",
-      "link": true
-    },
-    "node_modules/@victim-org/victim-utils": {
-      "version": "1.0.0",
-      "resolved": "file:./packages/victim-utils",
-      "link": true,
-      "dependencies": {
-        "lodash": "^4.17.21"
-      }
-    },
-    "node_modules/@victim-org/victim-api": {
-      "version": "2.1.0",
-      "resolved": "file:./packages/victim-api",
-      "link": true,
-      "dependencies": {
-        "@victim-org/victim-utils": "file:../victim-utils"
-      }
-    },
-    "node_modules/@victim-org/victim-logger": {
-      "version": "0.5.2",
-      "resolved": "file:./packages/victim-logger",
-      "link": true,
-      "dependencies": {
-        "@victim-org/victim-utils": "file:../victim-utils"
-      }
-    },
-    "node_modules/@victim-org/victim-auth": {
-      "version": "3.2.1",
-      "resolved": "file:./packages/victim-auth",
-      "link": true,
-      "dependencies": {
-        "@victim-org/victim-utils": "file:../victim-utils"
-      }
-    }
-  }
-}
-EOF
+# package-lock.json is committed. Do not rewrite it here.
+# A hand-written "link": true entry whose resolved path is "file:..." with no
+# matching packages key makes npm 11 fail install with EMISSINGTARGET.
+if [ ! -f victim-app/package-lock.json ]; then
+  echo "Missing victim-app/package-lock.json"
+  exit 1
+fi
 
-echo "Victim workspace created (4 @victim-org/* packages + lockfile)"
+echo "Victim workspace created (4 @victim-org/* packages, lockfile left as committed)"
 echo ""
 
 # ---------------------------------------------------------------------------
