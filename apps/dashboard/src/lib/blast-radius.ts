@@ -144,7 +144,7 @@ export function countCaptures(captures: Record<string, unknown>): number {
   let n = 0;
   for (const v of Object.values(captures)) {
     if (!isRecord(v)) continue;
-    for (const key of ['captures', 'events', 'beacons'] as const) {
+    for (const key of ['captures', 'events', 'beacons', 'publishes', 'prs'] as const) {
       const arr = v[key];
       if (Array.isArray(arr)) n += arr.length;
     }
@@ -231,7 +231,7 @@ export function reconstructTimeline(
   const events: TimelineEvent[] = [];
   for (const [capId, payload] of Object.entries(captures)) {
     if (!isRecord(payload)) continue;
-    for (const key of ['captures', 'events', 'beacons'] as const) {
+    for (const key of ['captures', 'events', 'beacons', 'publishes', 'prs'] as const) {
       const arr = payload[key];
       if (!Array.isArray(arr)) continue;
       for (const entry of arr) {
@@ -258,6 +258,16 @@ export function reconstructTimeline(
               worstWhat = `exfiltrated ${rule.label.toLowerCase()}`;
             }
           }
+        }
+        const data = isRecord(entry) && isRecord(entry.data) ? entry.data : null;
+        if (data && typeof data.event === 'string') {
+          const pkg = typeof data.package === 'string' ? data.package : 'package';
+          const version = typeof data.version === 'string' ? `@${data.version}` : '';
+          const repo = typeof data.repo === 'string' ? data.repo : 'a victim repo';
+          if (data.event === 'token_harvest') worstWhat = 'harvested npm and GitHub tokens';
+          else if (data.event === 'malicious_publish') worstWhat = `republished ${pkg}${version}`;
+          else if (data.event === 'backdoor_pr') worstWhat = `opened a backdoor pull request on ${repo}`;
+          else if (data.event === 'propagation_complete') worstWhat = 'finished the lockfile fan-out';
         }
         events.push({ at, source: sourceLabel || capId, what: worstWhat, severity: worst });
       }

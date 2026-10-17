@@ -1085,26 +1085,26 @@ const DETAIL = {
     "id": "06",
     "title": "Shai-Hulud (Self-Replicating)",
     "folder": "06-sha-hulud",
-    "subtitle": "What the developer sees vs what actually runs — postinstall fetches /bundle.js from mock CDN; IIFE harvests to credential-harvester :3001",
+    "subtitle": "What the developer sees vs what actually runs — shai-hulud postinstall reads the lockfile and republishes every @victim-org package",
     "intended": {
       "title": "Intended (review-only)",
-      "path": "legitimate-package/data-processor",
+      "path": "victim-app/packages/@victim-org/*",
       "metaRows": [
         [
           "name",
-          "data-processor"
+          "@victim-org/victim-utils"
         ],
         [
           "version",
-          "1.2.0"
+          "1.0.0"
         ],
         [
           "path",
-          "legitimate-package/data-processor"
+          "victim-app/packages/victim-utils"
         ],
         [
           "role",
-          "review-only / expected"
+          "maintained / expected"
         ],
         [
           "trigger",
@@ -1114,19 +1114,19 @@ const DETAIL = {
     },
     "malicious": {
       "title": "Installed / active (victim uses)",
-      "path": "compromised-package/data-processor",
+      "path": "malicious-packages/shai-hulud",
       "metaRows": [
         [
           "name",
-          "data-processor"
+          "shai-hulud"
         ],
         [
           "version",
-          "1.2.1"
+          "1.0.0"
         ],
         [
           "path",
-          "compromised-package/data-processor"
+          "malicious-packages/shai-hulud"
         ],
         [
           "role",
@@ -1134,92 +1134,94 @@ const DETAIL = {
         ],
         [
           "trigger",
-          "postinstall → eval(bundle.js)"
+          "postinstall.js lockfile fan-out"
         ]
       ]
     },
     "compareRows": [
       [
         "name",
-        "data-processor",
-        "data-processor",
-        false
-      ],
-      [
-        "version",
-        "1.2.0",
-        "1.2.1",
+        "@victim-org/*",
+        "shai-hulud",
         true
       ],
       [
         "lifecycle",
         "(none)",
-        "postinstall→eval bundle",
+        "postinstall.js",
+        true
+      ],
+      [
+        "targets",
+        "4 maintained pkgs",
+        "republish each one",
         true
       ],
       [
         "evidence",
         "N/A",
-        "captured-credentials.json",
+        "credentials + publishes + PRs",
         true
       ],
       [
         "deception",
-        "trusted",
-        "CDN second-stage payload",
+        "internal packages",
+        "stolen publish token",
         true
       ]
     ],
-    "deceptionPill": "same name; CDN bundle",
+    "deceptionPill": "lockfile fan-out",
     "victimDep": {
       "label": "victim-app/package.json",
       "lines": [
         "dependencies: {",
-        "  \"data-processor\": \"file:../compromised-package/data-processor\"",
+        "  \"shai-hulud\": \"file:../malicious-packages/shai-hulud\",",
+        "  \"@victim-org/victim-utils\": \"file:./packages/victim-utils\"",
         "}"
       ]
     },
     "legitCode": {
-      "title": "legitimate-package/data-processor",
+      "title": "victim-app/packages/@victim-org/*",
       "lines": [
-        "exports clean processing API",
+        "@victim-org/victim-utils@1.0.0",
+        "also api, logger, auth",
         "✓ No postinstall script",
-        "✓ No CDN fetch / eval",
-        "version 1.2.0"
+        "repository: github.com/victim-org/…"
       ]
     },
     "malCode": {
-      "title": "postinstall + templates/bundle.js",
+      "title": "malicious-packages/shai-hulud/postinstall.js",
       "lines": [
-        "package.json postinstall: node -e …",
-        "  http.get localhost:3000/bundle.js",
-        "  → eval(d) when TESTBENCH_MODE",
-        "bundle.js: anonymous IIFE",
-        "  scan .npmrc/.env + env tokens",
-        "  POST localhost:3001/collect"
+        "if (TESTBENCH_MODE !== 'enabled') return",
+        "read ~/.npmrc + ~/.git-credentials",
+        "POST localhost:3001/collect",
+        "discover @victim-org/* in lockfile",
+        "POST :3003/publish + :3002/backdoor-pr"
       ]
     },
-    "codeEdgePill": "CDN payload / harvest",
-    "triggerStrip": "Trigger: postinstall fetch+eval → IIFE harvest  ·  Gate: TESTBENCH_MODE === 'enabled'  ·  Exfil: POST localhost:3001/collect  ·  Evidence: infrastructure/captured-credentials.json  ·  Cover: data-processor API",
+    "codeEdgePill": "harvest then republish",
+    "triggerStrip": "Trigger: postinstall.js  ·  Gate: TESTBENCH_MODE === 'enabled'  ·  Harvest: POST localhost:3001/collect  ·  Fan-out: :3003/publish + :3002/backdoor-pr  ·  Evidence: captured-credentials.json",
     "setupLines": [
       "source enable-testbench.sh",
       "  → TESTBENCH_MODE=enabled",
-      "start mock-cdn.js (:3000) + harvester (:3001)",
-      "seed compromised-package/data-processor",
+      "harvester :3001, GitHub sim :3002",
+      "mock registry :3003",
       "cd victim-app && npm install"
     ],
     "mockLines": [
-      "node infrastructure/mock-cdn.js :3000",
-      "  GET /bundle.js",
-      "node infrastructure/credential-harvester.js",
-      "listen http://localhost:3001",
-      "POST /collect · GET /captured-credentials"
+      "credential-harvester.js :3001",
+      "  POST /collect",
+      "mock-registry.js :3003",
+      "  POST /publish",
+      "github-actions-simulator.js :3002",
+      "  POST /backdoor-pr"
     ],
     "labLines": [
       "cd victim-app && npm install",
-      "  postinstall pulls /bundle.js",
-      "  eval → harvest → :3001/collect",
-      "npm start (cover API)"
+      "  postinstall harvests tokens",
+      "  lockfile → 4 @victim-org pkgs",
+      "  publish + PR each",
+      "npm start (cover only)"
     ],
     "runtime": {
       "victimBox": [
@@ -1227,52 +1229,54 @@ const DETAIL = {
         "npm install postinstall"
       ],
       "malBox": [
-        "eval(bundle.js)",
-        "anonymous IIFE"
+        "postinstall.js",
+        "lockfile discovery"
       ],
-      "payloadTitle": "HTTP from anonymous IIFE in bundle.js",
+      "payloadTitle": "HTTP from shai-hulud/postinstall.js",
       "payloadLines": [
-        "EXFIL_URL = 'http://localhost:3001/collect'",
-        "POST credentials { files, env, npmrc }",
-        "CDN: GET http://localhost:3000/bundle.js",
-        "Body: hostname, username, tokens…"
+        "harvester http://127.0.0.1:3001/collect",
+        "registry http://127.0.0.1:3003/publish",
+        "github http://127.0.0.1:3002/backdoor-pr",
+        "one publish + one PR per package"
       ],
-      "mockTitle": "credential-harvester :3001 POST /collect",
+      "mockTitle": "harvester :3001, registry :3003, GitHub :3002",
       "mockLines": [
-        "parse JSON → log credentials",
-        "append → captured-credentials.json → 200"
+        "captures → captured-credentials.json",
+        "publishes → published-packages.json",
+        "prs → backdoor-prs.json"
       ],
       "flociLines": [
         "SCAS_FLOCI_ENABLED=1",
         "uploadJson('06', …) when set"
       ],
-      "coverTitle": "After harvest: package still loads",
+      "coverTitle": "After fan-out: victim app still starts",
       "coverLines": [
-        "data-processor exports remain usable",
-        "GET evidence: /captured-credentials",
-        "file: captured-credentials.json"
+        "npm start loads shai-hulud index.js",
+        "GET /captured-credentials",
+        "GET /published-packages",
+        "GET /backdoor-prs"
       ],
       "visibleLines": [
         "VISIBLE: install succeeds",
-        "HIDDEN: CDN eval + credential POST",
-        "HINT: curl …/captured-credentials"
+        "HIDDEN: token POST + 4 republishes",
+        "HINT: worm-status.js + the three curls"
       ]
     },
     "verifyLines": [
-      "curl -s http://localhost:3001/captured-credentials",
-      "→ { \"captures\": [ { timestamp, data } ] }",
+      "curl -s localhost:3001/captured-credentials",
+      "curl -s localhost:3003/published-packages",
+      "curl -s localhost:3002/backdoor-prs",
       "",
-      "or read:",
-      "  infrastructure/captured-credentials.json",
+      "node detection-tools/worm-status.js",
       "",
       "Optional: floci/verify.sh"
     ],
     "redFlags": [
-      "1. postinstall http.get + eval(bundle)",
-      "2. Evidence at /captured-credentials (not /captured-data)",
-      "3. Dual ports: CDN :3000 + harvester :3001",
-      "4. Scans .npmrc / tokens / .env",
-      "5. Self-replicating worm narrative"
+      "1. postinstall reads ~/.npmrc",
+      "2. postinstall reads ~/.git-credentials",
+      "3. lockfile scan for @victim-org/*",
+      "4. POST /publish and /backdoor-pr",
+      "5. propagation_complete on :3001"
     ],
     "safetyLines": [
       "TESTBENCH_MODE must be enabled",

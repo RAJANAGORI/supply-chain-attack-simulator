@@ -1,195 +1,133 @@
-# 🚀 Quick Reference Card - Scenario 6: Shai-Hulud
+# Quick Reference Card - Scenario 6: Shai-Hulud
 
-Use this as your runbook for Scenario 6 when you are teaching live or practicing quickly.
-
-
-
-
-
-
-
-
+Commands for the token-theft worm. One `npm install` harvests tokens, then republishes every `@victim-org/*` package in the lockfile. All of it stays on `127.0.0.1`.
 
 ## Table of Contents
 
 <div class="doc-toc">
 
-- [📋 Initial Setup](#📋-initial-setup)
-- [🎯 Attack Execution](#🎯-attack-execution)
-- [🔍 Forensic Investigation](#🔍-forensic-investigation)
-- [🛡️ Detection Commands](#🛡️-detection-commands)
-- [🚨 Incident Response](#🚨-incident-response)
-- [📁 Important File Locations](#📁-important-file-locations)
-- [🛠️ Useful Commands](#🛠️-useful-commands)
-- [🆘 Quick Troubleshooting](#🆘-quick-troubleshooting)
-- [📚 Documentation Links](#📚-documentation-links)
-- [💡 Key Concepts](#💡-key-concepts)
-- [🔐 Prevention Checklist](#🔐-prevention-checklist)
+- [Initial Setup](#initial-setup)
+- [Attack Execution](#attack-execution)
+- [Forensic Investigation](#forensic-investigation)
+- [Detection Commands](#detection-commands)
+- [Incident Response](#incident-response)
+- [Important File Locations](#important-file-locations)
+- [Useful Commands](#useful-commands)
+- [Quick Troubleshooting](#quick-troubleshooting)
+- [Documentation Links](#documentation-links)
+- [Key Concepts](#key-concepts)
+- [Prevention Checklist](#prevention-checklist)
 
 </div>
 
 ---
-## 📋 Initial Setup
+
+## Initial Setup
 
 ```bash
-# 1. Navigate to scenario
 cd scenarios/06-sha-hulud
-
-# 2. Enable testbench mode
 export TESTBENCH_MODE=enabled
-
-# 3. Run scenario setup
 ./setup.sh
 ```
 
-## 🎯 Attack Execution
+## Attack Execution
 
 ```bash
-# 1. Start infrastructure
-cd infrastructure
-node mock-cdn.js &
+# Terminal A, from scenarios/06-sha-hulud/infrastructure
 node credential-harvester.js &
 node github-actions-simulator.js &
+node mock-registry.js &
 
-# 2. Install compromised package
-cd ../../victim-app
-npm install ../compromised-package/data-processor
-
-# 3. Check exfiltrated data
-curl http://localhost:3001/captured-credentials
-curl http://localhost:3002/repo-logs
-
-# 4. Simulate replication
-cd ../infrastructure
-node replication-simulator.js
+# Terminal B
+cd ../victim-app
+export TESTBENCH_MODE=enabled
+npm install
 ```
 
-## 🔍 Forensic Investigation
+`postinstall.js` posts the harvest to `:3001/collect` first. Then it reads `package-lock.json` and, for each `@victim-org/*` package, posts a publish to `:3003/publish` and a backdoor PR to `:3002/backdoor-pr`.
+
+## Forensic Investigation
 
 ```bash
-# Check postinstall scripts
-cat node_modules/data-processor/package.json | grep -A 5 scripts
+curl -s http://127.0.0.1:3001/captured-credentials
+curl -s http://127.0.0.1:3003/published-packages
+curl -s http://127.0.0.1:3002/backdoor-prs
 
-# Compare versions
-diff -ur legitimate-package/data-processor compromised-package/data-processor
-
-# Download and examine bundle.js
-curl http://localhost:3000/bundle.js > bundle.js
-cat bundle.js
-
-# Check npm install logs
-cat ~/.npm/_logs/*-debug.log | grep postinstall
+# From scenarios/06-sha-hulud
+node detection-tools/worm-status.js victim-app
 ```
 
-## 🛡️ Detection Commands
+You want `token_harvest` on the harvester, then `malicious_publish` for `victim-utils`, `victim-api`, `victim-logger`, and `victim-auth`. Same four names on the PR log. The package folders under `victim-app/packages/` stay clean. The infection is the publish record, not a rewritten file on disk.
+
+## Detection Commands
 
 ```bash
-# Post-install script monitoring
-cd detection-tools
-node postinstall-monitor.js
+# From scenarios/06-sha-hulud
+node detection-tools/postinstall-monitor.js victim-app/node_modules/shai-hulud
+node detection-tools/credential-scanner.js victim-app
 
-# Credential scanning
-node credential-scanner.js ../scenarios/06-sha-hulud/victim-app
-
-# Package integrity checking
-npm audit
-
-# Behavioral analysis
-# Monitor for:
-# - Unusual GitHub repository creation
-# - Rapid version bumps
-# - Multiple packages updated by same maintainer
+grep -R "postinstall" victim-app/node_modules/shai-hulud/package.json
+grep -R "@victim-org/" victim-app/package-lock.json
 ```
 
-## 🚨 Incident Response
+## Incident Response
 
 ```bash
-# Immediate containment
-npm token revoke-all
-npm uninstall data-processor
+npm uninstall shai-hulud
 npm cache clean --force
-
-# Block malicious CDN
-echo "127.0.0.1 cdn.example.com" >> /etc/hosts
-
-# Credential rotation
-npm token revoke-all
-npm token create
-
-# Remediation - Pin to safe version
-# Edit package.json:
-# "data-processor": "1.2.0"  // Last known good version
 ```
 
-## 📁 Important File Locations
+On a real machine you would also revoke the npm token and the GitHub token, freeze publishes for `@victim-org/*`, and reinstall with `npm ci --ignore-scripts`. The lab tokens are fixtures in `victim-app/.npmrc`, `victim-app/.env`, and `~/.git-credentials`.
+
+## Important File Locations
 
 ```text
 scenarios/06-sha-hulud/
-├── legitimate-package/data-processor/  # Legitimate version 1.2.0
-├── compromised-package/data-processor/ # Compromised version 1.2.1
-├── victim-app/                         # Victim application
-├── infrastructure/                     # Attack infrastructure
-│   ├── mock-cdn.js                     # Serves bundle.js
-│   ├── credential-harvester.js        # Receives credentials
-│   └── replication-simulator.js      # Simulates replication
-└── templates/                          # Attack templates
+├── malicious-packages/shai-hulud/postinstall.js
+├── victim-app/package-lock.json
+├── victim-app/packages/          # victim-utils, victim-api, victim-logger, victim-auth
+├── infrastructure/
+│   ├── credential-harvester.js   # :3001  POST /collect
+│   ├── github-actions-simulator.js  # :3002  POST /backdoor-pr
+│   └── mock-registry.js          # :3003  POST /publish
+└── detection-tools/worm-status.js
 ```
 
-## 🛠️ Useful Commands
+## Useful Commands
 
 ```bash
-# View package.json with postinstall
-cat compromised-package/data-processor/package.json
-
-# Check for postinstall scripts
-grep -r "postinstall" node_modules/data-processor/
-
-# Monitor network during install
-npm install ../compromised-package/data-processor --verbose
-
-# Check captured credentials
-curl http://localhost:3001/captured-credentials | jq
-
-# View replication logs
-curl http://localhost:3002/repo-logs
+cat malicious-packages/shai-hulud/postinstall.js
+cat victim-app/package.json
+node detection-tools/worm-status.js victim-app
 ```
 
-## 🆘 Quick Troubleshooting
+## Quick Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
-| Post-install not executing | Check `npm config get ignore-scripts`, set to false |
-| Bundle.js not downloading | Verify mock CDN: `curl http://localhost:3000/bundle.js` |
-| No credentials captured | Create test .npmrc, set test env vars, reinstall |
-| Infrastructure not running | Check all services: `ps aux | grep -E "mock-cdn|credential"` |
+| Postinstall did nothing | `echo $TESTBENCH_MODE` must print `enabled`. `npm config get ignore-scripts` must be `false`. |
+| Harvest is empty | Re-run `./setup.sh` so the lookalike `.npmrc` and `.git-credentials` exist, then `npm install` again. |
+| Publishes array is empty | Lockfile must list `@victim-org/`, and `./setup.sh` must have planted `_authToken`. The registry returns 401 if that token is not sent as `Authorization: Bearer`. |
+| A mock port is dead | From `infrastructure/`: harvester `3001`, GitHub sim `3002`, registry `3003`. There is no mock CDN in this lab. |
 
-## 📚 Documentation Links
+## Documentation Links
 
-If you need more context than the commands above, these are the right deep links.
-
-- Full Guide: `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_06.md`
+- Full guide: `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_06.md`
 - Scenario README: `scenarios/06-sha-hulud/README.md`
-- Setup Guide: `documentation/getting-started/SETUP.md`
-- Best Practices: `documentation/platform/BEST_PRACTICES.md`
+- Detection runbook: `scenarios/06-sha-hulud/DETECT.md`
 
-## 💡 Key Concepts
+## Key Concepts
 
-- **Self-Replicating**: Attack spreads automatically using stolen credentials
-- **Post-Install Scripts**: Execute automatically on `npm install`
-- **Credential Harvesting**: Scans for npm tokens, GitHub tokens, cloud credentials
-- **Exfiltration**: Uploads stolen data to GitHub repositories
-- **Replication**: Uses stolen credentials to compromise more packages
-- **Detection**: Monitor postinstall scripts, network traffic, credential access
-- **Response**: Immediate credential rotation, package removal, containment
+- The worm spreads by publishing, not by copying itself onto disk.
+- Harvest runs before the fan-out. No token, no republish that matters.
+- The target list comes from `package-lock.json`, scoped to `@victim-org/`.
+- Each target gets a patch bump, a mock publish, and a mock backdoor PR.
+- `npm start` afterwards is cover. The damage already happened at install time.
 
-## 🔐 Prevention Checklist
+## Prevention Checklist
 
-- [ ] Enable 2FA on all npm accounts
-- [ ] Restrict post-install scripts: `npm config set ignore-scripts true`
-- [ ] Use secret management tools (Vault, Secrets Manager)
-- [ ] Never commit credentials to repositories
-- [ ] Rotate credentials regularly
-- [ ] Use `npm ci` instead of `npm install` in CI/CD
-- [ ] Monitor for suspicious package updates
-- [ ] Implement automated security scanning
-
+- [ ] Publish tokens live in CI secrets only
+- [ ] `npm ci --ignore-scripts` is the default, with an allowlist
+- [ ] Maintainer accounts require 2FA and provenance
+- [ ] GitHub tokens are short-lived and narrowly scoped
+- [ ] Registry writes and unexpected `npm publish` on laptops page someone

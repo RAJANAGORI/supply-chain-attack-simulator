@@ -1,15 +1,22 @@
 {
   "name": "victim-workspace",
   "version": "1.0.0",
-  "description": "A private workspace that installs shai-hulud and maintains victim-utils",
+  "description": "A private workspace that installs shai-hulud and maintains @victim-org/* packages",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {
     "shai-hulud": "file:../malicious-packages/shai-hulud",
-    "victim-utils": "file:./packages/victim-utils"
+    "@victim-org/victim-utils": "*",
+    "@victim-org/victim-api": "*",
+    "@victim-org/victim-logger": "*",
+    "@victim-org/victim-auth": "*"
   },
   "author": "Victim Org",
-  "license": "MIT"
+  "license": "MIT",
+  "private": true
 }

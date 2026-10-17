@@ -1,0 +1,16 @@
+{
+  "name": "@victim-org/victim-auth",
+  "version": "3.2.1",
+  "description": "Authentication and authorization middleware for victim org services",
+  "main": "index.js",
+  "author": "Victim Org",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/victim-org/victim-auth"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.0",
+    "@victim-org/victim-utils": "^1.0.0"
+  }
+}

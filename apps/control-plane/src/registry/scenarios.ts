@@ -135,6 +135,8 @@ export const SCENARIOS: ScenarioDefinition[] = [
     ],
     captures: [
       { id: 'credentials', label: 'Harvested credentials', url: 'http://127.0.0.1:3001/captured-credentials', clearUrl: 'http://127.0.0.1:3001/captured-credentials' },
+      { id: 'publishes', label: 'Republished packages', url: 'http://127.0.0.1:3003/published-packages', clearUrl: 'http://127.0.0.1:3003/published-packages' },
+      { id: 'backdoor-prs', label: 'Backdoor pull requests', url: 'http://127.0.0.1:3002/backdoor-prs', clearUrl: 'http://127.0.0.1:3002/backdoor-prs' },
     ],
     floci: { seed: 'infrastructure/floci/seed.sh', verify: 'infrastructure/floci/verify.sh' },
     docs: { readme: 'scenarios/06-sha-hulud/README.md', detect: 'scenarios/06-sha-hulud/DETECT.md' },
