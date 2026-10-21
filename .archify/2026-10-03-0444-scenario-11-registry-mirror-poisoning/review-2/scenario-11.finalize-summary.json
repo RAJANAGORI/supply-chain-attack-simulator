@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-11-registry-mirror-poisoning/candidate.json",
+    "sha256": "697d59bc6c093f1c67ab9f24e7bca221b2a10c23be086e2cbee3e56ca7ed80de",
+    "bytes": 8743
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-11-registry-mirror-poisoning/scenario-11.html",
+    "sha256": "9fa3716e8e71b07b698e7ad29e302f0dd89be5ef525efc6ccf836decbcae60b8",
+    "bytes": 831290
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-11-registry-mirror-poisoning/review-2/scenario-11.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-11-registry-mirror-poisoning/review-2/scenario-11.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-11-registry-mirror-poisoning/review-2/scenario-11.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-21T08:13:22.713Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1403,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

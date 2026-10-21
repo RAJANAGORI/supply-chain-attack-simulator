@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "cebc3c7e-3d09-49ad-a639-619a7fe4aefd",
+  "receiptId": "cf5b49b3-ee10-4b6c-a7bc-f6821cf949df",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
-  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-20-package-version-confusion/candidate.json",
-  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-20-package-version-confusion/scenario-20.html",
+  "input": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-20-package-version-confusion/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-20-package-version-confusion/scenario-20.html",
   "specification": {
-    "sha256": "1327b6ca123cbc2aabd7b9833c5d9802cb58934d72b96f6b0f64c53504ec8018",
-    "bytes": 7662
+    "sha256": "c54daa743bf644c201a7472a1ccdb79502b29d60ce02dda5258ed02f41585103",
+    "bytes": 7665
   },
   "artifact": {
-    "sha256": "bf3b8b31b54d6f0b806c875c1dd672c4972e2de67ad0040958ab856ff7e4e86a",
-    "bytes": 765376
+    "sha256": "2f2975b16bde0f622b929689bd449b0e50d7c6dad7f6aa9972f4b97678111a3d",
+    "bytes": 828723
   }
 }

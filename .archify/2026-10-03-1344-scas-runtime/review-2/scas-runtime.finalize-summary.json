@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-1344-scas-runtime/candidate.json",
+    "sha256": "a3996b73f5789526017bd5a1cf0d5ed35f815425892069678fe04b855e909a94",
+    "bytes": 7631
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-1344-scas-runtime/scas-runtime.html",
+    "sha256": "3f3d987dfea0216595b396e12ecad23e4fb99c6369107f204780a295655834ec",
+    "bytes": 826774
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-1344-scas-runtime/review-2/scas-runtime.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-1344-scas-runtime/review-2/scas-runtime.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-1344-scas-runtime/review-2/scas-runtime.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-21T08:13:22.713Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1421,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

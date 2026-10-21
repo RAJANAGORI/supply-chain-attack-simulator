@@ -42,7 +42,7 @@
       "label": "Scenario setup",
       "sublabel": "01/setup.sh",
       "pos": [
-        66,
+        306,
         430
       ],
       "size": [
@@ -64,7 +64,7 @@
       "label": "TESTBENCH_MODE",
       "sublabel": "must be enabled",
       "pos": [
-        354,
+        594,
         430
       ],
       "size": [
@@ -98,7 +98,7 @@
       "label": "Victim app",
       "sublabel": "npm start",
       "pos": [
-        316,
+        556,
         220
       ],
       "size": [
@@ -126,7 +126,7 @@
       "label": "Lab payload",
       "sublabel": "request-lib",
       "pos": [
-        626,
+        866,
         220
       ],
       "size": [
@@ -160,7 +160,7 @@
       "label": "Mock server",
       "sublabel": "HTTP :3000",
       "pos": [
-        972,
+        1212,
         220
       ],
       "size": [
@@ -194,7 +194,7 @@
       "label": "Capture file",
       "sublabel": "captured-data.json",
       "pos": [
-        854,
+        1094,
         500
       ],
       "size": [
@@ -222,7 +222,7 @@
       "label": "scas-detections",
       "sublabel": "optional ES",
       "pos": [
-        1148,
+        1388,
         500
       ],
       "size": [
@@ -244,7 +244,7 @@
       "label": "Intended pkg",
       "sublabel": "requests-lib",
       "pos": [
-        297,
+        537,
         48
       ],
       "size": [

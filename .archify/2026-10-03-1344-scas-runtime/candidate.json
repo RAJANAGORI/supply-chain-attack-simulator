@@ -19,8 +19,14 @@
       "type": "external",
       "label": "Learner",
       "sublabel": "operator shell",
-      "pos": [80, 56],
-      "size": [136, 64],
+      "pos": [
+        80,
+        56
+      ],
+      "size": [
+        136,
+        64
+      ],
       "sources": [
         {
           "path": "README.md",
@@ -35,8 +41,14 @@
       "type": "backend",
       "label": "Scenario setup",
       "sublabel": "setup.sh",
-      "pos": [64, 276],
-      "size": [168, 64],
+      "pos": [
+        304,
+        276
+      ],
+      "size": [
+        168,
+        64
+      ],
       "sources": [
         {
           "path": "scenarios/01-typosquatting/setup.sh",
@@ -51,8 +63,14 @@
       "type": "security",
       "label": "TESTBENCH_MODE",
       "sublabel": "must be enabled",
-      "pos": [352, 276],
-      "size": [176, 64],
+      "pos": [
+        592,
+        276
+      ],
+      "size": [
+        176,
+        64
+      ],
       "sources": [
         {
           "path": "scenarios/_shared/enable-testbench.sh",
@@ -79,8 +97,14 @@
       "type": "backend",
       "label": "Victim app",
       "sublabel": "lab process",
-      "pos": [326, 56],
-      "size": [156, 64],
+      "pos": [
+        566,
+        56
+      ],
+      "size": [
+        156,
+        64
+      ],
       "sources": [
         {
           "path": "scenarios/01-typosquatting/victim-app/package.json",
@@ -101,8 +125,14 @@
       "type": "security",
       "label": "Lab payload",
       "sublabel": "gated package",
-      "pos": [612, 56],
-      "size": [156, 64],
+      "pos": [
+        852,
+        56
+      ],
+      "size": [
+        156,
+        64
+      ],
       "sources": [
         {
           "path": "scenarios/01-typosquatting/malicious-packages/request-lib/index.js",
@@ -129,8 +159,14 @@
       "type": "backend",
       "label": "Mock collector",
       "sublabel": "HTTP :3000",
-      "pos": [958, 56],
-      "size": [156, 64],
+      "pos": [
+        1198,
+        56
+      ],
+      "size": [
+        156,
+        64
+      ],
       "sources": [
         {
           "path": "scenarios/01-typosquatting/infrastructure/mock-server.js",
@@ -157,8 +193,14 @@
       "type": "database",
       "label": "Capture file",
       "sublabel": "captured-data.json",
-      "pos": [944, 240],
-      "size": [184, 64],
+      "pos": [
+        1184,
+        240
+      ],
+      "size": [
+        184,
+        64
+      ],
       "sources": [
         {
           "path": "scenarios/01-typosquatting/infrastructure/mock-server.js",
@@ -173,8 +215,14 @@
       "type": "database",
       "label": "scas-detections",
       "sublabel": "optional ES",
-      "pos": [1208, 240],
-      "size": [168, 64],
+      "pos": [
+        1448,
+        240
+      ],
+      "size": [
+        168,
+        64
+      ],
       "sources": [
         {
           "path": "detection-tools/es/forward-capture.js",
@@ -189,7 +237,14 @@
     {
       "kind": "region",
       "label": "Localhost lab host",
-      "wraps": ["setup", "gate", "victim", "payload", "mock", "capture"]
+      "wraps": [
+        "setup",
+        "gate",
+        "victim",
+        "payload",
+        "mock",
+        "capture"
+      ]
     }
   ],
   "connections": [

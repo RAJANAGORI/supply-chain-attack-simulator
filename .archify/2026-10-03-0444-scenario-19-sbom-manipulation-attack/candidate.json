@@ -42,7 +42,7 @@
       "label": "Scenario setup",
       "sublabel": "19/setup.sh",
       "pos": [
-        66,
+        306,
         430
       ],
       "size": [
@@ -64,7 +64,7 @@
       "label": "TESTBENCH_MODE",
       "sublabel": "must be enabled",
       "pos": [
-        354,
+        594,
         430
       ],
       "size": [
@@ -92,7 +92,7 @@
       "label": "Victim app",
       "sublabel": "sbom generator",
       "pos": [
-        326,
+        566,
         220
       ],
       "size": [
@@ -114,7 +114,7 @@
       "label": "Lab payload",
       "sublabel": "sbom generator",
       "pos": [
-        596,
+        836,
         220
       ],
       "size": [
@@ -142,7 +142,7 @@
       "label": "Mock server",
       "sublabel": "HTTP :3019",
       "pos": [
-        952,
+        1192,
         220
       ],
       "size": [
@@ -176,7 +176,7 @@
       "label": "Capture file",
       "sublabel": "captured-data.json",
       "pos": [
-        860,
+        1100,
         500
       ],
       "size": [
@@ -198,7 +198,7 @@
       "label": "scas-detections",
       "sublabel": "optional ES",
       "pos": [
-        1188,
+        1428,
         500
       ],
       "size": [
@@ -220,7 +220,7 @@
       "label": "Ground truth",
       "sublabel": "malicious-lib",
       "pos": [
-        580,
+        820,
         48
       ],
       "size": [

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-13-package-metadata-manipulation/candidate.json",
+    "sha256": "954337554cfd152d6ec228ddd13c54b2b536484f4af0ac3430340eb7d7e518e3",
+    "bytes": 7787
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-13-package-metadata-manipulation/scenario-13.html",
+    "sha256": "e9c86a6c4eaebd32785f41755828e1cf14113190bf8f0dfbc4ea019a54a3fd1b",
+    "bytes": 828856
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-13-package-metadata-manipulation/review-2/scenario-13.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-13-package-metadata-manipulation/review-2/scenario-13.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-13-package-metadata-manipulation/review-2/scenario-13.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-21T08:13:22.713Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1282,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

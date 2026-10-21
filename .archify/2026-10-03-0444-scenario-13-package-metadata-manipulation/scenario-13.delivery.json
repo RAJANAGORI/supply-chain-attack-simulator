@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "dc414849-34de-4ca1-a3fd-19299f900e87",
+  "receiptId": "8ea254a4-9366-4d2e-84d2-b286ea73a734",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
-  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-13-package-metadata-manipulation/candidate.json",
-  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-13-package-metadata-manipulation/scenario-13.html",
+  "input": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-13-package-metadata-manipulation/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-13-package-metadata-manipulation/scenario-13.html",
   "specification": {
-    "sha256": "aebe474dfe347b4babb19314cf132f71624536215bbb05b999b8cd7962850c51",
-    "bytes": 7784
+    "sha256": "954337554cfd152d6ec228ddd13c54b2b536484f4af0ac3430340eb7d7e518e3",
+    "bytes": 7787
   },
   "artifact": {
-    "sha256": "d9c731cb1bed07b724b9722198998e0653fc1f46072652c60ddec7ae396c409d",
-    "bytes": 765509
+    "sha256": "e9c86a6c4eaebd32785f41755828e1cf14113190bf8f0dfbc4ea019a54a3fd1b",
+    "bytes": 828856
   }
 }

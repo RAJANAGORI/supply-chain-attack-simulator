@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "ca07b8fb-ca05-4660-9d72-da25f385c19c",
+  "receiptId": "6c031a32-ccb5-477f-9fea-e1948dfe98fa",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
-  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-25-compromised-github-action/candidate.json",
-  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-25-compromised-github-action/scenario-25.html",
+  "input": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-25-compromised-github-action/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-25-compromised-github-action/scenario-25.html",
   "specification": {
-    "sha256": "71ce11798ea95d73608edc9c4ce126ce1456e425f6d5c4681496666bcb8c5c85",
-    "bytes": 7416
+    "sha256": "798bf6c8dd39f5a000782572ae7e408c017c0977158bf4d9e5d2ff688ddd6e4e",
+    "bytes": 7419
   },
   "artifact": {
-    "sha256": "d38147b1ff01dd6dee4046d133b0605fc148a495daaf4b713b9911c1420ec011",
-    "bytes": 764912
+    "sha256": "a9494a0a6095f0f83bbf3c6904ba0dc89a1e63bcab67c4950ad71ea7aa1eb735",
+    "bytes": 828259
   }
 }

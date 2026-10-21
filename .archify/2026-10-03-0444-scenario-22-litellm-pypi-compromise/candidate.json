@@ -42,7 +42,7 @@
       "label": "Scenario setup",
       "sublabel": "22/setup.sh",
       "pos": [
-        66,
+        306,
         430
       ],
       "size": [
@@ -64,7 +64,7 @@
       "label": "TESTBENCH_MODE",
       "sublabel": "must be enabled",
       "pos": [
-        354,
+        594,
         430
       ],
       "size": [
@@ -98,7 +98,7 @@
       "label": "Victim app",
       "sublabel": "litellm_like",
       "pos": [
-        326,
+        566,
         220
       ],
       "size": [
@@ -120,7 +120,7 @@
       "label": "Lab payload",
       "sublabel": "import 1.82.7",
       "pos": [
-        596,
+        836,
         220
       ],
       "size": [
@@ -148,7 +148,7 @@
       "label": "Mock server",
       "sublabel": "127.0.0.1:3022",
       "pos": [
-        952,
+        1192,
         220
       ],
       "size": [
@@ -182,7 +182,7 @@
       "label": "Capture file",
       "sublabel": "captured-data.json",
       "pos": [
-        860,
+        1100,
         500
       ],
       "size": [
@@ -204,7 +204,7 @@
       "label": "scas-detections",
       "sublabel": "optional ES",
       "pos": [
-        1188,
+        1428,
         500
       ],
       "size": [
@@ -226,7 +226,7 @@
       "label": "Clean release",
       "sublabel": "litellm_like 1.82.6",
       "pos": [
-        307,
+        547,
         48
       ],
       "size": [
@@ -248,7 +248,7 @@
       "label": ".pth hook",
       "sublabel": "v1.82.8 startup",
       "pos": [
-        942,
+        1182,
         48
       ],
       "size": [

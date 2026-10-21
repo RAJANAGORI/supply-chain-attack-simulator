@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "3cbcc182-4b47-4267-8305-e851583f525c",
+  "receiptId": "124fec4c-b6b4-4b9f-846c-2cfe93ade993",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
-  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-19-sbom-manipulation-attack/candidate.json",
-  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-19-sbom-manipulation-attack/scenario-19.html",
+  "input": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-19-sbom-manipulation-attack/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-19-sbom-manipulation-attack/scenario-19.html",
   "specification": {
-    "sha256": "d04e593e0be42548be7dc1e7aeeacee3c42f5d6dfececcaf7592a6a07b6e5602",
-    "bytes": 7632
+    "sha256": "24281906ea34ee6bb6e0e9344887cd8ff93aa835827fa4ee40753e814851f5ec",
+    "bytes": 7635
   },
   "artifact": {
-    "sha256": "5d3628a0e3cc369e38c69b023ab5e858ed6ce245c235c59a7843969066483a9b",
-    "bytes": 765310
+    "sha256": "8e8c78ec992bcd7d62584725f9e9157d3a57611d7dc270bcacac7dfba0c5f109",
+    "bytes": 828657
   }
 }

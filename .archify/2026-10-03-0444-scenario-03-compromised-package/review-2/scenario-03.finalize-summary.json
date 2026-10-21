@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-03-compromised-package/candidate.json",
+    "sha256": "5a41b340c043ecf2150bc67cb1fcbed7ae5bfae409f3b10bfea8c0ed7191d50e",
+    "bytes": 7632
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-03-compromised-package/scenario-03.html",
+    "sha256": "eb57009a989113d6046ddf997924141dcce8aa946a1ff935e1fcc90104c9e250",
+    "bytes": 828644
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-03-compromised-package/review-2/scenario-03.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-03-compromised-package/review-2/scenario-03.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-03-compromised-package/review-2/scenario-03.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-21T08:13:22.713Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1268,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

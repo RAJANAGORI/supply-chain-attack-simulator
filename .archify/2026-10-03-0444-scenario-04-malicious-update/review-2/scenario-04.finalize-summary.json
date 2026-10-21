@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-04-malicious-update/candidate.json",
+    "sha256": "c62f23b7ba3bba486b04c183d8225b279b906f4d8728da68a7f749a0ae679a61",
+    "bytes": 7482
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-04-malicious-update/scenario-04.html",
+    "sha256": "fdcd64c78ce5a7579a609033d78a5d2b686c1d734d0783d811f99a5dbbcfa1f1",
+    "bytes": 828388
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-04-malicious-update/review-2/scenario-04.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-04-malicious-update/review-2/scenario-04.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-04-malicious-update/review-2/scenario-04.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-21T08:13:22.713Z",
+    "source": "network",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 4928,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

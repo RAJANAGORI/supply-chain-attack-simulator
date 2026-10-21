@@ -42,7 +42,7 @@
       "label": "Scenario setup",
       "sublabel": "11/setup.sh",
       "pos": [
-        66,
+        306,
         430
       ],
       "size": [
@@ -64,7 +64,7 @@
       "label": "TESTBENCH_MODE",
       "sublabel": "must be enabled",
       "pos": [
-        354,
+        594,
         430
       ],
       "size": [
@@ -92,7 +92,7 @@
       "label": "Victim app",
       "sublabel": "enterprise-utils",
       "pos": [
-        326,
+        566,
         220
       ],
       "size": [
@@ -114,7 +114,7 @@
       "label": "Lab payload",
       "sublabel": "enterprise-utils",
       "pos": [
-        596,
+        836,
         220
       ],
       "size": [
@@ -148,7 +148,7 @@
       "label": "Mock server",
       "sublabel": "HTTP :3000",
       "pos": [
-        952,
+        1192,
         220
       ],
       "size": [
@@ -182,7 +182,7 @@
       "label": "Capture file",
       "sublabel": "captured-data.json",
       "pos": [
-        860,
+        1100,
         500
       ],
       "size": [
@@ -204,7 +204,7 @@
       "label": "scas-detections",
       "sublabel": "optional ES",
       "pos": [
-        1188,
+        1428,
         500
       ],
       "size": [
@@ -226,7 +226,7 @@
       "label": "Local registry",
       "sublabel": "127.0.0.1:4873",
       "pos": [
-        40,
+        280,
         620
       ],
       "size": [
@@ -254,7 +254,7 @@
       "label": "npmrc",
       "sublabel": "mirror :4873",
       "pos": [
-        307,
+        547,
         48
       ],
       "size": [
@@ -349,15 +349,15 @@
       "toSide": "right",
       "via": [
         [
-          540,
+          780,
           252
         ],
         [
-          540,
+          780,
           652
         ],
         [
-          250,
+          490,
           652
         ]
       ]

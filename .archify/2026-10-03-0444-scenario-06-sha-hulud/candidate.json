@@ -42,7 +42,7 @@
       "label": "Scenario setup",
       "sublabel": "06/setup.sh",
       "pos": [
-        66,
+        306,
         480
       ],
       "size": [
@@ -64,7 +64,7 @@
       "label": "TESTBENCH_MODE",
       "sublabel": "must be enabled",
       "pos": [
-        354,
+        594,
         480
       ],
       "size": [
@@ -92,7 +92,7 @@
       "label": "Victim app",
       "sublabel": "shai-hulud",
       "pos": [
-        326,
+        566,
         270
       ],
       "size": [
@@ -114,7 +114,7 @@
       "label": "Postinstall",
       "sublabel": "shai-hulud",
       "pos": [
-        560,
+        800,
         250
       ],
       "size": [
@@ -142,7 +142,7 @@
       "label": "Harvester",
       "sublabel": "HTTP :3001",
       "pos": [
-        900,
+        1140,
         268
       ],
       "size": [
@@ -176,7 +176,7 @@
       "label": "Actions sim",
       "sublabel": "HTTP :3002",
       "pos": [
-        900,
+        1140,
         60
       ],
       "size": [
@@ -210,7 +210,7 @@
       "label": "Registry sim",
       "sublabel": "HTTP :3003",
       "pos": [
-        900,
+        1140,
         500
       ],
       "size": [
@@ -244,7 +244,7 @@
       "label": "Token file",
       "sublabel": "captured-credentials.json",
       "pos": [
-        1166,
+        1406,
         268
       ],
       "size": [
@@ -272,8 +272,8 @@
       "label": "scas-detections",
       "sublabel": "optional ES",
       "pos": [
-        1166,
-        460
+        1406,
+        800
       ],
       "size": [
         176,
@@ -294,7 +294,7 @@
       "label": "victim-utils",
       "sublabel": "internal package",
       "pos": [
-        884,
+        1124,
         674
       ],
       "size": [

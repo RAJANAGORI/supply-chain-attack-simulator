@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "5cc6743c-0612-4d35-8d3e-41d601285cf5",
+  "receiptId": "0a2e98fb-948c-4f6f-beb4-c0925e2dd88f",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
-  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-07-transitive-dependency/candidate.json",
-  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-07-transitive-dependency/scenario-07.html",
+  "input": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-07-transitive-dependency/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-07-transitive-dependency/scenario-07.html",
   "specification": {
-    "sha256": "9d664fc23edbe1125cc22f0a8a19d2d31160631b13b0752e79727482ba10c180",
-    "bytes": 7640
+    "sha256": "e75e63fdc099efdf84beefd29e87c0ed4177e058082eb7f5ac95bcff1d9ae97a",
+    "bytes": 7643
   },
   "artifact": {
-    "sha256": "c9aaf0d799e6b5bc4fdd6b37c5608acc63a3fdb60c395e2575ac6e7ed50173ce",
-    "bytes": 765261
+    "sha256": "d5df7c3ad8ce5024d2c6ecda7da867ca13f227d972e50ccdf07c732d49d97787",
+    "bytes": 828608
   }
 }

@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "0a6e0e4d-a090-40ee-b062-d92558f19416",
+  "receiptId": "718cb223-844f-461b-8de8-7a9cd1e0a726",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
-  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-24-slopsquatting/candidate.json",
-  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-24-slopsquatting/scenario-24.html",
+  "input": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-24-slopsquatting/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/projects/supply-chain-attack-simulator/.archify/2026-10-03-0444-scenario-24-slopsquatting/scenario-24.html",
   "specification": {
-    "sha256": "d4c46a60c0346371975ecbc49c7bb76f187ca8c16a243a613c582f2ac6f0d71d",
-    "bytes": 7265
+    "sha256": "2d586564c231cefc8f91af661258bd69741024e7d938a7bbec8fdaa81022b861",
+    "bytes": 7268
   },
   "artifact": {
-    "sha256": "d41093a816a264e0905c312f1383c54b375d0b5e7d2062156d6981332a326df0",
-    "bytes": 764693
+    "sha256": "7e22ba6e2e148b363b7ab9aaed832b41249afc309d1cdf309fca0156dbdb91be",
+    "bytes": 828040
   }
 }
