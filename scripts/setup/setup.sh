@@ -47,6 +47,10 @@ echo ""
 
 MISSING_DEPS=()
 
+# Node comes from nvm when it is not already on PATH (.nvmrc).
+# shellcheck disable=SC1091
+source "${REPO_ROOT}/scripts/setup/ensure-node.sh"
+
 # Check Node.js
 if ! command -v node &> /dev/null; then
     echo -e "${RED}❌ Node.js not found${NC}"

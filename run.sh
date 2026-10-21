@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Full SCAS stack. If Docker is missing, install it for this OS first.
+# Full SCAS stack. Installs Node from .nvmrc with nvm, then Docker, if either is missing.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -20,6 +20,9 @@ done
 if [[ "$skip_es" == 1 && "$skip_floci" == 1 ]]; then
   needs_docker=0
 fi
+
+# shellcheck disable=SC1091
+source "${ROOT}/scripts/setup/ensure-node.sh"
 
 if [[ -d /Applications/Docker.app/Contents/Resources/bin ]]; then
   export PATH="/Applications/Docker.app/Contents/Resources/bin:${PATH}"
