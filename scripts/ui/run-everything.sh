@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # SCAS full stack: labs env + Elasticsearch + Kibana + Floci + act check + dashboard UI.
 #
-# One command from the repo root (Docker Desktop must be running):
+# One command from the repo root. ./run.sh installs Docker first when
+# the daemon is not already running (macOS, apt, dnf, yum, pacman, zypper, apk).
 #   ./scripts/ui/run-everything.sh
 #
 # Flags:
@@ -47,12 +48,22 @@ ok()   { printf '✓ %s\n' "$*"; }
 warn() { printf '! %s\n' "$*" >&2; }
 
 need_docker() {
-  if ! command -v docker >/dev/null 2>&1; then
-    warn "Docker CLI not found. Install Docker Desktop."
-    exit 1
+  local rc=0
+  "${ROOT}/scripts/setup/ensure-docker.sh" || rc=$?
+  if [[ "$rc" -eq 10 ]]; then
+    if [[ "${SCAS_DOCKER_SG_REEXEC:-}" == 1 ]] || ! command -v sg >/dev/null 2>&1; then
+      warn "Docker is running, but this shell cannot use the docker socket yet."
+      warn "Log out and back in so the docker group applies, then re-run ./run.sh"
+      exit 1
+    fi
+    export SCAS_DOCKER_SG_REEXEC=1
+    exec sg docker -c "$(printf '%q ' "$0" "$@")"
   fi
-  if ! docker info >/dev/null 2>&1; then
-    warn "Docker daemon is not running. Open Docker Desktop and wait until it is idle, then re-run."
+  if [[ "$rc" -ne 0 ]]; then
+    exit "$rc"
+  fi
+  if ! docker compose version >/dev/null 2>&1; then
+    warn "Docker Compose v2 is missing. The stack needs the 'docker compose' command."
     exit 1
   fi
   ok "Docker is running"
