@@ -6,6 +6,7 @@ If you still have notes that mention `data-processor`, `mock-cdn.js`, or `bundle
 
 ## 📚 What You'll Learn
 
+- What Shai-Hulud is, and why one install can republish packages the same token is allowed to write.
 - Why a publish token on a laptop is enough to turn one install into an ecosystem incident.
 - How the script picks targets: `@victim-org/` entries in `package-lock.json`, not a hardcoded package name.
 - Where the three evidence logs live, and what "harvest before republish" looks like in them.
@@ -17,7 +18,7 @@ If you still have notes that mention `data-processor`, `mock-cdn.js`, or `bundle
 
 <div class="doc-toc">
 
-- [Part 1: The workspace you are about to break](#part-1-the-workspace-you-are-about-to-break)
+- [Part 1: Understanding Shai-Hulud](#part-1-understanding-shai-hulud)
 - [Part 2: Setup](#part-2-setup)
 - [Part 3: Read the payload before you install](#part-3-read-the-payload-before-you-install)
 - [Part 4: Install it](#part-4-install-it)
@@ -35,7 +36,42 @@ If you still have notes that mention `data-processor`, `mock-cdn.js`, or `bundle
 </div>
 
 ---
-## Part 1: The workspace you are about to break
+## Part 1: Understanding Shai-Hulud
+
+### What is Shai-Hulud?
+
+Shai-Hulud is the public name for an npm worm from 2025. The name is the sandworm from Dune. The behavior matches the name: the payload does not sit inside the one package a developer chose. On the machine that just installed it, the script reads publish credentials and uses them to ship the same payload out again, under other package names that token is allowed to write.
+
+Scenario 03 stops at one hijacked package. Scenario 04 stops at one bad version of a name people already depend on. Shai-Hulud is the case where the stolen npm token is what moves. Every package that token can publish is a possible next copy, and the next install repeats the read.
+
+In the public campaign the script lived in `postinstall`, so it ran during `npm install`, before the application started. The loop was:
+
+1. Read npm and GitHub tokens off the maintainer machine (`~/.npmrc`, git credentials, and tokens already in the environment).
+2. Publish a new version of other packages that npm token can write, with the same script packed inside.
+
+Whoever installs one of those versions runs step 1 on their own machine, with their own tokens. The worm spreads by publishing.
+
+This lab adds one more move so the GitHub token shows up in a log: a simulated pull request against each package repo. That pull request is the lab's stand-in. It is not a transcript of the public campaign.
+
+### What the 2025 reports described
+
+Stolen maintainer credentials were used to republish popular npm packages, including `chalk` and `debug`. A follow-on worm, written up first against `@ctrl/tinycolor` and about forty other packages, harvested tokens during install and kept publishing. Later reports described the same pattern moving through a much larger set of packages. The links for this lab are the chalk, debug, and Shai-Hulud note in [RESOURCES.md](../../reference/RESOURCES.md#chalk-debug-and-shai-hulud-2025), and the scenario 06 row in that same file (the StepSecurity writeup).
+
+Two facts from those writeups are the ones the scenario is built on. The payload ran at install time, from a lifecycle script. The set of packages at risk was "whatever this token can publish," which is wider than the one dependency the developer typed.
+
+### How the lab copies that
+
+You install a package named `shai-hulud`. The worm is `malicious-packages/shai-hulud/postinstall.js`. It returns immediately unless `TESTBENCH_MODE=enabled`. Every request stays on `127.0.0.1`. There is no call to the real npm registry or to GitHub.
+
+| What the reports describe | What you will see here |
+|---|---|
+| Tokens read from the maintainer environment | Lab fixtures in `victim-app/.npmrc`, `victim-app/.env`, and `~/.git-credentials` |
+| Secrets sent to the attacker | `POST` to `127.0.0.1:3001/collect` |
+| A malicious `npm publish` | `POST` to `127.0.0.1:3003/publish` |
+| A stolen GitHub token used to write to the maintainer's repos | A simulated backdoor pull request, `POST` to `127.0.0.1:3002/backdoor-pr` |
+| Every package that token can publish | The four `@victim-org/*` names in `package-lock.json` |
+
+### The workspace you are about to break
 
 `victim-app` is a private workspace. It depends on `shai-hulud` and on four packages the same team maintains:
 
