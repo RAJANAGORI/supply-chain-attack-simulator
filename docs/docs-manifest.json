@@ -72,7 +72,7 @@
         {
           "path": "scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_06.md",
           "title": "06 \u00b7 Shai-Hulud",
-          "badge": "Expert",
+          "badge": "Advanced",
           "seoKeyword": "Shai-Hulud supply chain attack"
         },
         {
@@ -454,7 +454,7 @@
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_06.md",
           "title": "06 \u00b7 Shai-Hulud",
-          "badge": "Expert"
+          "badge": "Advanced"
         },
         {
           "path": "modules/MODULE_INSTANCE_SCENARIO_07.md",
