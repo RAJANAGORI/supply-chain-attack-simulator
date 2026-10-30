@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "6c9d3756-c2a7-4777-9b48-37be6f5189ea",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/red-blue-pov.html",
+  "specification": {
+    "sha256": "754e3801245ad30368ff019e8bec967f0066d584ae9c5e738c83ef7bf5d6426b",
+    "bytes": 6890
+  },
+  "artifact": {
+    "sha256": "6d6cf77c3bb4a7572fe57cad868218ce990f3bcef3d6c7bf964499003769e97d",
+    "bytes": 833675
+  }
+}

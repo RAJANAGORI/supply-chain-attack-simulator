@@ -184,8 +184,11 @@ free_common_ports
   echo $! >/tmp/tb06-reg.pid
   sleep 1
   cd ../victim-app
-  rm -rf node_modules package-lock.json
-  TESTBENCH_MODE=enabled npm install >/tmp/tb06-npm.log 2>&1
+  # Keep package-lock.json. The worm reads it during postinstall, and npm 11
+  # writes a fresh lockfile only after lifecycle scripts, so deleting it
+  # skips the republish.
+  rm -rf node_modules
+  TESTBENCH_MODE=enabled npm ci >/tmp/tb06-npm.log 2>&1
   sleep 2
   C="$(curl -s http://127.0.0.1:3001/captured-credentials)"
   P="$(curl -s http://127.0.0.1:3003/published-packages)"

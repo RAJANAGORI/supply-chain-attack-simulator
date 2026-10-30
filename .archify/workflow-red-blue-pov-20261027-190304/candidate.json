@@ -1,0 +1,188 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Red team and blue team on one SCAS lab",
+    "locale": "en",
+    "quality_profile": "showcase",
+    "output": ".archify/workflow-red-blue-pov-20261027-190304/red-blue-pov.html",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "8c2a2106bbdd4bcb189c7f8cbb503f6a799808f8"
+    }
+  },
+  "lanes": [
+    { "id": "shared", "label": "Same lab" },
+    { "id": "red", "label": "Red team" },
+    { "id": "blue", "label": "Blue team" },
+    { "id": "close", "label": "After the run" }
+  ],
+  "phases": [
+    { "id": "enter", "label": "Open the lab", "fromCol": 0, "toCol": 1 },
+    { "id": "play", "label": "Run the role", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "check", "label": "Read and re-test", "fromCol": 4, "toCol": 5, "variant": "security" }
+  ],
+  "mainPath": ["open", "safety", "prep", "role", "attack", "capture", "detect", "quiz"],
+  "nodes": [
+    {
+      "id": "open",
+      "lane": "shared",
+      "col": 0,
+      "type": "external",
+      "label": "One lab",
+      "sublabel": "attack plus DETECT.md",
+      "sources": [{ "path": "README.md", "line": 26, "end_line": 28 }]
+    },
+    {
+      "id": "safety",
+      "lane": "shared",
+      "col": 1,
+      "type": "security",
+      "label": "Safety is already on",
+      "sublabel": "TESTBENCH_MODE on",
+      "sources": [
+        { "path": "README.md", "line": 30, "end_line": 30 },
+        { "path": "README.md", "line": 188, "end_line": 189 },
+        { "path": "scenarios/_shared/enable-testbench.sh", "line": 3, "end_line": 15 }
+      ]
+    },
+    {
+      "id": "prep",
+      "lane": "shared",
+      "col": 2,
+      "type": "backend",
+      "label": "Setup and collector",
+      "sublabel": "all three roles",
+      "sources": [{ "path": "scenarios/01-typosquatting/lesson.yaml", "line": 65, "end_line": 78 }]
+    },
+    {
+      "id": "role",
+      "lane": "red",
+      "col": 2,
+      "type": "frontend",
+      "label": "Pick a role",
+      "sublabel": "default is Purple",
+      "sources": [
+        { "path": "apps/dashboard/src/components/ScenarioLessonRunner.tsx", "line": 24, "end_line": 29 },
+        { "path": "apps/dashboard/src/components/ScenarioLessonRunner.tsx", "line": 79, "end_line": 90 }
+      ]
+    },
+    {
+      "id": "attack",
+      "lane": "red",
+      "col": 3,
+      "type": "backend",
+      "label": "Attack steps",
+      "sublabel": "hidden from Blue",
+      "sources": [
+        { "path": "scenarios/01-typosquatting/lesson.yaml", "line": 79, "end_line": 92 },
+        { "path": "apps/dashboard/src/components/ScenarioLessonRunner.tsx", "line": 26, "end_line": 29 }
+      ]
+    },
+    {
+      "id": "capture",
+      "lane": "red",
+      "col": 4,
+      "type": "database",
+      "label": "Live inspector",
+      "sublabel": "capture and breach",
+      "sources": [
+        { "path": "documentation/platform/DASHBOARD.md", "line": 92, "end_line": 92 },
+        { "path": "apps/dashboard/src/components/ScenarioLessonRunner.tsx", "line": 537, "end_line": 572 }
+      ]
+    },
+    {
+      "id": "campaign",
+      "lane": "close",
+      "col": 5,
+      "type": "messagebus",
+      "label": "Campaign",
+      "sublabel": "orders finished labs",
+      "sources": [
+        { "path": "documentation/platform/DASHBOARD.md", "line": 95, "end_line": 95 },
+        { "path": "documentation/platform/DASHBOARD.md", "line": 135, "end_line": 137 }
+      ]
+    },
+    {
+      "id": "detect",
+      "lane": "blue",
+      "col": 4,
+      "type": "security",
+      "label": "Detect step",
+      "sublabel": "DETECT.md runbook",
+      "sources": [
+        { "path": "scenarios/01-typosquatting/lesson.yaml", "line": 93, "end_line": 99 },
+        { "path": "apps/dashboard/src/components/ScenarioLessonRunner.tsx", "line": 26, "end_line": 29 }
+      ]
+    },
+    {
+      "id": "reference",
+      "lane": "blue",
+      "col": 0,
+      "type": "frontend",
+      "label": "Reference tab",
+      "sublabel": "drill and real case",
+      "sources": [
+        { "path": "apps/dashboard/src/components/ScenarioLessonRunner.tsx", "line": 650, "end_line": 676 },
+        { "path": "documentation/platform/DASHBOARD.md", "line": 91, "end_line": 91 }
+      ]
+    },
+    {
+      "id": "reversal",
+      "lane": "red",
+      "col": 5,
+      "type": "security",
+      "label": "Blocklist re-run",
+      "sublabel": "only if reversal is set",
+      "sources": [
+        { "path": "apps/dashboard/src/components/PurpleReversal.tsx", "line": 7, "end_line": 14 },
+        { "path": "apps/dashboard/src/components/ScenarioLessonRunner.tsx", "line": 642, "end_line": 644 },
+        { "path": "apps/control-plane/src/routes/api.ts", "line": 602, "end_line": 607 }
+      ]
+    },
+    {
+      "id": "quiz",
+      "lane": "blue",
+      "col": 5,
+      "type": "frontend",
+      "label": "Quiz",
+      "sublabel": "after steps verify",
+      "sources": [
+        { "path": "apps/dashboard/src/components/ScenarioLessonRunner.tsx", "line": 483, "end_line": 488 },
+        { "path": "documentation/platform/DASHBOARD.md", "line": 94, "end_line": 94 }
+      ]
+    }
+  ],
+  "edges": [
+    { "id": "enter", "from": "open", "to": "safety" },
+    { "id": "arm", "from": "safety", "to": "prep" },
+    { "id": "pick", "from": "prep", "to": "role", "label": "dashboard" },
+    { "id": "red-steps", "from": "role", "to": "attack", "label": "red or purple", "variant": "emphasis" },
+    { "id": "ref-tab", "from": "open", "to": "reference", "label": "reference tab", "variant": "dashed", "role": "branch" },
+    { "id": "fire", "from": "attack", "to": "capture", "label": "phones home", "variant": "emphasis" },
+    { "id": "read", "from": "capture", "to": "detect", "label": "inspector", "variant": "emphasis" },
+    { "id": "guard", "from": "capture", "to": "reversal", "label": "if defined", "variant": "security", "role": "branch" },
+    { "id": "gate", "from": "detect", "to": "quiz", "label": "steps verified", "variant": "security" },
+    { "id": "chain", "from": "quiz", "to": "campaign", "label": "optional", "variant": "dashed", "role": "branch" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Who sees which steps",
+      "items": [
+        "Red sees setup and attack. Blue sees setup and detect. Purple, the default, sees both.",
+        "The command line runs the same attack without the role switch. README remains the source of truth."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "What is not the main path",
+      "items": [
+        "The blind drill is on the Reference tab. It does not block the lab steps.",
+        "The blocklist re-run appears only after a capture, and only on lessons that set reversal.",
+        "A campaign only orders finished labs. Two ship: quiet-carrier and cold-key."
+      ]
+    }
+  ]
+}

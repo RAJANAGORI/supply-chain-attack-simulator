@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/candidate.json",
+    "sha256": "74ee4bb2bc6148c9d6bb710b106856769df1edd3a9cc0b3d13aaa1ffec5fb8c9",
+    "bytes": 7025
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/red-blue-pov.html",
+    "sha256": "52c95415e16dea79c22259c8ae2af27e19aae9383f6c154e55a140914ff52a54",
+    "bytes": 826054
+  },
+  "gates": {
+    "validate": "fail",
+    "deliver": "not-run",
+    "check": "not-run",
+    "browser-check": "not-run"
+  },
+  "failedStage": "validate",
+  "diagnostics": [
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"attack steps and DETECT.md\" needs a 8.2px minimum that stays readable on this 1259px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "open",
+        "path": "/nodes/0/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 8.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1259,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 127.91999999999999,
+        "availableTextWidthPx": 128
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"TESTBENCH_MODE, localhost only\" needs a 8.2px minimum that stays readable on this 1259px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "safety",
+        "path": "/nodes/1/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 8.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1259,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 147.59999999999997,
+        "availableTextWidthPx": 124
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"shown to red, blue, and purple\" needs a 8.2px minimum that stays readable on this 1259px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "prep",
+        "path": "/nodes/2/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 8.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1259,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 147.59999999999997,
+        "availableTextWidthPx": 116
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"Purple default, or Red, or Blue\" needs a 8.2px minimum that stays readable on this 1259px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "role",
+        "path": "/nodes/3/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 8.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1259,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 152.51999999999998,
+        "availableTextWidthPx": 152
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"hidden when the role is Blue\" needs a 8.2px minimum that stays readable on this 1259px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "attack",
+        "path": "/nodes/4/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 8.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1259,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 137.75999999999996,
+        "availableTextWidthPx": 136
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"capture, then the breach panel\" needs a 8.2px minimum that stays readable on this 1259px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "capture",
+        "path": "/nodes/5/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 8.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1259,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 147.59999999999997,
+        "availableTextWidthPx": 144
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"only if this lab defines reversal\" needs a 8.2px minimum that stays readable on this 1259px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "reversal",
+        "path": "/nodes/9/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 8.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1259,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 162.35999999999999,
+        "availableTextWidthPx": 160
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    },
+    {
+      "code": "workflow/sublabel-readability",
+      "severity": "error",
+      "message": "Sublabel \"blind drill, mitigations, real case\" needs a 8.2px minimum that stays readable on this 1259px canvas, above the supported 8px text row — compact the column spacing or node widths so the canvas is at most 1240px wide; preserve the sublabel's role or protocol.",
+      "subject": {
+        "diagramType": "workflow",
+        "node": "reference",
+        "path": "/nodes/8/sublabel"
+      },
+      "evidence": {
+        "requiredFontPx": 8.2,
+        "maximumSlotFontPx": 8,
+        "canvasWidthPx": 1259,
+        "maximumCanvasWidthPx": 1240,
+        "requiredTextWidthPx": 172.2,
+        "availableTextWidthPx": 168
+      },
+      "supportedFixes": [
+        "compact column spacing or node widths until the implicit canvas is at most 1240px wide, preserving every node and relationship"
+      ]
+    }
+  ],
+  "diagnosticSummary": {
+    "total": 11,
+    "shown": 8,
+    "truncated": true,
+    "omittedByCode": {
+      "workflow/sublabel-readability": 3
+    }
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/review-3/red-blue-pov.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/review-3/red-blue-pov.finalize-summary.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-27T13:33:23.134Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 287,
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "nextAction": {
+    "action": "edit-in-place",
+    "candidate": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/candidate.json",
+    "constraint": "Preserve unaffected semantics and geometry; apply each diagnostic's supportedFixes, or the fix its message names, and do not replace the whole candidate.",
+    "then": "finalize-once"
+  }
+}

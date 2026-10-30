@@ -223,22 +223,22 @@ const server = http.createServer((req, res) => {
     const pkgName = req.url.substring(1);
     handlePublish(req, res);
   }
-  // GET /<package>/versions — npm view <pkg> versions
-  else if (req.method === 'GET' && req.url.match(/^\/@?[a-z0-9._-]+\/?$/i)) {
-    const pkgName = req.url.substring(1).replace(/\/?$/, '');
-    handleView(res, pkgName);
-  }
-  // GET /published-packages — legacy endpoint
+  // Exact log routes before the package-name pattern. That pattern also
+  // matches /published-packages and was returning 404 for the evidence curl.
   else if (req.method === 'GET' && req.url === '/published-packages') {
     const logs = fs.readFileSync(logFile, 'utf8');
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(logs);
   }
-  // DELETE /published-packages — clear
   else if (req.method === 'DELETE' && req.url === '/published-packages') {
     fs.writeFileSync(logFile, JSON.stringify({ publishes: [] }, null, 2));
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'success', message: 'Publishes cleared' }));
+  }
+  // GET /<package> — npm view <pkg>
+  else if (req.method === 'GET' && req.url.match(/^\/@?[a-z0-9._-]+\/?$/i)) {
+    const pkgName = req.url.substring(1).replace(/\/?$/, '');
+    handleView(res, pkgName);
   }
   else {
     res.writeHead(404, { 'Content-Type': 'application/json' });

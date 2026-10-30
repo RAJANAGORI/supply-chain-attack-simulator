@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "command": "finalize",
+  "status": "fail",
+  "type": "workflow",
+  "quality": "showcase",
+  "startedAt": "2026-10-27T13:41:05.451Z",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/candidate.json",
+    "sha256": "ad0ff898d3dd34019e282cb21df79653960fa9290d588309193849a6913df441",
+    "bytes": 7259
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/red-blue-pov.html",
+    "sha256": "52c95415e16dea79c22259c8ae2af27e19aae9383f6c154e55a140914ff52a54",
+    "bytes": 826054
+  },
+  "stages": {
+    "validate": {
+      "status": "fail",
+      "exitCode": 1,
+      "durationMs": null,
+      "command": [
+        "/Users/rajanagori/.nvm/versions/node/v22.15.0/bin/node",
+        "/Users/rajanagori/.agents/skills/archify/bin/archify.mjs",
+        "deliver",
+        "workflow",
+        "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/candidate.json",
+        "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/red-blue-pov.html",
+        "--quality",
+        "showcase",
+        "--repo-root",
+        "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator",
+        "--json"
+      ],
+      "receipt": {
+        "schemaVersion": 1,
+        "ok": false,
+        "command": "deliver",
+        "receiptId": "450e0175-f06a-4909-bb48-d146ff45eed4",
+        "stage": "render",
+        "type": "workflow",
+        "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/candidate.json",
+        "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/red-blue-pov.html",
+        "error": "Workflow layout validation failed:\n- [composition/proper-crossing] showcase workflow edges[3] id \"pick\" \"prep\" -> \"role\" crosses edges[4] id \"red-steps\" \"role\" -> \"attack\" at [442, 290] (segments 0 and 1) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.\n- mainPath step \"prep\" -> \"attack\" has no matching edge — add the edge or remove the pair from mainPath.",
+        "diagnostics": [
+          {
+            "code": "composition/proper-crossing",
+            "severity": "error",
+            "message": "[composition/proper-crossing] showcase workflow edges[3] id \"pick\" \"prep\" -> \"role\" crosses edges[4] id \"red-steps\" \"role\" -> \"attack\" at [442, 290] (segments 0 and 1) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+            "subject": {
+              "diagramType": "workflow",
+              "collection": "edges",
+              "index": 3,
+              "id": "pick",
+              "from": "prep",
+              "to": "role"
+            },
+            "evidence": {
+              "otherRelationship": {
+                "diagramType": "workflow",
+                "collection": "edges",
+                "index": 4,
+                "id": "red-steps",
+                "from": "role",
+                "to": "attack"
+              },
+              "point": [
+                442,
+                290.00000000000006
+              ],
+              "segmentIndex": 0,
+              "otherSegmentIndex": 1
+            },
+            "supportedFixes": [
+              "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+            ]
+          },
+          {
+            "code": "layout/constraint",
+            "severity": "error",
+            "message": "mainPath step \"prep\" -> \"attack\" has no matching edge — add the edge or remove the pair from mainPath.",
+            "subject": {
+              "diagramType": "workflow"
+            },
+            "evidence": {},
+            "supportedFixes": []
+          }
+        ],
+        "provenance": "failed",
+        "update": {
+          "status": "unavailable",
+          "installedVersion": null,
+          "availableVersion": null,
+          "releaseNotes": null,
+          "checkedAt": null,
+          "source": null,
+          "noticeRequired": false,
+          "noticeText": null,
+          "reason": "disabled"
+        }
+      },
+      "execution": "embedded-in-deliver"
+    },
+    "deliver": {
+      "status": "not-run",
+      "execution": "blocked-by-validate"
+    }
+  },
+  "browserCheck": {
+    "requested": true,
+    "ran": false
+  },
+  "diagnostics": [
+    {
+      "code": "composition/proper-crossing",
+      "severity": "error",
+      "message": "[composition/proper-crossing] showcase workflow edges[3] id \"pick\" \"prep\" -> \"role\" crosses edges[4] id \"red-steps\" \"role\" -> \"attack\" at [442, 290] (segments 0 and 1) — adjust route/via, bias, or channel coordinates so the edges use separate lane corridors.",
+      "subject": {
+        "diagramType": "workflow",
+        "collection": "edges",
+        "index": 3,
+        "id": "pick",
+        "from": "prep",
+        "to": "role"
+      },
+      "evidence": {
+        "otherRelationship": {
+          "diagramType": "workflow",
+          "collection": "edges",
+          "index": 4,
+          "id": "red-steps",
+          "from": "role",
+          "to": "attack"
+        },
+        "point": [
+          442,
+          290.00000000000006
+        ],
+        "segmentIndex": 0,
+        "otherSegmentIndex": 1
+      },
+      "supportedFixes": [
+        "adjust route/via, bias, or channel coordinates so the edges use separate lane corridors"
+      ]
+    },
+    {
+      "code": "layout/constraint",
+      "severity": "error",
+      "message": "mainPath step \"prep\" -> \"attack\" has no matching edge — add the edge or remove the pair from mainPath.",
+      "subject": {
+        "diagramType": "workflow"
+      },
+      "evidence": {},
+      "supportedFixes": []
+    }
+  ],
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/review-2/red-blue-pov.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/workflow-red-blue-pov-20261027-190304/review-2/red-blue-pov.finalize-summary.json"
+  },
+  "visualReview": "not-requested",
+  "failedStage": "validate",
+  "finishedAt": "2026-10-27T13:41:05.838Z",
+  "durationMs": 386,
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-10-27T13:33:23.134Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  }
+}

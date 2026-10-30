@@ -129,6 +129,11 @@ function localDirForLockEntry(projectRoot, key, pkgInfo) {
   if (typeof pkgInfo.resolved === 'string' && pkgInfo.resolved.startsWith('file:')) {
     return path.resolve(projectRoot, pkgInfo.resolved.replace(/^file:/, ''));
   }
+  // Lockfile v3 workspace links look like { resolved: "packages/victim-api", link: true }
+  // and carry no version. Follow the link so the patch bump uses package.json.
+  if (pkgInfo && pkgInfo.link === true && typeof pkgInfo.resolved === 'string' && !/^[a-z][a-z0-9+.-]*:/i.test(pkgInfo.resolved)) {
+    return path.resolve(projectRoot, pkgInfo.resolved);
+  }
   return null;
 }
 
