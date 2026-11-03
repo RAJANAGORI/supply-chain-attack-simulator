@@ -3,6 +3,7 @@ import cors from 'cors';
 import { createServer } from 'node:http';
 import { WebSocketServer } from 'ws';
 import { resolve } from 'node:path';
+import { getArchifyRoot } from './archify.js';
 import { createApiRouter } from './routes/api.js';
 import { processManager } from './process-manager.js';
 
@@ -30,6 +31,8 @@ app.get('/', (_req, res) => {
     endpoints: {
       health: '/api/health',
       scenarios: '/api/scenarios',
+      archify: '/archify/',
+      scenarioArchify: '/api/scenarios/:id/archify',
       platform: '/api/platform/status',
       logs: '/ws/logs',
     },
@@ -37,6 +40,24 @@ app.get('/', (_req, res) => {
     publicSite: 'https://simulator.rajanagori.in/',
   });
 });
+
+// Archify pack (architecture / sequence HTML + briefs). Dashboard proxies /archify.
+app.use(
+  '/archify',
+  express.static(getArchifyRoot(), {
+    index: false,
+    fallthrough: false,
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache');
+      } else if (filePath.endsWith('.md')) {
+        res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache');
+      }
+    },
+  }),
+);
 
 app.use('/api', createApiRouter());
 

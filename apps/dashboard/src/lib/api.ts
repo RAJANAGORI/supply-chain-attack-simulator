@@ -130,6 +130,21 @@ export interface FlociRuntime {
   seedNote?: string;
 }
 
+export interface ArchifyLink {
+  id: string;
+  label: string;
+  href: string;
+}
+
+/** Control-plane listing for `.archify/scenarios/<slug>/` diagram HTML + brief. */
+export interface ArchifyPackInfo {
+  slug: string;
+  available: boolean;
+  diagrams: ArchifyLink[];
+  brief?: ArchifyLink;
+  indexHref: string;
+}
+
 export interface ScenarioDetail extends Omit<ScenarioSummary, 'lesson'> {
   setup: { command: string; cwd: string };
   services: { id: string; label: string; port?: number }[];
@@ -347,6 +362,7 @@ export const cp = {
     api<ActionResult>(`/scenarios/${id}/steps/${stepId}`, { method: 'POST' }),
   runAll: (id: string) => api<ActionResult>(`/scenarios/${id}/run`, { method: 'POST' }),
   getCaptures: (id: string) => api<Record<string, unknown>>(`/scenarios/${id}/captures`),
+  getArchify: (id: string) => api<ArchifyPackInfo>(`/scenarios/${id}/archify`),
   clearCaptures: (id: string) => api(`/scenarios/${id}/captures`, { method: 'DELETE' }),
   verifyLesson: (id: string) => api<LessonVerifyResult>(`/scenarios/${id}/lesson/verify`),
   getProgress: () => api<ProgressState>('/progress'),

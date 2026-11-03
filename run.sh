@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Full SCAS stack. Installs Node from .nvmrc with nvm, then Docker, if either is missing.
+# Control plane (via start-dashboard) also hosts repo `.archify/` at /archify;
+# the dashboard proxies that path so lab buttons open diagram HTML same-origin.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

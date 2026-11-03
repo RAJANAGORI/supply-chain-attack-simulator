@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActRunnerCard } from '@/components/ActRunnerCard';
+import { ArchifyPackCard } from '@/components/ArchifyPackCard';
 import { FlociRunnerCard } from '@/components/FlociRunnerCard';
 import { Alert, Btn, Card, StatusPill } from '@/components/ui';
 import { useLabSession } from '@/components/LabSessionContext';
@@ -490,6 +491,7 @@ export function ScenarioLessonRunner({
         </div>
 
         <div className="space-y-4 min-w-0">
+          <ArchifyPackCard scenarioId={scenarioId} />
           {scenario.flociRuntime && (
             <FlociRunnerCard
               runtime={scenario.flociRuntime}

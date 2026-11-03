@@ -62,6 +62,11 @@ const nextConfig = {
         destination: `${controlPlaneTarget}/api/:path*`,
       },
       {
+        // Archify pack HTML/markdown (control plane serves repo `.archify/`)
+        source: '/archify/:path*',
+        destination: `${controlPlaneTarget}/archify/:path*`,
+      },
+      {
         source: '/ws/logs',
         destination: `${controlPlaneTarget}/ws/logs`,
       },
