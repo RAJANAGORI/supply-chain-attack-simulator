@@ -51,27 +51,27 @@ export function LogConsole({
   }, [sessionId]);
 
   const streamColor = (stream: LogEntry['stream']) => {
-    if (stream === 'stderr') return 'text-rose-300';
-    if (stream === 'system') return 'text-amber-300';
-    return 'text-white/80';
+    if (stream === 'stderr') return 'text-state-error';
+    if (stream === 'system') return 'text-state-warn';
+    return 'text-ink-secondary';
   };
 
   return (
     <div
-      className={`relative flex flex-col overflow-hidden bg-[#0c0b14] text-[#e8e6f5] ${
+      className={`relative flex flex-col overflow-hidden bg-canvas-elevated text-ink-primary ${
         hideChrome ? '' : 'rounded-2xl border border-line shadow-panel'
       } ${fill ? 'h-full min-h-0' : ''} ${className}`}
     >
       {!hideChrome && (
-        <div className="flex shrink-0 items-center justify-between border-b border-white/10 px-4 py-3">
+        <div className="flex shrink-0 items-center justify-between border-b border-line px-4 py-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-white/60">Terminal</p>
-            <p className="text-[11px] text-white/40">
+            <p className="text-xs font-semibold uppercase tracking-wider text-ink-muted">Terminal</p>
+            <p className="text-[11px] text-ink-faint">
               {sessionId ? `Session ${sessionId.slice(0, 8)}…` : 'All active sessions'}
             </p>
           </div>
-          <span className={`flex items-center gap-1.5 text-[11px] ${connected ? 'text-state-ok' : 'text-white/40'}`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${connected ? 'bg-state-ok' : 'bg-white/30'}`} />
+          <span className={`flex items-center gap-1.5 text-[11px] ${connected ? 'text-state-ok' : 'text-ink-faint'}`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${connected ? 'bg-state-ok' : 'bg-ink-faint'}`} />
             {connected ? 'Live' : 'Connecting…'}
           </span>
         </div>
@@ -82,13 +82,13 @@ export function LogConsole({
         }`}
       >
         {lines.length === 0 ? (
-          <p className="text-white/35">
+          <p className="text-ink-faint">
             Waiting for output… Start a lab action above — logs stream here live.
           </p>
         ) : (
           lines.map((entry, i) => (
             <div key={`${entry.sessionId}-${entry.timestamp}-${i}`} className={streamColor(entry.stream)}>
-              <span className="text-white/35">[{entry.timestamp.slice(11, 19)}]</span> {entry.line}
+              <span className="text-ink-faint">[{entry.timestamp.slice(11, 19)}]</span> {entry.line}
             </div>
           ))
         )}

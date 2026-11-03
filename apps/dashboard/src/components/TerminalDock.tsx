@@ -240,7 +240,7 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
           }`}
         >
           <span
-            className={`pointer-events-none absolute rounded-full bg-white/40 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100 ${
+            className={`pointer-events-none absolute rounded-full bg-ink-faint opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100 ${
               useVertical
                 ? 'left-1/2 top-1/2 h-10 w-1 -translate-x-1/2 -translate-y-1/2'
                 : 'left-1/2 top-1/2 h-1 w-10 -translate-x-1/2 -translate-y-1/2'
@@ -250,14 +250,14 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
       )}
 
       <aside
-        className={`z-30 flex shrink-0 flex-col bg-[#0c0b14] ${
-          useVertical ? 'h-full border-l border-white/5' : 'w-full border-t border-white/5'
+        className={`z-30 flex shrink-0 flex-col bg-canvas-elevated ${
+          useVertical ? 'h-full border-l border-line' : 'w-full border-t border-line'
         } ${dragging ? '' : 'transition-[width,height] duration-150 ease-out'}`}
         style={useVertical ? { width: panePx } : { height: panePx }}
         aria-label="Live lab output"
       >
         <div
-          className={`flex shrink-0 items-center justify-between gap-2 border-b border-white/10 px-3 sm:px-4 ${
+          className={`flex shrink-0 items-center justify-between gap-2 border-b border-line px-3 sm:px-4 ${
             useVertical && collapsed ? 'h-full flex-col py-3' : 'h-11'
           }`}
         >
@@ -265,12 +265,12 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
             <button
               type="button"
               onClick={() => setCollapsed(false)}
-              className="flex h-full w-full flex-col items-center gap-3 rounded-lg py-2 text-white/70 hover:bg-white/5 hover:text-white"
+              className="flex h-full w-full flex-col items-center gap-3 rounded-lg py-2 text-ink-muted hover:bg-canvas-hover hover:text-ink-primary"
               aria-expanded={false}
               title="Expand live output"
             >
               <span
-                className={`inline-flex h-2 w-2 rounded-full ${sessionId ? 'bg-emerald-400' : 'bg-white/35'}`}
+                className={`inline-flex h-2 w-2 rounded-full ${sessionId ? 'bg-state-ok' : 'bg-ink-faint'}`}
               />
               <span
                 className="text-[10px] font-semibold uppercase tracking-widest"
@@ -284,24 +284,24 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 onClick={() => setCollapsed((c) => !c)}
-                className="flex min-w-0 items-center gap-2.5 rounded-lg px-1 py-1 text-left hover:bg-white/5"
+                className="flex min-w-0 items-center gap-2.5 rounded-lg px-1 py-1 text-left hover:bg-canvas-hover"
                 aria-expanded={!collapsed}
               >
                 <span className="relative flex h-2 w-2 shrink-0">
                   {sessionId ? (
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/50 opacity-75" />
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-state-ok/50 opacity-75" />
                   ) : null}
                   <span
                     className={`relative inline-flex h-2 w-2 rounded-full ${
-                      sessionId ? 'bg-emerald-400' : 'bg-white/35'
+                      sessionId ? 'bg-state-ok' : 'bg-ink-faint'
                     }`}
                   />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-[10px] font-semibold uppercase tracking-widest text-white/45">
+                  <span className="block text-[10px] font-semibold uppercase tracking-widest text-ink-faint">
                     Live output
                   </span>
-                  <span className="block truncate text-xs text-white/60">{statusLabel}</span>
+                  <span className="block truncate text-xs text-ink-muted">{statusLabel}</span>
                 </span>
               </button>
 
@@ -312,7 +312,7 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
                       type="button"
                       onClick={() => setFollowAll(true)}
                       className={`rounded-md px-2 py-1 text-[11px] font-medium transition ${
-                        followAll ? 'bg-brand text-white' : 'text-white/50 hover:bg-white/10 hover:text-white'
+                        followAll ? 'bg-brand text-white' : 'text-ink-muted hover:bg-canvas-hover hover:text-ink-primary'
                       }`}
                     >
                       All
@@ -322,7 +322,7 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
                         type="button"
                         onClick={() => setFollowAll(false)}
                         className={`rounded-md px-2 py-1 text-[11px] font-medium transition ${
-                          !followAll ? 'bg-brand text-white' : 'text-white/50 hover:bg-white/10 hover:text-white'
+                          !followAll ? 'bg-brand text-white' : 'text-ink-muted hover:bg-canvas-hover hover:text-ink-primary'
                         }`}
                       >
                         Run
@@ -330,7 +330,7 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
                     ) : null}
                     {!narrow && (
                       <div
-                        className="hidden items-center rounded-md bg-white/5 p-0.5 lg:flex"
+                        className="hidden items-center rounded-md bg-canvas-hover p-0.5 lg:flex"
                         role="group"
                         aria-label="Split direction"
                       >
@@ -338,7 +338,9 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
                           type="button"
                           onClick={() => setOrient('vertical')}
                           className={`rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                            orient === 'vertical' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white'
+                            orient === 'vertical'
+                              ? 'bg-canvas-overlay text-ink-primary'
+                              : 'text-ink-faint hover:text-ink-primary'
                           }`}
                           aria-pressed={orient === 'vertical'}
                         >
@@ -348,7 +350,9 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
                           type="button"
                           onClick={() => setOrient('bottom')}
                           className={`rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                            orient === 'bottom' ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white'
+                            orient === 'bottom'
+                              ? 'bg-canvas-overlay text-ink-primary'
+                              : 'text-ink-faint hover:text-ink-primary'
                           }`}
                           aria-pressed={orient === 'bottom'}
                         >
@@ -356,13 +360,13 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
                         </button>
                       </div>
                     )}
-                    <div className="hidden items-center rounded-md bg-white/5 p-0.5 sm:flex" role="group" aria-label="Pane size presets">
+                    <div className="hidden items-center rounded-md bg-canvas-hover p-0.5 sm:flex" role="group" aria-label="Pane size presets">
                       {(['sm', 'md', 'lg'] as const).map((s) => (
                         <button
                           key={s}
                           type="button"
                           onClick={() => setPreset(s)}
-                          className="rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white/40 hover:text-white"
+                          className="rounded px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink-faint hover:text-ink-primary"
                         >
                           {s}
                         </button>
@@ -374,13 +378,13 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
                         void cp.clearLogs().catch(() => undefined);
                         setClearKey((k) => k + 1);
                       }}
-                      className="hidden rounded-md px-2 py-1 text-[11px] text-white/40 transition hover:bg-white/10 hover:text-white sm:inline"
+                      className="hidden rounded-md px-2 py-1 text-[11px] text-ink-faint transition hover:bg-canvas-hover hover:text-ink-primary sm:inline"
                     >
                       Clear
                     </button>
                     <Link
                       href="/teardown"
-                      className="hidden rounded-md px-2 py-1 text-[11px] text-white/40 transition hover:bg-white/10 hover:text-rose-300 sm:inline"
+                      className="hidden rounded-md px-2 py-1 text-[11px] text-ink-faint transition hover:bg-canvas-hover hover:text-state-error sm:inline"
                     >
                       Reset
                     </Link>
@@ -389,7 +393,7 @@ export function LabsWorkspace({ children }: { children: ReactNode }) {
                 <button
                   type="button"
                   onClick={() => setCollapsed((c) => !c)}
-                  className="rounded-md px-2.5 py-1 text-[11px] font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
+                  className="rounded-md px-2.5 py-1 text-[11px] font-medium text-ink-secondary transition hover:bg-canvas-hover hover:text-ink-primary"
                   aria-expanded={!collapsed}
                 >
                   {collapsed ? 'Expand' : 'Collapse'}
