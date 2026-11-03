@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "da33e013-cf3f-4f6d-9f94-2bf28755a8c9",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc06-worm-chain-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc06-worm-chain-20261103-192118/sc06-shai-hulud-sequence.html",
+  "specification": {
+    "sha256": "7aa07fb846eca7f455be558988515a7d665d9bc9df3599895f424f179b0f6f74",
+    "bytes": 6916
+  },
+  "artifact": {
+    "sha256": "a8a4ecf180ca377f7349235e6e28509c05901033e0b6ab24e58e3a018b7a0101",
+    "bytes": 823294
+  }
+}

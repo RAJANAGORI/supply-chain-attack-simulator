@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 21 Axios-compromised-release attack sequence",
+    "subtitle": "Bundled transitive runs postinstall: beacon \u2192 write IOC \u2192 swap manifest",
+    "output": ".archify/scenarios/21-axios-compromised-release-attack/sequence/sc21-axios-compromised-release-attack-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 251,
+          "end_line": 259,
+          "label": "install + run steps"
+        }
+      ]
+    },
+    {
+      "id": "install-script",
+      "type": "backend",
+      "label": "install script",
+      "sublabel": "tarball extract",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 252,
+          "end_line": 258,
+          "label": "install-compromised-release.sh"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "npm workspace",
+      "sources": [
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/README.md",
+          "line": 40,
+          "end_line": 50,
+          "label": "depends on axios-like"
+        }
+      ]
+    },
+    {
+      "id": "transitive",
+      "type": "security",
+      "label": "postinstall",
+      "sublabel": "plain-crypto-js-like",
+      "sources": [
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/packages/plain-crypto-js-like/package.json",
+          "line": 7,
+          "end_line": 9,
+          "label": "postinstall script"
+        }
+      ]
+    },
+    {
+      "id": "beacon",
+      "type": "backend",
+      "label": "Beacon server",
+      "sublabel": ":3021",
+      "sources": [
+        {
+          "path": "scenarios/21-axios-compromised-release-attack/infrastructure/mock-server.js",
+          "line": 40,
+          "end_line": 60,
+          "label": "POST /beacon"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 220,
+      "label": "Install"
+    },
+    {
+      "from": 230,
+      "to": 350,
+      "label": "Payload + Cover"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-install",
+      "from": "learner",
+      "to": "install-script",
+      "y": 160,
+      "label": "run install-compromised-release.sh",
+      "variant": "emphasis"
+    },
+    {
+      "id": "extract-tarball",
+      "from": "install-script",
+      "to": "victim",
+      "y": 195,
+      "label": "npm install tarball (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "run-postinstall",
+      "from": "victim",
+      "to": "transitive",
+      "y": 235,
+      "label": "run postinstall (bundled dep)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "beacon-post",
+      "from": "transitive",
+      "to": "beacon",
+      "y": 275,
+      "label": "POST /beacon (payload)",
+      "variant": "security",
+      "note": "Then writes .testbench-axios-ioc.json locally and swaps package.json to decoy without postinstall"
+    },
+    {
+      "id": "complete",
+      "from": "victim",
+      "to": "learner",
+      "y": 340,
+      "label": "install OK; app starts normally",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "install-script",
+      "from": 160,
+      "to": 205,
+      "type": "backend"
+    },
+    {
+      "participant": "victim",
+      "from": 195,
+      "to": 345,
+      "type": "backend"
+    },
+    {
+      "participant": "transitive",
+      "from": 235,
+      "to": 315,
+      "type": "security"
+    },
+    {
+      "participant": "beacon",
+      "from": 270,
+      "to": 285,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Bundled dependency execution",
+      "items": [
+        "axios-like@1.14.1 tarball contains plain-crypto-js-like via bundledDependencies",
+        "npm install extracts and runs postinstall of the transitive before the app starts",
+        "Bypasses npm link file: behavior that skips nested lifecycle scripts"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Stealthy exfiltration",
+      "items": [
+        "Beacon POSTs to localhost:3021 before any local IOC is visible",
+        "Writes .testbench-axios-ioc.json as forensic marker after beacon",
+        "Real-world parallel: unexpected patch semver pulling poisoned transitive"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Anti-forensics cover",
+      "items": [
+        "postinstall swaps its own package.json with a decoy without postinstall",
+        "Installed manifest looks clean; actual execution happened during install",
+        "Detection requires lockfile review or install-time process monitoring"
+      ]
+    }
+  ]
+}

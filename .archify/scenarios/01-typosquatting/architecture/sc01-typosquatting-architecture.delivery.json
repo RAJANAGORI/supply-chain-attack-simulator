@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "5544374f-664a-429b-b97f-3b8a7ef636e8",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc01-typosquatting-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc01-typosquatting-20261103-192118/sc01-typosquatting-architecture.html",
+  "specification": {
+    "sha256": "84012c1290f98f44255445a55362e8357335cf5ac55119b73d6d286274a34260",
+    "bytes": 5946
+  },
+  "artifact": {
+    "sha256": "b9aee6af7e9eb43f995837da6316e0728c52006985ddf8d0deed134b4b58d43c",
+    "bytes": 824064
+  }
+}

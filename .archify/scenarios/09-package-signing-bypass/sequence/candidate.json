@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 09 Package Signing Bypass attack sequence",
+    "subtitle": "Verify signature (VALID) \u2192 install compromised \u2192 postinstall exfil \u2192 app runs",
+    "output": ".archify/scenarios/09-package-signing-bypass/sequence/sc09-package-signing-bypass-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 159,
+          "end_line": 162,
+          "label": "install + run steps"
+        }
+      ]
+    },
+    {
+      "id": "verify-sig",
+      "type": "backend",
+      "label": "verify-signature.js",
+      "sublabel": "Ed25519 verify",
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/infrastructure/verify-signature.js",
+          "line": 1,
+          "end_line": 60,
+          "label": "verify script"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "npm workspace",
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/victim-app/index.js",
+          "line": 10,
+          "end_line": 20,
+          "label": "requires secure-utils"
+        }
+      ]
+    },
+    {
+      "id": "compromised-pkg",
+      "type": "security",
+      "label": "secure-utils v1.0.1",
+      "sublabel": "signed w/ stolen key",
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/setup.sh",
+          "line": 127,
+          "end_line": 130,
+          "label": "sign compromised"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "type": "backend",
+      "label": "Mock C2",
+      "sublabel": ":3000",
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/infrastructure/mock-server.js",
+          "line": 50,
+          "end_line": 60,
+          "label": "POST /collect"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 230,
+      "label": "Verify signature"
+    },
+    {
+      "from": 250,
+      "to": 350,
+      "label": "Exfil"
+    },
+    {
+      "from": 360,
+      "to": 460,
+      "label": "Clean run"
+    }
+  ],
+  "messages": [
+    {
+      "id": "verify-request",
+      "from": "learner",
+      "to": "verify-sig",
+      "y": 160,
+      "label": "verify-signature.js compromised-package/secure-utils",
+      "variant": "default"
+    },
+    {
+      "id": "verify-result",
+      "from": "verify-sig",
+      "to": "learner",
+      "y": 205,
+      "label": "VALID (key matches)",
+      "variant": "return",
+      "note": "Signature passes but key was stolen"
+    },
+    {
+      "id": "start-install",
+      "from": "learner",
+      "to": "victim",
+      "y": 260,
+      "label": "npm install ../compromised-package/secure-utils (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "npm-installs",
+      "from": "victim",
+      "to": "compromised-pkg",
+      "y": 295,
+      "label": "install v1.0.1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "postinstall-exfil",
+      "from": "compromised-pkg",
+      "to": "c2",
+      "y": 330,
+      "label": "POST /collect (signatureStatus: valid)",
+      "variant": "security"
+    },
+    {
+      "id": "install-complete",
+      "from": "victim",
+      "to": "learner",
+      "y": 375,
+      "label": "install complete",
+      "variant": "return"
+    },
+    {
+      "id": "run-victim",
+      "from": "learner",
+      "to": "victim",
+      "y": 415,
+      "label": "npm start",
+      "variant": "default"
+    },
+    {
+      "id": "app-ok",
+      "from": "victim",
+      "to": "learner",
+      "y": 445,
+      "label": "app OK; check captured-data",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "verify-sig",
+      "from": 160,
+      "to": 210,
+      "type": "backend"
+    },
+    {
+      "participant": "victim",
+      "from": 260,
+      "to": 450,
+      "type": "backend"
+    },
+    {
+      "participant": "compromised-pkg",
+      "from": 290,
+      "to": 340,
+      "type": "security"
+    },
+    {
+      "participant": "c2",
+      "from": 325,
+      "to": 345,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Signature passes",
+      "items": [
+        "verify-signature.js shows VALID because the key fingerprint matches",
+        "Compromised package is signed with the stolen legitimate key",
+        "Signature verification alone cannot detect this attack"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Postinstall timing",
+      "items": [
+        "npm runs secure-utils postinstall during the install phase",
+        "Exfil completes before npm start",
+        "signatureStatus: valid is sent to :3000/collect"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Detection path",
+      "items": [
+        "signature-validator.js performs behavioral scan",
+        "Postinstall network POST and file reads are the IOCs",
+        "Captured-data.json proves keyCompromised: true"
+      ]
+    }
+  ]
+}

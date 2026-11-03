@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "5eb38886-c502-41b8-a858-a16ada5f0c39",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc02-registry-race-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc02-registry-race-20261103-192118/sc02-registry-race-sequence.html",
+  "specification": {
+    "sha256": "07c3ccdd81fa04b073429893ea6c256a09f89696a2dfab2a2330f0ee1cb4838a",
+    "bytes": 6147
+  },
+  "artifact": {
+    "sha256": "05ccf96de77a7db9bac7e7f84af0ad93aefaa904fe592290fd1873dea5270b2a",
+    "bytes": 820154
+  }
+}

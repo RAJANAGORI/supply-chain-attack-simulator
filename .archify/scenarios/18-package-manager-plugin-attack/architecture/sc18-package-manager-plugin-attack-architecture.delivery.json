@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "9085b7b0-e48b-4e17-8617-e3d60ac36234",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc18-package-manager-plugin-attack-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc18-package-manager-plugin-attack-20261103-192118/sc18-package-manager-plugin-attack-architecture.html",
+  "specification": {
+    "sha256": "72380b1e6466cff6a96846950e3cf3116f409d1686fc56c65f7886e83adb7c8e",
+    "bytes": 7748
+  },
+  "artifact": {
+    "sha256": "cca11a9e5eaff480184270a80dbcebd8cbeedef7331fddfe208b3575afbda676",
+    "bytes": 829660
+  }
+}

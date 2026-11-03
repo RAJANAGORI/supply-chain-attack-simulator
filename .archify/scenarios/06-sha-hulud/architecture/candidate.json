@@ -1,0 +1,530 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 06 Shai-Hulud lab architecture",
+    "subtitle": "Token-theft worm: install-time harvest, lockfile fan-out, localhost mock C2",
+    "output": ".archify/scenarios/06-sha-hulud/architecture/sc06-sha-hulud-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "main-attack",
+        "label": "Install attack path",
+        "focus": [
+          "control-center",
+          "victim-app",
+          "worm",
+          "harvester",
+          "mock-registry",
+          "github-sim"
+        ],
+        "note": "npm install runs postinstall before the app starts"
+      },
+      {
+        "id": "evidence",
+        "label": "Evidence stores",
+        "focus": [
+          "harvester",
+          "mock-registry",
+          "github-sim",
+          "capt-creds",
+          "capt-pubs",
+          "capt-prs"
+        ],
+        "note": "Three capture files prove harvest before republish"
+      },
+      {
+        "id": "safety",
+        "label": "Safety gate",
+        "focus": [
+          "worm",
+          "token-fixtures"
+        ],
+        "note": "Malicious path returns unless TESTBENCH_MODE=enabled"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 121,
+          "end_line": 142,
+          "label": "scenario 06 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "plants fixtures",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/setup.sh",
+          "line": 8,
+          "end_line": 61,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "token-fixtures",
+      "type": "security",
+      "label": "Lookalike tokens",
+      "sublabel": ".npmrc / .env / git-creds",
+      "tag": "lab only",
+      "pos": [
+        340,
+        120
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/malicious-packages/shai-hulud/postinstall.js",
+          "line": 319,
+          "end_line": 335,
+          "label": "credential reads"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "workspace + lockfile",
+      "tag": "@victim-org/*",
+      "pos": [
+        250,
+        300
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/victim-app/index.js",
+          "line": 1,
+          "end_line": 20,
+          "label": "victim entry"
+        }
+      ]
+    },
+    {
+      "id": "lockfile",
+      "type": "database",
+      "label": "package-lock.json",
+      "sublabel": "discovery source",
+      "pos": [
+        250,
+        470
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/malicious-packages/shai-hulud/postinstall.js",
+          "line": 140,
+          "end_line": 201,
+          "label": "discoverTargetPackages"
+        }
+      ]
+    },
+    {
+      "id": "worm",
+      "type": "security",
+      "label": "shai-hulud postinstall",
+      "sublabel": "TESTBENCH_MODE gate",
+      "tag": "worm",
+      "pos": [
+        560,
+        300
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/malicious-packages/shai-hulud/postinstall.js",
+          "line": 310,
+          "end_line": 363,
+          "label": "run() harvest phase"
+        },
+        {
+          "path": "scenarios/06-sha-hulud/malicious-packages/shai-hulud/postinstall.js",
+          "line": 27,
+          "end_line": 40,
+          "label": "localhost CONFIG URLs"
+        }
+      ]
+    },
+    {
+      "id": "harvester",
+      "type": "backend",
+      "label": "Credential harvester",
+      "sublabel": ":3001 POST /collect",
+      "pos": [
+        820,
+        160
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/infrastructure/credential-harvester.js",
+          "line": 12,
+          "end_line": 59,
+          "label": "harvester endpoints"
+        }
+      ]
+    },
+    {
+      "id": "github-sim",
+      "type": "cloud",
+      "label": "GitHub Actions sim",
+      "sublabel": ":3002 POST /backdoor-pr",
+      "pos": [
+        820,
+        300
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/infrastructure/github-actions-simulator.js",
+          "line": 15,
+          "end_line": 56,
+          "label": "backdoor PR sim"
+        }
+      ]
+    },
+    {
+      "id": "mock-registry",
+      "type": "cloud",
+      "label": "Mock npm registry",
+      "sublabel": ":3003 POST /publish",
+      "pos": [
+        820,
+        440
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/infrastructure/mock-registry.js",
+          "line": 15,
+          "end_line": 66,
+          "label": "publish handler"
+        }
+      ]
+    },
+    {
+      "id": "capt-creds",
+      "type": "database",
+      "label": "captured-credentials.json",
+      "sublabel": "harvest + complete",
+      "pos": [
+        1060,
+        160
+      ],
+      "size": [
+        190,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/infrastructure/credential-harvester.js",
+          "line": 13,
+          "end_line": 40,
+          "label": "append captures"
+        }
+      ]
+    },
+    {
+      "id": "capt-prs",
+      "type": "database",
+      "label": "backdoor-prs.json",
+      "sublabel": "four PR rows",
+      "pos": [
+        1060,
+        300
+      ],
+      "size": [
+        190,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/infrastructure/github-actions-simulator.js",
+          "line": 15,
+          "end_line": 21,
+          "label": "PR log file"
+        }
+      ]
+    },
+    {
+      "id": "capt-pubs",
+      "type": "database",
+      "label": "published-packages.json",
+      "sublabel": "four publishes",
+      "pos": [
+        1060,
+        440
+      ],
+      "size": [
+        190,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/infrastructure/mock-registry.js",
+          "line": 16,
+          "end_line": 21,
+          "label": "publish log file"
+        }
+      ]
+    },
+    {
+      "id": "floci",
+      "type": "cloud",
+      "label": "Floci S3 mirror",
+      "sublabel": "scas-sc06-artifacts",
+      "tag": "optional",
+      "pos": [
+        820,
+        570
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/malicious-packages/shai-hulud/postinstall.js",
+          "line": 353,
+          "end_line": 359,
+          "label": "optional Floci upload"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "victim-app",
+        "lockfile",
+        "worm",
+        "token-fixtures",
+        "harvester",
+        "github-sim",
+        "mock-registry",
+        "capt-creds",
+        "capt-prs",
+        "capt-pubs",
+        "floci"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "worm"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-plants-tokens",
+      "from": "setup",
+      "to": "token-fixtures",
+      "label": "plant lookalike tokens",
+      "variant": "dashed"
+    },
+    {
+      "id": "setup-builds-victim",
+      "from": "setup",
+      "to": "victim-app",
+      "label": "build workspace",
+      "variant": "dashed"
+    },
+    {
+      "id": "ui-install",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm install",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-runs-worm",
+      "from": "victim-app",
+      "to": "worm",
+      "label": "lifecycle postinstall",
+      "variant": "emphasis"
+    },
+    {
+      "id": "worm-reads-tokens",
+      "from": "worm",
+      "to": "token-fixtures",
+      "label": "read npm + GitHub tokens",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "worm-reads-lockfile",
+      "from": "worm",
+      "to": "lockfile",
+      "label": "discover @victim-org/*",
+      "fromSide": "bottom",
+      "toSide": "right",
+      "labelDy": 36
+    },
+    {
+      "id": "worm-harvest",
+      "from": "worm",
+      "to": "harvester",
+      "label": "POST token_harvest",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "worm-publish",
+      "from": "worm",
+      "to": "mock-registry",
+      "label": "POST /publish x4",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "worm-backdoor",
+      "from": "worm",
+      "to": "github-sim",
+      "label": "POST /backdoor-pr x4",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "worm-complete",
+      "from": "worm",
+      "to": "harvester",
+      "label": "POST propagation_complete",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "bottom",
+      "labelDy": -28
+    },
+    {
+      "id": "harvester-writes",
+      "from": "harvester",
+      "to": "capt-creds",
+      "label": "append JSON"
+    },
+    {
+      "id": "github-writes",
+      "from": "github-sim",
+      "to": "capt-prs",
+      "label": "append JSON"
+    },
+    {
+      "id": "registry-writes",
+      "from": "mock-registry",
+      "to": "capt-pubs",
+      "label": "append JSON"
+    },
+    {
+      "id": "optional-floci",
+      "from": "worm",
+      "to": "floci",
+      "label": "optional PutObject",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "left",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Worm core",
+      "items": [
+        "One install of shai-hulud runs postinstall before npm start",
+        "Harvest steals npm + GitHub tokens before any republish",
+        "Lockfile names every @victim-org package the stolen token can poison"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Three mock listeners",
+      "items": [
+        ":3001 credential harvester stores token_harvest and propagation_complete",
+        ":3003 mock registry records malicious_publish with patch bumps",
+        ":3002 GitHub sim records feat/dependency-bump backdoor PRs"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety + break the loop",
+      "items": [
+        "Malicious path is gated by TESTBENCH_MODE=enabled and 127.0.0.1 only",
+        "Local packages/*/package.json stay clean; damage is in mock registry history",
+        "Keep publish tokens in CI secrets so the postinstall finds nothing to republish"
+      ]
+    }
+  ]
+}

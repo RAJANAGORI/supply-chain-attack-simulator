@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc02-dependency-confusion-20261103-192118/candidate.json",
+    "sha256": "1a72761da2a65c620f4c4db7513521ee3b272a378fdd6396f119a60315172b6f",
+    "bytes": 8269
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc02-dependency-confusion-20261103-192118/sc02-dependency-confusion-architecture.html",
+    "sha256": "8a7d72b4c25f559cd11f13c4a80b233bc97f313edd4f23da5e5fd180ecbd711a",
+    "bytes": 833703
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc02-dependency-confusion-20261103-192118/sc02-dependency-confusion-architecture.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc02-dependency-confusion-20261103-192118/sc02-dependency-confusion-architecture.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc02-dependency-confusion-20261103-192118/sc02-dependency-confusion-architecture.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T13:44:40.327Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3588,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

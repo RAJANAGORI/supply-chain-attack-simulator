@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "790e48ea-f3c7-4758-a06c-9446ef4257f7",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc01-typo-install-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc01-typo-install-20261103-192118/sc01-typo-install-sequence.html",
+  "specification": {
+    "sha256": "a93a29b0cb567babd359317accd36497998a717f42cf54020545641dbcae9761",
+    "bytes": 4288
+  },
+  "artifact": {
+    "sha256": "99804997a0616059dbf696c9a80d502c0803bc05272b58736f2acc8d48e07cfa",
+    "bytes": 813185
+  }
+}

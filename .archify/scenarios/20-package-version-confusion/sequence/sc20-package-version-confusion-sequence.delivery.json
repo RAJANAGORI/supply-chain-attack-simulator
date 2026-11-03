@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "7ffdda55-ec1a-4d7d-ad5e-61bedb3b19de",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc20-prov-abuse-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc20-prov-abuse-20261103-192118/sc20-prov-abuse-sequence.html",
+  "specification": {
+    "sha256": "0a5c6da7cd896fc3a03afad9e261dfdcc6e56b2ea6405fdf0260f196560e2975",
+    "bytes": 5287
+  },
+  "artifact": {
+    "sha256": "516d00b466bba43e4f9dc5ebf39edef1bffa995e4a07d1cdceafb32eb979791f",
+    "bytes": 815677
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc14-container-image-supply-chain-attack-20261103-192118/candidate.json",
+    "sha256": "b4f7046f9e8bdb537d6ed051d60f5c0cc6813ec547918e5db6a542488113fd1a",
+    "bytes": 6186
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc14-container-image-supply-chain-attack-20261103-192118/sc14-container-image-supply-chain-attack-architecture.html",
+    "sha256": "98818c61c914f55a946950fcf3b4162fd4ccd323b8438bb25b6e1fcec23d07ab",
+    "bytes": 822899
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc14-container-image-supply-chain-attack-20261103-192118/sc14-container-image-supply-chain-attack-architecture.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc14-container-image-supply-chain-attack-20261103-192118/sc14-container-image-supply-chain-attack-architecture.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc14-container-image-supply-chain-attack-20261103-192118/sc14-container-image-supply-chain-attack-architecture.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T13:44:40.327Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1817,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

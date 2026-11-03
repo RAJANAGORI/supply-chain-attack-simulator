@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "3611d082-2d26-47a6-a272-b0d590c7a7c1",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc11-registry-mirror-poisoning-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc11-registry-mirror-poisoning-20261103-192118/sc11-registry-mirror-poisoning-architecture.html",
+  "specification": {
+    "sha256": "5c7d2eb66911238921affe648080a720e502098de2c793994931992553c29470",
+    "bytes": 9384
+  },
+  "artifact": {
+    "sha256": "320685e940a9b1a2fe7908f93b0a21f5d70be34095735ba89b7cf3261b92e9f2",
+    "bytes": 835587
+  }
+}

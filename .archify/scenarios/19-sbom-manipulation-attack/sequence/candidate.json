@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 19 sbom-manipulation-attack sequence",
+    "subtitle": "SBOM generator omits malicious-lib; beacon proves it still loads",
+    "output": ".archify/scenarios/19-sbom-manipulation-attack/sequence/sc19-sbom-manipulation-attack-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 244,
+          "end_line": 246,
+          "label": "install + run steps"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "generate + run",
+      "sources": [
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/victim-app/index.js",
+          "line": 1,
+          "end_line": 15,
+          "label": "requires malicious-lib"
+        }
+      ]
+    },
+    {
+      "id": "sbom",
+      "type": "security",
+      "label": "SBOM gen",
+      "sublabel": "omit logic",
+      "sources": [
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/sbom/malicious-sbom-generator.js",
+          "line": 40,
+          "end_line": 60,
+          "label": "generateSbom"
+        }
+      ]
+    },
+    {
+      "id": "truth",
+      "type": "database",
+      "label": "truth/",
+      "sublabel": "dependencies.json",
+      "sources": [
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/truth/dependencies.json",
+          "line": 1,
+          "end_line": 10,
+          "label": "truth oracle"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "type": "backend",
+      "label": "Mock C2",
+      "sublabel": ":3019",
+      "sources": [
+        {
+          "path": "scenarios/19-sbom-manipulation-attack/infrastructure/mock-server.js",
+          "line": 20,
+          "end_line": 50,
+          "label": "POST /collect"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 285,
+      "label": "SBOM Generation"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-gen",
+      "from": "learner",
+      "to": "victim",
+      "y": 160,
+      "label": "npm install + generate SBOM (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gen-sbom",
+      "from": "victim",
+      "to": "sbom",
+      "y": 195,
+      "label": "generateSbom()",
+      "variant": "emphasis"
+    },
+    {
+      "id": "read-truth",
+      "from": "sbom",
+      "to": "truth",
+      "y": 230,
+      "label": "read truth dependencies",
+      "variant": "default"
+    },
+    {
+      "id": "exfil-sbom",
+      "from": "sbom",
+      "to": "c2",
+      "y": 265,
+      "label": "POST sbom-exfil (omit proof)",
+      "variant": "security"
+    },
+    {
+      "id": "complete",
+      "from": "victim",
+      "to": "learner",
+      "y": 300,
+      "label": "SBOM generated; check capture",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "victim",
+      "from": 160,
+      "to": 310,
+      "type": "backend"
+    },
+    {
+      "participant": "sbom",
+      "from": 195,
+      "to": 275,
+      "type": "security"
+    },
+    {
+      "participant": "truth",
+      "from": 225,
+      "to": 245,
+      "type": "database"
+    },
+    {
+      "participant": "c2",
+      "from": 260,
+      "to": 275,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "SBOM omit attack",
+      "items": [
+        "SBOM generator reads truth/dependencies.json with complete list",
+        "Generator omits specified dependencies from generated sbom.json before POST sbom-exfil",
+        "Detection: compare sbom.json vs truth oracle"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Capture proves manipulation",
+      "items": [
+        "sbom-exfil capture with omit proof (dependencies filtered out)",
+        "Expected capture: one sbom-generation row showing what was omitted",
+        "Diff sbom.json vs truth/dependencies.json to see mismatch"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Containment",
+      "items": [
+        "Regenerate SBOM with trusted tool; compare vs truth oracle",
+        "Detection: SBOM validation tools that diff declared vs truth dependencies",
+        "Hunt for dependencies in truth but missing from SBOM"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 01 Typosquatting attack sequence",
+    "subtitle": "npm install request-lib \u2192 require() \u2192 exfiltrate \u2192 app works normally",
+    "output": ".archify/scenarios/01-typosquatting/sequence/sc01-typosquatting-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 67,
+          "end_line": 70,
+          "label": "install + run steps"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "npm workspace",
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/victim-app/index.js",
+          "line": 12,
+          "end_line": 12,
+          "label": "require('request-lib')"
+        }
+      ]
+    },
+    {
+      "id": "typo",
+      "type": "security",
+      "label": "request-lib",
+      "sublabel": "malicious package",
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/templates/malicious-package-template.js",
+          "line": 96,
+          "end_line": 100,
+          "label": "module load triggers exfiltrate"
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": ":3000",
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/setup.sh",
+          "line": 89,
+          "end_line": 124,
+          "label": "POST /collect handler"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 210,
+      "label": "Install"
+    },
+    {
+      "from": 220,
+      "to": 290,
+      "label": "Run"
+    },
+    {
+      "from": 300,
+      "to": 380,
+      "label": "Exfiltrate"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-install",
+      "from": "learner",
+      "to": "victim",
+      "y": 160,
+      "label": "npm install ../malicious-packages/request-lib",
+      "variant": "emphasis"
+    },
+    {
+      "id": "start-run",
+      "from": "learner",
+      "to": "victim",
+      "y": 225,
+      "label": "TESTBENCH_MODE=enabled npm start",
+      "variant": "emphasis"
+    },
+    {
+      "id": "require",
+      "from": "victim",
+      "to": "typo",
+      "y": 265,
+      "label": "require('request-lib')",
+      "variant": "emphasis"
+    },
+    {
+      "id": "exfil",
+      "from": "typo",
+      "to": "mock",
+      "y": 310,
+      "label": "POST /collect env vars",
+      "variant": "security"
+    },
+    {
+      "id": "ack",
+      "from": "mock",
+      "to": "typo",
+      "y": 345,
+      "label": "200 OK",
+      "variant": "return"
+    },
+    {
+      "id": "app-ok",
+      "from": "victim",
+      "to": "learner",
+      "y": 385,
+      "label": "app runs normally; typo works",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "victim",
+      "from": 160,
+      "to": 395,
+      "type": "backend"
+    },
+    {
+      "participant": "typo",
+      "from": 265,
+      "to": 355,
+      "type": "security"
+    },
+    {
+      "participant": "mock",
+      "from": 310,
+      "to": 350,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Require triggers attack",
+      "items": [
+        "Malicious code runs on module load, not on function call",
+        "Happens before the app logic even starts",
+        "Silent \u2014 no error, no warning"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Cover story",
+      "items": [
+        "App still works after exfiltration",
+        "Typo package provides real request functionality",
+        "Developer notices nothing wrong"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Lab safety",
+      "items": [
+        "TESTBENCH_MODE gate stops real damage",
+        "Localhost-only exfiltration target",
+        "Capture log proves attack without harm"
+      ]
+    }
+  ]
+}

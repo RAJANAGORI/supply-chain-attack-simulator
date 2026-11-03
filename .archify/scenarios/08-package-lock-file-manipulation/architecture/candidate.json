@@ -1,0 +1,344 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 08 Package Lock File Manipulation lab architecture",
+    "subtitle": "Lockfile pulls evil-utils file: dependency; postinstall exfil to :3000",
+    "output": ".archify/scenarios/08-package-lock-file-manipulation/architecture/sc08-package-lock-file-manipulation-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "lockfile-path",
+        "label": "Lockfile injection",
+        "focus": [
+          "victim-app",
+          "lockfile",
+          "evil-utils",
+          "mock-c2"
+        ],
+        "note": "package-lock.json references evil-utils; npm installs it"
+      },
+      {
+        "id": "evidence",
+        "label": "Capture proof",
+        "focus": [
+          "evil-utils",
+          "mock-c2",
+          "captured-data"
+        ],
+        "note": "One capture file proves lockfile manipulation worked"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        280
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 155,
+          "end_line": 158,
+          "label": "scenario 08 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "builds apps",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/08-package-lock-file-manipulation/setup.sh",
+          "line": 7,
+          "end_line": 42,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "lodash + evil-utils",
+      "pos": [
+        250,
+        280
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/08-package-lock-file-manipulation/victim-app/index.js",
+          "line": 1,
+          "end_line": 23,
+          "label": "victim entry"
+        }
+      ]
+    },
+    {
+      "id": "lockfile",
+      "type": "database",
+      "label": "package-lock.json",
+      "sublabel": "evil-utils file: dep",
+      "tag": "manipulated",
+      "pos": [
+        250,
+        430
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/08-package-lock-file-manipulation/setup.sh",
+          "line": 45,
+          "end_line": 62,
+          "label": "lockfile setup"
+        }
+      ]
+    },
+    {
+      "id": "evil-utils",
+      "type": "security",
+      "label": "evil-utils",
+      "sublabel": "file: malicious pkg",
+      "tag": "hidden",
+      "pos": [
+        480,
+        280
+      ],
+      "size": [
+        160,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/08-package-lock-file-manipulation/setup.sh",
+          "line": 80,
+          "end_line": 120,
+          "label": "mock server creation"
+        }
+      ]
+    },
+    {
+      "id": "mock-c2",
+      "type": "backend",
+      "label": "Mock C2 server",
+      "sublabel": ":3000 POST /collect",
+      "pos": [
+        700,
+        280
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/08-package-lock-file-manipulation/infrastructure/mock-server.js",
+          "line": 51,
+          "end_line": 69,
+          "label": "POST /collect"
+        }
+      ]
+    },
+    {
+      "id": "captured-data",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "lockfile exfil",
+      "pos": [
+        930,
+        280
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/08-package-lock-file-manipulation/infrastructure/mock-server.js",
+          "line": 74,
+          "end_line": 80,
+          "label": "append captures"
+        }
+      ]
+    },
+    {
+      "id": "detector",
+      "type": "backend",
+      "label": "lock-file-validator.js",
+      "sublabel": "integrity check",
+      "pos": [
+        250,
+        140
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/08-package-lock-file-manipulation/setup.sh",
+          "line": 189,
+          "end_line": 191,
+          "label": "detection tool"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "victim-app",
+        "lockfile",
+        "evil-utils",
+        "mock-c2",
+        "captured-data"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "evil-utils"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-builds-victim",
+      "from": "setup",
+      "to": "victim-app",
+      "label": "build victim app",
+      "variant": "dashed"
+    },
+    {
+      "id": "setup-creates-lockfile",
+      "from": "setup",
+      "to": "lockfile",
+      "label": "create manipulated lockfile",
+      "variant": "dashed"
+    },
+    {
+      "id": "ui-install",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm install",
+      "variant": "emphasis"
+    },
+    {
+      "id": "npm-reads-lockfile",
+      "from": "victim-app",
+      "to": "lockfile",
+      "label": "read package-lock.json",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "lockfile-pulls-evil",
+      "from": "lockfile",
+      "to": "evil-utils",
+      "label": "npm installs evil-utils",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "bottom"
+    },
+    {
+      "id": "postinstall-exfil",
+      "from": "evil-utils",
+      "to": "mock-c2",
+      "label": "POST /collect (postinstall)",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "c2-writes",
+      "from": "mock-c2",
+      "to": "captured-data",
+      "label": "append JSON"
+    },
+    {
+      "id": "detector-reads-lockfile",
+      "from": "detector",
+      "to": "lockfile",
+      "label": "validate integrity",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "left"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Lockfile injection",
+      "items": [
+        "package-lock.json includes evil-utils as file: dependency",
+        "package.json may list it or npm 7+ can pull it from lockfile alone",
+        "npm install honors the lockfile and installs evil-utils"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Attack path",
+      "items": [
+        "Attacker injects evil-utils into package-lock.json",
+        "Postinstall runs when npm install completes",
+        "Exfil reaches :3000/collect before the app starts"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety + detection",
+      "items": [
+        "Malicious path gated by TESTBENCH_MODE=enabled",
+        "All beacons target 127.0.0.1 only",
+        "detection-tools/lock-file-validator.js flags unexpected file: deps"
+      ]
+    }
+  ]
+}

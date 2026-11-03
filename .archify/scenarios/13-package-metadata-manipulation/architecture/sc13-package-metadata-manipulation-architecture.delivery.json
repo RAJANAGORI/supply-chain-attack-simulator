@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "021e91bb-708f-45ff-a085-d6c6af70521e",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc13-package-metadata-manipulation-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc13-package-metadata-manipulation-20261103-192118/sc13-package-metadata-manipulation-architecture.html",
+  "specification": {
+    "sha256": "0f2df31ec0fb04e98e572dff67d256312e7f4051a4406499fdbf30dfec69ebcd",
+    "bytes": 5903
+  },
+  "artifact": {
+    "sha256": "e524335b16863afc3b34d77d4a77c67e6635c7ca656347a7400e73efd069ec3e",
+    "bytes": 822557
+  }
+}

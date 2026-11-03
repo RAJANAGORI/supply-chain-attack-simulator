@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "7fd67fc2-f4b9-44b3-ad10-858c84ab5a9d",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc19-sbom-omit-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc19-sbom-omit-20261103-192118/sc19-sbom-omit-sequence.html",
+  "specification": {
+    "sha256": "624e3a01171b759e11428993c2388982dab30c1a15c18e7cac72077b7864aa63",
+    "bytes": 4642
+  },
+  "artifact": {
+    "sha256": "c9bd8393f44d9a75c22a479804203e56d4a4c92ca1a7e5bb2db59dd0cf51e760",
+    "bytes": 813425
+  }
+}

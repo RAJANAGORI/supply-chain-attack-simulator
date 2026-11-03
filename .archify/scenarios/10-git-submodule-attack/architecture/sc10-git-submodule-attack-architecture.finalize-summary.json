@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc10-git-submodule-attack-20261103-192118/candidate.json",
+    "sha256": "0fa236e06142deb4b389e0f5837cfb17a9b4b573a001bcd12c074c6fd2a35f9e",
+    "bytes": 8002
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc10-git-submodule-attack-20261103-192118/sc10-git-submodule-attack-architecture.html",
+    "sha256": "97ffa6ee2e0ddace5a4ed48a30cdbca34424261eb191becc4c23c301df97563f",
+    "bytes": 832215
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc10-git-submodule-attack-20261103-192118/sc10-git-submodule-attack-architecture.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc10-git-submodule-attack-20261103-192118/sc10-git-submodule-attack-architecture.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc10-git-submodule-attack-20261103-192118/sc10-git-submodule-attack-architecture.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T13:44:40.327Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3551,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  },
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedBends": 3,
+      "routesOverSuggestedStretch": 2
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "ui-clone",
+            "from": "control-center",
+            "to": "awesome-project",
+            "label": "git clone --recurse-submodules",
+            "collectionIndex": 3,
+            "artifactIndex": 4
+          },
+          "bends": 3,
+          "stretch": 1.282
+        },
+        {
+          "relationship": {
+            "id": "npm-install-triggers",
+            "from": "awesome-project",
+            "to": "malicious-submodule",
+            "label": "npm install (triggers postinstall)",
+            "collectionIndex": 6,
+            "artifactIndex": 7
+          },
+          "bends": 4,
+          "stretch": 1.438
+        },
+        {
+          "relationship": {
+            "id": "postinstall-exfil",
+            "from": "malicious-submodule",
+            "to": "mock-c2",
+            "label": "POST /collect (postinstall.sh)",
+            "collectionIndex": 7,
+            "artifactIndex": 8
+          },
+          "bends": 4,
+          "stretch": 1.508
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "control-center → awesome-project needs 3 bends: move node control-center or awesome-project so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "awesome-project → malicious-submodule needs 4 bends: move node awesome-project or malicious-submodule so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "malicious-submodule → mock-c2 needs 4 bends: move node malicious-submodule or mock-c2 so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

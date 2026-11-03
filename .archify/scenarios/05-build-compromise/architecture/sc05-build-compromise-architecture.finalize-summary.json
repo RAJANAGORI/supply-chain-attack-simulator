@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc05-build-compromise-20261103-192118/candidate.json",
+    "sha256": "28de1bfefc1ed24061f8673400f718bdee4007e32dd74d055b56fa2ca3116f0b",
+    "bytes": 7157
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc05-build-compromise-20261103-192118/sc05-build-compromise-architecture.html",
+    "sha256": "d722cbef63364133fab78fcb8963fc54d40b8ee8faa984f627724078a725d124",
+    "bytes": 830458
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc05-build-compromise-20261103-192118/sc05-build-compromise-architecture.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc05-build-compromise-20261103-192118/sc05-build-compromise-architecture.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc05-build-compromise-20261103-192118/sc05-build-compromise-architecture.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T13:44:40.327Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1805,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  },
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedBends": 3
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "ui-run-ci",
+            "from": "control-center",
+            "to": "victim-workflow",
+            "label": "./run-ci.sh (act or npm run ci)",
+            "collectionIndex": 3,
+            "artifactIndex": 4
+          },
+          "bends": 3,
+          "stretch": 1.218
+        },
+        {
+          "relationship": {
+            "id": "workflow-runs-action",
+            "from": "victim-workflow",
+            "to": "malicious-action",
+            "label": "run vendor/build-action@v1",
+            "collectionIndex": 4,
+            "artifactIndex": 5
+          },
+          "bends": 3,
+          "stretch": 1.233
+        },
+        {
+          "relationship": {
+            "id": "exfil",
+            "from": "malicious-action",
+            "to": "mock-server",
+            "label": "POST /collect CI data",
+            "collectionIndex": 6,
+            "artifactIndex": 7
+          },
+          "bends": 3,
+          "stretch": 1.244
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "control-center → victim-workflow needs 3 bends: move node control-center or victim-workflow so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "victim-workflow → malicious-action needs 3 bends: move node victim-workflow or malicious-action so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "malicious-action → mock-server needs 3 bends: move node malicious-action or mock-server so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

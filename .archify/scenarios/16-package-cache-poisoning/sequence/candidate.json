@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 16 package-cache-poisoning attack sequence",
+    "subtitle": "First install poisons cache; second install reuses cached malware",
+    "output": ".archify/scenarios/16-package-cache-poisoning/sequence/sc16-package-cache-poisoning-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 225,
+          "end_line": 227,
+          "label": "install1 + install2 steps"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "two installs",
+      "sources": [
+        {
+          "path": "scenarios/16-package-cache-poisoning/victim-app/index.js",
+          "line": 1,
+          "end_line": 4,
+          "label": "requires cache-lib"
+        }
+      ]
+    },
+    {
+      "id": "cache",
+      "type": "database",
+      "label": "cache install",
+      "sublabel": "node_modules",
+      "sources": [
+        {
+          "path": "scenarios/16-package-cache-poisoning/victim-app/scripts/install-from-cache.js",
+          "line": 22,
+          "end_line": 40,
+          "label": "cache install"
+        }
+      ]
+    },
+    {
+      "id": "malware",
+      "type": "security",
+      "label": "cache-lib",
+      "sublabel": "poisoned pkg",
+      "sources": [
+        {
+          "path": "scenarios/16-package-cache-poisoning/cache/cache-lib/index.js",
+          "line": 6,
+          "end_line": 35,
+          "label": "malicious payload"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "type": "backend",
+      "label": "Mock C2",
+      "sublabel": ":3016",
+      "sources": [
+        {
+          "path": "scenarios/16-package-cache-poisoning/infrastructure/mock-server.js",
+          "line": 20,
+          "end_line": 50,
+          "label": "POST /collect"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 226,
+      "label": "Install1 - Poison"
+    },
+    {
+      "from": 290,
+      "to": 360,
+      "label": "Install2 - Reuse"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-install1",
+      "from": "learner",
+      "to": "victim",
+      "y": 160,
+      "label": "npm install (first, TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "poison-cache",
+      "from": "victim",
+      "to": "cache",
+      "y": 195,
+      "label": "write poisoned target-lib to cache",
+      "variant": "security"
+    },
+    {
+      "id": "require-poisoned",
+      "from": "victim",
+      "to": "malware",
+      "y": 230,
+      "label": "require target-lib (poisoned)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "beacon1",
+      "from": "malware",
+      "to": "c2",
+      "y": 265,
+      "label": "POST beacon install1",
+      "variant": "security"
+    },
+    {
+      "id": "start-install2",
+      "from": "learner",
+      "to": "victim",
+      "y": 300,
+      "label": "npm install (second, clean node_modules)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "reuse-cache",
+      "from": "victim",
+      "to": "cache",
+      "y": 335,
+      "label": "reuse poisoned cache entry",
+      "variant": "security"
+    },
+    {
+      "id": "require-cached",
+      "from": "victim",
+      "to": "malware",
+      "y": 370,
+      "label": "require target-lib (from cache)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "beacon2",
+      "from": "malware",
+      "to": "c2",
+      "y": 405,
+      "label": "POST beacon install2",
+      "variant": "security"
+    },
+    {
+      "id": "complete",
+      "from": "victim",
+      "to": "learner",
+      "y": 440,
+      "label": "app OK; check two captures",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "victim",
+      "from": 160,
+      "to": 450,
+      "type": "backend"
+    },
+    {
+      "participant": "cache",
+      "from": 190,
+      "to": 210,
+      "type": "database"
+    },
+    {
+      "participant": "cache",
+      "from": 330,
+      "to": 350,
+      "type": "database"
+    },
+    {
+      "participant": "malware",
+      "from": 230,
+      "to": 275,
+      "type": "security"
+    },
+    {
+      "participant": "malware",
+      "from": 370,
+      "to": 415,
+      "type": "security"
+    },
+    {
+      "participant": "c2",
+      "from": 260,
+      "to": 275,
+      "type": "backend"
+    },
+    {
+      "participant": "c2",
+      "from": 400,
+      "to": 415,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Cache persistence",
+      "items": [
+        "Install1 poisons ~/.npm/_cacache before npm start",
+        "Install2 with rm -rf node_modules still loads poisoned cache",
+        "Detection: unexpected postinstall or network beacon from a cached package"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Two beacons prove persistence",
+      "items": [
+        "beacon install1 proves first infection",
+        "beacon install2 proves the cache reused malware without re-downloading",
+        "Expected captures: two rows with different timestamps"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Containment",
+      "items": [
+        "npm cache clean --force between installs stops reinfection",
+        "npm ci --ignore-scripts skips lifecycle hooks but still uses cache",
+        "Cache integrity checks or hash verification on extraction"
+      ]
+    }
+  ]
+}

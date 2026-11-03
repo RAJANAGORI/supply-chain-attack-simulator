@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "633ae79f-599d-4032-877e-a07493730500",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc24-slopsquatting-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc24-slopsquatting-20261103-192118/sc24-slopsquatting-sequence.html",
+  "specification": {
+    "sha256": "ee91051f7a3ac68e1b6b857857c589a3941db5bcf3416f86e621d63fbea4991a",
+    "bytes": 4258
+  },
+  "artifact": {
+    "sha256": "6e8a20e158732d3ccb16d01f17357cacf8d2a5f654624c97d614510b888feb86",
+    "bytes": 811757
+  }
+}

@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 03 Compromised Package lab architecture",
+    "subtitle": "secure-validator v2.5.3 legit \u2192 v2.5.4 compromised: exfil in validation calls",
+    "output": ".archify/scenarios/03-compromised-package/architecture/sc03-compromised-package-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "before-after",
+        "label": "Legit vs compromised",
+        "focus": [
+          "control-center",
+          "victim-app",
+          "legit-pkg",
+          "compromised-pkg"
+        ],
+        "note": "Same functionality, hidden exfiltration added in v2.5.4"
+      },
+      {
+        "id": "attack-path",
+        "label": "Runtime exfiltration",
+        "focus": [
+          "victim-app",
+          "compromised-pkg",
+          "mock-server",
+          "capture"
+        ],
+        "note": "Every validation call triggers exfiltration"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        280
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 81,
+          "end_line": 85,
+          "label": "scenario 03 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "seeds both versions",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/03-compromised-package/setup.sh",
+          "line": 8,
+          "end_line": 50,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "validation calls",
+      "tag": "before/after",
+      "pos": [
+        300,
+        280
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/03-compromised-package/victim-app/index.js",
+          "line": 1,
+          "end_line": 62,
+          "label": "victim entry"
+        }
+      ]
+    },
+    {
+      "id": "legit-pkg",
+      "type": "backend",
+      "label": "secure-validator",
+      "sublabel": "v2.5.3 legit",
+      "tag": "before",
+      "pos": [
+        540,
+        140
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/03-compromised-package/legitimate-package/secure-validator/index.js",
+          "line": 1,
+          "end_line": 50,
+          "label": "legitimate version"
+        }
+      ]
+    },
+    {
+      "id": "compromised-pkg",
+      "type": "security",
+      "label": "secure-validator",
+      "sublabel": "v2.5.4 compromised",
+      "tag": "after",
+      "pos": [
+        580,
+        280
+      ],
+      "size": [
+        160,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/03-compromised-package/templates/compromised-package-template.js",
+          "line": 30,
+          "end_line": 92,
+          "label": "_reportMetrics hidden exfil"
+        }
+      ]
+    },
+    {
+      "id": "mock-server",
+      "type": "backend",
+      "label": "Mock C2 server",
+      "sublabel": ":3000 POST /collect",
+      "pos": [
+        820,
+        280
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/03-compromised-package/infrastructure/mock-server.js",
+          "line": 15,
+          "end_line": 46,
+          "label": "POST /collect handler"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "validation inputs log",
+      "pos": [
+        1040,
+        280
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/03-compromised-package/infrastructure/mock-server.js",
+          "line": 26,
+          "end_line": 31,
+          "label": "append captures array"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "victim-app",
+        "legit-pkg",
+        "compromised-pkg",
+        "mock-server",
+        "capture"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "compromised-pkg"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-runs-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-seeds-legit",
+      "from": "setup",
+      "to": "legit-pkg",
+      "label": "seed v2.5.3",
+      "variant": "dashed"
+    },
+    {
+      "id": "setup-seeds-compromised",
+      "from": "setup",
+      "to": "compromised-pkg",
+      "label": "seed v2.5.4",
+      "variant": "dashed"
+    },
+    {
+      "id": "ui-run-legit",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm start (v2.5.3)",
+      "variant": "default"
+    },
+    {
+      "id": "ui-install-compromised",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm install ../compromised-package",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ui-run-compromised",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm start (v2.5.4)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "app-calls-legit",
+      "from": "victim-app",
+      "to": "legit-pkg",
+      "label": "validate calls (before)",
+      "variant": "default",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "app-calls-compromised",
+      "from": "victim-app",
+      "to": "compromised-pkg",
+      "label": "validate calls (after)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "exfil",
+      "from": "compromised-pkg",
+      "to": "mock-server",
+      "label": "POST /collect inputs",
+      "variant": "security"
+    },
+    {
+      "id": "mock-writes",
+      "from": "mock-server",
+      "to": "capture",
+      "label": "append JSON"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Before and after compromise",
+      "items": [
+        "v2.5.3 is legitimate \u2014 validation works, no exfiltration",
+        "v2.5.4 adds hidden _reportMetrics that exfiltrates validation inputs",
+        "All functionality preserved \u2014 app still works identically"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Runtime exfiltration",
+      "items": [
+        "Every validation call (email, password, URL, API key) triggers exfiltration",
+        "Hidden in normal-looking telemetry code",
+        "Captures sensitive data: passwords, API keys, internal URLs"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety",
+      "items": [
+        "Exfiltration gated by TESTBENCH_MODE=enabled",
+        "All beacons target 127.0.0.1 localhost only",
+        "Lab simulates patch update scenario"
+      ]
+    }
+  ]
+}

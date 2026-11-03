@@ -1,0 +1,170 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 24 Slopsquatting attack sequence",
+    "subtitle": "LLM suggests array-sortify \u2192 install without verify \u2192 import-time exfil",
+    "output": ".archify/scenarios/24-slopsquatting/sequence/sc24-slopsquatting-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 317,
+          "end_line": 320,
+          "label": "install + run steps"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "npm workspace",
+      "sources": [
+        {
+          "path": "scenarios/24-slopsquatting/victim-app/package.json",
+          "line": 1,
+          "end_line": 14,
+          "label": "depends on array-sortify"
+        }
+      ]
+    },
+    {
+      "id": "payload",
+      "type": "security",
+      "label": "array-sortify",
+      "sublabel": "hallucinated name",
+      "sources": [
+        {
+          "path": "scenarios/24-slopsquatting/README.md",
+          "line": 40,
+          "end_line": 50,
+          "label": "slopsquat package"
+        }
+      ]
+    },
+    {
+      "id": "collector",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": ":3024",
+      "sources": [
+        {
+          "path": "scenarios/24-slopsquatting/README.md",
+          "line": 74,
+          "end_line": 77,
+          "label": "POST /collect"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 210,
+      "label": "Install"
+    },
+    {
+      "from": 220,
+      "to": 300,
+      "label": "Import + Exfil"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-app",
+      "from": "learner",
+      "to": "victim",
+      "y": 160,
+      "label": "npm start (TESTBENCH on)",
+      "variant": "emphasis",
+      "note": "LLM suggested array-sortify; dev installed without verifying"
+    },
+    {
+      "id": "import-payload",
+      "from": "victim",
+      "to": "payload",
+      "y": 235,
+      "label": "require('array-sortify')",
+      "variant": "emphasis"
+    },
+    {
+      "id": "payload-beacon",
+      "from": "payload",
+      "to": "collector",
+      "y": 270,
+      "label": "POST /collect (env data)",
+      "variant": "security"
+    },
+    {
+      "id": "app-complete",
+      "from": "victim",
+      "to": "learner",
+      "y": 285,
+      "label": "app OK; sorting works; check captures",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "victim",
+      "from": 160,
+      "to": 290,
+      "type": "backend"
+    },
+    {
+      "participant": "payload",
+      "from": 235,
+      "to": 280,
+      "type": "security"
+    },
+    {
+      "participant": "collector",
+      "from": 265,
+      "to": 280,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "LLM hallucination exploit",
+      "items": [
+        "Coding assistant generates package name array-sortify that does not exist",
+        "Developer follows LLM suggestion without verifying on npm registry",
+        "Attacker already published malicious package with that hallucinated name"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Import-time execution",
+      "items": [
+        "Malicious code runs when app does require('array-sortify')",
+        "Exfiltrates env data to localhost:3024 with TESTBENCH_MODE=enabled gate",
+        "Also provides working sorting functionality so app behavior looks normal"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Detection + prevention",
+      "items": [
+        "Before npm install, check package exists and has downloads/stars",
+        "Review package.json dependencies before accepting LLM suggestions",
+        "Monitor network calls during development for unexpected POST requests"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,309 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 06 Shai-Hulud attack sequence",
+    "subtitle": "Harvest before republish; lockfile fan-out across four @victim-org packages",
+    "output": ".archify/scenarios/06-sha-hulud/sequence/sc06-sha-hulud-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "column_fit": "spread",
+    "viewBox": [
+      1080,
+      640
+    ],
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 121,
+          "end_line": 135,
+          "label": "install + run steps"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "npm workspace",
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/victim-app/index.js",
+          "line": 6,
+          "end_line": 19,
+          "label": "requires shai-hulud"
+        }
+      ]
+    },
+    {
+      "id": "worm",
+      "type": "security",
+      "label": "postinstall",
+      "sublabel": "shai-hulud",
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/malicious-packages/shai-hulud/postinstall.js",
+          "line": 310,
+          "end_line": 314,
+          "label": "TESTBENCH gate"
+        }
+      ]
+    },
+    {
+      "id": "creds",
+      "type": "security",
+      "label": "Token files",
+      "sublabel": ".npmrc / git-creds",
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/malicious-packages/shai-hulud/postinstall.js",
+          "line": 319,
+          "end_line": 335,
+          "label": "token extraction"
+        }
+      ]
+    },
+    {
+      "id": "lock",
+      "type": "database",
+      "label": "lockfile",
+      "sublabel": "@victim-org/*",
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/malicious-packages/shai-hulud/postinstall.js",
+          "line": 140,
+          "end_line": 201,
+          "label": "discover targets"
+        }
+      ]
+    },
+    {
+      "id": "harvester",
+      "type": "backend",
+      "label": "Harvester",
+      "sublabel": ":3001",
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/infrastructure/credential-harvester.js",
+          "line": 19,
+          "end_line": 43,
+          "label": "POST /collect"
+        }
+      ]
+    },
+    {
+      "id": "registry",
+      "type": "cloud",
+      "label": "Mock registry",
+      "sublabel": ":3003",
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/infrastructure/mock-registry.js",
+          "line": 51,
+          "end_line": 66,
+          "label": "POST /publish"
+        }
+      ]
+    },
+    {
+      "id": "github",
+      "type": "cloud",
+      "label": "GitHub sim",
+      "sublabel": ":3002",
+      "sources": [
+        {
+          "path": "scenarios/06-sha-hulud/infrastructure/github-actions-simulator.js",
+          "line": 32,
+          "end_line": 56,
+          "label": "backdoor PR checks"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 210,
+      "label": "Install"
+    },
+    {
+      "from": 220,
+      "to": 295,
+      "label": "Harvest"
+    },
+    {
+      "from": 305,
+      "to": 335,
+      "label": "Discover"
+    },
+    {
+      "from": 345,
+      "to": 420,
+      "label": "Fan-out"
+    },
+    {
+      "from": 430,
+      "to": 500,
+      "label": "Complete"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-install",
+      "from": "learner",
+      "to": "victim",
+      "y": 160,
+      "label": "npm install (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "lifecycle",
+      "from": "victim",
+      "to": "worm",
+      "y": 195,
+      "label": "run postinstall",
+      "variant": "emphasis"
+    },
+    {
+      "id": "read-npmrc",
+      "from": "worm",
+      "to": "creds",
+      "y": 235,
+      "label": "read npm + GitHub tokens",
+      "variant": "security"
+    },
+    {
+      "id": "harvest-post",
+      "from": "worm",
+      "to": "harvester",
+      "y": 275,
+      "label": "POST /collect token_harvest",
+      "variant": "security"
+    },
+    {
+      "id": "read-lock",
+      "from": "worm",
+      "to": "lock",
+      "y": 315,
+      "label": "discover @victim-org/*",
+      "variant": "default"
+    },
+    {
+      "id": "publish-loop",
+      "from": "worm",
+      "to": "registry",
+      "y": 355,
+      "label": "POST /publish x4",
+      "variant": "emphasis"
+    },
+    {
+      "id": "pr-loop",
+      "from": "worm",
+      "to": "github",
+      "y": 395,
+      "label": "POST /backdoor-pr x4",
+      "variant": "default"
+    },
+    {
+      "id": "complete",
+      "from": "worm",
+      "to": "harvester",
+      "y": 435,
+      "label": "POST propagation_complete",
+      "variant": "dashed"
+    },
+    {
+      "id": "cover",
+      "from": "victim",
+      "to": "learner",
+      "y": 480,
+      "label": "app OK; check three captures",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "victim",
+      "from": 160,
+      "to": 490,
+      "type": "backend"
+    },
+    {
+      "participant": "worm",
+      "from": 195,
+      "to": 445,
+      "type": "security"
+    },
+    {
+      "participant": "creds",
+      "from": 230,
+      "to": 250,
+      "type": "security"
+    },
+    {
+      "participant": "harvester",
+      "from": 270,
+      "to": 445,
+      "type": "backend"
+    },
+    {
+      "participant": "lock",
+      "from": 310,
+      "to": 330,
+      "type": "database"
+    },
+    {
+      "participant": "registry",
+      "from": 350,
+      "to": 370,
+      "type": "cloud"
+    },
+    {
+      "participant": "github",
+      "from": 390,
+      "to": 410,
+      "type": "cloud"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Harvest before republish",
+      "items": [
+        "token_harvest hits :3001 before any /publish",
+        "Detectors that only watch registry writes miss the theft",
+        "File reads of .npmrc and git-credentials are the first IOC"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Fan-out is lockfile-driven",
+      "items": [
+        "Targets come from @victim-org entries in package-lock.json",
+        "Each target gets a patch bump publish and a backdoor PR",
+        "Expected counts: packagesDiscovered = packagesInfecting = 4"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Cover story",
+      "items": [
+        "npm start still works after the worm finishes",
+        "Local packages/*/package.json keep no postinstall",
+        "Proof lives in the three mock capture endpoints"
+      ]
+    }
+  ]
+}

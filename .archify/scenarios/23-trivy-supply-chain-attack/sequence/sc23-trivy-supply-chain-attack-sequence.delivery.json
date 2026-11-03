@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "c3a37830-9b73-4b96-b4c7-8ba6e5b4aa9b",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc23-trivy-supply-chain-attack-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc23-trivy-supply-chain-attack-20261103-192118/sc23-trivy-supply-chain-attack-sequence.html",
+  "specification": {
+    "sha256": "9a5f64d10a94270211e1b3e4e272751f5caea92e15074f2f7db20c2d7fff0989",
+    "bytes": 5099
+  },
+  "artifact": {
+    "sha256": "7a6feb506a8cbac963368b0522b2bd6874c9295aa2e5c954f96e5a4e3e56d18f",
+    "bytes": 814918
+  }
+}

@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 07 Transitive Dependency lab architecture",
+    "subtitle": "Hidden data-processor compromise: web-utils draws it in; postinstall exfil to :3000",
+    "output": ".archify/scenarios/07-transitive-dependency/architecture/sc07-transitive-dependency-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "chain",
+        "label": "Dependency chain",
+        "focus": [
+          "victim-app",
+          "web-utils",
+          "data-processor",
+          "mock-c2"
+        ],
+        "note": "web-utils requires data-processor; victim never names it"
+      },
+      {
+        "id": "evidence",
+        "label": "Capture proof",
+        "focus": [
+          "data-processor",
+          "mock-c2",
+          "captured-data"
+        ],
+        "note": "One capture file proves transitive postinstall ran"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        280
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 144,
+          "end_line": 154,
+          "label": "scenario 07 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "builds packages",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/setup.sh",
+          "line": 7,
+          "end_line": 36,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "requires web-utils",
+      "pos": [
+        250,
+        280
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/victim-app/index.js",
+          "line": 1,
+          "end_line": 20,
+          "label": "victim entry"
+        }
+      ]
+    },
+    {
+      "id": "web-utils",
+      "type": "backend",
+      "label": "web-utils",
+      "sublabel": "trusted parent pkg",
+      "tag": "legitimate",
+      "pos": [
+        480,
+        140
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/victim-app/package.json",
+          "line": 1,
+          "end_line": 12,
+          "label": "web-utils dependency"
+        }
+      ]
+    },
+    {
+      "id": "data-processor",
+      "type": "security",
+      "label": "data-processor",
+      "sublabel": "compromised transitive",
+      "tag": "hidden",
+      "pos": [
+        480,
+        310
+      ],
+      "size": [
+        160,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/setup.sh",
+          "line": 31,
+          "end_line": 123,
+          "label": "mock server creation"
+        }
+      ]
+    },
+    {
+      "id": "mock-c2",
+      "type": "backend",
+      "label": "Mock C2 server",
+      "sublabel": ":3000 POST /collect",
+      "pos": [
+        720,
+        280
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/infrastructure/mock-server.js",
+          "line": 51,
+          "end_line": 69,
+          "label": "POST /collect"
+        }
+      ]
+    },
+    {
+      "id": "captured-data",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "transitive exfil",
+      "pos": [
+        950,
+        280
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/infrastructure/mock-server.js",
+          "line": 74,
+          "end_line": 80,
+          "label": "append captures"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "victim-app",
+        "web-utils",
+        "data-processor",
+        "mock-c2",
+        "captured-data"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "data-processor"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-builds-victim",
+      "from": "setup",
+      "to": "victim-app",
+      "label": "build workspace",
+      "variant": "dashed"
+    },
+    {
+      "id": "ui-install",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm install",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-requires-web-utils",
+      "from": "victim-app",
+      "to": "web-utils",
+      "label": "require('web-utils')",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "web-utils-pulls-transitive",
+      "from": "web-utils",
+      "to": "data-processor",
+      "label": "npm pulls data-processor",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "postinstall-exfil",
+      "from": "data-processor",
+      "to": "mock-c2",
+      "label": "POST /collect (postinstall)",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "c2-writes",
+      "from": "mock-c2",
+      "to": "captured-data",
+      "label": "append JSON"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Transitive chain",
+      "items": [
+        "victim-app requires web-utils; web-utils requires data-processor",
+        "Victim never directly installs data-processor",
+        "npm pulls it in automatically as a transitive dependency"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Attack path",
+      "items": [
+        "Attacker compromises data-processor in the registry",
+        "Postinstall runs when npm install completes",
+        "Exfil reaches :3000/collect before the app starts"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety",
+      "items": [
+        "Malicious path gated by TESTBENCH_MODE=enabled",
+        "All beacons target 127.0.0.1 only",
+        "detection-tools/dependency-tree-scanner.js shows the chain"
+      ]
+    }
+  ]
+}

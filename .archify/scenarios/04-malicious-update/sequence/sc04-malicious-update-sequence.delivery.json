@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "0558298c-d55e-4284-95c3-1619bdd52479",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc04-auto-update-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc04-auto-update-20261103-192118/sc04-auto-update-sequence.html",
+  "specification": {
+    "sha256": "c51cd8bc1f2e8382b2f6263f2e0b492935df1723e7b351dd369941ecee112e92",
+    "bytes": 4207
+  },
+  "artifact": {
+    "sha256": "363a72f59c79be9cda1b7fbf64031d1072e149c1afa41b5996a2ecfdefa7e962",
+    "bytes": 812770
+  }
+}

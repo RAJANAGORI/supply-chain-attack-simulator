@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "59ede093-27f0-4719-86b2-9da524940db8",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc15-developer-tool-compromise-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc15-developer-tool-compromise-20261103-192118/sc15-developer-tool-compromise-architecture.html",
+  "specification": {
+    "sha256": "244cc7b185432c524ba4ce0cc7e83b11d51f03c6562c585915ebc382a6b51906",
+    "bytes": 6289
+  },
+  "artifact": {
+    "sha256": "0fe6f64eca37b0cf341159ca71d163f7066324d4ed7faf8172ef1231104c8ea6",
+    "bytes": 824525
+  }
+}

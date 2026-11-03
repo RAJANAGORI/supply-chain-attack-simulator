@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 12 Workspace Monorepo Attack lab architecture",
+    "subtitle": "Swap compromised @devcorp/utils into workspace; postinstall exfils workspace layout",
+    "output": ".archify/scenarios/12-workspace-monorepo-attack/architecture/sc12-workspace-monorepo-attack-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "main-attack",
+        "label": "Workspace swap attack",
+        "focus": [
+          "control-center",
+          "workspace-root",
+          "victim-app",
+          "compromised-utils",
+          "mock-collector"
+        ],
+        "note": "Swap script replaces clean @devcorp/utils with compromised version"
+      },
+      {
+        "id": "evidence",
+        "label": "Evidence capture",
+        "focus": [
+          "mock-collector",
+          "capt-exfil"
+        ],
+        "note": "Exfil proves workspace structure leak"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        260
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 190,
+          "end_line": 202,
+          "label": "scenario 12 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "builds workspace",
+      "pos": [
+        40,
+        120
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/12-workspace-monorepo-attack/setup.sh",
+          "line": 1,
+          "end_line": 30,
+          "label": "workspace init"
+        }
+      ]
+    },
+    {
+      "id": "workspace-root",
+      "type": "backend",
+      "label": "Workspace root",
+      "sublabel": "packages: api, utils, auth",
+      "tag": "@devcorp/*",
+      "pos": [
+        250,
+        160
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/12-workspace-monorepo-attack/package.json",
+          "line": 1,
+          "end_line": 10,
+          "label": "workspace config"
+        }
+      ]
+    },
+    {
+      "id": "swap-script",
+      "type": "security",
+      "label": "swap-compromised-utils.sh",
+      "sublabel": "overwrites utils/",
+      "tag": "attack step",
+      "pos": [
+        550,
+        160
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/12-workspace-monorepo-attack/swap-compromised-utils.sh",
+          "line": 1,
+          "end_line": 15,
+          "label": "copy compromised package"
+        }
+      ]
+    },
+    {
+      "id": "compromised-utils",
+      "type": "security",
+      "label": "Compromised @devcorp/utils",
+      "sublabel": "postinstall beacon",
+      "tag": "malicious",
+      "pos": [
+        540,
+        300
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/12-workspace-monorepo-attack/compromised-package/utils/postinstall.js",
+          "line": 40,
+          "end_line": 87,
+          "label": "workspace exfil"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "depends on @devcorp/*",
+      "tag": "workspace member",
+      "pos": [
+        250,
+        300
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/12-workspace-monorepo-attack/victim-app/index.js",
+          "line": 1,
+          "end_line": 15,
+          "label": "victim entry"
+        }
+      ]
+    },
+    {
+      "id": "mock-collector",
+      "type": "backend",
+      "label": "Mock collector",
+      "sublabel": ":3000 POST /collect",
+      "pos": [
+        870,
+        300
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/12-workspace-monorepo-attack/infrastructure/mock-server.js",
+          "line": 12,
+          "end_line": 50,
+          "label": "collector endpoint"
+        }
+      ]
+    },
+    {
+      "id": "capt-exfil",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "workspace layout leak",
+      "pos": [
+        1100,
+        300
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/12-workspace-monorepo-attack/infrastructure/mock-server.js",
+          "line": 13,
+          "end_line": 40,
+          "label": "append capture"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "workspace-root",
+        "swap-script",
+        "compromised-utils",
+        "victim-app",
+        "mock-collector",
+        "capt-exfil"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "compromised-utils"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-builds-workspace",
+      "from": "setup",
+      "to": "workspace-root",
+      "label": "npm install workspace",
+      "variant": "dashed"
+    },
+    {
+      "id": "ui-swap",
+      "from": "control-center",
+      "to": "swap-script",
+      "label": "Swap compromised utils",
+      "variant": "security"
+    },
+    {
+      "id": "swap-overwrites",
+      "from": "swap-script",
+      "to": "workspace-root",
+      "label": "overwrite packages/utils/",
+      "variant": "security",
+      "fromSide": "left",
+      "toSide": "right"
+    },
+    {
+      "id": "ui-install",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm start",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-requires-utils",
+      "from": "victim-app",
+      "to": "compromised-utils",
+      "label": "require @devcorp/utils",
+      "variant": "emphasis"
+    },
+    {
+      "id": "utils-beacons",
+      "from": "compromised-utils",
+      "to": "mock-collector",
+      "label": "POST /collect workspace data",
+      "variant": "security"
+    },
+    {
+      "id": "collector-writes",
+      "from": "mock-collector",
+      "to": "capt-exfil",
+      "label": "append JSON"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Workspace trust boundary",
+      "items": [
+        "npm workspaces link local packages without extra installs",
+        "Swap script replaces clean packages/utils/ with compromised version",
+        "Postinstall reveals workspace structure, environment, and dependency tree"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Attack sequence",
+      "items": [
+        "Setup builds clean workspace with api, utils, auth",
+        "Swap step overwrites packages/utils/ with malicious postinstall",
+        "npm start runs postinstall and beacons to :3000"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety",
+      "items": [
+        "Postinstall gates on TESTBENCH_MODE=enabled and 127.0.0.1 only",
+        "Real workspaces must audit package origins before linking",
+        "Detection: compare package.json scripts against workspace policy"
+      ]
+    }
+  ]
+}

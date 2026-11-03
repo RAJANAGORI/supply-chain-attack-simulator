@@ -34,3 +34,7 @@ scenarios/NN-slug/
 - `DETECT.md` - IOCs, log lines, Sigma, YARA, EDR/SIEM, `## Mitigation` → `scas-rules` via `load-runbooks.js`
 - `README.md` - `## Mitigation Playbook` + TOC
 - Mitigation or runtime changes: edit `scripts/lib/mitigation-playbooks.js` first, then run sync scripts in `documentation/platform/TOOLING.md` § Documentation lifecycle
+
+## Archify pack (required for new labs)
+
+After the lab code and docs exist, follow `.cursor/skills/scas-archify-scenario-pack/SKILL.md`: ship architecture + sequence HTML plus `archify_SNN.md` under `.archify/scenarios/NN-slug/`, then update `.archify/INDEX.md`. Do not leave flat packs at `.archify/` root.

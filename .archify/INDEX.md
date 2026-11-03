@@ -1,0 +1,41 @@
+# SCAS Archify pack
+
+Timestamp: `20261103-192118` · Archify 3.2.0 · repo-backed scenarios 01-25
+
+Layout per scenario:
+
+```
+.archify/scenarios/NN-slug/
+  architecture/   # candidate.json + scNN-slug-architecture.html
+  sequence/       # candidate.json + scNN-slug-sequence.html
+  archify_SNN.md  # talk-track brief
+```
+
+| NN | Scenario | Architecture | Sequence | Brief |
+|---|---|---|---|---|
+| 01 | `01-typosquatting` | [html](scenarios/01-typosquatting/architecture/sc01-typosquatting-architecture.html) | [html](scenarios/01-typosquatting/sequence/sc01-typosquatting-sequence.html) | [archify_S01.md](scenarios/01-typosquatting/archify_S01.md) |
+| 02 | `02-dependency-confusion` | [html](scenarios/02-dependency-confusion/architecture/sc02-dependency-confusion-architecture.html) | [html](scenarios/02-dependency-confusion/sequence/sc02-dependency-confusion-sequence.html) | [archify_S02.md](scenarios/02-dependency-confusion/archify_S02.md) |
+| 03 | `03-compromised-package` | [html](scenarios/03-compromised-package/architecture/sc03-compromised-package-architecture.html) | [html](scenarios/03-compromised-package/sequence/sc03-compromised-package-sequence.html) | [archify_S03.md](scenarios/03-compromised-package/archify_S03.md) |
+| 04 | `04-malicious-update` | [html](scenarios/04-malicious-update/architecture/sc04-malicious-update-architecture.html) | [html](scenarios/04-malicious-update/sequence/sc04-malicious-update-sequence.html) | [archify_S04.md](scenarios/04-malicious-update/archify_S04.md) |
+| 05 | `05-build-compromise` | [html](scenarios/05-build-compromise/architecture/sc05-build-compromise-architecture.html) | [html](scenarios/05-build-compromise/sequence/sc05-build-compromise-sequence.html) | [archify_S05.md](scenarios/05-build-compromise/archify_S05.md) |
+| 06 | `06-sha-hulud` | [html](scenarios/06-sha-hulud/architecture/sc06-sha-hulud-architecture.html) | [html](scenarios/06-sha-hulud/sequence/sc06-sha-hulud-sequence.html) | [archify_S06.md](scenarios/06-sha-hulud/archify_S06.md) |
+| 07 | `07-transitive-dependency` | [html](scenarios/07-transitive-dependency/architecture/sc07-transitive-dependency-architecture.html) | [html](scenarios/07-transitive-dependency/sequence/sc07-transitive-dependency-sequence.html) | [archify_S07.md](scenarios/07-transitive-dependency/archify_S07.md) |
+| 08 | `08-package-lock-file-manipulation` | [html](scenarios/08-package-lock-file-manipulation/architecture/sc08-package-lock-file-manipulation-architecture.html) | [html](scenarios/08-package-lock-file-manipulation/sequence/sc08-package-lock-file-manipulation-sequence.html) | [archify_S08.md](scenarios/08-package-lock-file-manipulation/archify_S08.md) |
+| 09 | `09-package-signing-bypass` | [html](scenarios/09-package-signing-bypass/architecture/sc09-package-signing-bypass-architecture.html) | [html](scenarios/09-package-signing-bypass/sequence/sc09-package-signing-bypass-sequence.html) | [archify_S09.md](scenarios/09-package-signing-bypass/archify_S09.md) |
+| 10 | `10-git-submodule-attack` | [html](scenarios/10-git-submodule-attack/architecture/sc10-git-submodule-attack-architecture.html) | [html](scenarios/10-git-submodule-attack/sequence/sc10-git-submodule-attack-sequence.html) | [archify_S10.md](scenarios/10-git-submodule-attack/archify_S10.md) |
+| 11 | `11-registry-mirror-poisoning` | [html](scenarios/11-registry-mirror-poisoning/architecture/sc11-registry-mirror-poisoning-architecture.html) | [html](scenarios/11-registry-mirror-poisoning/sequence/sc11-registry-mirror-poisoning-sequence.html) | [archify_S11.md](scenarios/11-registry-mirror-poisoning/archify_S11.md) |
+| 12 | `12-workspace-monorepo-attack` | [html](scenarios/12-workspace-monorepo-attack/architecture/sc12-workspace-monorepo-attack-architecture.html) | [html](scenarios/12-workspace-monorepo-attack/sequence/sc12-workspace-monorepo-attack-sequence.html) | [archify_S12.md](scenarios/12-workspace-monorepo-attack/archify_S12.md) |
+| 13 | `13-package-metadata-manipulation` | [html](scenarios/13-package-metadata-manipulation/architecture/sc13-package-metadata-manipulation-architecture.html) | [html](scenarios/13-package-metadata-manipulation/sequence/sc13-package-metadata-manipulation-sequence.html) | [archify_S13.md](scenarios/13-package-metadata-manipulation/archify_S13.md) |
+| 14 | `14-container-image-supply-chain-attack` | [html](scenarios/14-container-image-supply-chain-attack/architecture/sc14-container-image-supply-chain-attack-architecture.html) | [html](scenarios/14-container-image-supply-chain-attack/sequence/sc14-container-image-supply-chain-attack-sequence.html) | [archify_S14.md](scenarios/14-container-image-supply-chain-attack/archify_S14.md) |
+| 15 | `15-developer-tool-compromise` | [html](scenarios/15-developer-tool-compromise/architecture/sc15-developer-tool-compromise-architecture.html) | [html](scenarios/15-developer-tool-compromise/sequence/sc15-developer-tool-compromise-sequence.html) | [archify_S15.md](scenarios/15-developer-tool-compromise/archify_S15.md) |
+| 16 | `16-package-cache-poisoning` | [html](scenarios/16-package-cache-poisoning/architecture/sc16-package-cache-poisoning-architecture.html) | [html](scenarios/16-package-cache-poisoning/sequence/sc16-package-cache-poisoning-sequence.html) | [archify_S16.md](scenarios/16-package-cache-poisoning/archify_S16.md) |
+| 17 | `17-multi-stage-attack-chain` | [html](scenarios/17-multi-stage-attack-chain/architecture/sc17-multi-stage-attack-chain-architecture.html) | [html](scenarios/17-multi-stage-attack-chain/sequence/sc17-multi-stage-attack-chain-sequence.html) | [archify_S17.md](scenarios/17-multi-stage-attack-chain/archify_S17.md) |
+| 18 | `18-package-manager-plugin-attack` | [html](scenarios/18-package-manager-plugin-attack/architecture/sc18-package-manager-plugin-attack-architecture.html) | [html](scenarios/18-package-manager-plugin-attack/sequence/sc18-package-manager-plugin-attack-sequence.html) | [archify_S18.md](scenarios/18-package-manager-plugin-attack/archify_S18.md) |
+| 19 | `19-sbom-manipulation-attack` | [html](scenarios/19-sbom-manipulation-attack/architecture/sc19-sbom-manipulation-attack-architecture.html) | [html](scenarios/19-sbom-manipulation-attack/sequence/sc19-sbom-manipulation-attack-sequence.html) | [archify_S19.md](scenarios/19-sbom-manipulation-attack/archify_S19.md) |
+| 20 | `20-package-version-confusion` | [html](scenarios/20-package-version-confusion/architecture/sc20-package-version-confusion-architecture.html) | [html](scenarios/20-package-version-confusion/sequence/sc20-package-version-confusion-sequence.html) | [archify_S20.md](scenarios/20-package-version-confusion/archify_S20.md) |
+| 21 | `21-axios-compromised-release-attack` | [html](scenarios/21-axios-compromised-release-attack/architecture/sc21-axios-compromised-release-attack-architecture.html) | [html](scenarios/21-axios-compromised-release-attack/sequence/sc21-axios-compromised-release-attack-sequence.html) | [archify_S21.md](scenarios/21-axios-compromised-release-attack/archify_S21.md) |
+| 22 | `22-litellm-pypi-compromise` | [html](scenarios/22-litellm-pypi-compromise/architecture/sc22-litellm-pypi-compromise-architecture.html) | [html](scenarios/22-litellm-pypi-compromise/sequence/sc22-litellm-pypi-compromise-sequence.html) | [archify_S22.md](scenarios/22-litellm-pypi-compromise/archify_S22.md) |
+| 23 | `23-trivy-supply-chain-attack` | [html](scenarios/23-trivy-supply-chain-attack/architecture/sc23-trivy-supply-chain-attack-architecture.html) | [html](scenarios/23-trivy-supply-chain-attack/sequence/sc23-trivy-supply-chain-attack-sequence.html) | [archify_S23.md](scenarios/23-trivy-supply-chain-attack/archify_S23.md) |
+| 24 | `24-slopsquatting` | [html](scenarios/24-slopsquatting/architecture/sc24-slopsquatting-architecture.html) | [html](scenarios/24-slopsquatting/sequence/sc24-slopsquatting-sequence.html) | [archify_S24.md](scenarios/24-slopsquatting/archify_S24.md) |
+| 25 | `25-compromised-github-action` | [html](scenarios/25-compromised-github-action/architecture/sc25-compromised-github-action-architecture.html) | [html](scenarios/25-compromised-github-action/sequence/sc25-compromised-github-action-sequence.html) | [archify_S25.md](scenarios/25-compromised-github-action/archify_S25.md) |
+

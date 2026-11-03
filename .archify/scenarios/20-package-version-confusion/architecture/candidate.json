@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 20 package-version-confusion lab architecture",
+    "subtitle": "Highest-version-wins: malicious 9.9.9 beats clean 1.0.0; valid provenance proves CI compromise",
+    "output": ".archify/scenarios/20-package-version-confusion/architecture/sc20-package-version-confusion-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "main-attack",
+        "label": "Version confusion path",
+        "focus": [
+          "control-center",
+          "victim-app",
+          "build-prov",
+          "malicious-pkg",
+          "mock-c2"
+        ],
+        "note": "Highest version 9.9.9 wins; victim verifies valid provenance before loading"
+      },
+      {
+        "id": "evidence",
+        "label": "Evidence stores",
+        "focus": [
+          "mock-c2",
+          "capt-data",
+          "provenance-files"
+        ],
+        "note": "Beacon capture plus signed provenance/attestation prove CI compromise"
+      },
+      {
+        "id": "safety",
+        "label": "Safety gate",
+        "focus": [
+          "malicious-pkg"
+        ],
+        "note": "Malicious path returns unless TESTBENCH_MODE=enabled"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 248,
+          "end_line": 252,
+          "label": "scenario 20 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "gen keys + provenance",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/20-package-version-confusion/setup.sh",
+          "line": 335,
+          "end_line": 340,
+          "label": "build-provenance.js"
+        }
+      ]
+    },
+    {
+      "id": "build-prov",
+      "type": "security",
+      "label": "build-provenance.js",
+      "sublabel": "sign with compromised key",
+      "tag": "CI compromise",
+      "pos": [
+        250,
+        140
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/20-package-version-confusion/infrastructure/build-provenance.js",
+          "line": 30,
+          "end_line": 70,
+          "label": "generate + sign provenance"
+        }
+      ]
+    },
+    {
+      "id": "provenance-files",
+      "type": "database",
+      "label": "Provenance bundles",
+      "sublabel": "valid signatures",
+      "pos": [
+        560,
+        140
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/20-package-version-confusion/infrastructure/build-provenance.js",
+          "line": 72,
+          "end_line": 100,
+          "label": "write signed bundles"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "verifies provenance",
+      "tag": "trusted-logger 9.9.9",
+      "pos": [
+        250,
+        300
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/20-package-version-confusion/victim-app/index.js",
+          "line": 10,
+          "end_line": 65,
+          "label": "verifyBundle logic"
+        }
+      ]
+    },
+    {
+      "id": "malicious-pkg",
+      "type": "security",
+      "label": "trusted-logger 9.9.9",
+      "sublabel": "TESTBENCH gate",
+      "tag": "highest version",
+      "pos": [
+        560,
+        300
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/20-package-version-confusion/templates/malicious-package-template.js",
+          "line": 15,
+          "end_line": 55,
+          "label": "malicious payload"
+        }
+      ]
+    },
+    {
+      "id": "mock-c2",
+      "type": "backend",
+      "label": "Mock C2 server",
+      "sublabel": ":3020 POST /collect",
+      "pos": [
+        820,
+        300
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/20-package-version-confusion/infrastructure/mock-server.js",
+          "line": 10,
+          "end_line": 75,
+          "label": "C2 endpoints"
+        }
+      ]
+    },
+    {
+      "id": "capt-data",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "provenance-abuse beacon",
+      "pos": [
+        1060,
+        300
+      ],
+      "size": [
+        190,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/20-package-version-confusion/infrastructure/mock-server.js",
+          "line": 69,
+          "end_line": 72,
+          "label": "append captures"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "build-prov",
+        "provenance-files",
+        "victim-app",
+        "malicious-pkg",
+        "mock-c2",
+        "capt-data"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "malicious-pkg"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-runs-build",
+      "from": "setup",
+      "to": "build-prov",
+      "label": "node build-provenance.js",
+      "variant": "dashed"
+    },
+    {
+      "id": "build-signs",
+      "from": "build-prov",
+      "to": "provenance-files",
+      "label": "sign provenance + attestation",
+      "variant": "security"
+    },
+    {
+      "id": "ui-install",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm install",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-reads-prov",
+      "from": "victim-app",
+      "to": "provenance-files",
+      "label": "read provenance + attestation",
+      "variant": "default",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "victim-verifies",
+      "from": "victim-app",
+      "to": "malicious-pkg",
+      "label": "verify signatures \u2192 load 9.9.9",
+      "variant": "emphasis"
+    },
+    {
+      "id": "pkg-beacon",
+      "from": "malicious-pkg",
+      "to": "mock-c2",
+      "label": "POST beacon",
+      "variant": "security"
+    },
+    {
+      "id": "c2-writes",
+      "from": "mock-c2",
+      "to": "capt-data",
+      "label": "append JSON"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Version confusion core",
+      "items": [
+        "build-provenance.js signs malicious trusted-logger 9.9.9 with compromised CI key",
+        "Victim verifies provenance and attestation signatures; both pass because CI key is real",
+        "Highest version 9.9.9 wins over any clean 1.0.0; valid signatures do not prove safety"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Mock C2 listener",
+      "items": [
+        ":3020 mock server records POST /collect beacon from trusted-logger 9.9.9",
+        "Expected capture: one beacon proving the highest-version malicious package executed",
+        "GET /captured-data returns the capture history"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety + containment",
+      "items": [
+        "Malicious path is gated by TESTBENCH_MODE=enabled and 127.0.0.1 only",
+        "Containment: revoke compromised CI signing key; pin known-good versions in lockfile",
+        "Detection: provenance proves origin and integrity, not safety; monitor for unexpected version jumps"
+      ]
+    }
+  ]
+}

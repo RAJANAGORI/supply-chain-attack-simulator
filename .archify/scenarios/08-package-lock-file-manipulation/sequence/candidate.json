@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 08 Package Lock File Manipulation attack sequence",
+    "subtitle": "npm install reads lockfile \u2192 installs evil-utils \u2192 postinstall exfil \u2192 app runs",
+    "output": ".archify/scenarios/08-package-lock-file-manipulation/sequence/sc08-package-lock-file-manipulation-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 155,
+          "end_line": 158,
+          "label": "install + run steps"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "npm workspace",
+      "sources": [
+        {
+          "path": "scenarios/08-package-lock-file-manipulation/victim-app/index.js",
+          "line": 8,
+          "end_line": 23,
+          "label": "lodash demo"
+        }
+      ]
+    },
+    {
+      "id": "lockfile",
+      "type": "database",
+      "label": "package-lock.json",
+      "sublabel": "evil-utils file: dep",
+      "sources": [
+        {
+          "path": "scenarios/08-package-lock-file-manipulation/setup.sh",
+          "line": 45,
+          "end_line": 62,
+          "label": "lockfile setup"
+        }
+      ]
+    },
+    {
+      "id": "evil-utils",
+      "type": "security",
+      "label": "evil-utils",
+      "sublabel": "file: postinstall",
+      "sources": [
+        {
+          "path": "scenarios/08-package-lock-file-manipulation/setup.sh",
+          "line": 80,
+          "end_line": 120,
+          "label": "postinstall creation"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "type": "backend",
+      "label": "Mock C2",
+      "sublabel": ":3000",
+      "sources": [
+        {
+          "path": "scenarios/08-package-lock-file-manipulation/infrastructure/mock-server.js",
+          "line": 51,
+          "end_line": 80,
+          "label": "POST /collect"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 250,
+      "label": "Lockfile read"
+    },
+    {
+      "from": 260,
+      "to": 350,
+      "label": "Exfil"
+    },
+    {
+      "from": 360,
+      "to": 430,
+      "label": "Clean run"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-install",
+      "from": "learner",
+      "to": "victim",
+      "y": 160,
+      "label": "npm install (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "read-lockfile",
+      "from": "victim",
+      "to": "lockfile",
+      "y": 200,
+      "label": "read package-lock.json",
+      "variant": "default"
+    },
+    {
+      "id": "npm-installs-evil",
+      "from": "lockfile",
+      "to": "evil-utils",
+      "y": 235,
+      "label": "install evil-utils (file:)",
+      "variant": "emphasis",
+      "note": "Lockfile pulled it in; may not be in package.json"
+    },
+    {
+      "id": "postinstall-exfil",
+      "from": "evil-utils",
+      "to": "c2",
+      "y": 290,
+      "label": "POST /collect (lockFileManipulated: true)",
+      "variant": "security"
+    },
+    {
+      "id": "install-complete",
+      "from": "victim",
+      "to": "learner",
+      "y": 340,
+      "label": "install complete",
+      "variant": "return"
+    },
+    {
+      "id": "run-victim",
+      "from": "learner",
+      "to": "victim",
+      "y": 375,
+      "label": "npm start",
+      "variant": "default"
+    },
+    {
+      "id": "app-ok",
+      "from": "victim",
+      "to": "learner",
+      "y": 410,
+      "label": "app OK; check captured-data",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "victim",
+      "from": 160,
+      "to": 410,
+      "type": "backend"
+    },
+    {
+      "participant": "lockfile",
+      "from": 195,
+      "to": 245,
+      "type": "database"
+    },
+    {
+      "participant": "evil-utils",
+      "from": 230,
+      "to": 290,
+      "type": "security"
+    },
+    {
+      "participant": "c2",
+      "from": 285,
+      "to": 305,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Lockfile manipulation",
+      "items": [
+        "package-lock.json includes evil-utils not in package.json review",
+        "npm 7+ reconciles lockfile with package.json; pure lock-only injection is pruned",
+        "This lab uses file: dependency in package.json for stable demo"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Postinstall timing",
+      "items": [
+        "npm runs evil-utils postinstall during the install phase",
+        "Exfil completes before npm start",
+        "Victim sees a working app with lodash demo"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Detection path",
+      "items": [
+        "lock-file-validator.js flags unexpected file: dependencies",
+        "Postinstall file reads and network POST are the IOCs",
+        "Captured-data.json proves lockFileManipulated: true"
+      ]
+    }
+  ]
+}

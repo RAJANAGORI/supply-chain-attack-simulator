@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 23 Trivy supply chain attack lab architecture",
+    "subtitle": "Compromised security scanner: force-pushed tag harvests CI secrets to :3023 C2",
+    "output": ".archify/scenarios/23-trivy-supply-chain-attack/architecture/sc23-trivy-supply-chain-attack-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "ci-path",
+        "label": "CI pipeline harvest",
+        "focus": [
+          "control-center",
+          "victim-ci",
+          "trivy-compromised",
+          "ci-secrets",
+          "mock-c2"
+        ],
+        "note": "CI runs compromised trivy-action-like@0.69.4 which steals environment secrets"
+      },
+      {
+        "id": "evidence",
+        "label": "Evidence + optional Floci",
+        "focus": [
+          "mock-c2",
+          "captured-data",
+          "floci"
+        ],
+        "note": "C2 server captures and optionally mirrors to Floci S3"
+      },
+      {
+        "id": "safety",
+        "label": "Safety gate",
+        "focus": [
+          "trivy-compromised"
+        ],
+        "note": "Malicious path returns unless TESTBENCH_MODE=enabled"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        260
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 301,
+          "end_line": 316,
+          "label": "scenario 23 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "plants CI secrets",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/setup.sh",
+          "line": 8,
+          "end_line": 42,
+          "label": "install deps + plant secrets"
+        }
+      ]
+    },
+    {
+      "id": "victim-ci",
+      "type": "backend",
+      "label": "victim-ci",
+      "sublabel": "CI pipeline runner",
+      "tag": "node run-pipeline",
+      "pos": [
+        280,
+        260
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/victim-ci/package.json",
+          "line": 1,
+          "end_line": 12,
+          "label": "depends on trivy-action-like"
+        }
+      ]
+    },
+    {
+      "id": "ci-secrets",
+      "type": "security",
+      "label": "CI secrets",
+      "sublabel": ".env.ci-lab",
+      "tag": "lab lookalikes",
+      "pos": [
+        280,
+        100
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/setup.sh",
+          "line": 38,
+          "end_line": 41,
+          "label": "plant lookalike secrets"
+        }
+      ]
+    },
+    {
+      "id": "trivy-compromised",
+      "type": "security",
+      "label": "trivy-action-like@0.69.4",
+      "sublabel": "harvester payload",
+      "tag": "TESTBENCH gate",
+      "pos": [
+        500,
+        260
+      ],
+      "size": [
+        200,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/README.md",
+          "line": 61,
+          "end_line": 70,
+          "label": "malicious payload description"
+        }
+      ]
+    },
+    {
+      "id": "mock-c2",
+      "type": "backend",
+      "label": "Mock C2 server",
+      "sublabel": ":3023 POST /collect",
+      "pos": [
+        760,
+        200
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/infrastructure/mock-c2-server.js",
+          "line": 24,
+          "end_line": 48,
+          "label": "exfil endpoint"
+        }
+      ]
+    },
+    {
+      "id": "captured-data",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "captures array",
+      "pos": [
+        980,
+        200
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/infrastructure/mock-c2-server.js",
+          "line": 39,
+          "end_line": 46,
+          "label": "append capture entry"
+        }
+      ]
+    },
+    {
+      "id": "floci",
+      "type": "cloud",
+      "label": "Floci S3 mirror",
+      "sublabel": "scas-sc23-artifacts",
+      "tag": "optional",
+      "pos": [
+        760,
+        340
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 314,
+          "end_line": 316,
+          "label": "Floci seed + verify"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "victim-ci",
+        "ci-secrets",
+        "trivy-compromised",
+        "mock-c2",
+        "captured-data",
+        "floci"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "trivy-compromised"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-plants-secrets",
+      "from": "setup",
+      "to": "ci-secrets",
+      "label": "plant lookalike secrets",
+      "variant": "dashed"
+    },
+    {
+      "id": "setup-builds-ci",
+      "from": "setup",
+      "to": "victim-ci",
+      "label": "npm install trivy-action-like",
+      "variant": "dashed"
+    },
+    {
+      "id": "ui-runs-ci",
+      "from": "control-center",
+      "to": "victim-ci",
+      "label": "Run CI pipeline",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ci-loads-trivy",
+      "from": "victim-ci",
+      "to": "trivy-compromised",
+      "label": "require trivy-action-like",
+      "variant": "emphasis"
+    },
+    {
+      "id": "trivy-reads-secrets",
+      "from": "trivy-compromised",
+      "to": "ci-secrets",
+      "label": "read env secrets",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "trivy-exfil",
+      "from": "trivy-compromised",
+      "to": "mock-c2",
+      "label": "POST /collect",
+      "variant": "security"
+    },
+    {
+      "id": "c2-writes",
+      "from": "mock-c2",
+      "to": "captured-data",
+      "label": "append JSON"
+    },
+    {
+      "id": "optional-floci",
+      "from": "mock-c2",
+      "to": "floci",
+      "label": "optional PutObject",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "CVE-2026-33634 simulation",
+      "items": [
+        "Attacker compromised maintainer PAT, force-pushed v0.69.4 tag to malicious commit",
+        "CI pipelines using Trivy run the backdoored security scanner",
+        "Real attack harvested env vars, SSH keys, cloud credentials, K8s tokens"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Force-push technique",
+      "items": [
+        "Overwriting existing tags avoids most notification triggers",
+        "Mutable tag (@v3) resolved at runtime pulls attacker code immediately",
+        "Mitigation: pin to commit SHA, not floating tag"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety + detection",
+      "items": [
+        "Malicious path gated by TESTBENCH_MODE=enabled and 127.0.0.1 only",
+        "Detection: SHA pinning audit, runtime network monitoring for unexpected POSTs",
+        "Containment: rotate all secrets, pin to known-good SHA"
+      ]
+    }
+  ]
+}

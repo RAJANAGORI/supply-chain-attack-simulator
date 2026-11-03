@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "6a7b6f31-8e3c-4777-a2e1-6c057bc18a6f",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc02-dependency-confusion-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc02-dependency-confusion-20261103-192118/sc02-dependency-confusion-architecture.html",
+  "specification": {
+    "sha256": "1a72761da2a65c620f4c4db7513521ee3b272a378fdd6396f119a60315172b6f",
+    "bytes": 8269
+  },
+  "artifact": {
+    "sha256": "8a7d72b4c25f559cd11f13c4a80b233bc97f313edd4f23da5e5fd180ecbd711a",
+    "bytes": 833703
+  }
+}

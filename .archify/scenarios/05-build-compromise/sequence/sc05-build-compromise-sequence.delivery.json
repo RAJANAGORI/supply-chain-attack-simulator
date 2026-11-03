@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "c4698d1a-eb8b-47a0-ba94-5005f218739b",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc05-workflow-inject-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc05-workflow-inject-20261103-192118/sc05-workflow-inject-sequence.html",
+  "specification": {
+    "sha256": "15f8db84d525c248ac564e3f8b0ebe92134946f9f39d080f49f41d9396492c7a",
+    "bytes": 4914
+  },
+  "artifact": {
+    "sha256": "6a8e935373683e65bcad79e0a9126efb25e1491c7b9173c37e8fe0e8ee74da44",
+    "bytes": 815224
+  }
+}

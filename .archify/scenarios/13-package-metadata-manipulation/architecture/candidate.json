@@ -1,0 +1,259 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 13 Package Metadata Manipulation lab architecture",
+    "subtitle": "Tampered package.json postinstall; beacon to :3001/capture on install",
+    "output": ".archify/scenarios/13-package-metadata-manipulation/architecture/sc13-package-metadata-manipulation-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "main-attack",
+        "label": "Metadata manipulation path",
+        "focus": [
+          "control-center",
+          "victim-app",
+          "clean-utils-pkg",
+          "mock-collector"
+        ],
+        "note": "Tampered package.json adds postinstall that npm runs on install"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 203,
+          "end_line": 207,
+          "label": "scenario 13 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "enables testbench",
+      "pos": [
+        40,
+        120
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/setup.sh",
+          "line": 1,
+          "end_line": 20,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "installs clean-utils",
+      "pos": [
+        250,
+        240
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/victim-app/index.js",
+          "line": 1,
+          "end_line": 4,
+          "label": "victim entry"
+        }
+      ]
+    },
+    {
+      "id": "clean-utils-pkg",
+      "type": "security",
+      "label": "clean-utils package",
+      "sublabel": "tampered package.json",
+      "tag": "metadata attack",
+      "pos": [
+        480,
+        240
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/compromised-packages/clean-utils/postinstall.js",
+          "line": 1,
+          "end_line": 37,
+          "label": "postinstall beacon"
+        },
+        {
+          "path": "scenarios/13-package-metadata-manipulation/compromised-packages/clean-utils/package.json",
+          "line": 1,
+          "end_line": 10,
+          "label": "tampered scripts.postinstall"
+        }
+      ]
+    },
+    {
+      "id": "mock-collector",
+      "type": "backend",
+      "label": "Mock collector",
+      "sublabel": ":3001 POST /capture",
+      "pos": [
+        720,
+        240
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/infrastructure/mock-server.js",
+          "line": 12,
+          "end_line": 50,
+          "label": "capture endpoint"
+        }
+      ]
+    },
+    {
+      "id": "capt-metadata",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "metadata exfil",
+      "pos": [
+        950,
+        240
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/infrastructure/mock-server.js",
+          "line": 13,
+          "end_line": 40,
+          "label": "append capture"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "victim-app",
+        "clean-utils-pkg",
+        "mock-collector",
+        "capt-metadata"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "clean-utils-pkg"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "ui-install",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm install clean-utils",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-installs-pkg",
+      "from": "victim-app",
+      "to": "clean-utils-pkg",
+      "label": "install from ../compromised-packages/",
+      "variant": "emphasis"
+    },
+    {
+      "id": "pkg-postinstall",
+      "from": "clean-utils-pkg",
+      "to": "mock-collector",
+      "label": "POST /capture metadata",
+      "variant": "security"
+    },
+    {
+      "id": "collector-writes",
+      "from": "mock-collector",
+      "to": "capt-metadata",
+      "label": "append JSON"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Metadata manipulation",
+      "items": [
+        "Package looks clean but package.json scripts.postinstall is tampered",
+        "npm runs postinstall automatically during npm install",
+        "Postinstall beacons metadata to :3001/capture when TESTBENCH_MODE is enabled"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Attack vector",
+      "items": [
+        "Attacker modifies package.json metadata without changing source code",
+        "Postinstall script runs with package install privileges",
+        ":3001 mock-server.js collects exfil beacon"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety",
+      "items": [
+        "Postinstall gates on TESTBENCH_MODE=enabled and 127.0.0.1 only",
+        "Real packages must verify metadata against published registry records",
+        "Detection: audit package.json scripts fields before install"
+      ]
+    }
+  ]
+}

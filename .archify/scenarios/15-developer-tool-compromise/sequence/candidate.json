@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 15 Developer Tool Compromise attack sequence",
+    "subtitle": "Install malicious dev tool; postinstall beacons developer environment to :3015",
+    "output": ".archify/scenarios/15-developer-tool-compromise/sequence/sc15-developer-tool-compromise-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "viewBox": [
+      1080,
+      520
+    ],
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 214,
+          "end_line": 223,
+          "label": "install + run steps"
+        }
+      ]
+    },
+    {
+      "id": "install",
+      "type": "security",
+      "label": "Install script",
+      "sublabel": "npm install tool",
+      "sources": [
+        {
+          "path": "scenarios/15-developer-tool-compromise/install-malicious-tool.sh",
+          "line": 1,
+          "end_line": 15,
+          "label": "install command"
+        }
+      ]
+    },
+    {
+      "id": "postinstall",
+      "type": "security",
+      "label": "Postinstall",
+      "sublabel": "dev-tool",
+      "sources": [
+        {
+          "path": "scenarios/15-developer-tool-compromise/dev-tools/malicious-dev-tool/postinstall.js",
+          "line": 1,
+          "end_line": 50,
+          "label": "dev env beacon"
+        }
+      ]
+    },
+    {
+      "id": "collector",
+      "type": "backend",
+      "label": "Mock collector",
+      "sublabel": ":3015",
+      "sources": [
+        {
+          "path": "scenarios/15-developer-tool-compromise/infrastructure/mock-server.js",
+          "line": 12,
+          "end_line": 40,
+          "label": "POST /collect"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 210,
+      "label": "Install"
+    },
+    {
+      "from": 220,
+      "to": 310,
+      "label": "Lifecycle"
+    },
+    {
+      "from": 320,
+      "to": 400,
+      "label": "Beacon"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-install",
+      "from": "learner",
+      "to": "install",
+      "y": 160,
+      "label": "Run install-malicious-tool.sh (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "run-postinstall",
+      "from": "install",
+      "to": "postinstall",
+      "y": 240,
+      "label": "npm install triggers postinstall",
+      "variant": "emphasis",
+      "note": "Postinstall collects hostname, username, platform, cwd, env"
+    },
+    {
+      "id": "beacon",
+      "from": "postinstall",
+      "to": "collector",
+      "y": 340,
+      "label": "POST /collect dev environment",
+      "variant": "security"
+    },
+    {
+      "id": "complete",
+      "from": "install",
+      "to": "learner",
+      "y": 380,
+      "label": "tool installed; check capture",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "install",
+      "from": 160,
+      "to": 390,
+      "type": "security"
+    },
+    {
+      "participant": "postinstall",
+      "from": 240,
+      "to": 350,
+      "type": "security"
+    },
+    {
+      "participant": "collector",
+      "from": 335,
+      "to": 350,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Dev tool injection",
+      "items": [
+        "Install script adds malicious dev-tool to package.json",
+        "npm install runs postinstall automatically",
+        "Tool looks legitimate until postinstall executes"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Environment exfil",
+      "items": [
+        "Postinstall collects developer machine details",
+        "Beacons hostname, username, platform, working directory, CI/NODE_ENV",
+        "Gates on TESTBENCH_MODE=enabled in lab"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Detection",
+      "items": [
+        "Audit devDependencies for unexpected postinstall scripts",
+        "Review developer tool origins before install",
+        "Monitor network calls during dev tool installation"
+      ]
+    }
+  ]
+}

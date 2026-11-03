@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 05 Build Compromise attack sequence",
+    "subtitle": "CI runs \u2192 mutable action \u2192 read secrets \u2192 exfiltrate \u2192 build completes",
+    "output": ".archify/scenarios/05-build-compromise/sequence/sc05-build-compromise-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 90,
+          "end_line": 91,
+          "label": "run-ci step"
+        }
+      ]
+    },
+    {
+      "id": "workflow",
+      "type": "backend",
+      "label": "build.yml",
+      "sublabel": "CI workflow",
+      "sources": [
+        {
+          "path": "scenarios/05-build-compromise/victim-app/.github/workflows/build.yml",
+          "line": 1,
+          "end_line": 30,
+          "label": "workflow steps"
+        }
+      ]
+    },
+    {
+      "id": "action",
+      "type": "security",
+      "label": "vendor/build-action",
+      "sublabel": "@v1 malicious",
+      "sources": [
+        {
+          "path": "scenarios/05-build-compromise/malicious-action/index.js",
+          "line": 32,
+          "end_line": 90,
+          "label": "run() harvest"
+        }
+      ]
+    },
+    {
+      "id": "secrets",
+      "type": "security",
+      "label": "CI secrets",
+      "sublabel": "GITHUB_TOKEN + env",
+      "sources": [
+        {
+          "path": "scenarios/_shared/plant-lookalike-secrets.sh",
+          "line": 1,
+          "end_line": 30,
+          "label": "CI secret planting"
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": ":3000",
+      "sources": [
+        {
+          "path": "scenarios/05-build-compromise/infrastructure/mock-server.js",
+          "line": 15,
+          "end_line": 46,
+          "label": "POST /collect handler"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 240,
+      "label": "CI Start"
+    },
+    {
+      "from": 250,
+      "to": 360,
+      "label": "Harvest"
+    },
+    {
+      "from": 370,
+      "to": 430,
+      "label": "Complete"
+    }
+  ],
+  "messages": [
+    {
+      "id": "run-ci",
+      "from": "learner",
+      "to": "workflow",
+      "y": 160,
+      "label": "./run-ci.sh (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "run-action",
+      "from": "workflow",
+      "to": "action",
+      "y": 200,
+      "label": "run vendor/build-action@v1",
+      "variant": "emphasis"
+    },
+    {
+      "id": "read-secrets",
+      "from": "action",
+      "to": "secrets",
+      "y": 260,
+      "label": "read GITHUB_TOKEN + env vars",
+      "variant": "security"
+    },
+    {
+      "id": "exfil",
+      "from": "action",
+      "to": "mock",
+      "y": 310,
+      "label": "POST /collect CI secrets + artifacts",
+      "variant": "security"
+    },
+    {
+      "id": "ack",
+      "from": "mock",
+      "to": "action",
+      "y": 345,
+      "label": "200 OK",
+      "variant": "return"
+    },
+    {
+      "id": "build-ok",
+      "from": "action",
+      "to": "workflow",
+      "y": 375,
+      "label": "build complete (cover)",
+      "variant": "return"
+    },
+    {
+      "id": "ci-ok",
+      "from": "workflow",
+      "to": "learner",
+      "y": 410,
+      "label": "CI passed; secrets stolen",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "workflow",
+      "from": 160,
+      "to": 420,
+      "type": "backend"
+    },
+    {
+      "participant": "action",
+      "from": 200,
+      "to": 385,
+      "type": "security"
+    },
+    {
+      "participant": "secrets",
+      "from": 255,
+      "to": 275,
+      "type": "security"
+    },
+    {
+      "participant": "mock",
+      "from": 310,
+      "to": 350,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Mutable action ref",
+      "items": [
+        "Workflow uses vendor/build-action@v1 \u2014 mutable tag, not SHA",
+        "Attacker force-pushes malicious code to v1",
+        "Next CI run pulls compromised version"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "CI secret theft",
+      "items": [
+        "Action reads GITHUB_TOKEN and all env vars",
+        "Collects build artifacts and filesystem context",
+        "Exfiltrates to :3000/collect"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Cover story",
+      "items": [
+        "Build completes successfully",
+        "CI passes \u2014 no visible failure",
+        "Developer sees green checkmark"
+      ]
+    }
+  ]
+}

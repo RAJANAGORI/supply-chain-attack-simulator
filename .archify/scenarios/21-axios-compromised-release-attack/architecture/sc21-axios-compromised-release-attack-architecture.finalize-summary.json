@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc21-axios-compromised-release-attack-20261103-192118/candidate.json",
+    "sha256": "57d6e98551e99eb5c0137edc5b2562fbccf54eefe9bb48fbe622dfb680b27af2",
+    "bytes": 8328
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc21-axios-compromised-release-attack-20261103-192118/sc21-axios-compromised-release-attack-architecture.html",
+    "sha256": "9fc964f32281ccf129a67c7e5a05f9c5c270025eb4ffed1de7971f251b8353de",
+    "bytes": 831614
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc21-axios-compromised-release-attack-20261103-192118/sc21-axios-compromised-release-attack-architecture.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc21-axios-compromised-release-attack-20261103-192118/sc21-axios-compromised-release-attack-architecture.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc21-axios-compromised-release-attack-20261103-192118/sc21-axios-compromised-release-attack-architecture.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T13:44:40.327Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2199,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  },
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedBends": 3,
+      "routesOverSuggestedStretch": 1
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "script-extracts",
+            "from": "install-script",
+            "to": "victim-app",
+            "label": "npm install tarball",
+            "collectionIndex": 3,
+            "artifactIndex": 4
+          },
+          "bends": 4,
+          "stretch": 2.2
+        },
+        {
+          "relationship": {
+            "id": "parent-bundles",
+            "from": "axios-parent",
+            "to": "transitive",
+            "label": "bundledDependencies",
+            "collectionIndex": 5,
+            "artifactIndex": 6
+          },
+          "bends": 3,
+          "stretch": 1.304
+        },
+        {
+          "relationship": {
+            "id": "server-writes",
+            "from": "mock-server",
+            "to": "captured-data",
+            "label": "append JSON",
+            "collectionIndex": 8,
+            "artifactIndex": 9
+          },
+          "bends": 3,
+          "stretch": 1.282
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "install-script → victim-app needs 4 bends: move node install-script or victim-app so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "axios-parent → transitive needs 3 bends: move node axios-parent or transitive so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "mock-server → captured-data needs 3 bends: move node mock-server or captured-data so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

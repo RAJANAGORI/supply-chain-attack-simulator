@@ -1,0 +1,423 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 22 LiteLLM-PyPI-compromise lab architecture",
+    "subtitle": "Python import-time vs .pth startup hook: localhost :3022 exfil, venv isolation",
+    "output": ".archify/scenarios/22-litellm-pypi-compromise/architecture/sc22-litellm-pypi-compromise-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "import-path",
+        "label": "Import-time execution (1.82.7)",
+        "focus": [
+          "control-center",
+          "victim-app",
+          "import-payload",
+          "mock-server"
+        ],
+        "note": "import litellm_like triggers payload before app code runs"
+      },
+      {
+        "id": "pth-path",
+        "label": "Startup hook (.pth in 1.82.8)",
+        "focus": [
+          "control-center",
+          "victim-app",
+          "pth-hook",
+          "site-packages",
+          "mock-server"
+        ],
+        "note": ".pth file runs at Python interpreter startup, before any imports"
+      },
+      {
+        "id": "evidence",
+        "label": "Evidence stores",
+        "focus": [
+          "mock-server",
+          "captured-data",
+          "import-ioc",
+          "pth-ioc"
+        ],
+        "note": "Two IOC files plus mock server log prove both attack vectors"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        280
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 264,
+          "end_line": 300,
+          "label": "scenario 22 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "creates venv",
+      "pos": [
+        40,
+        120
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/setup.sh",
+          "line": 8,
+          "end_line": 70,
+          "label": "venv creation fallback"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "Python app + venv",
+      "tag": "python3",
+      "pos": [
+        280,
+        280
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/README.md",
+          "line": 40,
+          "end_line": 53,
+          "label": "two release behaviors"
+        }
+      ]
+    },
+    {
+      "id": "import-payload",
+      "type": "security",
+      "label": "litellm_like 1.82.7",
+      "sublabel": "import-time payload",
+      "tag": "TESTBENCH gate",
+      "pos": [
+        500,
+        200
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/README.md",
+          "line": 46,
+          "end_line": 50,
+          "label": "1.82.7 import behavior"
+        }
+      ]
+    },
+    {
+      "id": "pth-hook",
+      "type": "security",
+      "label": "litellm_like 1.82.8",
+      "sublabel": ".pth startup hook",
+      "tag": "TESTBENCH gate",
+      "pos": [
+        500,
+        340
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/README.md",
+          "line": 50,
+          "end_line": 52,
+          "label": "1.82.8 .pth behavior"
+        }
+      ]
+    },
+    {
+      "id": "site-packages",
+      "type": "database",
+      "label": "site-packages/",
+      "sublabel": "venv .pth",
+      "pos": [
+        280,
+        440
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/README.md",
+          "line": 40,
+          "end_line": 44,
+          "label": "site-packages triage"
+        }
+      ]
+    },
+    {
+      "id": "mock-server",
+      "type": "backend",
+      "label": "Python mock server",
+      "sublabel": ":3022 POST /collect",
+      "pos": [
+        740,
+        280
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/infrastructure/mock_server.py",
+          "line": 65,
+          "end_line": 80,
+          "label": "POST /collect handler"
+        }
+      ]
+    },
+    {
+      "id": "captured-data",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "events array",
+      "pos": [
+        960,
+        280
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/infrastructure/mock_server.py",
+          "line": 52,
+          "end_line": 60,
+          "label": "append event to log"
+        }
+      ]
+    },
+    {
+      "id": "import-ioc",
+      "type": "database",
+      "label": ".testbench-litellm-import.json",
+      "sublabel": "1.82.7 marker",
+      "pos": [
+        500,
+        80
+      ],
+      "size": [
+        200,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/README.md",
+          "line": 48,
+          "end_line": 50,
+          "label": "import-time IOC file"
+        }
+      ]
+    },
+    {
+      "id": "pth-ioc",
+      "type": "database",
+      "label": ".testbench-litellm-pth.json",
+      "sublabel": "1.82.8 marker",
+      "pos": [
+        500,
+        490
+      ],
+      "size": [
+        200,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/README.md",
+          "line": 50,
+          "end_line": 52,
+          "label": ".pth hook IOC file"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "victim-app",
+        "import-payload",
+        "pth-hook",
+        "site-packages",
+        "mock-server",
+        "captured-data",
+        "import-ioc",
+        "pth-ioc"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "import-payload",
+        "pth-hook"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-builds-venv",
+      "from": "setup",
+      "to": "victim-app",
+      "label": "create venv",
+      "variant": "dashed"
+    },
+    {
+      "id": "ui-install",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "pip install",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-imports-1827",
+      "from": "victim-app",
+      "to": "import-payload",
+      "label": "import litellm_like",
+      "variant": "emphasis",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "victim-starts-1828",
+      "from": "victim-app",
+      "to": "pth-hook",
+      "label": "python3 startup",
+      "variant": "emphasis",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "pth-installs",
+      "from": "pth-hook",
+      "to": "site-packages",
+      "label": "add .pth file",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "import-beacon",
+      "from": "import-payload",
+      "to": "mock-server",
+      "label": "POST import event",
+      "variant": "security"
+    },
+    {
+      "id": "pth-beacon",
+      "from": "pth-hook",
+      "to": "mock-server",
+      "label": "POST startup event",
+      "variant": "security"
+    },
+    {
+      "id": "import-writes-ioc",
+      "from": "import-payload",
+      "to": "import-ioc",
+      "label": "write import IOC",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "pth-writes-ioc",
+      "from": "pth-hook",
+      "to": "pth-ioc",
+      "label": "write pth IOC",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "server-writes",
+      "from": "mock-server",
+      "to": "captured-data",
+      "label": "append JSON"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Two Python execution vectors",
+      "items": [
+        "1.82.7: malicious code runs on import litellm_like (before app code)",
+        "1.82.8: .pth file in site-packages runs at interpreter startup (before any imports)",
+        "Both vectors gate on TESTBENCH_MODE=enabled and beacon to :3022"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Python mock server (stdlib HTTP)",
+      "items": [
+        "infrastructure/mock_server.py runs on :3022 with stdlib only",
+        "POST /collect appends event to captured-data.json",
+        "GET /captured-data returns log; DELETE /captured-data clears it"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Containment playbook",
+      "items": [
+        "Uninstall compromised package, rebuild venv, pin known-good version",
+        "Site-packages triage: find unexpected .pth files",
+        "Real incident pattern: rotate secrets after PyPI account compromise"
+      ]
+    }
+  ]
+}

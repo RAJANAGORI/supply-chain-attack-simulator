@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "sequence",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc12-workspace-monorepo-attack-20261103-192118/candidate.json",
+    "sha256": "3a1436bdc021178c63bf48d003f95460745283c2e53dc8ed20786cf2f9a9125a",
+    "bytes": 5101
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc12-workspace-monorepo-attack-20261103-192118/sc12-workspace-monorepo-attack-sequence.html",
+    "sha256": "d2e5cc7f3f093fb523a5c138cd5874147e9503dfe994e1dcc05b685131f57918",
+    "bytes": 815030
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc12-workspace-monorepo-attack-20261103-192118/sc12-workspace-monorepo-attack-sequence.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc12-workspace-monorepo-attack-20261103-192118/sc12-workspace-monorepo-attack-sequence.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc12-workspace-monorepo-attack-20261103-192118/sc12-workspace-monorepo-attack-sequence.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T13:44:40.327Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1897,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

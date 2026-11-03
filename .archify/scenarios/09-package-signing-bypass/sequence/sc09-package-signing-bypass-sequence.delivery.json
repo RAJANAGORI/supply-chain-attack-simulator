@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "61348174-2ee9-424b-bf85-df55f3c536cb",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc09-package-signing-bypass-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc09-package-signing-bypass-20261103-192118/sc09-package-signing-bypass-sequence.html",
+  "specification": {
+    "sha256": "0f84adc8e5043264615525718084bddddb02476e0d28f08381dccaada79305d0",
+    "bytes": 5439
+  },
+  "artifact": {
+    "sha256": "306d8e099df945a239c64e2ab6627a63f8c5d6d5278f2d8e7ac4ff111e17658d",
+    "bytes": 817057
+  }
+}

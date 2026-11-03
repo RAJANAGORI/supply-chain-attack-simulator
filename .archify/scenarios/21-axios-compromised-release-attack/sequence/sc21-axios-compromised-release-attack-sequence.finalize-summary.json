@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "sequence",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc21-axios-compromised-release-attack-20261103-192118/candidate.json",
+    "sha256": "1eb67b43d07f9f255222e0a2813528b5c309b91a258040f514ea40e1520c297a",
+    "bytes": 5146
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc21-axios-compromised-release-attack-20261103-192118/sc21-axios-compromised-release-attack-sequence.html",
+    "sha256": "67cb2150963f62f8e2d300720b83befc3e1c5315c96e6385bad86167cf3ec942",
+    "bytes": 814229
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc21-axios-compromised-release-attack-20261103-192118/sc21-axios-compromised-release-attack-sequence.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc21-axios-compromised-release-attack-20261103-192118/sc21-axios-compromised-release-attack-sequence.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc21-axios-compromised-release-attack-20261103-192118/sc21-axios-compromised-release-attack-sequence.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T13:44:40.327Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1889,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

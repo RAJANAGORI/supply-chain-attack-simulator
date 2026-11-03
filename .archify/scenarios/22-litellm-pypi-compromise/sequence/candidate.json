@@ -1,0 +1,233 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 22 LiteLLM-PyPI-compromise attack sequence",
+    "subtitle": "Two Python execution vectors: import-time (1.82.7) vs .pth startup hook (1.82.8)",
+    "output": ".archify/scenarios/22-litellm-pypi-compromise/sequence/sc22-litellm-pypi-compromise-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 282,
+          "end_line": 296,
+          "label": "install + run steps"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "Python venv",
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/README.md",
+          "line": 40,
+          "end_line": 53,
+          "label": "two attack vectors"
+        }
+      ]
+    },
+    {
+      "id": "payload",
+      "type": "security",
+      "label": "litellm_like",
+      "sublabel": "1.82.7 or 1.82.8",
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/README.md",
+          "line": 46,
+          "end_line": 52,
+          "label": "payload versions"
+        }
+      ]
+    },
+    {
+      "id": "collector",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": ":3022",
+      "sources": [
+        {
+          "path": "scenarios/22-litellm-pypi-compromise/infrastructure/mock_server.py",
+          "line": 65,
+          "end_line": 90,
+          "label": "POST /collect"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 220,
+      "label": "Install"
+    },
+    {
+      "from": 230,
+      "to": 370,
+      "label": "Vector A: Import-time (1.82.7)"
+    },
+    {
+      "from": 380,
+      "to": 505,
+      "label": "Vector B: .pth startup (1.82.8)"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-install",
+      "from": "learner",
+      "to": "victim",
+      "y": 160,
+      "label": "pip install litellm_like (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "install-payload",
+      "from": "victim",
+      "to": "payload",
+      "y": 195,
+      "label": "pip materializes package",
+      "variant": "emphasis",
+      "note": "1.82.8 also adds zzz_testbench_litellm_like.pth to site-packages/"
+    },
+    {
+      "id": "import-trigger",
+      "from": "victim",
+      "to": "payload",
+      "y": 265,
+      "label": "import litellm_like (1.82.7)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "import-beacon",
+      "from": "payload",
+      "to": "collector",
+      "y": 300,
+      "label": "POST /collect import event",
+      "variant": "security",
+      "note": "Writes .testbench-litellm-import.json locally before beacon"
+    },
+    {
+      "id": "import-complete",
+      "from": "victim",
+      "to": "learner",
+      "y": 360,
+      "label": "app OK (1.82.7 path)",
+      "variant": "return"
+    },
+    {
+      "id": "pth-startup",
+      "from": "victim",
+      "to": "payload",
+      "y": 400,
+      "label": "python3 startup reads .pth (1.82.8)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "pth-beacon",
+      "from": "payload",
+      "to": "collector",
+      "y": 435,
+      "label": "POST /collect startup event",
+      "variant": "security",
+      "note": "Writes .testbench-litellm-pth.json; runs before any import"
+    },
+    {
+      "id": "pth-complete",
+      "from": "victim",
+      "to": "learner",
+      "y": 495,
+      "label": "app OK (1.82.8 path)",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "victim",
+      "from": 160,
+      "to": 365,
+      "type": "backend"
+    },
+    {
+      "participant": "payload",
+      "from": 195,
+      "to": 205,
+      "type": "security"
+    },
+    {
+      "participant": "payload",
+      "from": 265,
+      "to": 335,
+      "type": "security"
+    },
+    {
+      "participant": "collector",
+      "from": 295,
+      "to": 335,
+      "type": "backend"
+    },
+    {
+      "participant": "victim",
+      "from": 400,
+      "to": 500,
+      "type": "backend"
+    },
+    {
+      "participant": "payload",
+      "from": 400,
+      "to": 470,
+      "type": "security"
+    },
+    {
+      "participant": "collector",
+      "from": 430,
+      "to": 470,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Vector A: Import-time execution",
+      "items": [
+        "1.82.7 runs malicious code when app does import litellm_like",
+        "Executes after pip install but before app logic runs",
+        "Detection: process monitoring during import phase"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Vector B: .pth startup hook",
+      "items": [
+        "1.82.8 installs zzz_testbench_litellm_like.pth in site-packages/",
+        ".pth files execute at Python interpreter startup, before any imports",
+        "Detection: site-packages/ triage for unexpected .pth files"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Containment steps",
+      "items": [
+        "Uninstall litellm_like, rebuild venv, pin known-good version",
+        "Check site-packages/ for .pth files not from trusted packages",
+        "Real PyPI compromise: rotate all secrets exposed to the environment"
+      ]
+    }
+  ]
+}

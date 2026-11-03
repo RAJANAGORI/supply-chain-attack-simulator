@@ -1,0 +1,410 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 09 Package Signing Bypass lab architecture",
+    "subtitle": "Compromised key signs malicious secure-utils; signature passes; postinstall exfil to :3000",
+    "output": ".archify/scenarios/09-package-signing-bypass/architecture/sc09-package-signing-bypass-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "signing-path",
+        "label": "Key compromise",
+        "focus": [
+          "keypair",
+          "sign-package",
+          "compromised-pkg",
+          "verify-sig"
+        ],
+        "note": "Same stolen key signs both legitimate and compromised packages"
+      },
+      {
+        "id": "evidence",
+        "label": "Capture proof",
+        "focus": [
+          "compromised-pkg",
+          "mock-c2",
+          "captured-data"
+        ],
+        "note": "One capture file proves postinstall ran despite valid signature"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 159,
+          "end_line": 162,
+          "label": "scenario 09 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "keygen + sign",
+      "pos": [
+        40,
+        160
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/setup.sh",
+          "line": 7,
+          "end_line": 130,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "keypair",
+      "type": "security",
+      "label": "Ed25519 keypair",
+      "sublabel": "signing-key.pem",
+      "tag": "compromised",
+      "pos": [
+        250,
+        160
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/infrastructure/keygen.js",
+          "line": 1,
+          "end_line": 30,
+          "label": "keygen script"
+        }
+      ]
+    },
+    {
+      "id": "sign-package",
+      "type": "backend",
+      "label": "sign-package.js",
+      "sublabel": "Ed25519 signing",
+      "pos": [
+        470,
+        160
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/infrastructure/sign-package.js",
+          "line": 1,
+          "end_line": 50,
+          "label": "signing script"
+        }
+      ]
+    },
+    {
+      "id": "legitimate-pkg",
+      "type": "backend",
+      "label": "legitimate secure-utils",
+      "sublabel": "v1.0.0 signed",
+      "tag": "clean",
+      "pos": [
+        690,
+        90
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/setup.sh",
+          "line": 121,
+          "end_line": 125,
+          "label": "sign legitimate"
+        }
+      ]
+    },
+    {
+      "id": "compromised-pkg",
+      "type": "security",
+      "label": "compromised secure-utils",
+      "sublabel": "v1.0.1 signed w/ stolen key",
+      "tag": "malicious",
+      "pos": [
+        690,
+        230
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/setup.sh",
+          "line": 127,
+          "end_line": 130,
+          "label": "sign compromised"
+        }
+      ]
+    },
+    {
+      "id": "verify-sig",
+      "type": "backend",
+      "label": "verify-signature.js",
+      "sublabel": "Ed25519 verify",
+      "pos": [
+        920,
+        160
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/infrastructure/verify-signature.js",
+          "line": 1,
+          "end_line": 60,
+          "label": "verify script"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "installs compromised pkg",
+      "pos": [
+        250,
+        420
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/victim-app/index.js",
+          "line": 1,
+          "end_line": 20,
+          "label": "victim entry"
+        }
+      ]
+    },
+    {
+      "id": "mock-c2",
+      "type": "backend",
+      "label": "Mock C2 server",
+      "sublabel": ":3000 POST /collect",
+      "pos": [
+        480,
+        420
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/infrastructure/mock-server.js",
+          "line": 50,
+          "end_line": 62,
+          "label": "POST /collect"
+        }
+      ]
+    },
+    {
+      "id": "captured-data",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "signing bypass exfil",
+      "pos": [
+        700,
+        420
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/09-package-signing-bypass/infrastructure/mock-server.js",
+          "line": 54,
+          "end_line": 60,
+          "label": "append captures"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "victim-app",
+        "compromised-pkg",
+        "mock-c2",
+        "captured-data",
+        "keypair",
+        "sign-package",
+        "legitimate-pkg",
+        "verify-sig"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "compromised-pkg"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-keygen",
+      "from": "setup",
+      "to": "keypair",
+      "label": "generate keypair",
+      "variant": "dashed"
+    },
+    {
+      "id": "keypair-to-signer",
+      "from": "keypair",
+      "to": "sign-package",
+      "label": "signing-key.pem"
+    },
+    {
+      "id": "sign-legitimate",
+      "from": "sign-package",
+      "to": "legitimate-pkg",
+      "label": "sign v1.0.0",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "sign-compromised",
+      "from": "sign-package",
+      "to": "compromised-pkg",
+      "label": "sign v1.0.1 (stolen key)",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "left"
+    },
+    {
+      "id": "verify-legitimate",
+      "from": "legitimate-pkg",
+      "to": "verify-sig",
+      "label": "verify: VALID",
+      "variant": "dashed",
+      "fromSide": "right",
+      "toSide": "top"
+    },
+    {
+      "id": "verify-compromised",
+      "from": "compromised-pkg",
+      "to": "verify-sig",
+      "label": "verify: VALID (same key)",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "bottom"
+    },
+    {
+      "id": "ui-install",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm install ../compromised-package/secure-utils",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-installs-compromised",
+      "from": "victim-app",
+      "to": "compromised-pkg",
+      "label": "npm installs v1.0.1",
+      "variant": "emphasis",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "postinstall-exfil",
+      "from": "compromised-pkg",
+      "to": "mock-c2",
+      "label": "POST /collect (postinstall)",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "c2-writes",
+      "from": "mock-c2",
+      "to": "captured-data",
+      "label": "append JSON"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Key compromise",
+      "items": [
+        "Ed25519 signing key is generated and used to sign both packages",
+        "Attacker steals the key and signs malicious v1.0.1",
+        "Signature verification passes because the key is the same"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Attack path",
+      "items": [
+        "Victim installs compromised secure-utils v1.0.1",
+        "Signature verification shows VALID",
+        "Postinstall runs and exfil reaches :3000/collect"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety + detection",
+      "items": [
+        "Malicious path gated by TESTBENCH_MODE=enabled",
+        "All beacons target 127.0.0.1 only",
+        "detection-tools/signature-validator.js performs behavioral scan"
+      ]
+    }
+  ]
+}

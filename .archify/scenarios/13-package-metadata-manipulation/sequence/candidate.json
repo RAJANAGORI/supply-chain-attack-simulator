@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 13 Package Metadata Manipulation attack sequence",
+    "subtitle": "Install clean-utils with tampered package.json; postinstall beacons to :3001",
+    "output": ".archify/scenarios/13-package-metadata-manipulation/sequence/sc13-package-metadata-manipulation-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "viewBox": [
+      1080,
+      540
+    ],
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 203,
+          "end_line": 206,
+          "label": "install + run steps"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "npm install",
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/victim-app/index.js",
+          "line": 1,
+          "end_line": 4,
+          "label": "requires clean-utils"
+        }
+      ]
+    },
+    {
+      "id": "postinstall",
+      "type": "security",
+      "label": "Postinstall",
+      "sublabel": "clean-utils",
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/compromised-packages/clean-utils/postinstall.js",
+          "line": 1,
+          "end_line": 37,
+          "label": "metadata beacon"
+        }
+      ]
+    },
+    {
+      "id": "collector",
+      "type": "backend",
+      "label": "Mock collector",
+      "sublabel": ":3001",
+      "sources": [
+        {
+          "path": "scenarios/13-package-metadata-manipulation/infrastructure/mock-server.js",
+          "line": 12,
+          "end_line": 40,
+          "label": "POST /capture"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 210,
+      "label": "Install"
+    },
+    {
+      "from": 220,
+      "to": 300,
+      "label": "Lifecycle"
+    },
+    {
+      "from": 310,
+      "to": 390,
+      "label": "Beacon"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-install",
+      "from": "learner",
+      "to": "victim",
+      "y": 160,
+      "label": "npm install clean-utils (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "run-postinstall",
+      "from": "victim",
+      "to": "postinstall",
+      "y": 240,
+      "label": "run postinstall from package.json",
+      "variant": "emphasis",
+      "note": "Metadata scripts.postinstall adds malicious hook"
+    },
+    {
+      "id": "beacon",
+      "from": "postinstall",
+      "to": "collector",
+      "y": 340,
+      "label": "POST /capture metadata",
+      "variant": "security"
+    },
+    {
+      "id": "complete",
+      "from": "victim",
+      "to": "learner",
+      "y": 380,
+      "label": "install OK; check capture",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "victim",
+      "from": 160,
+      "to": 390,
+      "type": "backend"
+    },
+    {
+      "participant": "postinstall",
+      "from": 240,
+      "to": 350,
+      "type": "security"
+    },
+    {
+      "participant": "collector",
+      "from": 335,
+      "to": 350,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Metadata injection",
+      "items": [
+        "Package.json scripts.postinstall field is tampered",
+        "npm runs postinstall automatically during install",
+        "Source code stays clean but metadata triggers malicious hook"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Lifecycle execution",
+      "items": [
+        "Postinstall runs before the app starts",
+        "Beacons to :3001/capture with hostname and timestamp",
+        "Gates on TESTBENCH_MODE=enabled in lab"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Detection",
+      "items": [
+        "Audit package.json scripts fields before install",
+        "Compare metadata against published registry records",
+        "Monitor unexpected postinstall network calls"
+      ]
+    }
+  ]
+}

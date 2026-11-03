@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc22-litellm-pypi-compromise-20261103-192118/candidate.json",
+    "sha256": "01f90211ddb98a236e0580d68a0f1844585003d77f3a8cd23b6022b1f44ea903",
+    "bytes": 9044
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc22-litellm-pypi-compromise-20261103-192118/sc22-litellm-pypi-compromise-architecture.html",
+    "sha256": "e0cd7474fd964d95888a7086b65081824e605c9e77e2246757da0e74ca9e662c",
+    "bytes": 835429
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc22-litellm-pypi-compromise-20261103-192118/sc22-litellm-pypi-compromise-architecture.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc22-litellm-pypi-compromise-20261103-192118/sc22-litellm-pypi-compromise-architecture.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc22-litellm-pypi-compromise-20261103-192118/sc22-litellm-pypi-compromise-architecture.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T13:44:40.327Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3610,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  },
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedBends": 3,
+      "routesOverSuggestedStretch": 1
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "victim-imports-1827",
+            "from": "victim-app",
+            "to": "import-payload",
+            "label": "import litellm_like",
+            "collectionIndex": 3,
+            "artifactIndex": 4
+          },
+          "bends": 4,
+          "stretch": 1.317
+        },
+        {
+          "relationship": {
+            "id": "victim-starts-1828",
+            "from": "victim-app",
+            "to": "pth-hook",
+            "label": "python3 startup",
+            "collectionIndex": 4,
+            "artifactIndex": 5
+          },
+          "bends": 4,
+          "stretch": 1.4
+        },
+        {
+          "relationship": {
+            "id": "server-writes",
+            "from": "mock-server",
+            "to": "captured-data",
+            "label": "append JSON",
+            "collectionIndex": 10,
+            "artifactIndex": 11
+          },
+          "bends": 3,
+          "stretch": 1.282
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "victim-app → import-payload needs 4 bends: move node victim-app or import-payload so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "victim-app → pth-hook needs 4 bends: move node victim-app or pth-hook so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "mock-server → captured-data needs 3 bends: move node mock-server or captured-data so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

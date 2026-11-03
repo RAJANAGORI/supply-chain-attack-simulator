@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 14 Container Image Supply Chain Attack sequence",
+    "subtitle": "Run compromised container; malicious-start.js beacons to :3002 at startup",
+    "output": ".archify/scenarios/14-container-image-supply-chain-attack/sequence/sc14-container-image-supply-chain-attack-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "viewBox": [
+      1080,
+      480
+    ],
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 208,
+          "end_line": 209,
+          "label": "run step"
+        }
+      ]
+    },
+    {
+      "id": "container",
+      "type": "security",
+      "label": "Compromised image",
+      "sublabel": "malicious-start.js",
+      "sources": [
+        {
+          "path": "scenarios/14-container-image-supply-chain-attack/images/compromised-image/malicious-start.js",
+          "line": 1,
+          "end_line": 57,
+          "label": "runtime beacon"
+        }
+      ]
+    },
+    {
+      "id": "collector",
+      "type": "backend",
+      "label": "Mock collector",
+      "sublabel": ":3002",
+      "sources": [
+        {
+          "path": "scenarios/14-container-image-supply-chain-attack/infrastructure/mock-server.js",
+          "line": 12,
+          "end_line": 40,
+          "label": "POST /capture"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 210,
+      "label": "Start"
+    },
+    {
+      "from": 220,
+      "to": 320,
+      "label": "Beacon"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-container",
+      "from": "learner",
+      "to": "container",
+      "y": 160,
+      "label": "node malicious-start.js (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "beacon",
+      "from": "container",
+      "to": "collector",
+      "y": 250,
+      "label": "POST /capture runtime beacon",
+      "variant": "security",
+      "note": "Beacons hostname, timestamp, scenario 14 tag"
+    },
+    {
+      "id": "complete",
+      "from": "container",
+      "to": "learner",
+      "y": 310,
+      "label": "container started; check capture",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "container",
+      "from": 160,
+      "to": 320,
+      "type": "security"
+    },
+    {
+      "participant": "collector",
+      "from": 245,
+      "to": 295,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Runtime injection",
+      "items": [
+        "Compromised Dockerfile CMD runs malicious-start.js at container startup",
+        "Beacon fires before legitimate application loads",
+        "Container looks clean until runtime execution"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Beacon timing",
+      "items": [
+        "Malicious-start.js runs immediately when container starts",
+        "POSTs hostname, timestamp, scenario tag to :3002/capture",
+        "Gates on TESTBENCH_MODE=enabled in lab"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Detection",
+      "items": [
+        "Audit Dockerfile CMD and ENTRYPOINT for unexpected scripts",
+        "Verify container image layers against known-good digests",
+        "Monitor unexpected network calls at container startup"
+      ]
+    }
+  ]
+}

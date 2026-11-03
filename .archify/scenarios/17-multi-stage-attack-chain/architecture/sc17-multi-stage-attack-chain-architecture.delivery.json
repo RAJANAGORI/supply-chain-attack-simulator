@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "2c67c71f-0b04-41a3-be1d-3dce6ae5ad6b",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc17-multi-stage-attack-chain-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc17-multi-stage-attack-chain-20261103-192118/sc17-multi-stage-attack-chain-architecture.html",
+  "specification": {
+    "sha256": "51d3d6b7606024d1d12c825e42fa58fa36f645fb9179f19184824571ac200bee",
+    "bytes": 8444
+  },
+  "artifact": {
+    "sha256": "4475d92af6e46ba6d5820e5de977b951c6900aa3dea5d9955cc8c042d37b1b10",
+    "bytes": 834367
+  }
+}

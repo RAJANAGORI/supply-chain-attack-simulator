@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 23 Trivy supply chain attack sequence",
+    "subtitle": "CI runs compromised scanner: read env secrets \u2192 POST to C2",
+    "output": ".archify/scenarios/23-trivy-supply-chain-attack/sequence/sc23-trivy-supply-chain-attack-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 301,
+          "end_line": 311,
+          "label": "run CI step"
+        }
+      ]
+    },
+    {
+      "id": "ci",
+      "type": "backend",
+      "label": "victim-ci",
+      "sublabel": "run-pipeline.js",
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/victim-ci/package.json",
+          "line": 6,
+          "end_line": 8,
+          "label": "ci script"
+        }
+      ]
+    },
+    {
+      "id": "trivy",
+      "type": "security",
+      "label": "trivy-action-like",
+      "sublabel": "@0.69.4",
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/README.md",
+          "line": 61,
+          "end_line": 70,
+          "label": "compromised scanner"
+        }
+      ]
+    },
+    {
+      "id": "secrets",
+      "type": "security",
+      "label": "CI secrets",
+      "sublabel": ".env.ci-lab",
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/setup.sh",
+          "line": 38,
+          "end_line": 41,
+          "label": "planted secrets"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "type": "backend",
+      "label": "C2 server",
+      "sublabel": ":3023",
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/infrastructure/mock-c2-server.js",
+          "line": 24,
+          "end_line": 48,
+          "label": "POST /collect"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 210,
+      "label": "CI Run"
+    },
+    {
+      "from": 220,
+      "to": 300,
+      "label": "Harvest"
+    },
+    {
+      "from": 310,
+      "to": 360,
+      "label": "Cover"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-ci",
+      "from": "learner",
+      "to": "ci",
+      "y": 160,
+      "label": "npm run ci (TESTBENCH on + env loaded)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ci-loads-trivy",
+      "from": "ci",
+      "to": "trivy",
+      "y": 195,
+      "label": "require trivy-action-like",
+      "variant": "emphasis"
+    },
+    {
+      "id": "trivy-reads-secrets",
+      "from": "trivy",
+      "to": "secrets",
+      "y": 235,
+      "label": "scan env for secrets",
+      "variant": "security",
+      "note": "GITHUB_TOKEN, AWS keys, DATABASE_URL, Docker credentials"
+    },
+    {
+      "id": "trivy-exfil",
+      "from": "trivy",
+      "to": "c2",
+      "y": 295,
+      "label": "POST /collect (harvested data)",
+      "variant": "security"
+    },
+    {
+      "id": "trivy-returns",
+      "from": "trivy",
+      "to": "ci",
+      "y": 320,
+      "label": "scan OK (decoy output)",
+      "variant": "return"
+    },
+    {
+      "id": "ci-complete",
+      "from": "ci",
+      "to": "learner",
+      "y": 345,
+      "label": "CI passed; check captures",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "ci",
+      "from": 160,
+      "to": 350,
+      "type": "backend"
+    },
+    {
+      "participant": "trivy",
+      "from": 195,
+      "to": 325,
+      "type": "security"
+    },
+    {
+      "participant": "secrets",
+      "from": 230,
+      "to": 270,
+      "type": "security"
+    },
+    {
+      "participant": "c2",
+      "from": 290,
+      "to": 305,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Trusted tool compromise",
+      "items": [
+        "Trivy is a security scanner; teams trust it to find threats, not be one",
+        "CI runs trivy-action-like as part of the build pipeline",
+        "Force-pushed tag means every pipeline using @v0.69.4 runs attacker code"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Credential harvest scope",
+      "items": [
+        "Scans env vars, SSH keys, cloud provider credentials, K8s tokens, Docker configs",
+        "Real CVE-2026-33634 exfiltrated to typosquatted scan.aquasecurtiy[.]org",
+        "Lab beacons to localhost:3023 with TESTBENCH_MODE=enabled gate"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Mitigation strategy",
+      "items": [
+        "Pin actions to commit SHA, not floating tags: uses: example/action@<SHA>",
+        "Runtime network monitoring: flag unexpected POST from security tools",
+        "Immediate response: rotate all exposed secrets, audit force-pushed tags"
+      ]
+    }
+  ]
+}

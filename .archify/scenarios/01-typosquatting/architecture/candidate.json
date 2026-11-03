@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 01 Typosquatting lab architecture",
+    "subtitle": "request-lib vs requests-lib: one typo, localhost C2, testbench gate",
+    "output": ".archify/scenarios/01-typosquatting/architecture/sc01-typosquatting-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "main-flow",
+        "label": "Install and run path",
+        "focus": [
+          "control-center",
+          "victim-app",
+          "typo-package",
+          "mock-server",
+          "capture"
+        ],
+        "note": "Malicious code runs on require(), before any explicit call"
+      },
+      {
+        "id": "safety",
+        "label": "Safety gate",
+        "focus": [
+          "typo-package",
+          "mock-server"
+        ],
+        "note": "Exfiltration only fires when TESTBENCH_MODE=enabled"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        280
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 67,
+          "end_line": 70,
+          "label": "scenario 01 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "seeds malicious package",
+      "pos": [
+        40,
+        120
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/setup.sh",
+          "line": 8,
+          "end_line": 160,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "requires request-lib",
+      "tag": "typo site",
+      "pos": [
+        300,
+        280
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/victim-app/index.js",
+          "line": 1,
+          "end_line": 35,
+          "label": "victim entry"
+        }
+      ]
+    },
+    {
+      "id": "typo-package",
+      "type": "security",
+      "label": "request-lib package",
+      "sublabel": "TESTBENCH_MODE gate",
+      "tag": "malicious",
+      "pos": [
+        560,
+        280
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/templates/malicious-package-template.js",
+          "line": 33,
+          "end_line": 93,
+          "label": "exfiltrateData + require() trigger"
+        }
+      ]
+    },
+    {
+      "id": "mock-server",
+      "type": "backend",
+      "label": "Mock C2 server",
+      "sublabel": ":3000 POST /collect",
+      "pos": [
+        800,
+        280
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/setup.sh",
+          "line": 70,
+          "end_line": 156,
+          "label": "mock-server.js inline"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "exfil log",
+      "pos": [
+        1040,
+        280
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/01-typosquatting/setup.sh",
+          "line": 106,
+          "end_line": 113,
+          "label": "append captures array"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "victim-app",
+        "typo-package",
+        "mock-server",
+        "capture"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "typo-package"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-runs-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-seeds-typo",
+      "from": "setup",
+      "to": "typo-package",
+      "label": "copy template",
+      "variant": "dashed"
+    },
+    {
+      "id": "ui-install",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm install ../malicious-packages/request-lib",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ui-run",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm start",
+      "variant": "emphasis",
+      "labelDy": 28
+    },
+    {
+      "id": "require-loads-typo",
+      "from": "victim-app",
+      "to": "typo-package",
+      "label": "require('request-lib')",
+      "variant": "emphasis"
+    },
+    {
+      "id": "exfil",
+      "from": "typo-package",
+      "to": "mock-server",
+      "label": "POST /collect env vars",
+      "variant": "security"
+    },
+    {
+      "id": "mock-writes",
+      "from": "mock-server",
+      "to": "capture",
+      "label": "append JSON"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Typo attack core",
+      "items": [
+        "One character difference: request-lib vs requests-lib",
+        "Malicious code runs on require(), not on function call",
+        "App still works normally \u2014 typo package proxies real functionality"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Mock C2 listener",
+      "items": [
+        ":3000 POST /collect stores exfiltrated env vars to captured-data.json",
+        "GET /captured-data returns the log for inspection",
+        "DELETE /captured-data clears the log between runs"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety",
+      "items": [
+        "Exfiltration gated by TESTBENCH_MODE=enabled environment variable",
+        "All beacons target 127.0.0.1 localhost only",
+        "Template clearly marked as educational in comments"
+      ]
+    }
+  ]
+}

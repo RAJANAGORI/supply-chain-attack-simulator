@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "540f8f1d-6697-4198-9204-94d1c186e597",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc24-slopsquatting-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc24-slopsquatting-20261103-192118/sc24-slopsquatting-architecture.html",
+  "specification": {
+    "sha256": "fa4dbb61bcc37fbd5bc0a21d86a58c6179d53bb8cb8f42f8a39b18b2f3c4613d",
+    "bytes": 6043
+  },
+  "artifact": {
+    "sha256": "ecb003e8b7736a8564e09764153ad5d1653f98354d2a1cfb441c93c9c1c47e2d",
+    "bytes": 823094
+  }
+}

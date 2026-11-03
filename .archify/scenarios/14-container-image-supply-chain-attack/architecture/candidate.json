@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 14 Container Image Supply Chain Attack lab architecture",
+    "subtitle": "Compromised container starts malicious-start.js; beacons to :3002/capture",
+    "output": ".archify/scenarios/14-container-image-supply-chain-attack/architecture/sc14-container-image-supply-chain-attack-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "main-attack",
+        "label": "Container image attack",
+        "focus": [
+          "control-center",
+          "compromised-image",
+          "mock-collector",
+          "capt-beacon"
+        ],
+        "note": "Compromised Dockerfile runs malicious-start.js at container startup"
+      },
+      {
+        "id": "evidence",
+        "label": "Evidence capture",
+        "focus": [
+          "mock-collector",
+          "capt-beacon",
+          "floci"
+        ],
+        "note": "Runtime beacon proves compromised container executed"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        240
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 208,
+          "end_line": 213,
+          "label": "scenario 14 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "enables testbench",
+      "pos": [
+        40,
+        120
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/14-container-image-supply-chain-attack/setup.sh",
+          "line": 1,
+          "end_line": 20,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "compromised-image",
+      "type": "security",
+      "label": "Compromised image",
+      "sublabel": "malicious-start.js entry",
+      "tag": "runtime beacon",
+      "pos": [
+        280,
+        240
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/14-container-image-supply-chain-attack/images/compromised-image/malicious-start.js",
+          "line": 1,
+          "end_line": 57,
+          "label": "container beacon"
+        },
+        {
+          "path": "scenarios/14-container-image-supply-chain-attack/images/compromised-image/Dockerfile",
+          "line": 1,
+          "end_line": 5,
+          "label": "CMD malicious-start.js"
+        }
+      ]
+    },
+    {
+      "id": "mock-collector",
+      "type": "backend",
+      "label": "Mock collector",
+      "sublabel": ":3002 POST /capture",
+      "pos": [
+        540,
+        240
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/14-container-image-supply-chain-attack/infrastructure/mock-server.js",
+          "line": 12,
+          "end_line": 50,
+          "label": "capture endpoint"
+        }
+      ]
+    },
+    {
+      "id": "capt-beacon",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "runtime beacon",
+      "pos": [
+        770,
+        240
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/14-container-image-supply-chain-attack/infrastructure/mock-server.js",
+          "line": 13,
+          "end_line": 40,
+          "label": "append capture"
+        }
+      ]
+    },
+    {
+      "id": "floci",
+      "type": "cloud",
+      "label": "Floci S3 mirror",
+      "sublabel": "scas-sc14-artifacts",
+      "tag": "optional",
+      "pos": [
+        540,
+        360
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/14-container-image-supply-chain-attack/images/compromised-image/malicious-start.js",
+          "line": 24,
+          "end_line": 28,
+          "label": "optional Floci upload"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "compromised-image",
+        "mock-collector",
+        "capt-beacon",
+        "floci"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "compromised-image"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "ui-run",
+      "from": "control-center",
+      "to": "compromised-image",
+      "label": "node malicious-start.js",
+      "variant": "emphasis"
+    },
+    {
+      "id": "container-beacons",
+      "from": "compromised-image",
+      "to": "mock-collector",
+      "label": "POST /capture runtime",
+      "variant": "security"
+    },
+    {
+      "id": "collector-writes",
+      "from": "mock-collector",
+      "to": "capt-beacon",
+      "label": "append JSON"
+    },
+    {
+      "id": "optional-floci",
+      "from": "compromised-image",
+      "to": "floci",
+      "label": "optional PutObject",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "left"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Container supply chain",
+      "items": [
+        "Compromised Dockerfile sets CMD to malicious-start.js",
+        "Container runtime executes beacon at startup",
+        "Beacons to :3002/capture with hostname, timestamp, scenario 14 tag"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Attack vector",
+      "items": [
+        "Image layers include malicious entry point",
+        "Container runs with TESTBENCH_MODE=enabled gate",
+        ":3002 mock-server.js collects runtime beacon"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety + optional Floci",
+      "items": [
+        "Beacon gates on TESTBENCH_MODE=enabled and 127.0.0.1 only",
+        "Real images must verify base layer provenance and entry point integrity",
+        "Optional Floci dual-writes beacon to s3://scas-sc14-artifacts/"
+      ]
+    }
+  ]
+}

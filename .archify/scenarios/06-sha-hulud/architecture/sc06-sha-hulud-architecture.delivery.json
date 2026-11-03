@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "f38fed7e-6e5f-4fb3-861c-3c673dcc2d71",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc06-sha-hulud-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc06-sha-hulud-20261103-192118/sc06-sha-hulud-architecture.html",
+  "specification": {
+    "sha256": "1a473c0dbfbeee490fadb3e3b75c6eaf4766ff0025818063c778c2aff7007150",
+    "bytes": 11116
+  },
+  "artifact": {
+    "sha256": "b6d2555a41288c1a35f805d8507656b647a5decc481ba2774104025c89e7aa5e",
+    "bytes": 844741
+  }
+}

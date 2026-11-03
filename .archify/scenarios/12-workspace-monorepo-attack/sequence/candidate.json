@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 12 Workspace Monorepo Attack sequence",
+    "subtitle": "Swap compromised workspace package; postinstall runs when app requires it",
+    "output": ".archify/scenarios/12-workspace-monorepo-attack/sequence/sc12-workspace-monorepo-attack-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "viewBox": [
+      1080,
+      560
+    ],
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 190,
+          "end_line": 201,
+          "label": "install + swap + run steps"
+        }
+      ]
+    },
+    {
+      "id": "swap",
+      "type": "security",
+      "label": "swap script",
+      "sublabel": "overwrites utils/",
+      "sources": [
+        {
+          "path": "scenarios/12-workspace-monorepo-attack/swap-compromised-utils.sh",
+          "line": 1,
+          "end_line": 15,
+          "label": "copy compromised"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "workspace member",
+      "sources": [
+        {
+          "path": "scenarios/12-workspace-monorepo-attack/victim-app/index.js",
+          "line": 1,
+          "end_line": 15,
+          "label": "require @devcorp/utils"
+        }
+      ]
+    },
+    {
+      "id": "postinstall",
+      "type": "security",
+      "label": "Postinstall",
+      "sublabel": "@devcorp/utils",
+      "sources": [
+        {
+          "path": "scenarios/12-workspace-monorepo-attack/compromised-package/utils/postinstall.js",
+          "line": 40,
+          "end_line": 87,
+          "label": "workspace exfil payload"
+        }
+      ]
+    },
+    {
+      "id": "collector",
+      "type": "backend",
+      "label": "Mock collector",
+      "sublabel": ":3000",
+      "sources": [
+        {
+          "path": "scenarios/12-workspace-monorepo-attack/infrastructure/mock-server.js",
+          "line": 12,
+          "end_line": 40,
+          "label": "POST /collect"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 215,
+      "label": "Swap"
+    },
+    {
+      "from": 225,
+      "to": 295,
+      "label": "Start"
+    },
+    {
+      "from": 305,
+      "to": 395,
+      "label": "Exfil"
+    }
+  ],
+  "messages": [
+    {
+      "id": "trigger-swap",
+      "from": "learner",
+      "to": "swap",
+      "y": 160,
+      "label": "Run swap-compromised-utils.sh",
+      "variant": "emphasis"
+    },
+    {
+      "id": "swap-complete",
+      "from": "swap",
+      "to": "learner",
+      "y": 200,
+      "label": "packages/utils/ overwritten",
+      "variant": "return"
+    },
+    {
+      "id": "start-app",
+      "from": "learner",
+      "to": "victim",
+      "y": 240,
+      "label": "npm start (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "require-utils",
+      "from": "victim",
+      "to": "postinstall",
+      "y": 275,
+      "label": "require @devcorp/utils",
+      "variant": "emphasis"
+    },
+    {
+      "id": "beacon",
+      "from": "postinstall",
+      "to": "collector",
+      "y": 330,
+      "label": "POST /collect workspace layout",
+      "variant": "security",
+      "note": "Postinstall collects workspace root, package list, environment vars, then beacons"
+    },
+    {
+      "id": "complete",
+      "from": "victim",
+      "to": "learner",
+      "y": 390,
+      "label": "app OK; check capture",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "swap",
+      "from": 160,
+      "to": 210,
+      "type": "security"
+    },
+    {
+      "participant": "victim",
+      "from": 240,
+      "to": 400,
+      "type": "backend"
+    },
+    {
+      "participant": "postinstall",
+      "from": 275,
+      "to": 380,
+      "type": "security"
+    },
+    {
+      "participant": "collector",
+      "from": 325,
+      "to": 345,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Workspace trust",
+      "items": [
+        "npm workspaces link local packages without verification",
+        "Swap script replaces clean utils with compromised version",
+        "Victim app trusts workspace layout as safe"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Postinstall timing",
+      "items": [
+        "Postinstall runs when npm start requires the package",
+        "Exfiltrates workspace structure, environment, dependency tree",
+        "Gates on TESTBENCH_MODE=enabled in lab"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Detection",
+      "items": [
+        "Audit workspace package.json for unexpected scripts",
+        "Compare workspace packages against approved sources",
+        "Monitor network calls during local package loads"
+      ]
+    }
+  ]
+}

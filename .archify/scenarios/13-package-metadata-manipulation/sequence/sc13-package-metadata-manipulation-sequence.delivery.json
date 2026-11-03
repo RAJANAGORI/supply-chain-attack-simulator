@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "b1bafdb0-67fc-492a-b4d2-cc784f5a9e7b",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc13-package-metadata-manipulation-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc13-package-metadata-manipulation-20261103-192118/sc13-package-metadata-manipulation-sequence.html",
+  "specification": {
+    "sha256": "f93fcccd3e11f97f43bf82d00c8f5e681bf48d0818bc348f608af439af69ea7c",
+    "bytes": 4294
+  },
+  "artifact": {
+    "sha256": "32ba07b474174459650b1b9ef59b89c7c354b9908e475dc51a42821d228c7f6a",
+    "bytes": 812056
+  }
+}

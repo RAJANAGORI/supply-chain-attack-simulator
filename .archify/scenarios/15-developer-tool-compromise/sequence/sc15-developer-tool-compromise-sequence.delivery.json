@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "7630e168-4bc7-40da-9784-534f8247c3e9",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc15-developer-tool-compromise-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc15-developer-tool-compromise-20261103-192118/sc15-developer-tool-compromise-sequence.html",
+  "specification": {
+    "sha256": "585fbba74d25bebdd5248f9543b26eb30eab24f25e6145ad3b6d199d351a422d",
+    "bytes": 4323
+  },
+  "artifact": {
+    "sha256": "4082cf90570fb5b202fde0c06c255ba06b8c0cd995afcbb4c04aa70827d2b5ba",
+    "bytes": 812286
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc08-package-lock-file-manipulation-20261103-192118/candidate.json",
+    "sha256": "5f1a8c1eeddebe1ba35825e877b7ac504254399f6fbceec90b407b275941c40d",
+    "bytes": 7318
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc08-package-lock-file-manipulation-20261103-192118/sc08-package-lock-file-manipulation-architecture.html",
+    "sha256": "a8e9ef902f0fb0d6aca7c5149260de4bce9783426a232d2e81f3ce18bc53bc05",
+    "bytes": 829851
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc08-package-lock-file-manipulation-20261103-192118/sc08-package-lock-file-manipulation-architecture.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc08-package-lock-file-manipulation-20261103-192118/sc08-package-lock-file-manipulation-architecture.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc08-package-lock-file-manipulation-20261103-192118/sc08-package-lock-file-manipulation-architecture.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T13:44:40.327Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 2225,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  },
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "resolvedCrossovers": 4,
+      "routesOverSuggestedBends": 3,
+      "routesOverSuggestedStretch": 3
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [
+        {
+          "left": {
+            "id": "ui-starts-setup",
+            "from": "control-center",
+            "to": "setup",
+            "label": "Setup step",
+            "collectionIndex": 0,
+            "artifactIndex": 1
+          },
+          "right": {
+            "id": "setup-creates-lockfile",
+            "from": "setup",
+            "to": "lockfile",
+            "label": "create manipulated lockfile",
+            "collectionIndex": 2,
+            "artifactIndex": 3
+          },
+          "point": [
+            108,
+            272
+          ],
+          "sharedNode": "setup"
+        },
+        {
+          "left": {
+            "id": "setup-builds-victim",
+            "from": "setup",
+            "to": "victim-app",
+            "label": "build victim app",
+            "collectionIndex": 1,
+            "artifactIndex": 2
+          },
+          "right": {
+            "id": "setup-creates-lockfile",
+            "from": "setup",
+            "to": "lockfile",
+            "label": "create manipulated lockfile",
+            "collectionIndex": 2,
+            "artifactIndex": 3
+          },
+          "point": [
+            230,
+            242
+          ],
+          "sharedNode": "setup"
+        },
+        {
+          "left": {
+            "id": "setup-creates-lockfile",
+            "from": "setup",
+            "to": "lockfile",
+            "label": "create manipulated lockfile",
+            "collectionIndex": 2,
+            "artifactIndex": 3
+          },
+          "right": {
+            "id": "detector-reads-lockfile",
+            "from": "detector",
+            "to": "lockfile",
+            "label": "validate integrity",
+            "collectionIndex": 8,
+            "artifactIndex": 9
+          },
+          "point": [
+            323,
+            427
+          ],
+          "sharedNode": "lockfile"
+        },
+        {
+          "left": {
+            "id": "npm-reads-lockfile",
+            "from": "victim-app",
+            "to": "lockfile",
+            "label": "read package-lock.json",
+            "collectionIndex": 4,
+            "artifactIndex": 5
+          },
+          "right": {
+            "id": "detector-reads-lockfile",
+            "from": "detector",
+            "to": "lockfile",
+            "label": "validate integrity",
+            "collectionIndex": 8,
+            "artifactIndex": 9
+          },
+          "point": [
+            337,
+            427
+          ],
+          "sharedNode": "lockfile"
+        }
+      ],
+      "detours": [
+        {
+          "relationship": {
+            "id": "setup-creates-lockfile",
+            "from": "setup",
+            "to": "lockfile",
+            "label": "create manipulated lockfile",
+            "collectionIndex": 2,
+            "artifactIndex": 3
+          },
+          "bends": 5,
+          "stretch": 2.024
+        },
+        {
+          "relationship": {
+            "id": "postinstall-exfil",
+            "from": "evil-utils",
+            "to": "mock-c2",
+            "label": "POST /collect (postinstall)",
+            "collectionIndex": 6,
+            "artifactIndex": 7
+          },
+          "bends": 4,
+          "stretch": 1.508
+        },
+        {
+          "relationship": {
+            "id": "detector-reads-lockfile",
+            "from": "detector",
+            "to": "lockfile",
+            "label": "validate integrity",
+            "collectionIndex": 8,
+            "artifactIndex": 9
+          },
+          "bends": 5,
+          "stretch": 1.553
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "control-center → setup and setup → lockfile cross next to setup: move node control-center or lockfile so the two reach setup from different sides (for example one level with it, one directly above or below it).",
+      "setup → victim-app and setup → lockfile cross next to setup: move node victim-app or lockfile so the two reach setup from different sides (for example one level with it, one directly above or below it).",
+      "setup → lockfile and detector → lockfile cross next to lockfile: move node setup or detector so the two reach lockfile from different sides (for example one level with it, one directly above or below it).",
+      "victim-app → lockfile and detector → lockfile cross next to lockfile: move node victim-app or detector so the two reach lockfile from different sides (for example one level with it, one directly above or below it).",
+      "setup → lockfile needs 5 bends: move node setup or lockfile so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "evil-utils → mock-c2 needs 4 bends: move node evil-utils or mock-c2 so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "detector → lockfile needs 5 bends: move node detector or lockfile so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

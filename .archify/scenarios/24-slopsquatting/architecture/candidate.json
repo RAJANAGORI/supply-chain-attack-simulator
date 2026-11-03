@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 24 Slopsquatting lab architecture",
+    "subtitle": "AI-hallucinated package name: array-sortify exfil to :3024 on import",
+    "output": ".archify/scenarios/24-slopsquatting/architecture/sc24-slopsquatting-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "install-path",
+        "label": "Install + import path",
+        "focus": [
+          "control-center",
+          "victim-app",
+          "hallucinated-pkg",
+          "mock-server"
+        ],
+        "note": "LLM suggests array-sortify; dev installs without verifying"
+      },
+      {
+        "id": "evidence",
+        "label": "Evidence capture",
+        "focus": [
+          "hallucinated-pkg",
+          "mock-server",
+          "captured-data"
+        ],
+        "note": "Import-time payload beacons to :3024"
+      },
+      {
+        "id": "safety",
+        "label": "Safety gate",
+        "focus": [
+          "hallucinated-pkg"
+        ],
+        "note": "Malicious path returns unless TESTBENCH_MODE=enabled"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        260
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 317,
+          "end_line": 320,
+          "label": "scenario 24 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "installs deps",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/24-slopsquatting/setup.sh",
+          "line": 8,
+          "end_line": 42,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "trusts LLM suggestion",
+      "tag": "npm workspace",
+      "pos": [
+        280,
+        260
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/24-slopsquatting/victim-app/package.json",
+          "line": 1,
+          "end_line": 14,
+          "label": "depends on array-sortify"
+        }
+      ]
+    },
+    {
+      "id": "hallucinated-pkg",
+      "type": "security",
+      "label": "array-sortify",
+      "sublabel": "import-time payload",
+      "tag": "TESTBENCH gate",
+      "pos": [
+        500,
+        260
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/24-slopsquatting/README.md",
+          "line": 40,
+          "end_line": 50,
+          "label": "hallucinated name pattern"
+        }
+      ]
+    },
+    {
+      "id": "mock-server",
+      "type": "backend",
+      "label": "Mock server",
+      "sublabel": ":3024 POST /collect",
+      "pos": [
+        740,
+        260
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/24-slopsquatting/README.md",
+          "line": 74,
+          "end_line": 77,
+          "label": "mock collector endpoint"
+        }
+      ]
+    },
+    {
+      "id": "captured-data",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "captures array",
+      "pos": [
+        960,
+        260
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/24-slopsquatting/setup.sh",
+          "line": 30,
+          "end_line": 33,
+          "label": "capture log file"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "victim-app",
+        "hallucinated-pkg",
+        "mock-server",
+        "captured-data"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "hallucinated-pkg"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-builds-victim",
+      "from": "setup",
+      "to": "victim-app",
+      "label": "npm install",
+      "variant": "dashed"
+    },
+    {
+      "id": "ui-runs-app",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm start",
+      "variant": "emphasis"
+    },
+    {
+      "id": "victim-imports",
+      "from": "victim-app",
+      "to": "hallucinated-pkg",
+      "label": "require('array-sortify')",
+      "variant": "emphasis"
+    },
+    {
+      "id": "payload-beacon",
+      "from": "hallucinated-pkg",
+      "to": "mock-server",
+      "label": "POST /collect",
+      "variant": "security"
+    },
+    {
+      "id": "server-writes",
+      "from": "mock-server",
+      "to": "captured-data",
+      "label": "append JSON"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Slopsquatting pattern",
+      "items": [
+        "LLM generates plausible-sounding package name that does not exist",
+        "Attacker publishes malicious package under that hallucinated name",
+        "Developer installs without verifying package authenticity or popularity"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Attack vector",
+      "items": [
+        "array-sortify sounds like a real utility but is attacker-controlled",
+        "Import-time payload runs before app logic, beacons to :3024",
+        "Provides working functionality so nothing looks broken to the developer"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Prevention strategy",
+      "items": [
+        "Always verify package exists on npm registry before installing",
+        "Check weekly downloads, last publish date, GitHub stars",
+        "Use allowlists or lock down registry access for production environments"
+      ]
+    }
+  ]
+}

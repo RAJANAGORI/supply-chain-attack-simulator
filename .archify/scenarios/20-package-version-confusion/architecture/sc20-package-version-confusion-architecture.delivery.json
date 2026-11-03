@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "d45a20c6-8322-4b69-b00c-9d1b14fc5d8e",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc20-package-version-confusion-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc20-package-version-confusion-20261103-192118/sc20-package-version-confusion-architecture.html",
+  "specification": {
+    "sha256": "a15ecc3001b626b78e483b3ff2a9196a36646c7c1b20f8389f6c6d19166aa277",
+    "bytes": 7733
+  },
+  "artifact": {
+    "sha256": "ca62a41a86af27c00954b4517c34052073bfa81f19505896af7244ec8bded627",
+    "bytes": 828835
+  }
+}

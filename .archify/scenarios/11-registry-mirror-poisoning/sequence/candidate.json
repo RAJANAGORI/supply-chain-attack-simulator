@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 11 Registry Mirror Poisoning attack sequence",
+    "subtitle": "Install from corporate mirror; mirror serves poisoned tarballs with postinstall hooks",
+    "output": ".archify/scenarios/11-registry-mirror-poisoning/sequence/sc11-registry-mirror-poisoning-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "viewBox": [
+      1080,
+      600
+    ],
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 179,
+          "end_line": 181,
+          "label": "install + run steps"
+        }
+      ]
+    },
+    {
+      "id": "corporate",
+      "type": "backend",
+      "label": "corporate-app",
+      "sublabel": ".npmrc \u2192 :4873",
+      "sources": [
+        {
+          "path": "scenarios/11-registry-mirror-poisoning/corporate-app/.npmrc",
+          "line": 1,
+          "end_line": 1,
+          "label": "registry redirect"
+        }
+      ]
+    },
+    {
+      "id": "mirror",
+      "type": "cloud",
+      "label": "Poisoned mirror",
+      "sublabel": ":4873",
+      "sources": [
+        {
+          "path": "scenarios/11-registry-mirror-poisoning/infrastructure/registry-server.js",
+          "line": 39,
+          "end_line": 80,
+          "label": "metadata + tarball handler"
+        }
+      ]
+    },
+    {
+      "id": "postinstall",
+      "type": "security",
+      "label": "Postinstall hooks",
+      "sublabel": "secure-lib + utils",
+      "sources": [
+        {
+          "path": "scenarios/11-registry-mirror-poisoning/compromised-mirror/secure-lib/postinstall.js",
+          "line": 1,
+          "end_line": 22,
+          "label": "beacon payload"
+        }
+      ]
+    },
+    {
+      "id": "collector",
+      "type": "backend",
+      "label": "Mock collector",
+      "sublabel": ":3000",
+      "sources": [
+        {
+          "path": "scenarios/11-registry-mirror-poisoning/infrastructure/mock-server.js",
+          "line": 12,
+          "end_line": 40,
+          "label": "POST /collect"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 200,
+      "label": "Install"
+    },
+    {
+      "from": 210,
+      "to": 295,
+      "label": "Mirror serves"
+    },
+    {
+      "from": 305,
+      "to": 370,
+      "label": "Lifecycle"
+    },
+    {
+      "from": 380,
+      "to": 480,
+      "label": "Beacon"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-install",
+      "from": "learner",
+      "to": "corporate",
+      "y": 160,
+      "label": "npm install (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "query-metadata",
+      "from": "corporate",
+      "to": "mirror",
+      "y": 225,
+      "label": "GET /secure-lib metadata",
+      "variant": "default"
+    },
+    {
+      "id": "return-metadata",
+      "from": "mirror",
+      "to": "corporate",
+      "y": 255,
+      "label": "200 poisoned metadata JSON",
+      "variant": "return"
+    },
+    {
+      "id": "fetch-tarball",
+      "from": "corporate",
+      "to": "mirror",
+      "y": 285,
+      "label": "GET tarball with postinstall",
+      "variant": "emphasis"
+    },
+    {
+      "id": "run-postinstall-1",
+      "from": "corporate",
+      "to": "postinstall",
+      "y": 320,
+      "label": "run secure-lib postinstall",
+      "variant": "emphasis"
+    },
+    {
+      "id": "run-postinstall-2",
+      "from": "corporate",
+      "to": "postinstall",
+      "y": 350,
+      "label": "run enterprise-utils postinstall",
+      "variant": "emphasis"
+    },
+    {
+      "id": "beacon-1",
+      "from": "postinstall",
+      "to": "collector",
+      "y": 395,
+      "label": "POST /collect secure-lib",
+      "variant": "security"
+    },
+    {
+      "id": "beacon-2",
+      "from": "postinstall",
+      "to": "collector",
+      "y": 435,
+      "label": "POST /collect enterprise-utils",
+      "variant": "security"
+    },
+    {
+      "id": "complete",
+      "from": "corporate",
+      "to": "learner",
+      "y": 490,
+      "label": "install OK; check capture",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "corporate",
+      "from": 160,
+      "to": 500,
+      "type": "backend"
+    },
+    {
+      "participant": "mirror",
+      "from": 225,
+      "to": 295,
+      "type": "cloud"
+    },
+    {
+      "participant": "postinstall",
+      "from": 320,
+      "to": 445,
+      "type": "security"
+    },
+    {
+      "participant": "collector",
+      "from": 390,
+      "to": 445,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Mirror substitution",
+      "items": [
+        ".npmrc redirects to :4873 instead of npmjs.com",
+        "Corporate installs think they are using approved mirror",
+        "Mirror returns poisoned tarballs indistinguishable until postinstall runs"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Lifecycle execution",
+      "items": [
+        "npm runs postinstall automatically before the app starts",
+        "Both secure-lib and enterprise-utils beacon to :3000",
+        "Postinstall gates on TESTBENCH_MODE=enabled in lab"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Detection",
+      "items": [
+        "Compare tarball hashes from mirror against official registry",
+        "Monitor unexpected postinstall network calls during install",
+        "Audit mirror integrity with detection-tools/mirror-validator.js"
+      ]
+    }
+  ]
+}

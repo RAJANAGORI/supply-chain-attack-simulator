@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "db81e585-06d2-4082-96ad-33938a36c0c5",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc18-plugin-hook-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc18-plugin-hook-20261103-192118/sc18-plugin-hook-sequence.html",
+  "specification": {
+    "sha256": "ff73c84a9400f6a464428a6f9065b73034f39857083c3e7253f5051e0eb0908d",
+    "bytes": 5673
+  },
+  "artifact": {
+    "sha256": "1cc65e45767e3f34a978cfaa717f2374f0dcc8c8dcb99d55dfd441664dfa01fc",
+    "bytes": 817535
+  }
+}

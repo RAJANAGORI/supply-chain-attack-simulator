@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "144f0b12-4e69-405b-8e0c-fab2b0fad2de",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc19-sbom-manipulation-attack-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc19-sbom-manipulation-attack-20261103-192118/sc19-sbom-manipulation-attack-architecture.html",
+  "specification": {
+    "sha256": "5d49673f32bf75f8a677d79213ff29807385eb69cb8f9d2aefe92e5c86ac331d",
+    "bytes": 8193
+  },
+  "artifact": {
+    "sha256": "52c8b47d26effb8ef1d0ef921efdb473c14bbe0bf9de90ea6b2ebc58e3990ac0",
+    "bytes": 832025
+  }
+}

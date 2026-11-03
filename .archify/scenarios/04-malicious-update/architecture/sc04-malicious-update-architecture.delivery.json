@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "7661558a-9a9a-4226-8ea8-3f85d3781857",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc04-malicious-update-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc04-malicious-update-20261103-192118/sc04-malicious-update-architecture.html",
+  "specification": {
+    "sha256": "649e70cc4b916348d1a9354d788bc28efe996c3ed65005acf31716e98e53ca04",
+    "bytes": 5703
+  },
+  "artifact": {
+    "sha256": "e18b2e625bf787d67ad81210094332ad5503622b918df3babd9239242135be4f",
+    "bytes": 824116
+  }
+}

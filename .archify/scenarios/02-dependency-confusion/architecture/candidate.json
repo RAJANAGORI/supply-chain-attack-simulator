@@ -1,0 +1,384 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 02 Dependency Confusion lab architecture",
+    "subtitle": "Registry race: @techcorp scope misroutes to attacker :4874, version 999.999.999 wins",
+    "output": ".archify/scenarios/02-dependency-confusion/architecture/sc02-dependency-confusion-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "main-attack",
+        "label": "Registry resolution path",
+        "focus": [
+          "control-center",
+          "corporate-app",
+          "npmrc",
+          "attacker-registry",
+          "malicious-pkg",
+          "mock-server"
+        ],
+        "note": ".npmrc misroutes @techcorp scope to attacker registry"
+      },
+      {
+        "id": "evidence",
+        "label": "Evidence stores",
+        "focus": [
+          "mock-server",
+          "capture",
+          "attacker-registry",
+          "registry-meta"
+        ],
+        "note": "Two logs: exfil capture and registry serve history"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 71,
+          "end_line": 80,
+          "label": "scenario 02 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "builds registry data",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/setup.sh",
+          "line": 8,
+          "end_line": 350,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "corporate-app",
+      "type": "backend",
+      "label": "corporate-app",
+      "sublabel": "@techcorp/* deps",
+      "tag": "victim",
+      "pos": [
+        280,
+        300
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/corporate-app/index.js",
+          "line": 1,
+          "end_line": 45,
+          "label": "corporate entry"
+        }
+      ]
+    },
+    {
+      "id": "npmrc",
+      "type": "security",
+      "label": ".npmrc config",
+      "sublabel": "@techcorp:registry=:4874",
+      "tag": "misconfigured",
+      "pos": [
+        280,
+        140
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/corporate-app/.npmrc",
+          "line": 1,
+          "end_line": 9,
+          "label": "scope routing"
+        }
+      ]
+    },
+    {
+      "id": "attacker-registry",
+      "type": "cloud",
+      "label": "Attacker registry",
+      "sublabel": ":4874 fake npm",
+      "tag": "malicious",
+      "pos": [
+        540,
+        220
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/infrastructure/registry-server.js",
+          "line": 41,
+          "end_line": 79,
+          "label": "metadata + tarball routes"
+        }
+      ]
+    },
+    {
+      "id": "registry-meta",
+      "type": "database",
+      "label": "registry-meta.json",
+      "sublabel": "v999.999.999 metadata",
+      "pos": [
+        540,
+        80
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/infrastructure/registry-server.js",
+          "line": 32,
+          "end_line": 40,
+          "label": "load registry metadata"
+        }
+      ]
+    },
+    {
+      "id": "malicious-pkg",
+      "type": "security",
+      "label": "@techcorp/auth-lib",
+      "sublabel": "postinstall exfil",
+      "tag": "v999.999.999",
+      "pos": [
+        540,
+        380
+      ],
+      "size": [
+        170,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/templates/dependency-confusion-template.js",
+          "line": 30,
+          "end_line": 91,
+          "label": "exfiltrateConfig on postinstall"
+        }
+      ]
+    },
+    {
+      "id": "mock-server",
+      "type": "backend",
+      "label": "Mock C2 server",
+      "sublabel": ":3000 POST /collect",
+      "pos": [
+        800,
+        300
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/infrastructure/mock-server.js",
+          "line": 15,
+          "end_line": 46,
+          "label": "POST /collect handler"
+        }
+      ]
+    },
+    {
+      "id": "capture",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "exfil log",
+      "pos": [
+        1040,
+        300
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/02-dependency-confusion/infrastructure/mock-server.js",
+          "line": 26,
+          "end_line": 31,
+          "label": "append captures array"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "corporate-app",
+        "npmrc",
+        "attacker-registry",
+        "registry-meta",
+        "malicious-pkg",
+        "mock-server",
+        "capture"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "malicious-pkg"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-runs-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-builds-registry",
+      "from": "setup",
+      "to": "registry-meta",
+      "label": "build registry metadata",
+      "variant": "dashed"
+    },
+    {
+      "id": "setup-seeds-npmrc",
+      "from": "setup",
+      "to": "npmrc",
+      "label": "create .npmrc",
+      "variant": "dashed"
+    },
+    {
+      "id": "npmrc-controls-app",
+      "from": "npmrc",
+      "to": "corporate-app",
+      "label": "scope routing config",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "ui-install",
+      "from": "control-center",
+      "to": "corporate-app",
+      "label": "npm install",
+      "variant": "emphasis"
+    },
+    {
+      "id": "resolve-query",
+      "from": "corporate-app",
+      "to": "attacker-registry",
+      "label": "GET /@techcorp%2Fauth-lib",
+      "variant": "emphasis"
+    },
+    {
+      "id": "registry-reads-meta",
+      "from": "attacker-registry",
+      "to": "registry-meta",
+      "label": "read metadata",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "tarball-download",
+      "from": "corporate-app",
+      "to": "attacker-registry",
+      "label": "GET auth-lib-999.999.999.tgz",
+      "variant": "security",
+      "labelDy": 28
+    },
+    {
+      "id": "postinstall-fires",
+      "from": "corporate-app",
+      "to": "malicious-pkg",
+      "label": "postinstall script",
+      "variant": "emphasis"
+    },
+    {
+      "id": "exfil",
+      "from": "malicious-pkg",
+      "to": "mock-server",
+      "label": "POST /collect config",
+      "variant": "security"
+    },
+    {
+      "id": "mock-writes",
+      "from": "mock-server",
+      "to": "capture",
+      "label": "append JSON"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Registry race attack",
+      "items": [
+        ".npmrc routes @techcorp scope to attacker registry on :4874",
+        "Attacker publishes v999.999.999 \u2014 higher than any internal version",
+        "npm resolves highest version \u2192 downloads malicious tarball \u2192 postinstall fires"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Two services",
+      "items": [
+        ":4874 registry-server.js serves package metadata and tarballs",
+        ":3000 mock-server.js collects exfiltrated config data",
+        "Two evidence logs: captured-data.json (exfil) and registry serve logs"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety",
+      "items": [
+        "Postinstall exfiltration gated by TESTBENCH_MODE=enabled",
+        "All services on 127.0.0.1 localhost only",
+        "Real internal registry not touched"
+      ]
+    }
+  ]
+}

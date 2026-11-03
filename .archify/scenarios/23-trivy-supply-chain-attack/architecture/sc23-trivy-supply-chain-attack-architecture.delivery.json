@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "e29a0db3-da0b-4344-b7c5-36056107fcdb",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc23-trivy-supply-chain-attack-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc23-trivy-supply-chain-attack-20261103-192118/sc23-trivy-supply-chain-attack-architecture.html",
+  "specification": {
+    "sha256": "9242c6db4b902650dc1b4f15707810ab38c0d86f04eba53e7894d9301cb96765",
+    "bytes": 7725
+  },
+  "artifact": {
+    "sha256": "83995540e09420c4650178a4258660c591818fc6e36e6e7a0f3faf8ab1526317",
+    "bytes": 830530
+  }
+}

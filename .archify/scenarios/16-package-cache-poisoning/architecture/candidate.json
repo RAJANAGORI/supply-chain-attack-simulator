@@ -1,0 +1,352 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 16 package-cache-poisoning lab architecture",
+    "subtitle": "Cache-persisted malware: first install poisons, second reuses, localhost mock C2",
+    "output": ".archify/scenarios/16-package-cache-poisoning/architecture/sc16-package-cache-poisoning-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "main-attack",
+        "label": "Cache poisoning path",
+        "focus": [
+          "control-center",
+          "victim-app",
+          "npm-cache",
+          "malicious-pkg",
+          "mock-c2"
+        ],
+        "note": "First install poisons cache; second install reuses cached malware"
+      },
+      {
+        "id": "evidence",
+        "label": "Evidence store",
+        "focus": [
+          "mock-c2",
+          "capt-data"
+        ],
+        "note": "Two beacon captures prove cache persistence"
+      },
+      {
+        "id": "safety",
+        "label": "Safety gate",
+        "focus": [
+          "malicious-pkg"
+        ],
+        "note": "Malicious path returns unless TESTBENCH_MODE=enabled"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 224,
+          "end_line": 228,
+          "label": "scenario 16 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "clean cache + data",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/16-package-cache-poisoning/setup.sh",
+          "line": 12,
+          "end_line": 18,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "victim-app",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "install1 \u2192 install2",
+      "tag": "requires cache-lib",
+      "pos": [
+        250,
+        300
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/16-package-cache-poisoning/victim-app/index.js",
+          "line": 1,
+          "end_line": 4,
+          "label": "victim entry"
+        }
+      ]
+    },
+    {
+      "id": "npm-cache",
+      "type": "database",
+      "label": "poisoned cache",
+      "sublabel": "node_modules cache-lib",
+      "pos": [
+        250,
+        470
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/16-package-cache-poisoning/victim-app/scripts/install-from-cache.js",
+          "line": 22,
+          "end_line": 38,
+          "label": "cache install script"
+        }
+      ]
+    },
+    {
+      "id": "malicious-pkg",
+      "type": "security",
+      "label": "cache-lib poisoned",
+      "sublabel": "TESTBENCH_MODE gate",
+      "tag": "cached malware",
+      "pos": [
+        560,
+        300
+      ],
+      "size": [
+        180,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/16-package-cache-poisoning/cache/cache-lib/index.js",
+          "line": 6,
+          "end_line": 60,
+          "label": "malicious payload"
+        }
+      ]
+    },
+    {
+      "id": "mock-c2",
+      "type": "backend",
+      "label": "Mock C2 server",
+      "sublabel": ":3016 POST /collect",
+      "pos": [
+        820,
+        300
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/16-package-cache-poisoning/infrastructure/mock-server.js",
+          "line": 12,
+          "end_line": 50,
+          "label": "C2 endpoints"
+        }
+      ]
+    },
+    {
+      "id": "capt-data",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "two beacons",
+      "pos": [
+        1060,
+        300
+      ],
+      "size": [
+        190,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/16-package-cache-poisoning/infrastructure/mock-server.js",
+          "line": 27,
+          "end_line": 36,
+          "label": "append captures"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "victim-app",
+        "npm-cache",
+        "malicious-pkg",
+        "mock-c2",
+        "capt-data"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "malicious-pkg"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-cleans-cache",
+      "from": "setup",
+      "to": "npm-cache",
+      "label": "clean cache + captures",
+      "variant": "dashed"
+    },
+    {
+      "id": "ui-install1",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm install (first)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "install1-poisons",
+      "from": "victim-app",
+      "to": "npm-cache",
+      "label": "poison cache during install1",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "install1-runs",
+      "from": "victim-app",
+      "to": "malicious-pkg",
+      "label": "require poisoned target-lib",
+      "variant": "emphasis"
+    },
+    {
+      "id": "pkg-beacon1",
+      "from": "malicious-pkg",
+      "to": "mock-c2",
+      "label": "POST beacon (install1)",
+      "variant": "security"
+    },
+    {
+      "id": "ui-install2",
+      "from": "control-center",
+      "to": "victim-app",
+      "label": "npm install (second)",
+      "variant": "emphasis",
+      "labelAt": [
+        220,
+        400
+      ]
+    },
+    {
+      "id": "install2-reuses",
+      "from": "victim-app",
+      "to": "npm-cache",
+      "label": "reuse poisoned cache",
+      "variant": "security",
+      "fromSide": "bottom",
+      "toSide": "right"
+    },
+    {
+      "id": "install2-runs",
+      "from": "victim-app",
+      "to": "malicious-pkg",
+      "label": "require cached malware",
+      "labelAt": [
+        434,
+        400
+      ]
+    },
+    {
+      "id": "pkg-beacon2",
+      "from": "malicious-pkg",
+      "to": "mock-c2",
+      "label": "POST beacon (install2)",
+      "variant": "security",
+      "labelAt": [
+        764,
+        400
+      ]
+    },
+    {
+      "id": "c2-writes",
+      "from": "mock-c2",
+      "to": "capt-data",
+      "label": "append JSON"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Cache poison core",
+      "items": [
+        "First install runs poison-cache.js before npm start, writing malware into ~/.npm/_cacache",
+        "Second install with a clean node_modules still loads the poisoned cached package",
+        "Removing node_modules is not enough; cache must also be cleared"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Mock C2 listener",
+      "items": [
+        ":3016 mock server records POST /collect beacons from both installs",
+        "Expected captures: two beacons (install1, install2) proving cache persistence",
+        "GET /captured-data returns the capture history"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety + containment",
+      "items": [
+        "Malicious path is gated by TESTBENCH_MODE=enabled and 127.0.0.1 only",
+        "Containment: npm cache clean --force between installs stops reinfection",
+        "Detection: cache integrity checks or unexpected postinstall in cached packages"
+      ]
+    }
+  ]
+}

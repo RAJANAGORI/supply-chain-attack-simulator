@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "52a67db8-0c7e-4582-970a-953a1d213541",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc21-axios-compromised-release-attack-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc21-axios-compromised-release-attack-20261103-192118/sc21-axios-compromised-release-attack-sequence.html",
+  "specification": {
+    "sha256": "1eb67b43d07f9f255222e0a2813528b5c309b91a258040f514ea40e1520c297a",
+    "bytes": 5146
+  },
+  "artifact": {
+    "sha256": "67cb2150963f62f8e2d300720b83befc3e1c5315c96e6385bad86167cf3ec942",
+    "bytes": 814229
+  }
+}

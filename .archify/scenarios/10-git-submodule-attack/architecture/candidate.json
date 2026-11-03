@@ -1,0 +1,373 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Scenario 10 Git Submodule Attack lab architecture",
+    "subtitle": "Clone with --recurse-submodules pulls malicious submodule; postinstall.sh exfil to :3000",
+    "output": ".archify/scenarios/10-git-submodule-attack/architecture/sc10-git-submodule-attack-architecture.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    },
+    "views": [
+      {
+        "id": "submodule-path",
+        "label": "Submodule chain",
+        "focus": [
+          "awesome-project",
+          "malicious-submodule",
+          "mock-c2"
+        ],
+        "note": "git clone --recurse-submodules fetches the malicious submodule"
+      },
+      {
+        "id": "evidence",
+        "label": "Capture proof",
+        "focus": [
+          "malicious-submodule",
+          "mock-c2",
+          "captured-data"
+        ],
+        "note": "One capture file proves submodule postinstall ran"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "control-center",
+      "type": "frontend",
+      "label": "Control Center",
+      "sublabel": ":3100 lab cockpit",
+      "tag": "Purple/Red/Blue",
+      "pos": [
+        40,
+        280
+      ],
+      "size": [
+        150,
+        70
+      ],
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 163,
+          "end_line": 177,
+          "label": "scenario 10 registry"
+        }
+      ]
+    },
+    {
+      "id": "setup",
+      "type": "backend",
+      "label": "setup.sh",
+      "sublabel": "build-repos.sh",
+      "pos": [
+        40,
+        140
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/setup.sh",
+          "line": 7,
+          "end_line": 109,
+          "label": "scenario setup"
+        }
+      ]
+    },
+    {
+      "id": "build-repos",
+      "type": "backend",
+      "label": "build-repos.sh",
+      "sublabel": "creates git repos",
+      "pos": [
+        240,
+        140
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/infrastructure/build-repos.sh",
+          "line": 1,
+          "end_line": 80,
+          "label": "repo creation"
+        }
+      ]
+    },
+    {
+      "id": "awesome-project",
+      "type": "backend",
+      "label": "awesome-project",
+      "sublabel": "parent git repo",
+      "pos": [
+        250,
+        280
+      ],
+      "size": [
+        160,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/victim-app/index.js",
+          "line": 1,
+          "end_line": 22,
+          "label": "victim entry"
+        }
+      ]
+    },
+    {
+      "id": "gitmodules",
+      "type": "database",
+      "label": ".gitmodules",
+      "sublabel": "submodule config",
+      "pos": [
+        250,
+        420
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/infrastructure/build-repos.sh",
+          "line": 40,
+          "end_line": 60,
+          "label": "gitmodules setup"
+        }
+      ]
+    },
+    {
+      "id": "malicious-submodule",
+      "type": "security",
+      "label": "malicious-submodule",
+      "sublabel": "postinstall.sh hook",
+      "tag": "hidden",
+      "pos": [
+        480,
+        280
+      ],
+      "size": [
+        170,
+        76
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/malicious-submodule/postinstall.sh",
+          "line": 1,
+          "end_line": 43,
+          "label": "postinstall hook"
+        }
+      ]
+    },
+    {
+      "id": "mock-c2",
+      "type": "backend",
+      "label": "Mock C2 server",
+      "sublabel": ":3000 POST /collect",
+      "pos": [
+        710,
+        280
+      ],
+      "size": [
+        170,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/infrastructure/mock-server.js",
+          "line": 40,
+          "end_line": 55,
+          "label": "POST /collect"
+        }
+      ]
+    },
+    {
+      "id": "captured-data",
+      "type": "database",
+      "label": "captured-data.json",
+      "sublabel": "submodule exfil",
+      "pos": [
+        940,
+        280
+      ],
+      "size": [
+        180,
+        70
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/infrastructure/mock-server.js",
+          "line": 54,
+          "end_line": 59,
+          "label": "append captures"
+        }
+      ]
+    },
+    {
+      "id": "detector",
+      "type": "backend",
+      "label": "submodule-validator.js",
+      "sublabel": "submodule scan",
+      "pos": [
+        250,
+        540
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "sources": [
+        {
+          "path": "scenarios/10-git-submodule-attack/setup.sh",
+          "line": 104,
+          "end_line": 106,
+          "label": "detection tool"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "127.0.0.1 lab only",
+      "wraps": [
+        "awesome-project",
+        "gitmodules",
+        "malicious-submodule",
+        "mock-c2",
+        "captured-data"
+      ],
+      "pad": 28
+    },
+    {
+      "kind": "security-group",
+      "label": "TESTBENCH_MODE=enabled",
+      "wraps": [
+        "malicious-submodule"
+      ],
+      "pad": 18
+    }
+  ],
+  "connections": [
+    {
+      "id": "ui-starts-setup",
+      "from": "control-center",
+      "to": "setup",
+      "label": "Setup step",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "setup-runs-build",
+      "from": "setup",
+      "to": "build-repos",
+      "label": "run build-repos.sh",
+      "variant": "dashed"
+    },
+    {
+      "id": "build-creates-project",
+      "from": "build-repos",
+      "to": "awesome-project",
+      "label": "create git repo",
+      "variant": "dashed"
+    },
+    {
+      "id": "ui-clone",
+      "from": "control-center",
+      "to": "awesome-project",
+      "label": "git clone --recurse-submodules",
+      "variant": "emphasis"
+    },
+    {
+      "id": "git-reads-gitmodules",
+      "from": "awesome-project",
+      "to": "gitmodules",
+      "label": "read .gitmodules",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "git-clones-submodule",
+      "from": "gitmodules",
+      "to": "malicious-submodule",
+      "label": "git submodule update --init",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "bottom"
+    },
+    {
+      "id": "npm-install-triggers",
+      "from": "awesome-project",
+      "to": "malicious-submodule",
+      "label": "npm install (triggers postinstall)",
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "postinstall-exfil",
+      "from": "malicious-submodule",
+      "to": "mock-c2",
+      "label": "POST /collect (postinstall.sh)",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "c2-writes",
+      "from": "mock-c2",
+      "to": "captured-data",
+      "label": "append JSON"
+    },
+    {
+      "id": "detector-reads-gitmodules",
+      "from": "detector",
+      "to": "gitmodules",
+      "label": "scan .gitmodules",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Submodule chain",
+      "items": [
+        "awesome-project references malicious-submodule in .gitmodules",
+        "git clone --recurse-submodules fetches the submodule automatically",
+        "npm install triggers the submodule's postinstall.sh hook"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Attack path",
+      "items": [
+        "Attacker compromises the submodule repository",
+        "postinstall.sh runs when npm install completes",
+        "Exfil reaches :3000/collect before the app starts"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Safety + detection",
+      "items": [
+        "Malicious path gated by TESTBENCH_MODE=enabled",
+        "All beacons target 127.0.0.1 only",
+        "detection-tools/submodule-validator.js scans .gitmodules"
+      ]
+    }
+  ]
+}

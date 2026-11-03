@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "architecture",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc24-slopsquatting-20261103-192118/candidate.json",
+    "sha256": "fa4dbb61bcc37fbd5bc0a21d86a58c6179d53bb8cb8f42f8a39b18b2f3c4613d",
+    "bytes": 6043
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc24-slopsquatting-20261103-192118/sc24-slopsquatting-architecture.html",
+    "sha256": "ecb003e8b7736a8564e09764153ad5d1653f98354d2a1cfb441c93c9c1c47e2d",
+    "bytes": 823094
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc24-slopsquatting-20261103-192118/sc24-slopsquatting-architecture.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc24-slopsquatting-20261103-192118/sc24-slopsquatting-architecture.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc24-slopsquatting-20261103-192118/sc24-slopsquatting-architecture.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-03T13:44:40.327Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 1834,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  },
+  "visualReviewRecommendation": {
+    "action": "inspect-route-readability",
+    "signals": {
+      "routesOverSuggestedBends": 3
+    },
+    "reason": "Automated gates passed, but crossings or detours still need perceptual review before claiming visual quality.",
+    "affectedRoutes": {
+      "crossings": [],
+      "detours": [
+        {
+          "relationship": {
+            "id": "victim-imports",
+            "from": "victim-app",
+            "to": "hallucinated-pkg",
+            "label": "require(&#39;array-sortify&#39;)",
+            "collectionIndex": 3,
+            "artifactIndex": 4
+          },
+          "bends": 3,
+          "stretch": 1.295
+        },
+        {
+          "relationship": {
+            "id": "payload-beacon",
+            "from": "hallucinated-pkg",
+            "to": "mock-server",
+            "label": "POST /collect",
+            "collectionIndex": 4,
+            "artifactIndex": 5
+          },
+          "bends": 3,
+          "stretch": 1.271
+        },
+        {
+          "relationship": {
+            "id": "server-writes",
+            "from": "mock-server",
+            "to": "captured-data",
+            "label": "append JSON",
+            "collectionIndex": 5,
+            "artifactIndex": 6
+          },
+          "bends": 3,
+          "stretch": 1.282
+        }
+      ],
+      "truncated": false
+    },
+    "hints": [
+      "victim-app → hallucinated-pkg needs 3 bends: move node victim-app or hallucinated-pkg so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "hallucinated-pkg → mock-server needs 3 bends: move node hallucinated-pkg or mock-server so they share a row or column with matching centers, or sit diagonally with a clear corner.",
+      "mock-server → captured-data needs 3 bends: move node mock-server or captured-data so they share a row or column with matching centers, or sit diagonally with a clear corner."
+    ],
+    "repair": "Trace these relationships at the desktop viewport. For Architecture, use references/architecture-layout-repair.md: reflow a blocked main path or tangled connected scene, and repair an isolated defect locally only when the surrounding composition is accepted. Preserve all semantic content and user-fixed geometry. Rerun finalize once after the edit."
+  }
+}

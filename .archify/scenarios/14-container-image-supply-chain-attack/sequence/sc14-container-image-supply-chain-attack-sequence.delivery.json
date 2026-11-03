@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "ba5949ba-3058-4488-baa8-42df351db060",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc14-container-image-supply-chain-attack-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc14-container-image-supply-chain-attack-20261103-192118/sc14-container-image-supply-chain-attack-sequence.html",
+  "specification": {
+    "sha256": "28af7eadd876a1b8ff5628f79a224a3f6cd1c1578614f7d726f92903297ac218",
+    "bytes": 3653
+  },
+  "artifact": {
+    "sha256": "cc1a35ad916dce31b4089c23cd3d624dd6b25a26daed2d6e1d09c1a7ec7d40c0",
+    "bytes": 808791
+  }
+}

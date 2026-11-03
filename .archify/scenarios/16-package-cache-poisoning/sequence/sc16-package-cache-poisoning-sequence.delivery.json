@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "69f6d3c5-9f65-4b8a-adca-7358ffbb75a0",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc16-cache-persist-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc16-cache-persist-20261103-192118/sc16-cache-persist-sequence.html",
+  "specification": {
+    "sha256": "ecdbb78eec1b220b516db73893405f3b0c25592cc15021743cca02db8c6be745",
+    "bytes": 5779
+  },
+  "artifact": {
+    "sha256": "bd33529bc3ab005896fcd61df92556bc6d795c729572616508cff074d40d1dcb",
+    "bytes": 817142
+  }
+}

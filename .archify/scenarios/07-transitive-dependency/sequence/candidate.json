@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Scenario 07 Transitive Dependency attack sequence",
+    "subtitle": "Install web-utils \u2192 npm pulls data-processor \u2192 postinstall exfil \u2192 app runs clean",
+    "output": ".archify/scenarios/07-transitive-dependency/sequence/sc07-transitive-dependency-sequence.html",
+    "quality_profile": "showcase",
+    "locale": "en",
+    "repository": {
+      "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
+      "provider": "github",
+      "revision": "71a87109b510ca824ad5077975365ea4659c6597"
+    }
+  },
+  "participants": [
+    {
+      "id": "learner",
+      "type": "external",
+      "label": "Learner",
+      "sublabel": "lab UI",
+      "sources": [
+        {
+          "path": "apps/control-plane/src/registry/scenarios.ts",
+          "line": 144,
+          "end_line": 154,
+          "label": "install + swap + run steps"
+        }
+      ]
+    },
+    {
+      "id": "victim",
+      "type": "backend",
+      "label": "victim-app",
+      "sublabel": "npm workspace",
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/victim-app/index.js",
+          "line": 10,
+          "end_line": 19,
+          "label": "requires web-utils"
+        }
+      ]
+    },
+    {
+      "id": "npm",
+      "type": "backend",
+      "label": "npm",
+      "sublabel": "dependency resolver",
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/victim-app/package.json",
+          "line": 1,
+          "end_line": 12,
+          "label": "web-utils in deps"
+        }
+      ]
+    },
+    {
+      "id": "data-proc",
+      "type": "security",
+      "label": "data-processor",
+      "sublabel": "transitive postinstall",
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/setup.sh",
+          "line": 31,
+          "end_line": 60,
+          "label": "postinstall.js creation"
+        }
+      ]
+    },
+    {
+      "id": "c2",
+      "type": "backend",
+      "label": "Mock C2",
+      "sublabel": ":3000",
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/infrastructure/mock-server.js",
+          "line": 51,
+          "end_line": 80,
+          "label": "POST /collect"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "from": 155,
+      "to": 250,
+      "label": "Install chain"
+    },
+    {
+      "from": 260,
+      "to": 340,
+      "label": "Exfil"
+    },
+    {
+      "from": 350,
+      "to": 420,
+      "label": "Clean run"
+    }
+  ],
+  "messages": [
+    {
+      "id": "start-install",
+      "from": "learner",
+      "to": "victim",
+      "y": 160,
+      "label": "npm install (TESTBENCH on)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "npm-resolves",
+      "from": "victim",
+      "to": "npm",
+      "y": 200,
+      "label": "resolve web-utils deps",
+      "variant": "default"
+    },
+    {
+      "id": "npm-pulls-transitive",
+      "from": "npm",
+      "to": "data-proc",
+      "y": 235,
+      "label": "install data-processor (transitive)",
+      "variant": "emphasis",
+      "note": "Victim never named this package"
+    },
+    {
+      "id": "postinstall-exfil",
+      "from": "data-proc",
+      "to": "c2",
+      "y": 280,
+      "label": "POST /collect (hostname, username)",
+      "variant": "security"
+    },
+    {
+      "id": "install-complete",
+      "from": "npm",
+      "to": "victim",
+      "y": 330,
+      "label": "install complete",
+      "variant": "return"
+    },
+    {
+      "id": "run-victim",
+      "from": "learner",
+      "to": "victim",
+      "y": 365,
+      "label": "npm start",
+      "variant": "default"
+    },
+    {
+      "id": "app-ok",
+      "from": "victim",
+      "to": "learner",
+      "y": 400,
+      "label": "app OK; check captured-data",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "victim",
+      "from": 160,
+      "to": 410,
+      "type": "backend"
+    },
+    {
+      "participant": "npm",
+      "from": 195,
+      "to": 340,
+      "type": "backend"
+    },
+    {
+      "participant": "data-proc",
+      "from": 230,
+      "to": 290,
+      "type": "security"
+    },
+    {
+      "participant": "c2",
+      "from": 275,
+      "to": 295,
+      "type": "backend"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "rose",
+      "title": "Hidden dependency",
+      "items": [
+        "victim-app package.json lists web-utils only",
+        "npm automatically resolves and installs data-processor",
+        "No direct install command mentions data-processor"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Postinstall timing",
+      "items": [
+        "npm runs data-processor postinstall during the install phase",
+        "Exfil completes before npm start",
+        "Victim sees a working app with no runtime errors"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Detection path",
+      "items": [
+        "dependency-tree-scanner.js traces web-utils \u2192 data-processor",
+        "Postinstall file reads and network POST are the IOCs",
+        "Captured-data.json proves the transitive chain fired"
+      ]
+    }
+  ]
+}

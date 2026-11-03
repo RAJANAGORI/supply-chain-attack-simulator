@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "ad4bbe78-973f-4d7f-90c5-7ea86e38adb7",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc08-package-lock-file-manipulation-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc08-package-lock-file-manipulation-20261103-192118/sc08-package-lock-file-manipulation-architecture.html",
+  "specification": {
+    "sha256": "5f1a8c1eeddebe1ba35825e877b7ac504254399f6fbceec90b407b275941c40d",
+    "bytes": 7318
+  },
+  "artifact": {
+    "sha256": "a8e9ef902f0fb0d6aca7c5149260de4bce9783426a232d2e81f3ce18bc53bc05",
+    "bytes": 829851
+  }
+}

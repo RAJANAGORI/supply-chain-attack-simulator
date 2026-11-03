@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "119d1e59-8eed-40f9-94e3-3d5236b3502d",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc25-compromised-github-action-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc25-compromised-github-action-20261103-192118/sc25-compromised-github-action-sequence.html",
+  "specification": {
+    "sha256": "3925a516db55c19be783bb8be9371522b1987d0f79088e6bc7070c0296ed9ef2",
+    "bytes": 5080
+  },
+  "artifact": {
+    "sha256": "cea95a19c53c6f99090e76e8e54750d520afcba7ffa2d5e58757dad9f7d72c90",
+    "bytes": 814806
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "a4bfe774-da36-42f3-812f-061106f385a9",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc14-container-image-supply-chain-attack-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc14-container-image-supply-chain-attack-20261103-192118/sc14-container-image-supply-chain-attack-architecture.html",
+  "specification": {
+    "sha256": "b4f7046f9e8bdb537d6ed051d60f5c0cc6813ec547918e5db6a542488113fd1a",
+    "bytes": 6186
+  },
+  "artifact": {
+    "sha256": "98818c61c914f55a946950fcf3b4162fd4ccd323b8438bb25b6e1fcec23d07ab",
+    "bytes": 822899
+  }
+}

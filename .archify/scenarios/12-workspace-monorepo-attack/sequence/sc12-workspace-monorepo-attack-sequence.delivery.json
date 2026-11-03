@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "5af2bd6d-5e13-4f92-9a11-eb36176a32c2",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc12-workspace-monorepo-attack-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc12-workspace-monorepo-attack-20261103-192118/sc12-workspace-monorepo-attack-sequence.html",
+  "specification": {
+    "sha256": "3a1436bdc021178c63bf48d003f95460745283c2e53dc8ed20786cf2f9a9125a",
+    "bytes": 5101
+  },
+  "artifact": {
+    "sha256": "d2e5cc7f3f093fb523a5c138cd5874147e9503dfe994e1dcc05b685131f57918",
+    "bytes": 815030
+  }
+}

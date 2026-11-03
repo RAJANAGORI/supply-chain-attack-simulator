@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "4dde80e4-dd72-40f9-a417-746c150685d0",
+  "status": "current",
+  "command": "deliver",
+  "type": "sequence",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc17-stage-chain-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/sequence-sc17-stage-chain-20261103-192118/sc17-stage-chain-sequence.html",
+  "specification": {
+    "sha256": "37b27e7e54201f9642c78fc70bc0781e9855bfe8f0f60cc4263b24886450e720",
+    "bytes": 5936
+  },
+  "artifact": {
+    "sha256": "75a7a742717f40f1ecea78e801a6c3ec3d0088ab0e31213ab162d6ae096da071",
+    "bytes": 818202
+  }
+}

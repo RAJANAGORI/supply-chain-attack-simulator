@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "5f89b640-5681-49d9-b05a-bb69c24f0678",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc03-compromised-package-20261103-192118/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/architecture-sc03-compromised-package-20261103-192118/sc03-compromised-package-architecture.html",
+  "specification": {
+    "sha256": "378640b8782066d207943a9f2762b3452e73eb285fc09e817fbe0cf6f2c62b5b",
+    "bytes": 7071
+  },
+  "artifact": {
+    "sha256": "f7e267f01ce80613902b44dccb7c3abeac80953e5e72084e2edcfdd18d292c95",
+    "bytes": 829806
+  }
+}
