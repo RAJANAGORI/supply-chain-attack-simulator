@@ -13,10 +13,15 @@
 #   --no-ui        bring platform up only (no dashboard)
 #   --core-only    labs + UI only (implies --skip-es --skip-floci)
 #
+# Terminal chrome: scripts/lib/scas-term.sh (NO_COLOR=1 or SCAS_TERM=plain for plain text)
+#
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
+
+# shellcheck source=scripts/lib/scas-term.sh
+source "${ROOT}/scripts/lib/scas-term.sh"
 
 SKIP_ES=0
 SKIP_FLOCI=0
@@ -43,15 +48,30 @@ for arg in "$@"; do
   esac
 done
 
-log()  { printf '▶ %s\n' "$*"; }
-ok()   { printf '✓ %s\n' "$*"; }
-warn() { printf '! %s\n' "$*" >&2; }
+# Themed aliases used across this script
+ok()   { scas_ok "$*"; }
+warn() { scas_warn "$*"; }
+
+# Stage counter for the boot sequence (skip-aware total)
+_scas_stage_total=0
+[[ "$SKIP_ES" != "1" || "$SKIP_FLOCI" != "1" ]] && _scas_stage_total=$((_scas_stage_total + 1)) # docker
+[[ "$SKIP_SETUP" != "1" ]] && _scas_stage_total=$((_scas_stage_total + 1))
+[[ "$SKIP_ACT" != "1" ]] && _scas_stage_total=$((_scas_stage_total + 1))
+[[ "$SKIP_ES" != "1" ]] && _scas_stage_total=$((_scas_stage_total + 1))
+[[ "$SKIP_FLOCI" != "1" ]] && _scas_stage_total=$((_scas_stage_total + 1))
+[[ "$NO_UI" != "1" ]] && _scas_stage_total=$((_scas_stage_total + 1))
+[[ "$_scas_stage_total" -lt 1 ]] && _scas_stage_total=1
+_scas_stage_n=0
+_scas_next_stage() {
+  _scas_stage_n=$((_scas_stage_n + 1))
+  scas_stage "$_scas_stage_n" "$_scas_stage_total" "$1"
+}
 
 need_docker() {
   local rc=0
   "${ROOT}/scripts/setup/ensure-docker.sh" || rc=$?
   if [[ "$rc" -eq 10 ]]; then
-    if [[ "${SCAS_DOCKER_SG_REEXEC:-}" == 1 ]] || ! command -v sg >/dev/null 2>&1; then
+    if [[ "${SCAS_DOCKER_SG_REEXEC:-}" = 1 ]] || ! command -v sg >/dev/null 2>&1; then
       warn "Docker is running, but this shell cannot use the docker socket yet."
       warn "Log out and back in so the docker group applies, then re-run ./run.sh"
       exit 1
@@ -83,10 +103,13 @@ ensure_act() {
     fi
     return 0
   fi
-  log "Ensuring nektos/act for labs 05 and 25…"
+  _scas_next_stage "nektos/act for labs 05 and 25"
   ./scripts/setup/ensure-act.sh
   export PATH="${ROOT}/.tools/bin:${PATH}"
   hash -r 2>/dev/null || true
+  if command -v act >/dev/null 2>&1; then
+    ok "nektos/act ready: $(act --version 2>/dev/null | head -1) (${ROOT}/.tools/bin/act)"
+  fi
 }
 
 write_session_env() {
@@ -146,45 +169,47 @@ EOF
 }
 
 print_status() {
-  echo ""
-  echo "Stack status"
+  scas_panel_open "STACK RADAR"
   if curl -fsS "http://127.0.0.1:9200/_cluster/health" >/dev/null 2>&1; then
-    ok "Elasticsearch  http://127.0.0.1:9200"
+    scas_panel_row "Elasticsearch" "UP  http://127.0.0.1:9200"
   else
-    warn "Elasticsearch  down"
+    scas_panel_row "Elasticsearch" "DOWN"
   fi
   if curl -fsS -o /dev/null "http://127.0.0.1:5601" 2>/dev/null; then
-    ok "Kibana         http://127.0.0.1:5601"
+    scas_panel_row "Kibana" "UP  http://127.0.0.1:5601"
   else
-    warn "Kibana         down"
+    scas_panel_row "Kibana" "DOWN"
   fi
   if curl -fsS -o /dev/null "http://127.0.0.1:4566/_floci/health" 2>/dev/null || \
      curl -fsS -o /dev/null "http://127.0.0.1:4566" 2>/dev/null; then
-    ok "Floci          http://127.0.0.1:4566"
+    scas_panel_row "Floci" "UP  http://127.0.0.1:4566"
   else
-    warn "Floci          down"
+    scas_panel_row "Floci" "DOWN"
   fi
   if command -v act >/dev/null 2>&1 && act --help 2>/dev/null | grep -q -- '--local-repository'; then
-    ok "act            $(act --version 2>/dev/null | head -1) (labs 05/25 use real workflows)"
+    scas_panel_row "act" "$(act --version 2>/dev/null | head -1) (labs 05/25)"
   else
-    warn "act            missing"
+    scas_panel_row "act" "missing"
   fi
-  echo ""
+  scas_panel_close
 }
 
 # --- main ---
 
-log "SCAS full stack from ${ROOT}"
+scas_banner "boot from ${ROOT}"
 
 if [[ "$SKIP_ES" != "1" || "$SKIP_FLOCI" != "1" ]]; then
+  _scas_next_stage "Docker socket"
   need_docker
 fi
 
 if [[ "$SKIP_SETUP" != "1" ]]; then
-  log "Core setup (TESTBENCH + npm workspaces)…"
+  _scas_next_stage "Core setup (TESTBENCH + npm workspaces)"
+  export SCAS_FROM_RUN=1
   chmod +x scripts/setup/setup.sh
   ./scripts/setup/setup.sh
   if [[ ! -d node_modules ]]; then
+    scas_log "npm install (workspace)…"
     npm install
   fi
   ok "Core setup done"
@@ -195,7 +220,7 @@ fi
 ensure_act
 
 if [[ "$SKIP_ES" != "1" ]]; then
-  log "Starting Elasticsearch + Kibana (templates, runbooks, Kibana views, capture backfill)…"
+  _scas_next_stage "Elasticsearch + Kibana (templates, runbooks, views)"
   chmod +x scripts/observability/elasticsearch-up.sh
   ./scripts/observability/elasticsearch-up.sh
   # Ensure session + child processes see ES even if elasticsearch-up used localhost vs 127.0.0.1
@@ -206,7 +231,7 @@ else
 fi
 
 if [[ "$SKIP_FLOCI" != "1" ]]; then
-  log "Configuring / starting Floci…"
+  _scas_next_stage "Floci local-AWS emulator"
   chmod +x scripts/floci/floci-setup.sh scripts/floci/floci-up.sh
   if [[ ! -f "${ROOT}/.floci.env" ]] && [[ ! -f "${ROOT}/infrastructure/floci/.env" ]]; then
     ./scripts/floci/floci-setup.sh --auto || ./scripts/floci/floci-setup.sh --image || true
@@ -226,11 +251,11 @@ print_status
 
 if [[ "$NO_UI" = "1" ]]; then
   ok "Platform up. Source env and run a lab:"
-  echo "  source .scas.env"
-  echo "  cd scenarios/01-typosquatting && ./setup.sh"
+  scas_dim "source .scas.env"
+  scas_dim "cd scenarios/01-typosquatting && ./setup.sh"
   exit 0
 fi
 
-log "Starting dashboard (control plane inherits SCAS_ES_URL / Floci env)…"
+_scas_next_stage "Control Center (control plane + dashboard)"
 chmod +x scripts/ui/start-dashboard.sh
 exec ./scripts/ui/start-dashboard.sh

@@ -9,7 +9,7 @@ function openArchify(href: string) {
 }
 
 /**
- * Opens Archify architecture / sequence HTML (and optional brief) for this lab.
+ * Opens the lab attack-map HTML (architecture / sequence) plus optional brief.
  * Files live under repo `.archify/` and are served at `/archify/...` via the control plane.
  */
 export function ArchifyPackCard({ scenarioId }: { scenarioId: string }) {
@@ -27,7 +27,7 @@ export function ArchifyPackCard({ scenarioId }: { scenarioId: string }) {
       .catch((e) => {
         if (!cancelled) {
           setPack(null);
-          setError(e instanceof Error ? e.message : 'Archify pack unavailable');
+          setError(e instanceof Error ? e.message : 'Attack map unavailable');
         }
       });
     return () => {
@@ -37,7 +37,7 @@ export function ArchifyPackCard({ scenarioId }: { scenarioId: string }) {
 
   if (error) {
     return (
-      <Card title="Archify diagrams" subtitle="Attack maps for this lab">
+      <Card title="Attack map" subtitle="Compromise path for this lab">
         <p className="text-sm text-ink-muted">{error}</p>
       </Card>
     );
@@ -45,8 +45,8 @@ export function ArchifyPackCard({ scenarioId }: { scenarioId: string }) {
 
   if (!pack) {
     return (
-      <Card title="Archify diagrams" subtitle="Attack maps for this lab">
-        <p className="text-sm text-ink-muted">Loading diagram links…</p>
+      <Card title="Attack map" subtitle="Compromise path for this lab">
+        <p className="text-sm text-ink-muted">Loading map links…</p>
       </Card>
     );
   }
@@ -54,12 +54,12 @@ export function ArchifyPackCard({ scenarioId }: { scenarioId: string }) {
   if (!pack.available) {
     return (
       <Card
-        title="Archify diagrams"
-        subtitle="Attack maps for this lab"
-        action={<StatusPill status="offline" label="No pack" />}
+        title="Attack map"
+        subtitle="Compromise path for this lab"
+        action={<StatusPill status="offline" label="No map" />}
       >
         <p className="text-sm text-ink-muted">
-          No `.archify/scenarios/{pack.slug}` pack on disk yet.
+          No attack map is on disk for this scenario yet.
         </p>
       </Card>
     );
@@ -67,23 +67,27 @@ export function ArchifyPackCard({ scenarioId }: { scenarioId: string }) {
 
   return (
     <Card
-      title="Archify diagrams"
-      subtitle={`.archify/scenarios/${pack.slug}`}
+      title="Attack map"
+      subtitle="How this supply-chain lab is wired end to end"
       action={<StatusPill status="online" label="Ready" />}
     >
       <p className="text-sm leading-relaxed text-ink-secondary">
-        Interactive architecture and sequence HTML for this lab. Opens in a new tab via{' '}
-        <span className="font-mono text-[11px]">/archify/…</span>.
+        Open the lab topology or the step-by-step compromise path in a new tab.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {pack.diagrams.map((d) => (
-          <Btn key={d.id} variant="secondary" size="sm" onClick={() => openArchify(d.href)}>
-            Open {d.label.toLowerCase()}
+          <Btn
+            key={d.id}
+            variant={d.id === 'architecture' ? 'primary' : 'secondary'}
+            size="sm"
+            onClick={() => openArchify(d.href)}
+          >
+            {d.id === 'architecture' ? 'Lab topology' : d.id === 'sequence' ? 'Compromise path' : d.label}
           </Btn>
         ))}
         {pack.brief && (
           <Btn variant="ghost" size="sm" onClick={() => openArchify(pack.brief!.href)}>
-            Open brief
+            Lab brief
           </Btn>
         )}
       </div>

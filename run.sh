@@ -2,6 +2,8 @@
 # Full SCAS stack. Installs Node from .nvmrc with nvm, then Docker, if either is missing.
 # Control plane (via start-dashboard) also hosts repo `.archify/` at /archify;
 # the dashboard proxies that path so lab buttons open diagram HTML same-origin.
+# Terminal look: phosphor ops console via scripts/lib/scas-term.sh
+#   NO_COLOR=1 or SCAS_TERM=plain  -> plain text
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

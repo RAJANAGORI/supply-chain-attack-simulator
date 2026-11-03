@@ -6,6 +6,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
+# shellcheck source=scripts/lib/scas-term.sh
+source "${ROOT}/scripts/lib/scas-term.sh"
+
 # Inherit workshop env (ES / Floci / TESTBENCH) when present
 if [[ -f "${ROOT}/.scas.env" ]]; then
   # shellcheck disable=SC1091
@@ -38,10 +41,10 @@ export SCAS_ES_URL="${SCAS_ES_URL:-http://127.0.0.1:9200}"
 export KIBANA_URL="${KIBANA_URL:-http://127.0.0.1:5601}"
 
 if [[ ! -d node_modules ]]; then
-  echo "Installing workspace dependencies…"
+  scas_log "Installing workspace dependencies…"
   npm install
 elif [[ ! -e node_modules/lucide-react ]] || [[ ! -e node_modules/tailwindcss ]]; then
-  echo "Updating workspace dependencies (new UI packages)…"
+  scas_log "Updating workspace dependencies (new UI packages)…"
   npm install
 fi
 
@@ -59,13 +62,13 @@ wait_for() {
   local i=0
   while [[ $i -lt 30 ]]; do
     if curl -sf "$url" >/dev/null 2>&1; then
-      echo "  ✓ $name ready"
+      scas_ok "$name ready"
       return 0
     fi
     sleep 1
     i=$((i + 1))
   done
-  echo "  ✗ $name failed to start ($url)" >&2
+  scas_fail "$name failed to start ($url)"
   return 1
 }
 
@@ -82,49 +85,49 @@ if [[ -n "${LAN_IP}" ]]; then
   export SCAS_LAN_IP="${LAN_IP}"
 fi
 
-echo "Starting control plane on ${BIND_HOST}:${CONTROL_PLANE_PORT}…"
+scas_log "Control plane bind ${BIND_HOST}:${CONTROL_PLANE_PORT}"
 npm run dev:control-plane &
 wait_for "http://127.0.0.1:${CONTROL_PLANE_PORT}/api/health" "Control plane"
 
-echo "Starting dashboard on ${BIND_HOST}:3100…"
+scas_log "Dashboard bind ${BIND_HOST}:3100"
 npm run dev:dashboard &
 wait_for "http://127.0.0.1:3100" "Dashboard"
 
 # Warm Next.js routes so first Labs/Reset click stays fast.
 warm_dashboard_routes() {
-  echo "Precompiling dashboard routes…"
+  scas_log "Precompiling dashboard routes…"
   local path
   for path in / /welcome /scenarios /scenarios/01 /observe /skills /report /classroom /teardown; do
     if curl -sf --max-time 120 "http://127.0.0.1:3100${path}" >/dev/null; then
-      echo "  ✓ ${path}"
+      scas_ok "${path}"
     else
-      echo "  ✗ ${path} (will compile on first visit)" >&2
+      scas_warn "${path} (will compile on first visit)"
     fi
   done
 }
 warm_dashboard_routes
 
-echo ""
-echo "SCAS UI ready (bound on ${BIND_HOST}):"
-echo "  Dashboard:     http://localhost:3100"
-echo "  Welcome:       http://localhost:3100/welcome"
-echo "  Labs:          http://localhost:3100/scenarios"
-echo "  Archify:       http://localhost:3100/archify/INDEX.md"
-echo "  Observatory:   http://localhost:3100/observe"
-echo "  Control plane: http://localhost:${CONTROL_PLANE_PORT}/api/health"
-echo "  Marketing:     https://simulator.rajanagori.in/"
+scas_panel_open "OPERATOR CONSOLE"
+scas_panel_row "Dashboard" "http://localhost:3100"
+scas_panel_row "Welcome" "http://localhost:3100/welcome"
+scas_panel_row "Labs" "http://localhost:3100/scenarios"
+scas_panel_row "Attack maps" "http://localhost:3100/archify/INDEX.md"
+scas_panel_row "Observatory" "http://localhost:3100/observe"
+scas_panel_row "Control plane" "http://localhost:${CONTROL_PLANE_PORT}/api/health"
+scas_panel_row "Marketing" "https://simulator.rajanagori.in/"
 if [[ -n "${SCAS_ES_URL:-}" ]]; then
-  echo "  SCAS_ES_URL:   ${SCAS_ES_URL}"
+  scas_panel_row "SCAS_ES_URL" "${SCAS_ES_URL}"
 else
-  echo "  SCAS_ES_URL:   (unset - Observatory stays empty until ES is up)"
+  scas_panel_row "SCAS_ES_URL" "(unset - Observatory empty until ES is up)"
 fi
 if [[ -n "${LAN_IP}" ]]; then
-  echo ""
-  echo "  Network (LAN):"
-  echo "    Dashboard:     http://${LAN_IP}:3100"
-  echo "    Control plane: http://${LAN_IP}:${CONTROL_PLANE_PORT}/api/health"
+  scas_panel_blank
+  scas_panel_note "LAN reachability"
+  scas_panel_row "LAN dash" "http://${LAN_IP}:3100"
+  scas_panel_row "LAN API" "http://${LAN_IP}:${CONTROL_PLANE_PORT}/api/health"
 fi
-echo ""
-echo "Press Ctrl+C to stop all services."
+scas_panel_note "bound on ${BIND_HOST}"
+scas_panel_close
+scas_boot_footer
 
 wait

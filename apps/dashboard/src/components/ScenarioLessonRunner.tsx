@@ -373,6 +373,8 @@ export function ScenarioLessonRunner({
             </Card>
           )}
 
+          <ArchifyPackCard scenarioId={scenarioId} />
+
           <Card title="Storyboard" subtitle="Guided steps for this lab">
             <ol className="space-y-1">
               {visibleSteps.map((step, i) => {
@@ -491,7 +493,6 @@ export function ScenarioLessonRunner({
         </div>
 
         <div className="space-y-4 min-w-0">
-          <ArchifyPackCard scenarioId={scenarioId} />
           {scenario.flociRuntime && (
             <FlociRunnerCard
               runtime={scenario.flociRuntime}

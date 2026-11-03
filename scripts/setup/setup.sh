@@ -13,22 +13,16 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 cd "${REPO_ROOT}"
 TESTBENCH_ENV_FILE="${REPO_ROOT}/.testbench.env"
 
-echo "========================================================="
-echo "🔐 Supply Chain Attack Testbench - Setup"
-echo "========================================================="
-echo ""
+# shellcheck source=scripts/lib/scas-term.sh
+source "${REPO_ROOT}/scripts/lib/scas-term.sh"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+if [[ "${SCAS_FROM_RUN:-}" != "1" ]]; then
+  scas_banner "testbench bootstrap"
+else
+  scas_log "TESTBENCH bootstrap (nested under ./run.sh)"
+fi
 
-# Check OS
-echo "📋 Checking system requirements..."
-echo ""
-
+scas_log "Checking system requirements…"
 OS="$(uname -s)"
 case "${OS}" in
     Linux*)     MACHINE=Linux;;
@@ -37,13 +31,9 @@ case "${OS}" in
     MINGW*)     MACHINE=MinGw;;
     *)          MACHINE="UNKNOWN:${OS}"
 esac
+scas_kv "OS" "${MACHINE}"
 
-echo -e "${BLUE}Operating System: ${MACHINE}${NC}"
-echo ""
-
-# Check prerequisites
-echo "🔍 Checking prerequisites..."
-echo ""
+scas_log "Checking prerequisites…"
 
 MISSING_DEPS=()
 
@@ -51,136 +41,92 @@ MISSING_DEPS=()
 # shellcheck disable=SC1091
 source "${REPO_ROOT}/scripts/setup/ensure-node.sh"
 
-# Check Node.js
 if ! command -v node &> /dev/null; then
-    echo -e "${RED}❌ Node.js not found${NC}"
+    scas_fail "Node.js not found"
     MISSING_DEPS+=("Node.js 16+")
 else
-    NODE_VERSION=$(node --version)
-    echo -e "${GREEN}✅ Node.js: ${NODE_VERSION}${NC}"
+    scas_ok "Node.js: $(node --version)"
 fi
 
-# Check npm
 if ! command -v npm &> /dev/null; then
-    echo -e "${RED}❌ npm not found${NC}"
+    scas_fail "npm not found"
     MISSING_DEPS+=("npm")
 else
-    NPM_VERSION=$(npm --version)
-    echo -e "${GREEN}✅ npm: ${NPM_VERSION}${NC}"
+    scas_ok "npm: $(npm --version)"
 fi
 
-# Check Python 3
 if ! command -v python3 &> /dev/null; then
-    echo -e "${RED}❌ Python 3 not found${NC}"
+    scas_fail "Python 3 not found"
     MISSING_DEPS+=("Python 3.8+")
 else
-    PYTHON_VERSION=$(python3 --version | awk '{print $2}')
-    echo -e "${GREEN}✅ Python3: ${PYTHON_VERSION}${NC}"
+    scas_ok "Python3: $(python3 --version | awk '{print $2}')"
 fi
 
-echo ""
-
-# Exit if missing required dependencies
 if [ ${#MISSING_DEPS[@]} -gt 0 ]; then
-    echo -e "${RED}Missing required dependencies:${NC}"
+    scas_fail "Missing required dependencies:"
     for dep in "${MISSING_DEPS[@]}"; do
-        echo "  - $dep"
+        scas_dim "- $dep"
     done
-    echo ""
-    echo "Please install the missing dependencies and run this script again."
+    scas_warn "Install the missing dependencies and run this script again."
     exit 1
 fi
 
-# Confirm with user
-echo "========================================================="
-echo "This script will set up the Supply Chain Attack Testbench."
-echo "It will create directories, install dependencies, and"
-echo "configure the learning environment."
-echo ""
-echo -e "${YELLOW}⚠️  This environment contains intentionally vulnerable code${NC}"
-echo -e "${YELLOW}   for educational purposes only.${NC}"
-echo "========================================================="
-echo ""
+scas_hr '─'
+scas_info "This script sets up the Supply Chain Attack Testbench."
+scas_info "It creates directories, installs deps, and arms the learning env."
+scas_warn "Intentionally vulnerable code - educational use only."
+scas_hr '─'
 
 # Noninteractive: CI=1, SCAS_YES=1, or no TTY (piped / automation)
 if [[ "${CI:-}" = "1" || "${SCAS_YES:-}" = "1" || ! -t 0 ]]; then
     REPLY=y
-    echo "Do you want to continue? (y/N): y  [noninteractive]"
+    scas_log "Continue? y  [noninteractive]"
 else
-    read -p "Do you want to continue? (y/N): " -n 1 -r
+    printf '  %sContinue? (y/N):%s ' "${SCAS_AMBER}${SCAS_BOLD}" "${SCAS_R}"
+    read -r -n 1 REPLY
     echo ""
 fi
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Setup cancelled."
+    scas_warn "Setup cancelled."
     exit 1
 fi
 
-# Enable testbench mode
-echo ""
-echo "🔧 Configuring environment..."
+scas_log "Configuring environment…"
 export TESTBENCH_MODE=enabled
 if [ ! -f "${TESTBENCH_ENV_FILE}" ] || ! grep -q '^export TESTBENCH_MODE=enabled$' "${TESTBENCH_ENV_FILE}"; then
     cat > "${TESTBENCH_ENV_FILE}" << 'EOF'
 export TESTBENCH_MODE=enabled
 EOF
 fi
-echo -e "${GREEN}✅ TESTBENCH_MODE enabled for current shell${NC}"
-echo -e "${GREEN}✅ Persistent env file: ${TESTBENCH_ENV_FILE}${NC}"
-echo ""
-echo "Add this once to your shell profile for future sessions:"
-echo "  [ -f \"${TESTBENCH_ENV_FILE}\" ] && source \"${TESTBENCH_ENV_FILE}\""
+scas_ok "TESTBENCH_MODE enabled for current shell"
+scas_ok "Persistent env file: ${TESTBENCH_ENV_FILE}"
+scas_dim "Add once to your shell profile:"
+scas_dim "[ -f \"${TESTBENCH_ENV_FILE}\" ] && source \"${TESTBENCH_ENV_FILE}\""
 
-# Make all setup scripts executable
-echo ""
-echo "🔐 Making setup scripts executable..."
+scas_log "Making setup scripts executable…"
 find scenarios -name "setup.sh" -type f -exec chmod +x {} \;
-echo -e "${GREEN}✅ Scripts configured${NC}"
+scas_ok "Scripts configured"
 
-# Create necessary directories
-echo ""
-echo "📁 Creating directory structure..."
+scas_log "Creating directory structure…"
 mkdir -p logs
 mkdir -p detection-tools
 mkdir -p docs
-echo -e "${GREEN}✅ Directories created${NC}"
+scas_ok "Directories created"
 
-# Setup complete
-echo ""
-echo "========================================================="
-echo -e "${GREEN}✅ Setup Complete!${NC}"
-echo "========================================================="
-echo ""
-echo "🎯 Next Steps:"
-echo ""
-echo "1. Start with Scenario 1 (Typosquatting):"
-echo "   cd scenarios/01-typosquatting"
-echo "   cat README.md"
-echo "   ./setup.sh"
-echo ""
-echo "2. Read the documentation:"
-echo "   cat documentation/getting-started/SETUP.md"
-echo ""
-echo "4. Export testbench mode for this session:"
-echo "   source .testbench.env"
-echo ""
-echo "5. Clean up after a lab run:"
-echo "   ./scripts/setup/teardown.sh"
-echo ""
-echo "6. Optional — Floci cloud track (scenarios 05, 06, 14, 17, 21):"
-echo "   ./scripts/floci/floci-setup.sh"
-echo "   ./scripts/floci/floci-up.sh && source .floci.env"
-echo "   cat documentation/guides/FLOCI_INTEGRATION.md"
-echo ""
-echo "Cleanup command to disable the mode in your current shell:"
-echo "   unset TESTBENCH_MODE"
-echo ""
-echo "⚠️  IMPORTANT REMINDERS:"
-echo "   - This is for EDUCATIONAL purposes only"
-echo "   - Use ONLY in isolated environments"
-echo "   - Never deploy malicious code to production"
-echo "   - Always set TESTBENCH_MODE=enabled"
-echo ""
-echo "📖 Full documentation: cat README.md"
-echo ""
-echo "Happy learning! 🔐"
-
+scas_panel_open "SETUP COMPLETE"
+scas_panel_note "TESTBENCH_MODE=enabled · localhost labs only"
+if [[ "${SCAS_FROM_RUN:-}" = "1" ]]; then
+  scas_panel_note "Handing control back to ./run.sh for the rest of the stack."
+else
+  scas_panel_blank
+  scas_panel_note "Next moves"
+  scas_panel_row "Lab 01" "cd scenarios/01-typosquatting && cat README.md && ./setup.sh"
+  scas_panel_row "Docs" "cat documentation/getting-started/SETUP.md"
+  scas_panel_row "Env" "source .testbench.env"
+  scas_panel_row "Teardown" "./scripts/setup/teardown.sh"
+  scas_panel_row "Floci" "./scripts/floci/floci-setup.sh && ./scripts/floci/floci-up.sh"
+  scas_panel_blank
+  scas_panel_note "Educational only. Never ship malicious code to production."
+  scas_panel_note "Always keep TESTBENCH_MODE=enabled for lab payloads."
+fi
+scas_panel_close
