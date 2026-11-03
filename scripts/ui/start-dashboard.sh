@@ -97,7 +97,7 @@ wait_for "http://127.0.0.1:3100" "Dashboard"
 warm_dashboard_routes() {
   scas_log "Precompiling dashboard routes…"
   local path
-  for path in / /welcome /scenarios /scenarios/01 /observe /skills /report /classroom /teardown; do
+  for path in / /welcome /scenarios /scenarios/01 /scenarios/01/brief /observe /skills /report /classroom /teardown; do
     if curl -sf --max-time 120 "http://127.0.0.1:3100${path}" >/dev/null; then
       scas_ok "${path}"
     else

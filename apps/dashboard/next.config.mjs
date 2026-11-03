@@ -62,7 +62,12 @@ const nextConfig = {
         destination: `${controlPlaneTarget}/api/:path*`,
       },
       {
-        // Archify pack HTML/markdown (control plane serves repo `.archify/`)
+        // Lab brief .md -> Control Center page (same look as the rest of the UI)
+        source: '/archify/scenarios/:id(\\d{2})-:slug/archify_S:file.md',
+        destination: '/scenarios/:id/brief',
+      },
+      {
+        // Architecture / sequence HTML still come from control-plane static files
         source: '/archify/:path*',
         destination: `${controlPlaneTarget}/archify/:path*`,
       },

@@ -145,6 +145,15 @@ export interface ArchifyPackInfo {
   indexHref: string;
 }
 
+/** Brief markdown payload for Control Center rendering. */
+export interface ArchifyBriefPayload {
+  slug: string;
+  scenarioId: string;
+  title: string;
+  markdown: string;
+  diagrams: ArchifyLink[];
+}
+
 export interface ScenarioDetail extends Omit<ScenarioSummary, 'lesson'> {
   setup: { command: string; cwd: string };
   services: { id: string; label: string; port?: number }[];
@@ -363,6 +372,7 @@ export const cp = {
   runAll: (id: string) => api<ActionResult>(`/scenarios/${id}/run`, { method: 'POST' }),
   getCaptures: (id: string) => api<Record<string, unknown>>(`/scenarios/${id}/captures`),
   getArchify: (id: string) => api<ArchifyPackInfo>(`/scenarios/${id}/archify`),
+  getArchifyBrief: (id: string) => api<ArchifyBriefPayload>(`/scenarios/${id}/archify/brief`),
   clearCaptures: (id: string) => api(`/scenarios/${id}/captures`, { method: 'DELETE' }),
   verifyLesson: (id: string) => api<LessonVerifyResult>(`/scenarios/${id}/lesson/verify`),
   getProgress: () => api<ProgressState>('/progress'),

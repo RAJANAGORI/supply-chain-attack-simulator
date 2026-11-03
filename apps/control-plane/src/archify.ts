@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { getRepoRoot } from './env.js';
 
@@ -14,6 +14,14 @@ export type ArchifyPackInfo = {
   diagrams: ArchifyLink[];
   brief?: ArchifyLink;
   indexHref: string;
+};
+
+export type ArchifyBriefPayload = {
+  slug: string;
+  scenarioId: string;
+  title: string;
+  markdown: string;
+  diagrams: ArchifyLink[];
 };
 
 /** Absolute path to the repo `.archify` tree (HTML + briefs). */
@@ -69,8 +77,9 @@ export function resolveArchifyPack(slug: string): ArchifyPackInfo {
   const nn = slug.slice(0, 2);
   const briefName = `archify_S${nn}.md`;
   const briefPath = join(packDir, briefName);
+  // Learner-facing brief opens the dashboard renderer, not raw markdown.
   const brief = existsSync(briefPath)
-    ? { id: 'brief', label: 'Brief', href: toPublicHref(briefPath) }
+    ? { id: 'brief', label: 'Brief', href: `/scenarios/${nn}/brief` }
     : undefined;
 
   return {
@@ -79,5 +88,24 @@ export function resolveArchifyPack(slug: string): ArchifyPackInfo {
     diagrams,
     brief,
     indexHref,
+  };
+}
+
+/** Load brief markdown for Control Center rendering. */
+export function readArchifyBrief(slug: string): ArchifyBriefPayload | null {
+  const pack = resolveArchifyPack(slug);
+  const packDir = resolve(getArchifyRoot(), 'scenarios', slug);
+  const nn = slug.slice(0, 2);
+  const briefPath = join(packDir, `archify_S${nn}.md`);
+  if (!existsSync(briefPath)) return null;
+
+  const markdown = readFileSync(briefPath, 'utf8');
+  const titleMatch = markdown.match(/^#\s+(.+)$/m);
+  return {
+    slug,
+    scenarioId: nn,
+    title: titleMatch?.[1]?.trim() || `Scenario ${nn} lab brief`,
+    markdown,
+    diagrams: pack.diagrams,
   };
 }

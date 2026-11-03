@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Btn, Card, StatusPill } from '@/components/ui';
 import { cp, type ArchifyPackInfo } from '@/lib/api';
 
@@ -86,9 +87,11 @@ export function ArchifyPackCard({ scenarioId }: { scenarioId: string }) {
           </Btn>
         ))}
         {pack.brief && (
-          <Btn variant="ghost" size="sm" onClick={() => openArchify(pack.brief!.href)}>
-            Lab brief
-          </Btn>
+          <Link href={pack.brief.href}>
+            <Btn variant="ghost" size="sm">
+              Lab brief
+            </Btn>
+          </Link>
         )}
       </div>
     </Card>

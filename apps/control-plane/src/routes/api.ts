@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { resolve } from 'node:path';
-import { resolveArchifyPack } from '../archify.js';
+import { readArchifyBrief, resolveArchifyPack } from '../archify.js';
 import { SCENARIOS, getScenario } from '../registry/scenarios.js';
 import type { PlatformStatus } from '../registry/types.js';
 import { processManager } from '../process-manager.js';
@@ -177,6 +177,15 @@ export function createApiRouter(): Router {
     const scenario = getScenario(req.params.id);
     if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
     res.json(resolveArchifyPack(scenario.slug));
+  });
+
+  /** Brief markdown body for Control Center rendering (not raw .md in the browser). */
+  router.get('/scenarios/:id/archify/brief', (req, res) => {
+    const scenario = getScenario(req.params.id);
+    if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
+    const brief = readArchifyBrief(scenario.slug);
+    if (!brief) return res.status(404).json({ error: 'No lab brief for scenario' });
+    res.json(brief);
   });
 
   router.get('/scenarios/:id/lesson/verify', async (req, res) => {
