@@ -104,11 +104,18 @@ if [[ "$UI_DEV" = "1" ]]; then
   wait_for "http://127.0.0.1:3100" "Dashboard"
 else
   scas_log "UI mode: production (dashboard build + next start)"
-  if [[ "${SCAS_FORCE_BUILD:-0}" = "1" || ! -d "${ROOT}/apps/dashboard/.next" ]]; then
+  # next start needs a real production build (.next/BUILD_ID). A leftover
+  # empty/partial .next from failed builds or next dev is not enough.
+  DASH_BUILD_ID="${ROOT}/apps/dashboard/.next/BUILD_ID"
+  if [[ "${SCAS_FORCE_BUILD:-0}" = "1" || ! -f "${DASH_BUILD_ID}" ]]; then
     scas_log "Building @scas/dashboard…"
     npm run build:dashboard
   else
     scas_log "Reusing apps/dashboard/.next (set SCAS_FORCE_BUILD=1 to rebuild)"
+  fi
+  if [[ ! -f "${DASH_BUILD_ID}" ]]; then
+    scas_fail "Dashboard production build missing after build (${DASH_BUILD_ID})"
+    exit 1
   fi
 
   scas_log "Control plane bind ${BIND_HOST}:${CONTROL_PLANE_PORT}"
