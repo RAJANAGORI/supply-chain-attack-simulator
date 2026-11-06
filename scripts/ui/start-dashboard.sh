@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Start SCAS control center: control plane + Next.js dashboard.
 # Public marketing site: https://simulator.rajanagori.in/ (not started locally).
+#
+# Default: production (build dashboard once, then next start + control-plane start).
+# Hot-reload workshop hacking: SCAS_UI_DEV=1 ./run.sh
+# Skip GA: NEXT_PUBLIC_SCAS_DISABLE_GA=1
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -29,6 +33,7 @@ fi
 
 BIND_HOST="${SCAS_BIND_HOST:-0.0.0.0}"
 PUBLIC_HOST="${SCAS_PUBLIC_HOST:-0.0.0.0}"
+UI_DEV="${SCAS_UI_DEV:-0}"
 
 export SCAS_REPO_ROOT="$ROOT"
 export TESTBENCH_MODE="${TESTBENCH_MODE:-enabled}"
@@ -36,6 +41,8 @@ export CONTROL_PLANE_HOST="$BIND_HOST"
 export CONTROL_PLANE_PORT="${CONTROL_PLANE_PORT:-3101}"
 export SCAS_PUBLIC_HOST="$PUBLIC_HOST"
 export NEXT_PUBLIC_CONTROL_PLANE_URL="${NEXT_PUBLIC_CONTROL_PLANE_URL:-http://${PUBLIC_HOST}:3101}"
+# Same GA4 property as docs/index.html (override with NEXT_PUBLIC_GA_ID=...)
+export NEXT_PUBLIC_GA_ID="${NEXT_PUBLIC_GA_ID:-G-0EC7Y69Y12}"
 # Observatory forwarding (no-op if ES is down; mocks need this at process start)
 export SCAS_ES_URL="${SCAS_ES_URL:-http://127.0.0.1:9200}"
 export KIBANA_URL="${KIBANA_URL:-http://127.0.0.1:5601}"
@@ -60,7 +67,8 @@ wait_for() {
   local url=$1
   local name=$2
   local i=0
-  while [[ $i -lt 30 ]]; do
+  local limit=60
+  while [[ $i -lt $limit ]]; do
     if curl -sf "$url" >/dev/null 2>&1; then
       scas_ok "$name ready"
       return 0
@@ -85,23 +93,42 @@ if [[ -n "${LAN_IP}" ]]; then
   export SCAS_LAN_IP="${LAN_IP}"
 fi
 
-scas_log "Control plane bind ${BIND_HOST}:${CONTROL_PLANE_PORT}"
-npm run dev:control-plane &
-wait_for "http://127.0.0.1:${CONTROL_PLANE_PORT}/api/health" "Control plane"
+if [[ "$UI_DEV" = "1" ]]; then
+  scas_log "UI mode: next/tsx DEV (SCAS_UI_DEV=1)"
+  scas_log "Control plane bind ${BIND_HOST}:${CONTROL_PLANE_PORT}"
+  npm run dev:control-plane &
+  wait_for "http://127.0.0.1:${CONTROL_PLANE_PORT}/api/health" "Control plane"
 
-scas_log "Dashboard bind ${BIND_HOST}:3100"
-npm run dev:dashboard &
-wait_for "http://127.0.0.1:3100" "Dashboard"
+  scas_log "Dashboard bind ${BIND_HOST}:3100"
+  npm run dev:dashboard &
+  wait_for "http://127.0.0.1:3100" "Dashboard"
+else
+  scas_log "UI mode: production (dashboard build + next start)"
+  if [[ "${SCAS_FORCE_BUILD:-0}" = "1" || ! -d "${ROOT}/apps/dashboard/.next" ]]; then
+    scas_log "Building @scas/dashboard…"
+    npm run build:dashboard
+  else
+    scas_log "Reusing apps/dashboard/.next (set SCAS_FORCE_BUILD=1 to rebuild)"
+  fi
 
-# Warm Next.js routes so first Labs/Reset click stays fast.
+  scas_log "Control plane bind ${BIND_HOST}:${CONTROL_PLANE_PORT}"
+  npm run start:control-plane &
+  wait_for "http://127.0.0.1:${CONTROL_PLANE_PORT}/api/health" "Control plane"
+
+  scas_log "Dashboard bind ${BIND_HOST}:3100"
+  npm run start:dashboard &
+  wait_for "http://127.0.0.1:3100" "Dashboard"
+fi
+
+# Warm routes so first Labs/Reset click stays fast (dev compile or prod cache).
 warm_dashboard_routes() {
-  scas_log "Precompiling dashboard routes…"
+  scas_log "Warming dashboard routes…"
   local path
   for path in / /welcome /scenarios /scenarios/01 /scenarios/01/brief /observe /skills /report /classroom /teardown; do
     if curl -sf --max-time 120 "http://127.0.0.1:3100${path}" >/dev/null; then
       scas_ok "${path}"
     else
-      scas_warn "${path} (will compile on first visit)"
+      scas_warn "${path} (will load on first visit)"
     fi
   done
 }
@@ -115,6 +142,12 @@ scas_panel_row "Attack maps" "http://localhost:3100/archify/INDEX.md"
 scas_panel_row "Observatory" "http://localhost:3100/observe"
 scas_panel_row "Control plane" "http://localhost:${CONTROL_PLANE_PORT}/api/health"
 scas_panel_row "Marketing" "https://simulator.rajanagori.in/"
+scas_panel_row "UI mode" "$([[ "$UI_DEV" = "1" ]] && echo 'dev (hot reload)' || echo 'production')"
+if [[ "${NEXT_PUBLIC_SCAS_DISABLE_GA:-0}" = "1" ]]; then
+  scas_panel_row "GA4" "disabled"
+else
+  scas_panel_row "GA4" "${NEXT_PUBLIC_GA_ID}"
+fi
 if [[ -n "${SCAS_ES_URL:-}" ]]; then
   scas_panel_row "SCAS_ES_URL" "${SCAS_ES_URL}"
 else

@@ -4,6 +4,8 @@
 # the dashboard proxies that path so lab buttons open diagram HTML same-origin.
 # Terminal look: phosphor ops console via scripts/lib/scas-term.sh
 #   NO_COLOR=1 or SCAS_TERM=plain  -> plain text
+# Control Center defaults to production UI (next start). Hot reload: SCAS_UI_DEV=1
+# GA4 (G-0EC7Y69Y12) embeds in the dashboard; disable: NEXT_PUBLIC_SCAS_DISABLE_GA=1
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

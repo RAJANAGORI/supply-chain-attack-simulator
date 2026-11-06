@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { DM_Sans, JetBrains_Mono, Syne } from 'next/font/google';
+import { GoogleAnalytics } from '@/components/GoogleAnalytics';
 import { RouteWarmup } from '@/components/RouteWarmup';
 import { Sidebar } from '@/components/Sidebar';
 import { AttributionFooter } from '@/components/AttributionFooter';
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP_SCRIPT }} />
       </head>
       <body className="font-sans">
+        <GoogleAnalytics />
         <ThemeProvider>
           <RouteWarmup />
           <Sidebar />

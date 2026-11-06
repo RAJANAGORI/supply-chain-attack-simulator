@@ -20,6 +20,9 @@
     "dev:dashboard": "npm run dev -w @scas/dashboard",
     "dev:control-plane": "npm run dev -w @scas/control-plane",
     "dev:ui": "npm run dev:control-plane & npm run dev:dashboard",
+    "build:dashboard": "npm run build -w @scas/dashboard",
+    "start:dashboard": "npm run start -w @scas/dashboard",
+    "start:control-plane": "npm run start -w @scas/control-plane",
     "start:ui": "bash scripts/ui/start-dashboard.sh"
   },
   "scas": {
