@@ -73,8 +73,8 @@ export default function CampaignPage() {
 
             {/* The map: an ordered chain of beats */}
             <ol className="mt-6 space-y-0">
-              {c.chapters.map((ch, i) => {
-                const last = i === c.chapters.length - 1;
+              {(c.chapters ?? []).map((ch, i) => {
+                const last = i === (c.chapters?.length ?? 0) - 1;
                 return (
                   <li key={ch.scenarioId} className="relative flex gap-4 pb-6 last:pb-0">
                     {/* connector line */}

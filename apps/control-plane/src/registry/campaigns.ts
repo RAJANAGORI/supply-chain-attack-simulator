@@ -4,7 +4,10 @@ import fs from 'fs';
 import path from 'path';
 import { load } from 'js-yaml';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname } from 'path';
+import { readProgress } from '../progress.js';
+import { loadLesson } from './lesson-loader.js';
+import { SCENARIOS } from './scenarios.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -45,6 +48,30 @@ export interface CampaignChapter {
   scenario: string;
   beat: string;
   narrative: string;
+}
+
+/** Chapter plus live progress for the campaign map UI. */
+export interface CampaignChapterStatus extends CampaignChapter {
+  scenarioId: string;
+  title: string;
+  slug: string;
+  completed: boolean;
+  /** True when this is the next unfinished chapter. */
+  current: boolean;
+}
+
+/** Full campaign payload the dashboard /campaign page expects. */
+export interface CampaignStatus {
+  id: string;
+  title: string;
+  persona: string;
+  tagline: string;
+  description: string;
+  debrief: string;
+  chapters: CampaignChapterStatus[];
+  completedChapters: number;
+  totalChapters: number;
+  done: boolean;
 }
 
 /** A graded remediation action after campaign completion. */
@@ -94,9 +121,6 @@ export interface CampaignDefinition {
 /** Path to the campaign YAML files directory. */
 const CAMPAIGNS_DIR = path.join(__dirname, '../../../../campaigns');
 
-/** Known campaign slugs and their YAML paths. */
-const CAMPAIGN_SLUGS = ['operation-quiet-carrier'];
-
 /**
  * Load all campaign definitions. Cache on first call.
  */
@@ -106,7 +130,7 @@ function _load(): CampaignDefinition[] {
   if (_cache) return _cache;
 
   try {
-    const files = fs.readdirSync(CAMPAIGNS_DIR).filter((f) => f.endsWith('.yaml'));
+    const files = fs.readdirSync(CAMPAIGNS_DIR).filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'));
     _cache = files.map((file) => {
       const fullPath = path.join(CAMPAIGNS_DIR, file);
       const raw = fs.readFileSync(fullPath, 'utf-8');
@@ -119,22 +143,79 @@ function _load(): CampaignDefinition[] {
   return _cache;
 }
 
-/**
- * Get all campaigns as a compact summary list (alias for compatibility).
- */
-export function listCampaignStatus(): Array<{ id: string; title: string; persona: string; tagline: string; chapterCount: number }> {
-  return listCampaigns();
+/** Lab counts as done when every lesson step is marked complete in progress. */
+function scenarioCompleted(scenarioId: string): boolean {
+  const scenario = SCENARIOS.find((s) => s.id === scenarioId);
+  if (!scenario) return false;
+  let lesson;
+  try {
+    lesson = loadLesson(scenario);
+  } catch {
+    // A broken lesson.yaml must not take down GET /campaigns.
+    return false;
+  }
+  if (!lesson || lesson.steps.length === 0) return false;
+  const entry = readProgress().scenarios[scenarioId];
+  return (entry?.completedSteps?.length ?? 0) >= lesson.steps.length;
 }
 
 /**
- * Get a single campaign's full status by slug (alias for compatibility).
+ * Get a single campaign by slug (raw YAML definition).
  */
-export function getCampaignStatus(slug: string): CampaignDefinition | undefined {
-  return getCampaign(slug);
+export function getCampaign(slug: string): CampaignDefinition | undefined {
+  return _load().find((c) => c.id === slug);
 }
 
 /**
- * Get all campaigns as a compact summary list.
+ * Enrich one campaign with per-chapter progress for the map UI.
+ */
+export function getCampaignStatus(slug: string): CampaignStatus | null {
+  const campaign = getCampaign(slug);
+  if (!campaign) return null;
+
+  let sawCurrent = false;
+  const chapterDefs = Array.isArray(campaign.chapters) ? campaign.chapters : [];
+  const chapters: CampaignChapterStatus[] = chapterDefs.map((ch) => {
+    const scenario = SCENARIOS.find((s) => s.id === ch.scenario);
+    const completed = scenarioCompleted(ch.scenario);
+    const current = !completed && !sawCurrent;
+    if (current) sawCurrent = true;
+    return {
+      ...ch,
+      scenarioId: scenario?.id ?? ch.scenario,
+      title: scenario?.title ?? `Lab ${ch.scenario}`,
+      slug: scenario?.slug ?? ch.scenario,
+      completed,
+      current,
+    };
+  });
+
+  const completedChapters = chapters.filter((c) => c.completed).length;
+  return {
+    id: campaign.id,
+    title: campaign.title,
+    persona: campaign.persona,
+    tagline: campaign.tagline,
+    description: campaign.description,
+    debrief: campaign.debrief,
+    chapters,
+    completedChapters,
+    totalChapters: chapters.length,
+    done: completedChapters === chapters.length && chapters.length > 0,
+  };
+}
+
+/**
+ * All campaigns with live chapter progress (what GET /campaigns returns).
+ */
+export function listCampaignStatus(): CampaignStatus[] {
+  return _load()
+    .map((c) => getCampaignStatus(c.id))
+    .filter((s): s is CampaignStatus => s !== null);
+}
+
+/**
+ * Compact summary list for selectors that only need id + chapter count.
  */
 export function listCampaigns(): Array<{ id: string; title: string; persona: string; tagline: string; chapterCount: number }> {
   return _load().map((c) => ({
@@ -142,15 +223,8 @@ export function listCampaigns(): Array<{ id: string; title: string; persona: str
     title: c.title,
     persona: c.persona,
     tagline: c.tagline,
-    chapterCount: c.chapters.length,
+    chapterCount: c.chapters?.length ?? 0,
   }));
-}
-
-/**
- * Get a single campaign by slug.
- */
-export function getCampaign(slug: string): CampaignDefinition | undefined {
-  return _load().find((c) => c.id === slug);
 }
 
 /**

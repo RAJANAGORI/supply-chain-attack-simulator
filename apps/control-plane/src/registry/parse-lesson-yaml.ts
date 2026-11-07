@@ -50,7 +50,8 @@ type YamlNode = Record<string, unknown> | unknown[] | string | number | boolean 
 
 function parseBlock(lines: string[], start: number, baseIndent: number): { value: YamlNode; next: number } {
   const first = lines[start];
-  if (!first) return { value: null, next: start };
+  // Empty string is a blank line, not end-of-input. Only undefined means past the last line.
+  if (first === undefined) return { value: null, next: start };
 
   const trimmed = first.trimStart();
   if (trimmed.startsWith('- ')) {
@@ -150,7 +151,12 @@ function parseBlock(lines: string[], start: number, baseIndent: number): { value
 
 export function parseLessonYaml(text: string): Record<string, unknown> {
   const lines = text.replace(/\r\n/g, '\n').split('\n');
-  const { value } = parseBlock(lines, 0, 0);
+  // Skip leading blank / comment lines so a file that starts with `\n` still parses.
+  let start = 0;
+  while (start < lines.length && (!lines[start].trim() || lines[start].trim().startsWith('#'))) {
+    start += 1;
+  }
+  const { value } = parseBlock(lines, start, 0);
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error('lesson.yaml root must be a mapping');
   }
