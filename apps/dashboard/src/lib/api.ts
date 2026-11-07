@@ -30,34 +30,100 @@ export interface LessonStep {
   verify: LessonVerify;
 }
 
+/** Where a decision choice sends the learner. */
+export interface DecisionEffect {
+  /** Step id to jump to when this choice is picked. */
+  goto?: string;
+  /** Points delta for this choice (negative = wrong path). */
+  score?: number;
+  /** Flag keys set on progress (stored in flags[]). */
+  flag?: string | string[];
+  /** Shown to the learner immediately after choosing. */
+  feedback?: string;
+}
+
+/** A single choice button inside a LessonDecision. */
+export interface DecisionChoice {
+  /** Unique within this decision block. */
+  id: string;
+  /** Shown as a button label. */
+  label: string;
+  /** Where this choice leads. */
+  effects: DecisionEffect;
+}
+
+/** A branching decision point interleaved with steps. */
+export interface LessonDecision {
+  /** Unique within this lesson. */
+  id: string;
+  /** The step id AFTER which this decision appears. */
+  afterStep: string;
+  /** Question presented to the learner. */
+  prompt: string;
+  /** Choices rendered as selectable buttons. */
+  choices: DecisionChoice[];
+}
+
+/** Stored decision result on a scenario progress entry. */
+export interface DecisionResult {
+  decisionId: string;
+  choiceId: string;
+  scoreDelta: number;
+  flags: string[];
+  answeredAt: string;
+}
+
 export interface LessonDefinition {
   id: string;
   etaMinutes: number;
   category: string;
   incidents: string[];
   objectives: string[];
+  /** Optional: 1-2 sentences tying the lab to a real supply-chain incident. */
   caseStudy?: string;
+  /** Optional: short mitigation bullets distilled from DETECT.md. */
   mitigation?: string[];
   steps: LessonStep[];
+  /** Optional branching decision points interleaved with steps. */
+  decisions?: LessonDecision[];
+  /** Optional blind "spot the attack" drill. */
   drill?: LessonDrill;
+  /** Optional quiz gate: 2-3 questions drawn from the lab's DETECT.md IOCs. */
   quiz?: LessonQuizQuestion[];
+  /** Optional purple-team reversal: the package the learner's control must block. */
   reversal?: { blockedPackage: string };
+  /** Opt-in teaching injection: show the PR Triage Inbox after the first 4 steps. */
+  prTriageStep?: boolean;
 }
 
+/** A single multiple-choice quiz question. */
 export interface LessonQuizQuestion {
   question: string;
   choices: string[];
+  /** Index into choices that is correct. */
   answer: number;
+  /** Shown after answering, regardless of right/wrong. */
   explain: string;
 }
 
+/**
+ * A blind drill: the learner reviews an artifact (dependency diff, package page,
+ * CI log) that is NOT labeled malicious, decides, then gets the reveal.
+ */
 export interface LessonDrill {
+  /** One-line setup, e.g. "A teammate opened this PR. Merge it?" */
   prompt: string;
+  /** What kind of artifact the learner is reviewing. */
   artifactType: 'diff' | 'package-page' | 'ci-log';
+  /** The artifact body, rendered verbatim. */
   artifact: string;
+  /** Decision buttons, in the order shown. */
   choices: string[];
+  /** Index into choices that is the safe/correct call. */
   answer: number;
+  /** Shown after the decision: what the artifact actually was. */
   reveal: string;
+  /** Why the wrong choice fails - the lesson that stings. */
   explanation: string;
 }
 
@@ -67,11 +133,18 @@ export interface LessonSummary {
   stepCount: number;
 }
 
+/** Learner progress for a single scenario. */
 export interface ScenarioProgressEntry {
   completedSteps: string[];
   hintsOpened: string[];
+  /** Decision results: learner choices on branching paths. */
+  decisions?: DecisionResult[];
+  /** Custom flags set by decisions (e.g. delayed_response). */
+  flags?: string[];
   currentStepId?: string;
+  /** Quiz result once the learner passes the lab's gate. */
   quiz?: { score: number; total: number; passedAt: string };
+  /** Drill outcome: the choice index the learner picked and whether it was right. */
   drill?: { picked: number; correct: boolean; answeredAt: string };
   updatedAt: string;
 }
@@ -395,6 +468,8 @@ export const cp = {
     quiz?: { score: number; total: number };
     drill?: { picked: number; correct: boolean };
   }) => api<ProgressState>(`/scenarios/${id}/assessment`, { method: 'POST', body: JSON.stringify(body) }),
+  recordDecision: (id: string, body: { decisionId: string; choiceId: string }) =>
+    api<ProgressState>(`/scenarios/${id}/decisions`, { method: 'POST', body: JSON.stringify(body) }),
   getTimeline: (limit = 50) => api<TimelinePayload>(`/observe/timeline?limit=${limit}`),
   getClassroom: () => api<ClassroomState>('/classroom'),
   createClassroom: (title?: string) =>
@@ -434,4 +509,104 @@ export const cp = {
   logs: (session?: string) => api<LogEntry[]>(session ? `/logs?session=${session}` : '/logs'),
   processes: () => api<ProcessRecord[]>('/processes'),
   wsUrl: () => controlPlaneWsUrl(),
+};
+
+/* ── Campaign API helpers ──────────────────────────────────────────────────── */
+
+type Severity = 'critical' | 'high' | 'medium' | 'low' | 'info';
+type InjectKind = 'intel-brief' | 'alert';
+
+export interface CampaignEvidence {
+  type: string;
+  [key: string]: unknown;
+}
+
+export interface CampaignInject {
+  id: string;
+  when: string;
+  kind: InjectKind;
+  timestamp: string;
+  from: string;
+  subject: string;
+  body: string;
+  evidence?: CampaignEvidence[];
+  confidence: number;
+}
+
+export interface ExecutionNode {
+  stage: string;
+  description: string;
+  severity: Severity;
+  source: string;
+  confirmed: boolean;
+  indicator?: string;
+}
+
+export interface CampaignRemediationItem {
+  id: string;
+  title: string;
+  severity: Severity;
+  weight: number;
+  description: string;
+  steps: string[];
+  flag: string;
+}
+
+export interface RemediationGrade {
+  totalPossible: number;
+  earned: number;
+  percentage: number;
+  completedIds: string[];
+  missingIds: string[];
+}
+
+export interface CampaignInjectResult {
+  injects: CampaignInject[];
+  campaign: { id: string; title: string };
+}
+
+export interface ExecGraphResult {
+  nodes: ExecutionNode[];
+  campaign: { id: string; title: string; chapters: Array<{ scenario: string; beat: string; narrative: string }> };
+}
+
+export interface RemediationResult {
+  items: CampaignRemediationItem[];
+  grade: RemediationGrade | null;
+}
+
+async function campaignApi<T>(campaignId: string, path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${controlPlaneApiBase()}/campaigns/${campaignId}${path}`, {
+    ...init,
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
+    cache: 'no-store',
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err || res.statusText);
+  }
+  return res.json() as Promise<T>;
+}
+
+export const campaign = {
+  /** Resolve which injects have fired based on completed scenario IDs. */
+  getInjects: (campaignId: string, completedScenarios: string[]): Promise<CampaignInjectResult> =>
+    campaignApi(campaignId, '/injects', {
+      method: 'POST',
+      body: JSON.stringify({ completedScenarios }),
+    }),
+
+  /** Build the attack-chain execution graph from captured data. */
+  getExecGraph: (campaignId: string, capturesByScenario: Record<string, Record<string, unknown>>): Promise<ExecGraphResult> =>
+    campaignApi(campaignId, '/exec-graph', {
+      method: 'POST',
+      body: JSON.stringify({ capturesByScenario }),
+    }),
+
+  /** Grade remediation checklist completion. */
+  getRemediation: (campaignId: string, completedFlags: string[]): Promise<RemediationResult> =>
+    campaignApi(campaignId, '/remediation', {
+      method: 'POST',
+      body: JSON.stringify({ completedFlags }),
+    }),
 };

@@ -18,6 +18,49 @@ export interface LessonStep {
   verify: LessonVerify;
 }
 
+/** Where a decision choice sends the learner. */
+export interface DecisionEffect {
+  /** Step id to jump to when this choice is picked. */
+  goto?: string;
+  /** Points delta for this choice (negative = wrong path). */
+  score?: number;
+  /** Flag keys set on progress (stored in flags[]). */
+  flag?: string | string[];
+  /** Shown to the learner immediately after choosing. */
+  feedback?: string;
+}
+
+/** A single choice button inside a LessonDecision. */
+export interface DecisionChoice {
+  /** Unique within this decision block. */
+  id: string;
+  /** Shown as a button label. */
+  label: string;
+  /** Where this choice leads. */
+  effects: DecisionEffect;
+}
+
+/** A branching decision point interleaved with steps. */
+export interface LessonDecision {
+  /** Unique within this lesson. */
+  id: string;
+  /** The step id AFTER which this decision appears. Must match a lesson step id. */
+  afterStep: string;
+  /** Question presented to the learner. */
+  prompt: string;
+  /** Choices rendered as selectable buttons. */
+  choices: DecisionChoice[];
+}
+
+/** Stored decision result on a scenario progress entry. */
+export interface DecisionResult {
+  decisionId: string;
+  choiceId: string;
+  scoreDelta: number;
+  flags: string[];
+  answeredAt: string;
+}
+
 export interface LessonDefinition {
   id: string;
   etaMinutes: number;
@@ -29,12 +72,16 @@ export interface LessonDefinition {
   /** Optional: short mitigation bullets distilled from DETECT.md (not a full runbook). */
   mitigation?: string[];
   steps: LessonStep[];
+  /** Optional branching decision points interleaved with steps. */
+  decisions?: LessonDecision[];
   /** Optional blind "spot the attack" drill shown before the labeled storyboard. */
   drill?: LessonDrill;
   /** Optional quiz gate: 2-3 questions drawn from the lab's DETECT.md IOCs. */
   quiz?: LessonQuizQuestion[];
   /** Optional purple-team reversal: the package the learner's control must block. */
   reversal?: { blockedPackage: string };
+  /** Opt-in teaching injection: show the PR Triage Inbox after the first 4 steps. */
+  prTriageStep?: boolean;
 }
 
 /** A single multiple-choice quiz question. */
@@ -73,6 +120,10 @@ export interface LessonDrill {
 export interface ScenarioProgressEntry {
   completedSteps: string[];
   hintsOpened: string[];
+  /** Decision results: learner choices on branching paths. */
+  decisions?: DecisionResult[];
+  /** Custom flags set by decisions (e.g. delayed_response). */
+  flags?: string[];
   currentStepId?: string;
   /** Quiz result once the learner passes the lab's gate. */
   quiz?: { score: number; total: number; passedAt: string };

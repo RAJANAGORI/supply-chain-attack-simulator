@@ -34,7 +34,7 @@ import {
   setClassroomFrozen,
   skillMatrixMarkdown,
 } from '../learning-platform.js';
-import { getCampaignStatus, listCampaignStatus } from '../registry/campaigns.js';
+import { getCampaign, getCampaignStatus, listCampaignStatus, resolveInjects, buildExecutionGraph, gradeRemediation } from '../registry/campaigns.js';
 import { buildAssessment } from '../assessment.js';
 import { getProvenance } from '../provenance.js';
 
@@ -267,6 +267,43 @@ export function createApiRouter(): Router {
     }
   });
 
+  router.post('/campaigns/:id/exec-graph', (req, res) => {
+    try {
+      const campaign = getCampaign(req.params.id);
+      if (!campaign) return res.status(404).json({ error: 'Campaign not found' });
+      const capturesByScenario = (req.body?.capturesByScenario) as Record<string, Record<string, unknown>> | undefined;
+      const nodes = buildExecutionGraph(campaign, capturesByScenario || {});
+      res.json({ nodes, campaign: { id: campaign.id, title: campaign.title, chapters: campaign.chapters } });
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to build exec graph' });
+    }
+  });
+
+  router.post('/campaigns/:id/remediation', (req, res) => {
+    try {
+      const campaign = getCampaign(req.params.id);
+      if (!campaign) return res.status(404).json({ error: 'Campaign not found' });
+      const completedFlags = (req.body?.completedFlags ?? []) as string[];
+      if (!campaign.remediation) return res.json({ items: [], grade: null });
+      const grade = gradeRemediation(campaign.remediation, completedFlags);
+      res.json({ items: campaign.remediation, grade });
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to load remediation' });
+    }
+  });
+
+  router.post('/campaigns/:id/injects', (req, res) => {
+    try {
+      const campaign = getCampaign(req.params.id);
+      if (!campaign) return res.status(404).json({ error: 'Campaign not found' });
+      const completedScenarios = (req.body?.completedScenarios ?? []) as string[];
+      const injects = resolveInjects(campaign, completedScenarios);
+      res.json({ injects, campaign: { id: campaign.id, title: campaign.title } });
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Failed to resolve injects' });
+    }
+  });
+
   router.get('/campaigns/:id', (req, res) => {
     try {
       const status = getCampaignStatus(req.params.id);
@@ -307,6 +344,52 @@ export function createApiRouter(): Router {
     if (!entry.quiz && !entry.drill) {
       return res.status(400).json({ error: 'Expected quiz or drill result' });
     }
+    res.json(mergeScenarioProgress(scenario.id, entry));
+  });
+
+  /** Record a learner's decision result against a scenario's progress entry. */
+  router.post('/scenarios/:id/decisions', (req, res) => {
+    const scenario = getScenario(req.params.id);
+    if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
+    const body = req.body as {
+      decisionId?: string;
+      choiceId?: string;
+    };
+    if (!body.decisionId || !body.choiceId) {
+      return res.status(400).json({ error: 'decisionId and choiceId required' });
+    }
+
+    const lesson = loadLesson(scenario);
+    if (!lesson || !lesson.decisions) {
+      return res.status(400).json({ error: 'No decisions defined for this scenario' });
+    }
+
+    const decision = lesson.decisions.find((d) => d.id === body.decisionId);
+    if (!decision) {
+      return res.status(400).json({ error: 'Decision not found in lesson' });
+    }
+
+    const choice = decision.choices.find((c) => c.id === body.choiceId);
+    if (!choice) {
+      return res.status(400).json({ error: 'Choice not found in decision' });
+    }
+
+    const entry: Partial<ScenarioProgressEntry> = {
+      decisions: [
+        {
+          decisionId: decision.id,
+          choiceId: choice.id,
+          scoreDelta: choice.effects?.score ?? 0,
+          flags: choice.effects?.flag
+            ? Array.isArray(choice.effects.flag)
+              ? [...(choice.effects.flag as string[])]
+              : [choice.effects.flag as string]
+            : [],
+          answeredAt: new Date().toISOString(),
+        },
+      ],
+    };
+
     res.json(mergeScenarioProgress(scenario.id, entry));
   });
 

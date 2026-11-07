@@ -6,6 +6,7 @@
 import { SCENARIOS } from './registry/scenarios.js';
 import { loadLesson } from './registry/lesson-loader.js';
 import { readProgress } from './progress.js';
+import type { LessonDefinition } from './registry/lesson-types.js';
 
 export interface Badge {
   id: string;
@@ -22,7 +23,9 @@ export interface LabScore {
   quizScore?: number;
   quizTotal?: number;
   drillCorrect?: boolean;
-  /** Points: completion 10, quiz pass 5, drill correct 5. */
+  /** Points earned via decision choices on this lab. */
+  decisionPoints?: number;
+  /** Points: completion 10, quiz pass 5, drill correct 5, decisions 3 each. */
   points: number;
 }
 
@@ -33,6 +36,7 @@ export interface Assessment {
   totalLabs: number;
   quizzesPassed: number;
   drillsCorrect: number;
+  decisionPoints: number;
   badges: Badge[];
   labs: LabScore[];
   /** True when every lab is complete and every quiz passed - certificate ready. */
@@ -42,6 +46,7 @@ export interface Assessment {
 const POINTS_COMPLETE = 10;
 const POINTS_QUIZ = 5;
 const POINTS_DRILL = 5;
+const POINTS_DECISION = 3;
 
 export function buildAssessment(): Assessment {
   const progress = readProgress();
@@ -59,10 +64,22 @@ export function buildAssessment(): Assessment {
     const quizPassed = quizTotal > 0 && !!entry?.quiz && entry.quiz.score >= Math.ceil(quizTotal * 0.999);
     const drillCorrect = lesson.drill ? entry?.drill?.correct : undefined;
 
+    // Decision scoring: count choices that carried a positive score effect.
+    const decisionResults = entry?.decisions ?? [];
+    const decisionPoints = lesson.decisions
+      ? decisionResults.reduce((sum, dr) => {
+          const choice = lesson.decisions!.find((dec) => dec.id === dr.decisionId)?.choices.find((c) => c.id === dr.choiceId);
+          if (!choice) return sum;
+          const score = choice.effects?.score ?? 0;
+          return sum + (score > 0 ? score : 0);
+        }, 0)
+      : 0;
+
     let points = 0;
     if (completed) points += POINTS_COMPLETE;
     if (quizPassed) points += POINTS_QUIZ;
     if (drillCorrect) points += POINTS_DRILL;
+    points += decisionPoints;
 
     labs.push({
       scenarioId: s.id,
@@ -72,6 +89,7 @@ export function buildAssessment(): Assessment {
       quizScore: entry?.quiz?.score,
       quizTotal: quizTotal || undefined,
       drillCorrect,
+      decisionPoints: decisionPoints > 0 ? decisionPoints : undefined,
       points,
     });
   }
@@ -79,6 +97,7 @@ export function buildAssessment(): Assessment {
   const labsCompleted = labs.filter((l) => l.completed).length;
   const quizzesPassed = labs.filter((l) => l.quizPassed).length;
   const drillsCorrect = labs.filter((l) => l.drillCorrect).length;
+  const totalDecisionPoints = labs.reduce((n, l) => n + (l.decisionPoints ?? 0), 0);
   const totalPoints = labs.reduce((n, l) => n + l.points, 0);
   const maxPoints = labs.reduce(
     (n, l) => n + POINTS_COMPLETE + (l.quizTotal ? POINTS_QUIZ : 0) + (l.drillCorrect !== undefined ? POINTS_DRILL : 0),
@@ -116,6 +135,7 @@ export function buildAssessment(): Assessment {
     totalLabs: labs.length,
     quizzesPassed,
     drillsCorrect,
+    decisionPoints: totalDecisionPoints,
     badges,
     labs,
     certificateReady,

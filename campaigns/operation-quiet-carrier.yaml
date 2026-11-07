@@ -17,3 +17,144 @@ chapters:
     beat: "Persistence"
     narrative: "Finally the actor poisons the registry mirror so the malicious package keeps resolving even after the original is pulled. Cleaning up the obvious artifact does not evict them."
 debrief: "Four labs, one actor, and at no point did anyone see a warning. Every control you just practiced - lockfiles, scoped registries, pinned actions, mirror verification - exists because a real campaign chained these exact moves."
+
+# ── Campaign injects: timed intelligence events that arrive as the learner plays.
+#    Each inject carries a when (chapter beat or a scenario-id trigger), a kind,
+#    and the briefing payload so the dashboard can render a live feed.
+injects:
+  - id: inject-01-discovery
+    when: "chapter:01"
+    kind: "intel-brief"
+    timestamp: "2026-10-15T03:42:00Z"
+    from: "ThreatIntel/NORTHRELAY"
+    subject: "Unusual registry mirror traffic detected"
+    body: >
+      Analysts observed a new npm mirror resolving `request-lib` to an unusual endpoint
+      in the Pacific Northwest ASN. The mirror was first seen 48h ago. No CVE filed yet.
+      Watch for postinstall hooks that call back outside your org.
+    evidence:
+      - type: "dns-log"
+        name: "npm-mirror-proxy.evil.example"
+        ip: "198.51.100.42"
+        first_seen: "2026-10-13T01:15:00Z"
+    confidence: 0.72
+
+  - id: inject-02-exfil
+    when: "chapter:01"
+    kind: "alert"
+    timestamp: "2026-10-15T04:10:00Z"
+    from: "SOC/Network"
+    subject: "Postinstall hook outbound callback"
+    body: >
+      A workstation in the frontend team triggered a postinstall script from `request-lib@0.1.3`
+      that made an outbound POST to 198.51.100.42:443 within 45 seconds of `npm install`.
+      Payload included NODE_ENV, HOSTNAME, and a GITHUB_TOKEN pattern.
+    evidence:
+      - type: "network-flow"
+        src: "10.0.4.17:49832"
+        dst: "198.51.100.42:443"
+        protocol: "HTTPS"
+        bytes: 847
+    confidence: 0.89
+
+  - id: inject-03-ci-drift
+    when: "chapter:05"
+    kind: "intel-brief"
+    timestamp: "2026-10-16T09:20:00Z"
+    from: "ThreatIntel/NORTHRELAY"
+    subject: "CI workflow diff flagged by Dependabot"
+    body: >
+      Dependabot raised a pull request against the main repo updating a GitHub Action to a new minor
+      version (actions/checkout@3.6.0 → 3.7.0). The workflow diff includes an unknown script
+      step that was added by the action maintainer. The actor may be leveraging the action update
+      to escalate to CI pipeline access.
+    evidence:
+      - type: "pr-diff"
+        repo: "acme/frontend-monorepo"
+        pr: 482
+        actor: "dependabot[bot]"
+        step_added: "run: echo '[redacted]' >> $GITHUB_ENV"
+    confidence: 0.65
+
+  - id: inject-04-mirror-poison
+    when: "chapter:11"
+    kind: "alert"
+    timestamp: "2026-10-17T14:55:00Z"
+    from: "ThreatIntel/NORTHRELAY"
+    subject: "Registry mirror returns different tarball hash"
+    body: >
+      The internal Verdaccio mirror is now returning a different SRI hash for `request-lib@0.1.3`
+      than the public npm registry. The public hash matches the original published artifact.
+      The mirror version contains an additional postinstall script that contacts an external
+      C2 endpoint. This is persistence — the attacker has moved from opportunistic to deliberate.
+    evidence:
+      - type: "hash-diff"
+        artifact: "request-lib@0.1.3"
+        public_sri: "sha512-abc123def456..."
+        mirror_sri: "sha512-xyz789uvw012..."
+        divergence: "postinstall script present only in mirror copy"
+    confidence: 0.94
+
+# ── Remediation checklist: graded actions the learner must complete
+#    after the campaign chain. Weighted by severity.
+remediation:
+  - id: rem-01-block
+    title: "Block the malicious package"
+    severity: "critical"
+    weight: 25
+    description: "Add request-lib to your org's deny list and update lockfiles."
+    steps:
+      - "Add request-lib to your npm registry deny blocklist"
+      - "Remove the package from package.json and lockfile"
+      - "Verify no transitive dependency pulls it back in"
+    flag: "rem_block_package"
+  - id: rem-02-audit
+    title: "Audit all machines that installed the package"
+    severity: "critical"
+    weight: 20
+    description: "Scan developer laptops and CI runners for evidence of compromise."
+    steps:
+      - "Check npm install logs for request-lib install timestamps"
+      - "Look for unexpected outbound network connections on port 443"
+      - "Inspect .npm/_logs for anomalous entries"
+    flag: "rem_audit_machines"
+  - id: rem-03-rotate
+    title: "Rotate exposed secrets"
+    severity: "high"
+    weight: 25
+    description: "Any GITHUB_TOKEN, NPM_TOKEN, or cloud credential seen in the exfil must be rotated."
+    steps:
+      - "Revoke and regenerate all GITHUB_TOKENs from affected repos"
+      - "Revoke NPM_TOKEN and generate a new one"
+      - "Check for AWS key patterns in logs; rotate if found"
+    flag: "rem_rotate_secrets"
+  - id: rem-04-lockfile
+    title: "Enforce lockfile + integrity checks"
+    severity: "high"
+    weight: 15
+    description: "Switch to --package-lock-only with SRI verification to prevent tampering."
+    steps:
+      - "Generate lockfiles with --package-lock-only"
+      - "Enable npm integrity verification in CI"
+      - "Add a CI check that rejects lockfiles with unexpected SRI hashes"
+    flag: "rem_lockfile_enforce"
+  - id: rem-05-mirror
+    title: "Verify registry mirror integrity"
+    severity: "medium"
+    weight: 10
+    description: "Compare mirror artifacts against the public registry to detect poisoning."
+    steps:
+      - "Pull the suspicious package from the public registry and the mirror"
+      - "Compare package.json, SRI hashes, and postinstall scripts"
+      - "Set up automated periodic hash comparisons in CI"
+    flag: "rem_mirror_verify"
+  - id: rem-06-action
+    title: "Pin GitHub Actions to SHAs"
+    severity: "high"
+    weight: 15
+    description: "Tag-based references (v3.7.0) can be moved by maintainers. SHA pins are immutable."
+    steps:
+      - "Replace all action@version references with action@sha"
+      - "Audit .github/workflows/ for unpinned actions"
+      - "Add a policy check (e.g. OPA / conftest) to reject unpinned refs"
+    flag: "rem_pin_actions"

@@ -17,8 +17,11 @@ import {
   type ActionResult,
   type LessonAudience,
   type LessonDefinition,
+  type LessonDecision,
   type ScenarioDetail,
 } from '@/lib/api';
+import { DecisionCard } from '@/components/DecisionCard';
+import { PRInbox } from '@/components/PRInbox';
 
 const STUDENT_KEY = 'scas-classroom-student';
 
@@ -40,6 +43,13 @@ function hasCaptureData(captures: Record<string, unknown>): boolean {
     if (Array.isArray(obj.beacons) && obj.beacons.length > 0) return true;
     return false;
   });
+}
+
+/** Find the first decision that appears after a given step id. */
+function findDecisionAfter(steps: LessonDefinition['steps'], decisions: LessonDefinition['decisions'], afterStepId: string): LessonDecision | undefined {
+  if (!decisions) return undefined;
+  const found = decisions.find((d) => d.afterStep === afterStepId);
+  return found;
 }
 
 async function syncClassroom(scenarioId: string, stepId: string, completedSteps: number) {
@@ -86,6 +96,9 @@ export function ScenarioLessonRunner({
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
   const [inspectorNote, setInspectorNote] = useState('');
+  const [decisionScore, setDecisionScore] = useState(0);
+  /** Tracks which decisions have been answered: `decisionId::choiceId`. */
+  const [answeredDecisions, setAnsweredDecisions] = useState<Set<string>>(new Set());
 
   const visibleSteps = useMemo(
     () => lesson.steps.filter((s) => roleAllows(s.audience, role)),
@@ -481,6 +494,37 @@ export function ScenarioLessonRunner({
                 </div>
               )}
             </Card>
+          )}
+
+          {/* Phase 1: Branching decision after a completed step */}
+          {activeStep && verified[activeStep.id] && (() => {
+            const decision = findDecisionAfter(visibleSteps, lesson.decisions, activeStep.id);
+            if (!decision || answeredDecisions.has(decision.id)) return null;
+            return (
+              <DecisionCard
+                scenarioId={scenarioId}
+                decision={decision}
+                onNavigate={(gotoStepId) => {
+                  // Jump to the step the decision points to
+                  const targetStep = visibleSteps.find((s) => s.id === gotoStepId);
+                  if (targetStep) {
+                    setActiveStepId(targetStep.id);
+                  }
+                }}
+                onScoreChange={(delta) => {
+                  setDecisionScore((prev) => prev + delta);
+                  setAnsweredDecisions((prev) => new Set(prev).add(decision.id));
+                }}
+              />
+            );
+          })()}
+
+          {/* Phase 1b: PR Triage Inbox — teaching injection after initial steps */}
+          {lesson.prTriageStep && doneCount === 4 && (
+            <PRInbox
+              scenarioId={scenarioId}
+              onDone={() => {}}
+            />
           )}
 
           {lesson.quiz && lesson.quiz.length > 0 && doneCount === visibleSteps.length && (

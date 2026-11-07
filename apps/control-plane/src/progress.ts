@@ -64,13 +64,28 @@ export function mergeScenarioProgress(
   const hintsOpened = patch.hintsOpened
     ? Array.from(new Set([...prev.hintsOpened, ...patch.hintsOpened]))
     : prev.hintsOpened;
+  const flags = patch.flags
+    ? Array.from(new Set([...(prev.flags ?? []), ...patch.flags]))
+    : prev.flags;
+
+  // Merge decisions: keep latest entry per (decisionId + choiceId) pair.
+  const mergedDecisions = patch.decisions && patch.decisions.length > 0
+    ? (() => {
+        const map = new Map<string, import('./registry/lesson-types.js').DecisionResult>();
+        [...(prev.decisions ?? [])].forEach((d) => map.set(`${d.decisionId}::${d.choiceId}`, d));
+        patch.decisions.forEach((d) => map.set(`${d.decisionId}::${d.choiceId}`, d));
+        return Array.from(map.values());
+      })()
+    : prev.decisions;
 
   const entry: ScenarioProgressEntry = {
     completedSteps,
     hintsOpened,
+    flags,
     currentStepId: patch.currentStepId ?? prev.currentStepId,
     quiz: patch.quiz ?? prev.quiz,
     drill: patch.drill ?? prev.drill,
+    decisions: mergedDecisions,
     updatedAt: new Date().toISOString(),
   };
 

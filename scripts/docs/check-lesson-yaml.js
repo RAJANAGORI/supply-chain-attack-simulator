@@ -223,6 +223,56 @@ function normalizeLesson(raw, expectedId) {
     });
   }
 
+  // Optional decision blocks (branching paths).
+  if (raw.decisions !== undefined && raw.decisions !== null) {
+    if (!Array.isArray(raw.decisions) || raw.decisions.length === 0) {
+      throw new Error('decisions must be a non-empty list of decision blocks');
+    }
+    raw.decisions.forEach((d, i) => {
+      if (!d || typeof d !== 'object' || Array.isArray(d)) {
+        throw new Error(`decisions[${i}] must be a mapping`);
+      }
+      if (typeof d.id !== 'string' || !String(d.id).trim()) throw new Error(`decisions[${i}].id required`);
+      if (typeof d.afterStep !== 'string' || !String(d.afterStep).trim()) {
+        throw new Error(`decisions[${i}].afterStep required`);
+      }
+      if (typeof d.prompt !== 'string' || !d.prompt.trim()) throw new Error(`decisions[${i}].prompt required`);
+      if (!Array.isArray(d.choices) || d.choices.length < 2) {
+        throw new Error(`decisions[${i}].choices needs at least 2 options`);
+      }
+      d.choices.forEach((c, j) => {
+        if (!c || typeof c !== 'object' || Array.isArray(c)) {
+          throw new Error(`decisions[${i}].choices[${j}] must be a mapping`);
+        }
+        if (typeof c.id !== 'string' || !String(c.id).trim()) {
+          throw new Error(`decisions[${i}].choices[${j}].id required`);
+        }
+        if (typeof c.label !== 'string' || !c.label.trim()) {
+          throw new Error(`decisions[${i}].choices[${j}].label required`);
+        }
+        if (c.effects !== undefined && c.effects !== null) {
+          if (typeof c.effects !== 'object' || Array.isArray(c.effects)) {
+            throw new Error(`decisions[${i}].choices[${j}].effects must be a mapping`);
+          }
+          const e = c.effects;
+          if (e.goto !== undefined && e.goto !== null && typeof e.goto !== 'string') {
+            throw new Error(`decisions[${i}].choices[${j}].effects.goto must be string`);
+          }
+          if (e.score !== undefined && e.score !== null) {
+            const s = Number(e.score);
+            if (!Number.isFinite(s)) throw new Error(`decisions[${i}].choices[${j}].effects.score must be number`);
+          }
+          if (e.flag !== undefined && e.flag !== null && typeof e.flag !== 'string' && !Array.isArray(e.flag)) {
+            throw new Error(`decisions[${i}].choices[${j}].effects.flag must be string or array`);
+          }
+          if (e.feedback !== undefined && e.feedback !== null && typeof e.feedback !== 'string') {
+            throw new Error(`decisions[${i}].choices[${j}].effects.feedback must be string`);
+          }
+        }
+      });
+    });
+  }
+
   return { id: String(raw.id), steps };
 }
 

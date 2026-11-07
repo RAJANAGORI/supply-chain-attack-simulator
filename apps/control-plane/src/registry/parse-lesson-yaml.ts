@@ -3,9 +3,11 @@
  * Supports maps, lists, quoted/unquoted scalars, null, and inline { k: v } objects.
  */
 import type {
+  DecisionChoice,
   LessonAudience,
   LessonDefinition,
   LessonDrill,
+  LessonDecision,
   LessonQuizQuestion,
   LessonStep,
   LessonVerify,
@@ -238,9 +240,11 @@ export function normalizeLesson(raw: Record<string, unknown>, expectedId: string
 
   const drill = normalizeDrill(raw.drill);
   const quiz = normalizeQuiz(raw.quiz);
+  const decisions = normalizeDecisions(raw.decisions);
   const reversal = normalizeReversal(raw.reversal);
+  const prTriageStep = raw.prTriageStep === true || raw.prTriageStep === 'true';
 
-  return { id, etaMinutes, category, incidents, objectives, caseStudy, mitigation, steps, drill, quiz, reversal };
+  return { id, etaMinutes, category, incidents, objectives, caseStudy, mitigation, steps, drill, quiz, decisions, reversal, prTriageStep };
 }
 
 function normalizeReversal(raw: unknown): { blockedPackage: string } | undefined {
@@ -320,5 +324,111 @@ function normalizeDrill(raw: unknown): LessonDrill | undefined {
     answer,
     reveal,
     explanation,
+  };
+}
+
+/** Normalize a lesson.yaml `decisions[]` block into LessonDecision[]. */
+function normalizeDecisions(raw: unknown): LessonDecision[] | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (!Array.isArray(raw) || raw.length === 0) {
+    throw new Error('decisions must be a non-empty list of decision blocks');
+  }
+  return raw.map((item, i) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      throw new Error(`decisions[${i}] must be a mapping`);
+    }
+    const d = item as Record<string, unknown>;
+
+    const id = asString(d.id, `decisions[${i}].id`).trim();
+    const afterStep = asString(d.afterStep, `decisions[${i}].afterStep`).trim();
+    const prompt = asString(d.prompt, `decisions[${i}].prompt`).trim();
+    if (!id || !afterStep || !prompt) {
+      throw new Error(`decisions[${i}].id, .afterStep, and .prompt must be non-empty`);
+    }
+
+    // choices[]
+    if (!Array.isArray(d.choices) || d.choices.length < 2) {
+      throw new Error(`decisions[${i}].choices must be a list of at least two options`);
+    }
+    const choices: (DecisionChoice & { _rawEffects: Record<string, unknown> })[] = d.choices.map(
+      (c, j) => {
+        if (!c || typeof c !== 'object' || Array.isArray(c)) {
+          throw new Error(`decisions[${i}].choices[${j}] must be a mapping`);
+        }
+        const ch = c as Record<string, unknown>;
+        const choiceId = asString(ch.id, `decisions[${i}].choices[${j}].id`).trim();
+        const label = asString(ch.label, `decisions[${i}].choices[${j}].label`).trim();
+        if (!choiceId || !label) {
+          throw new Error(`decisions[${i}].choices[${j}].id and .label must be non-empty`);
+        }
+        // effects (optional mapping)
+        let effects: Record<string, unknown> = {};
+        if (ch.effects !== undefined && ch.effects !== null) {
+          if (typeof ch.effects !== 'object' || Array.isArray(ch.effects)) {
+            throw new Error(`decisions[${i}].choices[${j}].effects must be a mapping`);
+          }
+          effects = ch.effects as Record<string, unknown>;
+        }
+        return { id: choiceId, label, _rawEffects: effects } as (DecisionChoice & {
+          _rawEffects: Record<string, unknown>;
+        });
+      },
+    );
+
+    // Validate effects: score must be a number, flag must be string|array, goto must be string
+    choices.forEach((ch, j) => {
+      const e = ch._rawEffects;
+      if (e.score !== undefined && e.score !== null) {
+        const s = typeof e.score === 'number' ? e.score : Number(e.score);
+        if (!Number.isFinite(s)) {
+          throw new Error(`decisions[${i}].choices[${j}].effects.score must be a number`);
+        }
+      }
+      if (e.flag !== undefined && e.flag !== null) {
+        if (typeof e.flag !== 'string' && !Array.isArray(e.flag)) {
+          throw new Error(`decisions[${i}].choices[${j}].effects.flag must be string or array`);
+        }
+      }
+      if (e.goto !== undefined && e.goto !== null) {
+        asString(e.goto, `decisions[${i}].choices[${j}].effects.goto`);
+      }
+      if (e.feedback !== undefined && e.feedback !== null) {
+        asString(e.feedback, `decisions[${i}].choices[${j}].effects.feedback`);
+      }
+    });
+
+    return {
+      id,
+      afterStep,
+      prompt,
+      choices: choices.map((ch) => ({
+        id: ch.id,
+        label: ch.label,
+        effects: normalizeDecisionEffects(ch._rawEffects),
+      })),
+    } as LessonDecision;
+  });
+}
+
+/** Convert raw effects mapping into typed DecisionEffect. */
+function normalizeDecisionEffects(raw: Record<string, unknown>): import('./lesson-types.js').DecisionEffect {
+  const score = raw.score;
+  let scoreNum: number | undefined;
+  if (score !== undefined && score !== null) {
+    scoreNum = typeof score === 'number' ? score : Number(score);
+    if (!Number.isFinite(scoreNum)) scoreNum = undefined;
+  }
+
+  const flag = raw.flag;
+  let flagVal: string | string[] | undefined;
+  if (flag !== undefined && flag !== null) {
+    flagVal = typeof flag === 'string' ? flag : (Array.isArray(flag) ? flag : undefined);
+  }
+
+  return {
+    goto: raw.goto ? asString(raw.goto, 'effects.goto') : undefined,
+    score: scoreNum,
+    flag: flagVal,
+    feedback: raw.feedback ? asString(raw.feedback, 'effects.feedback') : undefined,
   };
 }
