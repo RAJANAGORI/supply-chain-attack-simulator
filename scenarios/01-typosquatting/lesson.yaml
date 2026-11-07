@@ -40,6 +40,7 @@ drill:
 reversal:
   blockedPackage: "request-lib"
 prTriageStep: true
+
 decisions:
   - id: decision-approve-typosquat
     afterStep: run
@@ -115,3 +116,51 @@ steps:
     teaching: "Open the inspector. You should see environment fields the malicious package sent. DETECT.md in this folder is the blue-team runbook."
     hint: "From the repo root you can also run node detection-tools/package-scanner.js scenarios/01-typosquatting/victim-app."
     verify: { type: capture-count, min: 1 }
+
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update jest config for Node 20 compatibility"
+      dependency: "@jest/config"
+      diffSummary: "Updated module resolution for newer Node versions"
+      safe: true
+    - id: safe-2
+      title: "docs: add CONTRIBUTING.md with dev setup steps"
+      dependency: "CONTRIBUTING.md"
+      diffSummary: "Added development contribution guide"
+      safe: true
+    - id: safe-3
+      title: "chore(deps): bump lodash from 4.17.20 to 4.17.21"
+      dependency: "lodash"
+      diffSummary: "Routine dependency bump for security patch"
+      safe: true
+    - id: safe-4
+      title: "test: add unit tests for HTTP request helper"
+      dependency: "src/lib/request.js"
+      diffSummary: "Added comprehensive test coverage for request utilities"
+      safe: true
+    - id: bad-1
+      title: "feat: add HTTP request helper library"
+      dependency: "request-lib"
+      diffSummary: "Added request-lib dependency with postinstall exfil to collector"
+      safe: false
+      blockLabel: "Block — typosquat for requests-lib"
+    - id: bad-2
+      title: "fix: patch core http module with proxy interceptor"
+      dependency: "node_modules/request-lib/lib/proxy.js"
+      diffSummary: "Modified http request interception, sends headers to external host"
+      safe: false
+      blockLabel: "Block — postinstall exfiltration payload"
+    - id: bad-3
+      title: "chore: add build optimization with terser plugin"
+      dependency: "request-lib/scripts/optimize.mjs"
+      diffSummary: "Build script that also collects env vars and POSTs to localhost"
+      safe: false
+      blockLabel: "Block — build script exfiltration"
+    - id: bad-4
+      title: "refactor: restructure lib directory for tree-shaking"
+      dependency: "request-lib/index.js"
+      diffSummary: "Restructured exports with hidden network call on import"
+      safe: false
+      blockLabel: "Block — network call on require"

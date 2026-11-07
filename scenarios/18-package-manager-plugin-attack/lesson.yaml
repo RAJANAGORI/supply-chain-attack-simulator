@@ -93,3 +93,50 @@ quiz:
       - "Always upgrading to the latest pnpm release"
     answer: 1
     explain: "A frozen lockfile turns the hook's dependency injection into a build failure, and a git diff gate on pnpm-lock.yaml makes the drift visible. Pinning pnpm's version helps tool integrity but does not review what the hook changed."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update pnpm resolution config"
+      dependency: ".pnpmfile.cjs"
+      diffSummary: "Fixed peer dependency resolution"
+      safe: true
+    - id: safe-2
+      title: "chore: add pnpm hooks for workspace packages"
+      dependency: "pnpm-workspace.yaml"
+      diffSummary: "Added hooks for workspace-aware installs"
+      safe: true
+    - id: safe-3
+      title: "docs: add pnpm plugin development guide"
+      dependency: "docs/pnpm-hooks.md"
+      diffSummary: "Documented pnpm hooks usage and security considerations"
+      safe: true
+    - id: safe-4
+      title: "test: add pnpm hook validation"
+      dependency: "test/pnpm-hooks.test.js"
+      diffSummary: "Tests for pnpm hook behavior during install"
+      safe: true
+    - id: bad-1
+      title: "feat: add pnpm hooks for dependency resolution"
+      dependency: ".pnpmfile.cjs"
+      diffSummary: "Hooks that modify dependencies during install, replace safe deps with malicious"
+      safe: false
+      blockLabel: "Block — pnpm hook replaces deps with malware"
+    - id: bad-2
+      title: "fix: update pnpm resolve-protocol handler"
+      dependency: ".pnpmfile.cjs"
+      diffSummary: "Protocol handler that redirects registry requests to attacker"
+      safe: false
+      blockLabel: "Block — protocol handler redirects to attacker registry"
+    - id: bad-3
+      title: "chore: add pnpm postinstall hook for workspace"
+      dependency: ".pnpmfile.cjs"
+      diffSummary: "Hook that runs attacker code after every install"
+      safe: false
+      blockLabel: "Block — postinstall hook runs attacker code"
+    - id: bad-4
+      title: "refactor: optimize pnpm resolution for monorepo"
+      dependency: ".pnpmfile.cjs"
+      diffSummary: "Optimization that also exfiltrates lockfile contents to external host"
+      safe: false
+      blockLabel: "Block — resolution hook exfiltrates lockfile"

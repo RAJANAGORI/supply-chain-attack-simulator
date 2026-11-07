@@ -1,3 +1,4 @@
+
 id: "25"
 etaMinutes: 45
 category: ci-cd
@@ -80,3 +81,51 @@ quiz:
       - "Forking every third-party action into the org without review"
     answer: 0
     explain: "Rotation cleans up after the theft but the next force-push steals the new secrets too, and an unreviewed fork just relocates the trust problem. A SHA pins one immutable snapshot, and linting for @vN references keeps the pin from regressing."
+
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update GitHub Action version pins"
+      dependency: ".github/workflows/ci.yaml"
+      diffSummary: "Pinned actions to SHA digests instead of tags"
+      safe: true
+    - id: safe-2
+      title: "chore: add action lint to CI"
+      dependency: ".github/workflows/lint.yaml"
+      diffSummary: "Added actionlint to validate action workflows"
+      safe: true
+    - id: safe-3
+      title: "docs: add GitHub Actions security policy"
+      dependency: "docs/actions-security.md"
+      diffSummary: "Documented action review and approval process"
+      safe: true
+    - id: safe-4
+      title: "test: add workflow permission test"
+      dependency: "test/permissions.test.js"
+      diffSummary: "Tests for workflow permissions and scoping"
+      safe: true
+    - id: bad-1
+      title: "feat: add reusable action for code scanning"
+      dependency: ".github/actions/scan/action.yml"
+      diffSummary: "New reusable action that steals GITHUB_TOKEN and pushes to attacker repo"
+      safe: false
+      blockLabel: "Block — action steals GITHUB_TOKEN"
+    - id: bad-2
+      title: "fix: update CI action runner permissions"
+      dependency: ".github/workflows/ci.yaml"
+      diffSummary: "Granted write-all permissions to actions that should be read-only"
+      safe: false
+      blockLabel: "Block — over-permissioned actions"
+    - id: bad-3
+      title: "chore: add action to auto-approve PRs"
+      dependency: ".github/actions/auto-approve/action.yml"
+      diffSummary: "Auto-approve action that also modifies approved PR content"
+      safe: false
+      blockLabel: "Block — auto-approve modifies PR content"
+    - id: bad-4
+      title: "refactor: simplify workflow with community action"
+      dependency: ".github/workflows/deploy.yaml"
+      diffSummary: "Replaced pinned action with popular community action (unverified)"
+      safe: false
+      blockLabel: "Block — unverified community action may be compromised"

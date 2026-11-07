@@ -4,91 +4,6 @@ import { useState } from 'react';
 import { Alert, Btn, Card, StatusPill } from '@/components/ui';
 import { cp, type DecisionResult } from '@/lib/api';
 
-/** A single synthetic PR entry in the triage inbox. */
-interface TriagedPR {
-  /** Stable id used for API scoring. */
-  prId: string;
-  /** Short human title for the PR. */
-  title: string;
-  /** The dependency or file being changed. */
-  dependency: string;
-  /** One-line diff-style summary of the change. */
-  diffSummary: string;
-  /** Whether this PR is safe (correct choice = approve). */
-  safe: boolean;
-  /** Label shown on the approve button. */
-  approveLabel?: string;
-  /** Label shown on the block button. */
-  blockLabel?: string;
-}
-
-const TRIAGE_PRS: TriagedPR[] = [
-  {
-    prId: 'pr-typosquat',
-    title: 'Add request helper library',
-    dependency: 'request-lib@^1.0.0',
-    diffSummary: '+ "request-lib": "^1.0.0" to dependencies',
-    safe: false,
-    approveLabel: 'Approve',
-    blockLabel: 'Block — typosquat for requests-lib',
-  },
-  {
-    prId: 'pr-benign-deps',
-    title: 'Upgrade uuid to latest',
-    dependency: 'uuid@^9.0.0',
-    diffSummary: 'uuid ^8.3.2 → ^9.0.0',
-    safe: true,
-  },
-  {
-    prId: 'pr-safe-config',
-    title: 'Update ESLint config',
-    dependency: '.eslintrc.json',
-    diffSummary: '+ "@typescript-eslint/parser", "plugin:@typescript-eslint/recommended"',
-    safe: true,
-  },
-  {
-    prId: 'pr-crypto',
-    title: 'Add cryptography dependency',
-    dependency: 'crypto-helper@^0.2.1',
-    diffSummary: '+ "crypto-helper": "^0.2.1" to devDependencies',
-    safe: false,
-    approveLabel: 'Approve',
-    blockLabel: 'Block — untrusted crypto package',
-  },
-  {
-    prId: 'pr-env-fix',
-    title: 'Fix environment variable loading',
-    dependency: 'src/config/env.ts',
-    diffSummary: '+ if (!process.env.API_URL) throw new Error("missing API_URL")',
-    safe: true,
-  },
-  {
-    prId: 'pr-data-util',
-    title: 'Add data utility package',
-    dependency: 'data-utils@^3.1.0',
-    diffSummary: '+ "data-utils": "^3.1.0" to dependencies',
-    safe: false,
-    approveLabel: 'Approve',
-    blockLabel: 'Block — data-utils is a supply-chain pivot target',
-  },
-  {
-    prId: 'pr-type-fix',
-    title: 'Add missing type declaration',
-    dependency: 'types/index.d.ts',
-    diffSummary: '+ export interface Config { apiUrl: string; timeout?: number }',
-    safe: true,
-  },
-  {
-    prId: 'pr-build-tool',
-    title: 'Add build tool dependency',
-    dependency: 'node-build-tools@^1.0.0',
-    diffSummary: '+ "node-build-tools": "^1.0.0" to devDependencies',
-    safe: false,
-    approveLabel: 'Approve',
-    blockLabel: 'Block — brand-new package, no reputation',
-  },
-];
-
 const SCORE_APPROVE_CORRECT = 2;
 const SCORE_BLOCK_WRONG = -1;
 const SCORE_BLOCK_CORRECT = 3;
@@ -98,9 +13,12 @@ type PRStatus = 'pending' | 'approved' | 'blocked';
 
 export function PRInbox({
   scenarioId,
+  prs,
   onDone,
 }: {
   scenarioId: string;
+  /** PR list from the lesson's prTriage config. */
+  prs: { id: string; title: string; dependency: string; diffSummary: string; safe: boolean; blockLabel?: string; approveLabel?: string }[];
   /** Called when all PRs have been triaged. */
   onDone: () => void;
 }) {
@@ -110,11 +28,11 @@ export function PRInbox({
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState('');
 
-  const allDone = TRIAGE_PRS.every((p) => statuses[p.prId]);
+  const allDone = prs.every((p) => statuses[p.id]);
 
-  const triage = async (pr: TriagedPR, approve: boolean) => {
+  const triage = async (pr: { id: string; title: string; dependency: string; diffSummary: string; safe: boolean; blockLabel?: string; approveLabel?: string }, approve: boolean) => {
     if (busy) return;
-    setBusy(pr.prId);
+    setBusy(pr.id);
     setError('');
 
     try {
@@ -127,12 +45,12 @@ export function PRInbox({
 
       // Record via the decisions API
       await cp.recordDecision(scenarioId, {
-        decisionId: `pr-triage-${pr.prId}`,
+        decisionId: `pr-triage-${pr.id}`,
         choiceId: approve ? 'approved' : 'blocked',
       });
 
       const result: DecisionResult = {
-        decisionId: `pr-triage-${pr.prId}`,
+        decisionId: `pr-triage-${pr.id}`,
         choiceId: approve ? 'approved' : 'blocked',
         scoreDelta,
         flags: correct ? ['pr_triage_correct'] : ['pr_triage_incorrect'],
@@ -140,9 +58,9 @@ export function PRInbox({
       };
       setDecisions((prev) => [...prev, result]);
       setTotalScore((prev) => prev + scoreDelta);
-      setStatuses((prev) => ({ ...prev, [pr.prId]: approve ? 'approved' : 'blocked' }));
+      setStatuses((prev) => ({ ...prev, [pr.id]: approve ? 'approved' : 'blocked' }));
 
-      if (allDone || TRIAGE_PRS.every((p) => p.prId === pr.prId || statuses[p.prId])) {
+      if (allDone || prs.every((p) => p.id === pr.id || statuses[p.id])) {
         onDone();
       }
     } catch (e) {
@@ -155,17 +73,17 @@ export function PRInbox({
   return (
     <Card
       title="PR Triage Inbox"
-      subtitle={`Review ${TRIAGE_PRS.length} pull requests — approve safe ones, block compromised ones`}
+      subtitle={`Review ${prs.length} pull requests — approve safe ones, block compromised ones`}
       className={totalScore > 0 ? 'ring-1 ring-state-ok/40' : ''}
     >
       <div className="space-y-3">
-        {TRIAGE_PRS.map((pr) => {
-          const status = statuses[pr.prId];
-          const isBusy = busy === pr.prId;
+        {prs.map((pr) => {
+          const status = statuses[pr.id];
+          const isBusy = busy === pr.id;
 
           return (
             <div
-              key={pr.prId}
+              key={pr.id}
               className={`rounded-xl border px-4 py-3 transition ${
                 status === 'approved'
                   ? 'border-state-ok/30 bg-state-ok/5'

@@ -94,3 +94,50 @@ quiz:
       - "Reading the README more carefully before installing"
     answer: 0
     explain: "A field-change gate turns the attacker's best trick - a trusted-looking story - into a review trigger, and a signed internal mirror gives you a source of truth to compare against. Download counts are gameable and say nothing about metadata drift, and README reading is exactly the surface this attack exploits."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update package repository URL"
+      dependency: "package.json"
+      diffSummary: "Corrected repository URL to point to internal GitHub"
+      safe: true
+    - id: safe-2
+      title: "chore: add package metadata validation"
+      dependency: "scripts/validate-meta.js"
+      diffSummary: "Script to verify package.json metadata consistency"
+      safe: true
+    - id: safe-3
+      title: "docs: add package policy documentation"
+      dependency: "docs/package-policy.md"
+      diffSummary: "Documented metadata requirements and review process"
+      safe: true
+    - id: safe-4
+      title: "test: add metadata diff detection test"
+      dependency: "test/metadata.test.js"
+      diffSummary: "Tests to detect metadata changes that don't match content"
+      safe: true
+    - id: bad-1
+      title: "fix: update package homepage and repository URLs"
+      dependency: "package.json"
+      diffSummary: "Updated homepage to attacker-controlled domain, README social engineering"
+      safe: false
+      blockLabel: "Block — homepage redirect to attacker site"
+    - id: bad-2
+      title: "feat: update package description and badges"
+      dependency: "README.md"
+      diffSummary: "README with polished badges linking to attacker phishing page"
+      safe: false
+      blockLabel: "Block — README social engineering"
+    - id: bad-3
+      title: "chore: update package maintainers list"
+      dependency: "package.json"
+      diffSummary: "Added attacker email as maintainer, enables future tampering"
+      safe: false
+      blockLabel: "Block — unauthorized maintainer addition"
+    - id: bad-4
+      title: "refactor: restructure package metadata for clarity"
+      dependency: "package.json"
+      diffSummary: "Restructured with hidden bin field pointing to attacker script"
+      safe: false
+      blockLabel: "Block — hidden bin field in metadata"

@@ -87,3 +87,50 @@ quiz:
       - "Pinning every third-party action to an immutable commit SHA and verifying with an allowlist"
     answer: 2
     explain: "SHA pinning freezes the exact code you reviewed, so a force-pushed tag can no longer swap it. The other two options are the conditions that made this lab work: broad permissions and secrets handed to code you do not control."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update GitHub Actions runner to latest"
+      dependency: ".github/actions/setup/action.yml"
+      diffSummary: "Updated ubuntu-runner from 22.04 to 24.04"
+      safe: true
+    - id: safe-2
+      title: "chore: add workflow linting with actionlint"
+      dependency: ".github/workflows/lint.yaml"
+      diffSummary: "Added actionlint check to CI workflow"
+      safe: true
+    - id: safe-3
+      title: "docs: add CODEOWNERS for workflow changes"
+      dependency: ".github/CODEOWNERS"
+      diffSummary: "Added workflow change review requirements"
+      safe: true
+    - id: safe-4
+      title: "test: add workflow validation tests"
+      dependency: ".github/workflows/test-workflows.sh"
+      diffSummary: "Script to validate workflow YAML syntax"
+      safe: true
+    - id: bad-1
+      title: "feat: add reusable action for build and deploy"
+      dependency: ".github/actions/build-deploy/action.yml"
+      diffSummary: "New reusable action that steals GITHUB_TOKEN and secrets"
+      safe: false
+      blockLabel: "Block — action steals GITHUB_TOKEN"
+    - id: bad-2
+      title: "fix: add caching step to CI workflow"
+      dependency: ".github/workflows/ci.yaml"
+      diffSummary: "Cache step that also POSTs build outputs to external endpoint"
+      safe: false
+      blockLabel: "Block — cache step data exfiltration"
+    - id: bad-3
+      title: "chore: pin Actions to mutable @v1 tags"
+      dependency: ".github/workflows/ci.yaml"
+      diffSummary: "Changed SHA-pinned actions to @v1 for flexibility"
+      safe: false
+      blockLabel: "Block — unpinned actions allow injection"
+    - id: bad-4
+      title: "refactor: simplify CI workflow with composite action"
+      dependency: ".github/actions/CI/composite.yml"
+      diffSummary: "Composite action that harvests secrets and sends to attacker C2"
+      safe: false
+      blockLabel: "Block — secrets harvesting composite action"

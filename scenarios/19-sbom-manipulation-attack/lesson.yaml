@@ -92,3 +92,50 @@ quiz:
       - "Attaching the SBOM as a release asset without checks"
     answer: 0
     explain: "If the app or an untrusted job produces the SBOM, the attacker edits the story along with the code. Generating it in trusted CI from lockfile truth, signing it, and failing the build on any SBOM-lockfile mismatch removes the tamper path."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update SBOM generator for new dependency tree"
+      dependency: "scripts/sbom-gen.sh"
+      diffSummary: "Fixed generator to include all workspace packages"
+      safe: true
+    - id: safe-2
+      title: "chore: add SPDX license compliance check"
+      dependency: "scripts/license-check.sh"
+      diffSummary: "Added script to verify SBOM license compliance"
+      safe: true
+    - id: safe-3
+      title: "docs: add SBOM generation and signing procedure"
+      dependency: "docs/sbom.md"
+      diffSummary: "Documented SBOM creation, signing, and verification process"
+      safe: true
+    - id: safe-4
+      title: "test: add SBOM integrity test"
+      dependency: "test/sbom-verify.test.js"
+      diffSummary: "Tests to verify SBOM matches actual dependency tree"
+      safe: true
+    - id: bad-1
+      title: "feat: add SBOM signing for release artifacts"
+      dependency: "scripts/sbom-sign.sh"
+      diffSummary: "Signing script that also signs false SBOM hiding malicious deps"
+      safe: false
+      blockLabel: "Block — signing hides malicious deps in SBOM"
+    - id: bad-2
+      title: "fix: update SBOM generator to include dev deps"
+      dependency: "scripts/sbom-gen.sh"
+      diffSummary: "Generator update that removes security scanner packages from SBOM"
+      safe: false
+      blockLabel: "Block — SBOM omits scanner packages"
+    - id: bad-3
+      title: "chore: add SBOM validation in CI"
+      dependency: ".github/workflows/sbom.yaml"
+      diffSummary: "Validation workflow that accepts modified SBOM with hidden packages"
+      safe: false
+      blockLabel: "Block — CI accepts tampered SBOM"
+    - id: bad-4
+      title: "refactor: optimize SBOM generation for monorepo"
+      dependency: "scripts/sbom-gen.sh"
+      diffSummary: "Optimized generator that skips certain packages from output"
+      safe: false
+      blockLabel: "Block — generator skips malicious package from SBOM"

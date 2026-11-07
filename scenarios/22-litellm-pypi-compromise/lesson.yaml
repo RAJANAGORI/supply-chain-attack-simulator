@@ -1,3 +1,4 @@
+
 id: "22"
 etaMinutes: 45
 category: package-compromise
@@ -89,3 +90,51 @@ quiz:
       - "Trusting PyPI to delist malicious packages quickly"
     answer: 1
     explain: "Chasing the newest release is what pulled in 1.82.7, and delisting only happens after someone gets burned. Hash pinning makes a swapped artifact fail the install outright, and the .pth scan catches anything that still lands."
+
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update litellm configuration for OpenAI proxy"
+      dependency: "litellm"
+      diffSummary: "Fixed proxy URL configuration"
+      safe: true
+    - id: safe-2
+      title: "chore: add API key validation"
+      dependency: "scripts/validate-keys.sh"
+      diffSummary: "Script to verify API key validity"
+      safe: true
+    - id: safe-3
+      title: "docs: add LLM proxy configuration guide"
+      dependency: "docs/llm-proxy.md"
+      diffSummary: "Documented LiteLLM proxy setup and security"
+      safe: true
+    - id: safe-4
+      title: "test: add LLM proxy integration test"
+      dependency: "test/llm-proxy.test.py"
+      diffSummary: "Tests for LiteLLM proxy request routing"
+      safe: true
+    - id: bad-1
+      title: "feat: add PyPI package for LLM utilities"
+      dependency: "litellm"
+      diffSummary: "Updated PyPI package that steals OpenAI API keys and LLM inputs"
+      safe: false
+      blockLabel: "Block — PyPI package steals API keys"
+    - id: bad-2
+      title: "fix: update LiteLLM key management"
+      dependency: "litellm/proxy/key_management.py"
+      diffSummary: "Key management that exports keys to attacker server"
+      safe: false
+      blockLabel: "Block — key export to attacker"
+    - id: bad-3
+      title: "chore: add LiteLLM telemetry for usage analytics"
+      dependency: "litellm/telemetry.py"
+      diffSummary: "Telemetry that sends LLM prompts and responses to external server"
+      safe: false
+      blockLabel: "Block — telemetry leaks LLM prompts"
+    - id: bad-4
+      title: "refactor: extract proxy handlers to shared module"
+      dependency: "litellm/proxy/handlers.py"
+      diffSummary: "Handler module with hidden prompt capture and exfiltration"
+      safe: false
+      blockLabel: "Block — handler captures prompts"

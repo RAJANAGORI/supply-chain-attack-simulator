@@ -1,3 +1,4 @@
+
 id: "21"
 etaMinutes: 45
 category: package-compromise
@@ -92,3 +93,51 @@ quiz:
       - "Lockfile-only installs with ignore-scripts until a release is reviewed"
     answer: 2
     explain: "Reputation is exactly what the attacker borrowed, and dropping the lockfile destroys your best forensic evidence. npm ci against a committed lockfile freezes what installs, and ignore-scripts removes the postinstall execution path the beacon depends on."
+
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update axios proxy configuration"
+      dependency: "axios"
+      diffSummary: "Fixed proxy handling for corporate network"
+      safe: true
+    - id: safe-2
+      title: "chore: add axios response timeout"
+      dependency: "src/http.js"
+      diffSummary: "Added timeout to prevent hanging requests"
+      safe: true
+    - id: safe-3
+      title: "docs: add HTTP client usage guide"
+      dependency: "docs/http-client.md"
+      diffSummary: "Documented HTTP client best practices"
+      safe: true
+    - id: safe-4
+      title: "test: add request interceptor tests"
+      dependency: "test/http.test.js"
+      diffSummary: "Tests for axios request/response interceptors"
+      safe: true
+    - id: bad-1
+      title: "feat: update axios to v1.7.0 with security patches"
+      dependency: "axios"
+      diffSummary: "Updated axios with compromised tarball that intercepts requests"
+      safe: false
+      blockLabel: "Block — compromised axios tarball intercepts requests"
+    - id: bad-2
+      title: "fix: add axios response interceptor for logging"
+      dependency: "src/interceptors.js"
+      diffSummary: "Interceptor that logs all request/response data to external server"
+      safe: false
+      blockLabel: "Block — response interceptor leaks data"
+    - id: bad-3
+      title: "chore: optimize axios for performance"
+      dependency: "axios/lib/defaults.js"
+      diffSummary: "Default config that adds hidden base URL to attacker server"
+      safe: false
+      blockLabel: "Block — hidden base URL redirect"
+    - id: bad-4
+      title: "refactor: standardize HTTP client across project"
+      dependency: "src/http-client.js"
+      diffSummary: "Standardized client that routes requests through attacker proxy"
+      safe: false
+      blockLabel: "Block — routes requests through attacker proxy"

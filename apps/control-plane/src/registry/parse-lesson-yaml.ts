@@ -8,6 +8,8 @@ import type {
   LessonDefinition,
   LessonDrill,
   LessonDecision,
+  LessonPrTriage,
+  LessonTriagedPR,
   LessonQuizQuestion,
   LessonStep,
   LessonVerify,
@@ -243,8 +245,9 @@ export function normalizeLesson(raw: Record<string, unknown>, expectedId: string
   const decisions = normalizeDecisions(raw.decisions);
   const reversal = normalizeReversal(raw.reversal);
   const prTriageStep = raw.prTriageStep === true || raw.prTriageStep === 'true';
+  const prTriage = normalizePrTriage(raw.prTriage);
 
-  return { id, etaMinutes, category, incidents, objectives, caseStudy, mitigation, steps, drill, quiz, decisions, reversal, prTriageStep };
+  return { id, etaMinutes, category, incidents, objectives, caseStudy, mitigation, steps, drill, quiz, decisions, reversal, prTriageStep, prTriage };
 }
 
 function normalizeReversal(raw: unknown): { blockedPackage: string } | undefined {
@@ -431,4 +434,65 @@ function normalizeDecisionEffects(raw: Record<string, unknown>): import('./lesso
     flag: flagVal,
     feedback: raw.feedback ? asString(raw.feedback, 'effects.feedback') : undefined,
   };
+}
+
+/** Normalize a lesson.yaml `prTriage` block into LessonPrTriage. */
+function normalizePrTriage(raw: unknown): LessonPrTriage | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('prTriage must be a mapping');
+  }
+  const p = raw as Record<string, unknown>;
+
+  // afterStep is optional
+  let afterStep: string | undefined;
+  if (p.afterStep !== undefined && p.afterStep !== null) {
+    afterStep = asString(p.afterStep, 'prTriage.afterStep').trim();
+    if (!afterStep) afterStep = undefined;
+  }
+
+  // prs must be a non-empty array
+  if (!Array.isArray(p.prs) || p.prs.length === 0) {
+    throw new Error('prTriage.prs must be a non-empty list');
+  }
+
+  const prs: LessonTriagedPR[] = p.prs.map((item, i) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      throw new Error(`prTriage.prs[${i}] must be a mapping`);
+    }
+    const pr = item as Record<string, unknown>;
+    const id = asString(pr.id, `prTriage.prs[${i}].id`).trim();
+    const title = asString(pr.title, `prTriage.prs[${i}].title`).trim();
+    const dependency = asString(pr.dependency, `prTriage.prs[${i}].dependency`).trim();
+    const diffSummary = asString(pr.diffSummary, `prTriage.prs[${i}].diffSummary`).trim();
+    const safe = typeof pr.safe === 'boolean' ? pr.safe : pr.safe === 'true';
+    if (typeof safe !== 'boolean') {
+      throw new Error(`prTriage.prs[${i}].safe must be true or false`);
+    }
+
+    let blockLabel: string | undefined;
+    if (pr.blockLabel !== undefined && pr.blockLabel !== null) {
+      blockLabel = asString(pr.blockLabel, `prTriage.prs[${i}].blockLabel`).trim();
+      if (!blockLabel) blockLabel = undefined;
+    }
+
+    let approveLabel: string | undefined;
+    if (pr.approveLabel !== undefined && pr.approveLabel !== null) {
+      approveLabel = asString(pr.approveLabel, `prTriage.prs[${i}].approveLabel`).trim();
+      if (!approveLabel) approveLabel = undefined;
+    }
+
+    return { id, title, dependency, diffSummary, safe, blockLabel, approveLabel };
+  });
+
+  // Validate unique IDs
+  const ids = new Set<string>();
+  for (const pr of prs) {
+    if (ids.has(pr.id)) {
+      throw new Error(`prTriage.prs contains duplicate id: ${pr.id}`);
+    }
+    ids.add(pr.id);
+  }
+
+  return { afterStep, prs };
 }

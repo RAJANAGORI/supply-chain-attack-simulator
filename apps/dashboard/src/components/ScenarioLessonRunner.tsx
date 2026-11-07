@@ -519,13 +519,21 @@ export function ScenarioLessonRunner({
             );
           })()}
 
-          {/* Phase 1b: PR Triage Inbox — teaching injection after initial steps */}
-          {lesson.prTriageStep && doneCount === 4 && (
-            <PRInbox
-              scenarioId={scenarioId}
-              onDone={() => {}}
-            />
-          )}
+          {/* Phase 1b: PR Triage Inbox — teaching injection after steps */}
+          {lesson.prTriage && (() => {
+            const { afterStep } = lesson.prTriage;
+            // Show when all steps are verified, or after the specific afterStep is verified
+            const showNow = afterStep
+              ? verified[afterStep] && doneCount > visibleSteps.findIndex((s) => s.id === afterStep)
+              : doneCount === visibleSteps.length;
+            return showNow ? (
+              <PRInbox
+                scenarioId={scenarioId}
+                prs={lesson.prTriage.prs}
+                onDone={() => void refreshVerify()}
+              />
+            ) : null;
+          })()}
 
           {lesson.quiz && lesson.quiz.length > 0 && doneCount === visibleSteps.length && (
             <QuizGate

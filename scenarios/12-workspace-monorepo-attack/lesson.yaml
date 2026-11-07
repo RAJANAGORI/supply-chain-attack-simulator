@@ -109,3 +109,50 @@ quiz:
       - "Moving all packages into a single folder to simplify review"
     answer: 1
     explain: "Ownership gates force security review on exactly the files this attack edits, and --ignore-scripts removes the lifecycle execution path until a package is allowlisted. Broader runner permissions increase the blast radius, and folder layout does nothing about who can merge changes - treat every workspace package as a third-party dependency."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update workspace package.json scripts"
+      dependency: "packages/utils/package.json"
+      diffSummary: "Fixed scripts for workspace root compatibility"
+      safe: true
+    - id: safe-2
+      title: "chore: add workspace lint check"
+      dependency: "packages/utils/.eslintrc.js"
+      diffSummary: "Added lint configuration for workspace packages"
+      safe: true
+    - id: safe-3
+      title: "docs: add monorepo contribution guide"
+      dependency: "docs/monorepo.md"
+      diffSummary: "Documented workspace development and release process"
+      safe: true
+    - id: safe-4
+      title: "test: add workspace integration tests"
+      dependency: "test/workspace.integration.js"
+      diffSummary: "Tests for cross-package imports in workspace"
+      safe: true
+    - id: bad-1
+      title: "feat: add @devcorp/utils to workspace"
+      dependency: "packages/utils"
+      diffSummary: "New @devcorp/utils workspace package with postinstall exfiltration"
+      safe: false
+      blockLabel: "Block — @devcorp/utils has hidden data exfil"
+    - id: bad-2
+      title: "fix: update workspace dependency resolution"
+      dependency: "packages/utils/lib/resolve.js"
+      diffSummary: "Workspace resolver that also harvests environment data"
+      safe: false
+      blockLabel: "Block — resolver exfiltration"
+    - id: bad-3
+      title: "chore: add workspace build optimization"
+      dependency: "packages/utils/build/optimize.js"
+      diffSummary: "Build optimization that copies source code to attacker server"
+      safe: false
+      blockLabel: "Block — build script source theft"
+    - id: bad-4
+      title: "refactor: extract workspace shared logic"
+      dependency: "packages/utils/lib/shared.js"
+      diffSummary: "Shared module with hidden token collection on import"
+      safe: false
+      blockLabel: "Block — token collector on import"

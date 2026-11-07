@@ -99,3 +99,50 @@ quiz:
       - "Deleting node_modules once a month"
     answer: 0
     explain: "You cannot defend what you cannot see. An SBOM plus full-tree scanning surfaces nested packages that a package.json review never shows. Reviewing direct dependencies only is precisely the blind spot this attack exploits."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update data-processor type definitions"
+      dependency: "data-processor"
+      diffSummary: "Added missing TypeScript interfaces for public API"
+      safe: true
+    - id: safe-2
+      title: "chore: add lockfile validation for transitive deps"
+      dependency: "scripts/validate-lockfile.sh"
+      diffSummary: "Script to check transitive dependency integrity"
+      safe: true
+    - id: safe-3
+      title: "docs: document dependency tree and audit procedure"
+      dependency: "docs/dependencies.md"
+      diffSummary: "Added dependency tree map and audit checklist"
+      safe: true
+    - id: safe-4
+      title: "test: add tree-shaking verification"
+      dependency: "test/tree-shaking.test.js"
+      diffSummary: "Tests to verify unused transitive deps are excluded"
+      safe: true
+    - id: bad-1
+      title: "feat: update data-processor to v3.2.0"
+      dependency: "data-processor"
+      diffSummary: "Updated data-processor with transitive exfiltration payload"
+      safe: false
+      blockLabel: "Block — transitive dep compromise in data-processor"
+    - id: bad-2
+      title: "fix: resolve transitive dep version conflict"
+      dependency: "data-processor/lib/deps.js"
+      diffSummary: "Dependency resolver that pulls malicious transitive deps"
+      safe: false
+      blockLabel: "Block — malicious transitive dep injection"
+    - id: bad-3
+      title: "chore: add data-processor optional dependencies"
+      dependency: "data-processor/package.json"
+      diffSummary: "New optional deps that install attacker-controlled packages"
+      safe: false
+      blockLabel: "Block — optional deps are attacker packages"
+    - id: bad-4
+      title: "refactor: optimize data-processor build pipeline"
+      dependency: "data-processor/build/pipeline.js"
+      diffSummary: "Build pipeline that also exfiltrates data during compile"
+      safe: false
+      blockLabel: "Block — build-time data exfiltration"

@@ -93,3 +93,50 @@ quiz:
       - "Pinning the Node.js version used by the CI image"
     answer: 1
     explain: "lockfile-lint with --allowed-hosts and --allowed-schemes https: plus git diff --exit-code package-lock.json fails the build on exactly this drift. Deleting the lockfile is worse - it removes the pin and lets anything resolve - and the Node version has no say in where tarballs come from."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update lockfile for node_modules dedup"
+      dependency: "package-lock.json"
+      diffSummary: "Deduped overlapping transitive dependencies"
+      safe: true
+    - id: safe-2
+      title: "chore: add lockfile commit requirement to PR template"
+      dependency: ".github/PULL_REQUEST_TEMPLATE.md"
+      diffSummary: "Added PR template requiring lockfile changes to be included"
+      safe: true
+    - id: safe-3
+      title: "docs: add lockfile best practices guide"
+      dependency: "docs/lockfile-policy.md"
+      diffSummary: "Documented policy for lockfile management"
+      safe: true
+    - id: safe-4
+      title: "test: add lockfile integrity check script"
+      dependency: "scripts/lockfile-check.sh"
+      diffSummary: "Script to detect unexpected lockfile changes"
+      safe: true
+    - id: bad-1
+      title: "chore: update package-lock.json with new dependencies"
+      dependency: "package-lock.json"
+      diffSummary: "Lockfile contains injected malicious packages not in package.json"
+      safe: false
+      blockLabel: "Block — lockfile contains unlisted packages"
+    - id: bad-2
+      title: "fix: resolve package-lock.json version conflicts"
+      dependency: "package-lock.json"
+      diffSummary: "Conflict resolution that introduces malicious transitive deps"
+      safe: false
+      blockLabel: "Block — injected transitive deps in lockfile"
+    - id: bad-3
+      title: "refactor: normalize lockfile for npm v9 compatibility"
+      dependency: "package-lock.json"
+      diffSummary: "Normalized lockfile with hidden entry for attacker package"
+      safe: false
+      blockLabel: "Block — normalized lockfile hides attacker entry"
+    - id: bad-4
+      title: "chore: migrate lockfile format to newer spec"
+      dependency: "package-lock.json"
+      diffSummary: "Format migration that adds unreviewed package entries"
+      safe: false
+      blockLabel: "Block — format migration covers injection"

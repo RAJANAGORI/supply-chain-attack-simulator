@@ -73,6 +73,23 @@ export interface DecisionResult {
   answeredAt: string;
 }
 
+/** A single PR entry in the triaged PR inbox. */
+export interface LessonTriagedPR {
+  id: string;
+  title: string;
+  dependency: string;
+  diffSummary: string;
+  safe: boolean;
+  blockLabel?: string;
+  approveLabel?: string;
+}
+
+/** PR Triage Inbox configuration for a scenario. */
+export interface LessonPrTriage {
+  afterStep?: string;
+  prs: LessonTriagedPR[];
+}
+
 export interface LessonDefinition {
   id: string;
   etaMinutes: number;
@@ -94,6 +111,8 @@ export interface LessonDefinition {
   reversal?: { blockedPackage: string };
   /** Opt-in teaching injection: show the PR Triage Inbox after the first 4 steps. */
   prTriageStep?: boolean;
+  /** PR Triage Inbox data for this scenario. */
+  prTriage?: LessonPrTriage;
 }
 
 /** A single multiple-choice quiz question. */

@@ -86,3 +86,50 @@ quiz:
       - "Scheduled digest verification of mirror content against upstream, with publish access locked down and MFA on admin paths"
     answer: 2
     explain: "Poisoning is a write-side problem - restrict who can mutate mirror storage, then continuously verify what the mirror serves against upstream digests so tampering alerts fast. Bypassing the mirror throws away caching and just moves trust to the public registry, and reinstalling the same poisoned tarball twice changes nothing."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update registry URL in .npmrc"
+      dependency: ".npmrc"
+      diffSummary: "Corrected registry URL to point to internal Nexus"
+      safe: true
+    - id: safe-2
+      title: "chore: add registry integrity verification"
+      dependency: "scripts/verify-registry.sh"
+      diffSummary: "Script to verify registry responses match upstream"
+      safe: true
+    - id: safe-3
+      title: "docs: add registry failover procedure"
+      dependency: "docs/registry-failover.md"
+      diffSummary: "Documented mirror failover and integrity checks"
+      safe: true
+    - id: safe-4
+      title: "test: add mirror poisoning detection test"
+      dependency: "test/mirror-verify.test.js"
+      diffSummary: "Tests to detect registry response anomalies"
+      safe: true
+    - id: bad-1
+      title: "fix: update registry mirror configuration"
+      dependency: ".npmrc"
+      diffSummary: "Changed registry to compromised mirror on port 4873"
+      safe: false
+      blockLabel: "Block — registry redirect to poisoned mirror"
+    - id: bad-2
+      title: "feat: add caching layer for npm installs"
+      dependency: "infrastructure/registry-server.js"
+      diffSummary: "Mirror server that serves compromised packages with valid structure"
+      safe: false
+      blockLabel: "Block — mirror serves poisoned tarballs"
+    - id: bad-3
+      title: "chore: optimize npm registry connectivity"
+      dependency: "infrastructure/mirror-sync.js"
+      diffSummary: "Mirror sync that substitutes legitimate packages with poisoned versions"
+      safe: false
+      blockLabel: "Block — mirror sync substitutes packages"
+    - id: bad-4
+      title: "refactor: update registry proxy for performance"
+      dependency: "infrastructure/registry-proxy.js"
+      diffSummary: "Registry proxy that injects postinstall scripts into proxied packages"
+      safe: false
+      blockLabel: "Block — proxy injects malicious scripts"

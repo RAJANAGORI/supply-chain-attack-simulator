@@ -61,6 +61,32 @@ export interface DecisionResult {
   answeredAt: string;
 }
 
+/** A single PR entry in the triaged PR inbox. */
+export interface LessonTriagedPR {
+  /** Unique within this PR list. */
+  id: string;
+  /** Title shown in the inbox card. */
+  title: string;
+  /** Package name or file being added/modified. */
+  dependency: string;
+  /** Short diff summary shown as secondary text. */
+  diffSummary: string;
+  /** true = safe to approve, false = compromised, must block. */
+  safe: boolean;
+  /** Optional override for the "Block" button label. */
+  blockLabel?: string;
+  /** Optional override for the "Approve" button label. */
+  approveLabel?: string;
+}
+
+/** PR Triage Inbox configuration for a scenario. */
+export interface LessonPrTriage {
+  /** Which step to show the inbox after. Defaults to last registry step if unset. */
+  afterStep?: string;
+  /** List of PRs to review. Must have at least 2 entries with unique IDs. */
+  prs: LessonTriagedPR[];
+}
+
 export interface LessonDefinition {
   id: string;
   etaMinutes: number;
@@ -82,6 +108,8 @@ export interface LessonDefinition {
   reversal?: { blockedPackage: string };
   /** Opt-in teaching injection: show the PR Triage Inbox after the first 4 steps. */
   prTriageStep?: boolean;
+  /** PR Triage Inbox data for this scenario. */
+  prTriage?: LessonPrTriage;
 }
 
 /** A single multiple-choice quiz question. */

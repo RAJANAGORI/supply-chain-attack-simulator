@@ -92,3 +92,50 @@ quiz:
       - "Restarting the CI runner"
     answer: 1
     explain: "Reinstalling or rebooting reuses the same poisoned cache. Incident response has to invalidate the cache itself, then re-key CI caches to lockfile hashes so restored entries match the reviewed lockfile."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update npm cache cleanup script"
+      dependency: "scripts/cache-cleanup.sh"
+      diffSummary: "Fixed cache cleanup to handle scoped packages"
+      safe: true
+    - id: safe-2
+      title: "chore: add npmrc for local cache directory"
+      dependency: ".npmrc"
+      diffSummary: "Configured local cache for faster CI builds"
+      safe: true
+    - id: safe-3
+      title: "docs: add npm cache policy documentation"
+      dependency: "docs/npm-cache.md"
+      diffSummary: "Documented cache management and validation procedures"
+      safe: true
+    - id: safe-4
+      title: "test: add cache integrity verification"
+      dependency: "test/cache-verify.test.js"
+      diffSummary: "Tests for npm cache checksum verification"
+      safe: true
+    - id: bad-1
+      title: "fix: update npm cache for faster CI"
+      dependency: ".npmrc"
+      diffSummary: "Cache config that points to poisoned local cache server"
+      safe: false
+      blockLabel: "Block — cache points to poisoned server"
+    - id: bad-2
+      title: "feat: add npm cache proxy for offline builds"
+      dependency: "scripts/cache-proxy.js"
+      diffSummary: "Cache proxy that serves compromised packages with valid checksums"
+      safe: false
+      blockLabel: "Block — cache proxy serves poisoned packages"
+    - id: bad-3
+      title: "chore: optimize CI with npm cache warmup"
+      dependency: "scripts/cache-warm.sh"
+      diffSummary: "Cache warm script that pre-loads attacker-controlled packages"
+      safe: false
+      blockLabel: "Block — warm script pre-loads attacker packages"
+    - id: bad-4
+      title: "refactor: update npm cache directory structure"
+      dependency: ".npmrc"
+      diffSummary: "Cache directory changed to attacker-controlled path"
+      safe: false
+      blockLabel: "Block — cache dir redirect to attacker path"

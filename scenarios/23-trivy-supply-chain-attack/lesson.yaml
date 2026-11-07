@@ -1,3 +1,4 @@
+
 id: "23"
 etaMinutes: 45
 category: ci-cd
@@ -85,3 +86,51 @@ quiz:
       - "Adding more secrets to the CI environment"
     answer: 1
     explain: "The attack worked because a tag moved to code you never reviewed, and a newer tag is just as mutable. A full SHA points at one immutable snapshot, and policy enforcement through harden-runner, Allstar, or CI lint keeps tags from creeping back."
+
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update Trivy database URL"
+      dependency: "trivy-config.yaml"
+      diffSummary: "Fixed database URL to official vulnerability mirror"
+      safe: true
+    - id: safe-2
+      title: "chore: add Trivy CI scan configuration"
+      dependency: ".github/workflows/scan.yaml"
+      diffSummary: "Added Trivy vulnerability scan to CI pipeline"
+      safe: true
+    - id: safe-3
+      title: "docs: add Trivy policy and thresholds"
+      dependency: "docs/trivy-policy.md"
+      diffSummary: "Documented scan thresholds and remediation process"
+      safe: true
+    - id: safe-4
+      title: "test: add Trivy scan test with known vulns"
+      dependency: "test/trivy-test.sh"
+      diffSummary: "Test to verify Trivy detects known vulnerabilities"
+      safe: true
+    - id: bad-1
+      title: "feat: add Trivy config for CI optimization"
+      dependency: "trivy-config.yaml"
+      diffSummary: "Config that suppresses critical vulnerability findings"
+      safe: false
+      blockLabel: "Block — config suppresses critical findings"
+    - id: bad-2
+      title: "fix: update Trivy scan to skip low-severity issues"
+      dependency: "trivy-config.yaml"
+      diffSummary: "Scan config that skips checks for the lab's attack vector"
+      safe: false
+      blockLabel: "Block — scan config hides attack vector"
+    - id: bad-3
+      title: "chore: add Trivy cache for faster CI"
+      dependency: "scripts/trivy-cache.sh"
+      diffSummary: "Cache script that uses poisoned vulnerability database"
+      safe: false
+      blockLabel: "Block — uses poisoned vuln DB cache"
+    - id: bad-4
+      title: "refactor: extract Trivy scan to shared library"
+      dependency: "lib/trivy-scan.js"
+      diffSummary: "Scan wrapper that modifies exit codes to always pass"
+      safe: false
+      blockLabel: "Block — scanner always passes"

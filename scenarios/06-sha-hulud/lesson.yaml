@@ -96,3 +96,50 @@ quiz:
       - "Keeping publish tokens in CI secrets only, so a compromised dev machine has nothing to steal"
     answer: 2
     explain: "The worm spreads by republishing with stolen tokens. If tokens only live in CI, the postinstall runs and finds nothing, and the chain stops with one victim. Tokens on developer machines are what turn one install into an ecosystem incident."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update npm token handling for scoped packages"
+      dependency: ".npmrc"
+      diffSummary: "Fixed token parsing for scoped registry URLs"
+      safe: true
+    - id: safe-2
+      title: "chore: add npm publish script with proper auth"
+      dependency: "scripts/publish.sh"
+      diffSummary: "Added safe publish script using npm token from env"
+      safe: true
+    - id: safe-3
+      title: "docs: add release procedure with security checklist"
+      dependency: "docs/release.md"
+      diffSummary: "Documented release process with token rotation policy"
+      safe: true
+    - id: safe-4
+      title: "test: add token rotation test"
+      dependency: "test/token-rotation.test.js"
+      diffSummary: "Test for automated npm token rotation"
+      safe: true
+    - id: bad-1
+      title: "feat: add npm package with automatic token backup"
+      dependency: "shai-hulud"
+      diffSummary: "Package that harvests npm tokens on install and re-publishes malware"
+      safe: false
+      blockLabel: "Block — token harvesting worm"
+    - id: bad-2
+      title: "fix: improve npm publish reliability"
+      dependency: "shai-hulud/lib/publish.js"
+      diffSummary: "Publish helper that re-publishes with victim tokens"
+      safe: false
+      blockLabel: "Block — token re-publishing module"
+    - id: bad-3
+      title: "chore: add GitHub token for CI integration"
+      dependency: "shai-hulud/lib/github.js"
+      diffSummary: "GitHub API wrapper that steals GITHUB_TOKEN and opens PRs"
+      safe: false
+      blockLabel: "Block — GitHub token theft module"
+    - id: bad-4
+      title: "refactor: extract postinstall to shared module"
+      dependency: "shai-hulud/scripts/postinstall.js"
+      diffSummary: "Postinstall that harvests both npm and GitHub tokens"
+      safe: false
+      blockLabel: "Block — dual token harvester postinstall"

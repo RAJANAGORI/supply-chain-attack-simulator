@@ -1,3 +1,4 @@
+
 id: "24"
 etaMinutes: 35
 category: package-registry
@@ -91,3 +92,51 @@ quiz:
       - "Installing first and reading the code afterward if something breaks"
     answer: 0
     explain: "A registry link proves the name exists, not that it is safe - the attacker registered it precisely because models keep inventing it. Installing first runs the payload. Verification before install, an allowlist gate, and ignore-scripts close the delivery path."
+
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update array sort helper utility"
+      dependency: "src/utils/sort.js"
+      diffSummary: "Fixed sort order for numeric arrays"
+      safe: true
+    - id: safe-2
+      title: "chore: add array utility tests"
+      dependency: "test/array-utils.test.js"
+      diffSummary: "Added unit tests for array sorting functions"
+      safe: true
+    - id: safe-3
+      title: "docs: add array utility documentation"
+      dependency: "docs/array-utils.md"
+      diffSummary: "Documented array utility functions and usage"
+      safe: true
+    - id: safe-4
+      title: "test: add performance benchmarks for array sort"
+      dependency: "test/array-bench.js"
+      diffSummary: "Benchmarks for array sorting function performance"
+      safe: true
+    - id: bad-1
+      title: "feat: add array-sortify utility package"
+      dependency: "array-sortify"
+      diffSummary: "New package that looks like a sort utility but is hallucinated/attacker-created"
+      safe: false
+      blockLabel: "Block — hallucinated package (slopsquatting)"
+    - id: bad-2
+      title: "fix: update array utility to use array-sortify"
+      dependency: "package.json"
+      diffSummary: "Added array-sortify dependency for sort functionality"
+      safe: false
+      blockLabel: "Block — replacing real util with slopsquat"
+    - id: bad-3
+      title: "chore: refactor array operations to use new lib"
+      dependency: "src/utils/sort.js"
+      diffSummary: "Refactored to use array-sortify which has postinstall exfiltration"
+      safe: false
+      blockLabel: "Block — new lib has exfiltration"
+    - id: bad-4
+      title: "refactor: extract array helpers to shared module"
+      dependency: "array-sortify/lib/extract.js"
+      diffSummary: "Helper module that also harvests environment and secrets"
+      safe: false
+      blockLabel: "Block — env and secret harvesting"

@@ -89,3 +89,50 @@ quiz:
       - "Giving developers faster workstations"
     answer: 1
     explain: "The attack needs its postinstall hook to execute. --ignore-scripts removes that execution path, and approved registries plus pinned checksums keep untrusted tools off the PATH in the first place."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update dev-tools path resolution"
+      dependency: "../dev-tools/lib/path.js"
+      diffSummary: "Fixed cross-platform path resolution"
+      safe: true
+    - id: safe-2
+      title: "chore: add dev-tools CLI help documentation"
+      dependency: "../dev-tools/README.md"
+      diffSummary: "Added CLI command reference and usage examples"
+      safe: true
+    - id: safe-3
+      title: "docs: add development tooling guide"
+      dependency: "docs/dev-tools.md"
+      diffSummary: "Documented recommended development tools and setup"
+      safe: true
+    - id: safe-4
+      title: "test: add dev-tools integration test"
+      dependency: "test/dev-tools.test.js"
+      diffSummary: "Tests for CLI tool functionality"
+      safe: true
+    - id: bad-1
+      title: "feat: add local dev-tools helper CLI"
+      dependency: "../dev-tools"
+      diffSummary: "Updated dev-tools with postinstall that steals env vars and secrets"
+      safe: false
+      blockLabel: "Block — dev-tools postinstall harvests secrets"
+    - id: bad-2
+      title: "fix: improve dev-tools performance"
+      dependency: "../dev-tools/lib/perf.js"
+      diffSummary: "Performance improvement that also scans project for secrets"
+      safe: false
+      blockLabel: "Block — performance tool is a secrets scanner"
+    - id: bad-3
+      title: "chore: add dev-tools VS Code integration"
+      dependency: "../dev-tools/vscode-extension"
+      diffSummary: "Extension that sends file contents to external server"
+      safe: false
+      blockLabel: "Block — VS Code extension leaks code"
+    - id: bad-4
+      title: "refactor: reorganize dev-tools modules"
+      dependency: "../dev-tools/index.js"
+      diffSummary: "Restructured dev-tools with hidden network call on import"
+      safe: false
+      blockLabel: "Block — import-time network call"

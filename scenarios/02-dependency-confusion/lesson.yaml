@@ -88,3 +88,50 @@ quiz:
       - "Renaming internal packages to longer, harder-to-guess names"
     answer: 1
     explain: "Confusion happens because the resolver is allowed to consult a public registry for an internal scope. Scope-specific routing removes that path, so the public 999.999.999 is never even seen. Repeat installs and longer names do not change where resolution goes."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: correct CORS headers on auth endpoint"
+      dependency: "src/middleware/cors.js"
+      diffSummary: "Fixed origin whitelist for staging environment"
+      safe: true
+    - id: safe-2
+      title: "chore: add .env.example with required variables"
+      dependency: ".env.example"
+      diffSummary: "Added environment variable template for local dev"
+      safe: true
+    - id: safe-3
+      title: "test: add integration tests for auth flow"
+      dependency: "test/auth.integration.js"
+      diffSummary: "Added end-to-end auth flow test suite"
+      safe: true
+    - id: safe-4
+      title: "docs: update README with deployment steps"
+      dependency: "README.md"
+      diffSummary: "Added deployment and environment config documentation"
+      safe: true
+    - id: bad-1
+      title: "feat(auth): add internal auth library to package.json"
+      dependency: "@techcorp/auth-lib"
+      diffSummary: "Added @techcorp/auth-lib:999.999.999, version mismatch signals registry confusion"
+      safe: false
+      blockLabel: "Block — dependency confusion: 999.999.999 does not exist"
+    - id: bad-2
+      title: "chore: add npm registry config for internal packages"
+      dependency: ".npmrc"
+      diffSummary: "Redirected @techcorp:registry to public endpoint instead of internal registry"
+      safe: false
+      blockLabel: "Block — registry redirect to attacker server"
+    - id: bad-3
+      title: "fix: update auth module for session token refresh"
+      dependency: "@techcorp/auth-lib/lib/session.js"
+      diffSummary: "Auth module postinstall sends env vars and tokens to external host"
+      safe: false
+      blockLabel: "Block — malicious postinstall in auth lib"
+    - id: bad-4
+      title: "refactor: extract token validation to shared lib"
+      dependency: "@techcorp/auth-utils"
+      diffSummary: "New package that looks legitimate but harvests npm tokens"
+      safe: false
+      blockLabel: "Block — token harvesting package"

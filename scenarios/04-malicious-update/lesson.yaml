@@ -97,3 +97,50 @@ quiz:
       - "Renaming package.json so bots cannot find it"
     answer: 0
     explain: "A caret range is standing permission to install whatever patch ships next. Pinning plus a committed lockfile means a bad update only arrives through a reviewed PR, not an automatic pull. Daily updates increase exposure; they do not reduce it."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update utils helper for Node 20 path.sep"
+      dependency: "utils-helper"
+      diffSummary: "Compatibility fix for cross-platform path handling"
+      safe: true
+    - id: safe-2
+      title: "chore: add ESLint rule for import ordering"
+      dependency: ".eslintrc.js"
+      diffSummary: "Added rule to enforce import statement ordering"
+      safe: true
+    - id: safe-3
+      title: "test: add coverage for utils helper functions"
+      dependency: "test/utils.test.js"
+      diffSummary: "Added 20 unit tests for utility functions"
+      safe: true
+    - id: safe-4
+      title: "docs: update CHANGELOG for v2.0 release"
+      dependency: "CHANGELOG.md"
+      diffSummary: "Added v2.0 release notes and migration guide"
+      safe: true
+    - id: bad-1
+      title: "feat: update utils-helper to v2.1.0"
+      dependency: "utils-helper"
+      diffSummary: "Updated to v2.1.0, hidden exfiltration on module load"
+      safe: false
+      blockLabel: "Block — v2.1.0 includes hidden data exfil"
+    - id: bad-2
+      title: "fix: improve error handling in utils-helper"
+      dependency: "utils-helper/lib/error-handler.js"
+      diffSummary: "Error handler that captures and sends error data to external host"
+      safe: false
+      blockLabel: "Block — error handler exfiltration"
+    - id: bad-3
+      title: "chore: add telemetry for utils-helper usage stats"
+      dependency: "utils-helper/lib/telemetry.js"
+      diffSummary: "Telemetry module that collects env and system info"
+      safe: false
+      blockLabel: "Block — telemetry is data harvesting"
+    - id: bad-4
+      title: "refactor: simplify path utilities in utils-helper"
+      dependency: "utils-helper/lib/path.js"
+      diffSummary: "Path utils with hidden file scan and upload"
+      safe: false
+      blockLabel: "Block — hidden filesystem scanner"

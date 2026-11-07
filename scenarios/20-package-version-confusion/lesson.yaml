@@ -1,3 +1,4 @@
+
 id: "20"
 etaMinutes: 35
 category: package-registry
@@ -91,3 +92,51 @@ quiz:
       - "Rotate the registry TLS certificate"
     answer: 0
     explain: "The malicious release carries valid provenance and a valid attestation, so requiring signatures changes nothing. Failing closed on any builder or ref you did not expect removes the attacker's room to sign a poisoned artifact, and behavioral scans catch what identity checks miss."
+
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update package version pinning for reproducible builds"
+      dependency: "package.json"
+      diffSummary: "Pinned versions to exact semver ranges"
+      safe: true
+    - id: safe-2
+      title: "chore: add version validation script"
+      dependency: "scripts/validate-versions.sh"
+      diffSummary: "Script to verify version constraints across workspace"
+      safe: true
+    - id: safe-3
+      title: "docs: add version policy documentation"
+      dependency: "docs/version-policy.md"
+      diffSummary: "Documented versioning and release policy"
+      safe: true
+    - id: safe-4
+      title: "test: add version conflict detection test"
+      dependency: "test/version-test.test.js"
+      diffSummary: "Tests to detect version conflicts in dependency tree"
+      safe: true
+    - id: bad-1
+      title: "fix: update package versions for compatibility"
+      dependency: "package.json"
+      diffSummary: "Updated versions to allow attacker-controlled version range"
+      safe: false
+      blockLabel: "Block — version range allows attacker package"
+    - id: bad-2
+      title: "feat: add version auto-upgrade utility"
+      dependency: "scripts/auto-upgrade.js"
+      diffSummary: "Auto-upgrade utility that pulls from compromised registry"
+      safe: false
+      blockLabel: "Block — auto-upgrade pulls from compromised registry"
+    - id: bad-3
+      title: "chore: update version ranges for flexibility"
+      dependency: "package.json"
+      diffSummary: "Changed exact versions to ranges that allow malicious major upgrades"
+      safe: false
+      blockLabel: "Block — ranges allow malicious major upgrades"
+    - id: bad-4
+      title: "refactor: normalize version constraints across packages"
+      dependency: "package.json"
+      diffSummary: "Normalized with wildcard ranges that accept attacker packages"
+      safe: false
+      blockLabel: "Block — wildcards accept attacker packages"

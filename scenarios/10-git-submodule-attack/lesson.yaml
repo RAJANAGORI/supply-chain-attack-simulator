@@ -94,3 +94,50 @@ quiz:
       - "Renaming .gitmodules so tooling cannot find it"
     answer: 0
     explain: "The attack needs the local file protocol to resolve, and protocol.file.allow=never closes that hole everywhere the config is set. Shallow clones still fetch submodule content, and renaming .gitmodules breaks legitimate submodules instead of the attacker. Pair the config with pinned commits and URL allowlists for the remote cases."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update submodule URLs to use SSH"
+      dependency: ".gitmodules"
+      diffSummary: "Switched HTTPS submodule URLs to SSH for auth"
+      safe: true
+    - id: safe-2
+      title: "chore: add submodule CI validation"
+      dependency: ".github/workflows/validate-submodules.yaml"
+      diffSummary: "Workflow to verify submodule integrity on PR"
+      safe: true
+    - id: safe-3
+      title: "docs: add submodule usage guidelines"
+      dependency: "docs/submodules.md"
+      diffSummary: "Documented safe submodule addition procedures"
+      safe: true
+    - id: safe-4
+      title: "test: add submodule integrity check"
+      dependency: "scripts/check-submodules.sh"
+      diffSummary: "Script to verify submodule commits match expected SHA"
+      safe: true
+    - id: bad-1
+      title: "feat: add shared utility submodule"
+      dependency: ".gitmodules"
+      diffSummary: "Added malicious submodule with postinstall that runs attacker code"
+      safe: false
+      blockLabel: "Block — submodule runs attacker code on clone"
+    - id: bad-2
+      title: "fix: update submodule fetch to include depth"
+      dependency: ".gitmodules"
+      diffSummary: "Modified submodule config to pull from attacker-controlled URL"
+      safe: false
+      blockLabel: "Block — submodule URL redirect to attacker repo"
+    - id: bad-3
+      title: "chore: enable recursive submodule checkout in CI"
+      dependency: ".github/workflows/ci.yaml"
+      diffSummary: "CI now clones submodules which triggers malicious postinstall"
+      safe: false
+      blockLabel: "Block — recursive checkout triggers attacker code"
+    - id: bad-4
+      title: "refactor: reorganize shared code into submodules"
+      dependency: ".gitmodules"
+      diffSummary: "Reorganized with new submodule pointing to attacker repo"
+      safe: false
+      blockLabel: "Block — fake submodule redirect"

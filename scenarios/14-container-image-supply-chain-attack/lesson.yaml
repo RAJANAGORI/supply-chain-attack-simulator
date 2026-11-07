@@ -82,3 +82,50 @@ quiz:
       - "Pinning immutable digests and verifying image signatures in CI/CD"
     answer: 2
     explain: "Tags are mutable, so a version tag can be repointed to a poisoned image. Digest pinning plus signature verification (cosign, admission control) makes the deploy path reject anything that is not the exact reviewed image."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update Dockerfile base image to node:20-slim"
+      dependency: "Dockerfile"
+      diffSummary: "Pinned base image to specific digest for reproducibility"
+      safe: true
+    - id: safe-2
+      title: "chore: add Docker layer caching for CI"
+      dependency: "docker-compose.yml"
+      diffSummary: "Added cache mounts for faster image builds"
+      safe: true
+    - id: safe-3
+      title: "docs: add Docker security best practices"
+      dependency: "docs/docker-security.md"
+      diffSummary: "Documented image signing and scan procedures"
+      safe: true
+    - id: safe-4
+      title: "test: add container scan in CI"
+      dependency: ".github/workflows/scan-docker.yaml"
+      diffSummary: "Added Trivy scan for container images"
+      safe: true
+    - id: bad-1
+      title: "feat: add optimized base image for builds"
+      dependency: "Dockerfile"
+      diffSummary: "New base image with pre-installed malicious packages and exfiltration"
+      safe: false
+      blockLabel: "Block — poisoned base image with exfil"
+    - id: bad-2
+      title: "fix: update CI build to use buildx"
+      dependency: ".github/workflows/build.yaml"
+      diffSummary: "Buildx config that uploads image to attacker registry"
+      safe: false
+      blockLabel: "Block — CI uploads to attacker registry"
+    - id: bad-3
+      title: "chore: add Docker layer cache optimization"
+      dependency: "docker-compose.yml"
+      diffSummary: "Cache mount that copies sensitive files into image layer"
+      safe: false
+      blockLabel: "Block — cache mount leaks secrets"
+    - id: bad-4
+      title: "refactor: simplify Dockerfile multi-stage build"
+      dependency: "Dockerfile"
+      diffSummary: "Simplified build that includes build secrets in final image"
+      safe: false
+      blockLabel: "Block — secrets in final image layer"

@@ -88,3 +88,50 @@ quiz:
       - "Updating dependencies more frequently"
     answer: 0
     explain: "The chain needs one identity to go from build to publish. If the build runner's token cannot publish, stage 3 fails on permissions; approval gates and auto-containment on the event sequence add more chances to stop it."
+prTriage:
+  prTriageStep: true
+  prs:
+    - id: safe-1
+      title: "fix: update multi-stage build configuration"
+      dependency: "Dockerfile"
+      diffSummary: "Fixed stage dependencies for reproducibility"
+      safe: true
+    - id: safe-2
+      title: "chore: add build artifact verification"
+      dependency: "scripts/verify-artifacts.sh"
+      diffSummary: "Script to verify build artifacts match source"
+      safe: true
+    - id: safe-3
+      title: "docs: add multi-stage build documentation"
+      dependency: "docs/build.md"
+      diffSummary: "Documented build pipeline and artifact flow"
+      safe: true
+    - id: safe-4
+      title: "test: add end-to-end build test"
+      dependency: "test/build-e2e.test.js"
+      diffSummary: "E2E test for full build pipeline"
+      safe: true
+    - id: bad-1
+      title: "feat: add multi-stage build optimization"
+      dependency: "Dockerfile"
+      diffSummary: "Optimized build that injects malicious code in second stage"
+      safe: false
+      blockLabel: "Block — second stage injects malware"
+    - id: bad-2
+      title: "fix: update CI pipeline for multi-stage build"
+      dependency: ".github/workflows/build.yaml"
+      diffSummary: "Pipeline that passes secrets between stages to attacker"
+      safe: false
+      blockLabel: "Block — pipeline leaks secrets between stages"
+    - id: bad-3
+      title: "chore: add build artifact signing"
+      dependency: "scripts/sign-artifacts.sh"
+      diffSummary: "Signing script that also embeds attacker-signed artifacts"
+      safe: false
+      blockLabel: "Block — signing embeds attacker artifacts"
+    - id: bad-4
+      title: "refactor: reorganize build pipeline stages"
+      dependency: "Dockerfile"
+      diffSummary: "Reorganized with hidden stage that exfiltrates build context"
+      safe: false
+      blockLabel: "Block — hidden exfiltration stage"
