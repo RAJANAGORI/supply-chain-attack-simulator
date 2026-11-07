@@ -94,7 +94,6 @@ if [[ -n "${LAN_IP}" ]]; then
 fi
 
 if [[ "$UI_DEV" = "1" ]]; then
-  scas_log "UI mode: next/tsx DEV (SCAS_UI_DEV=1)"
   scas_log "Control plane bind ${BIND_HOST}:${CONTROL_PLANE_PORT}"
   npm run dev:control-plane &
   wait_for "http://127.0.0.1:${CONTROL_PLANE_PORT}/api/health" "Control plane"
@@ -103,7 +102,6 @@ if [[ "$UI_DEV" = "1" ]]; then
   npm run dev:dashboard &
   wait_for "http://127.0.0.1:3100" "Dashboard"
 else
-  scas_log "UI mode: production (dashboard build + next start)"
   # next start needs a real production build (.next/BUILD_ID). A leftover
   # empty/partial .next from failed builds or next dev is not enough.
   DASH_BUILD_ID="${ROOT}/apps/dashboard/.next/BUILD_ID"
@@ -149,12 +147,6 @@ scas_panel_row "Attack maps" "http://localhost:3100/archify/INDEX.md"
 scas_panel_row "Observatory" "http://localhost:3100/observe"
 scas_panel_row "Control plane" "http://localhost:${CONTROL_PLANE_PORT}/api/health"
 scas_panel_row "Marketing" "https://simulator.rajanagori.in/"
-scas_panel_row "UI mode" "$([[ "$UI_DEV" = "1" ]] && echo 'dev (hot reload)' || echo 'production')"
-if [[ "${NEXT_PUBLIC_SCAS_DISABLE_GA:-0}" = "1" ]]; then
-  scas_panel_row "GA4" "disabled"
-else
-  scas_panel_row "GA4" "${NEXT_PUBLIC_GA_ID}"
-fi
 if [[ -n "${SCAS_ES_URL:-}" ]]; then
   scas_panel_row "SCAS_ES_URL" "${SCAS_ES_URL}"
 else
