@@ -40,6 +40,23 @@ export interface DecisionChoice {
   effects: DecisionEffect;
 }
 
+/** Tabletop roles a classroom learner can pick when joining. */
+export const CLASSROOM_ROLES = ['IC', 'Eng', 'Comms', 'Legal'] as const;
+export type ClassroomRole = (typeof CLASSROOM_ROLES)[number];
+
+/** Round-2 attacker fixture for a polymorphic purple reversal. */
+export interface LessonReversalVariant {
+  /** Victim entry file (relative to the run step cwd) that requires SCAS_VARIANT_PACKAGE. */
+  entry: string;
+  /** Localhost mock-collector port the generated payload posts to. Default 3000. */
+  port?: number;
+}
+
+export interface LessonReversal {
+  blockedPackage: string;
+  variant?: LessonReversalVariant;
+}
+
 /** A branching decision point interleaved with steps. */
 export interface LessonDecision {
   /** Unique within this lesson. */
@@ -48,6 +65,11 @@ export interface LessonDecision {
   afterStep: string;
   /** Question presented to the learner. */
   prompt: string;
+  /**
+   * Optional tabletop roles this call belongs to. Omitted means everyone.
+   * A classroom learner with a different role sees a read-only card.
+   */
+  roles?: ClassroomRole[];
   /** Choices rendered as selectable buttons. */
   choices: DecisionChoice[];
 }
@@ -97,6 +119,14 @@ export interface LessonDefinition {
   caseStudy?: string;
   /** Optional: short mitigation bullets distilled from DETECT.md (not a full runbook). */
   mitigation?: string[];
+  /** Optional: MITRE ATT&CK technique ids this lab exercises, e.g. "T1195.002". */
+  attck?: string[];
+  /** Optional: NIST control or practice refs, e.g. "SP 800-218 PW.4". */
+  nist?: string[];
+  /** Optional: lab ids (e.g. "01") worth finishing before this one. */
+  prereqs?: string[];
+  /** Optional: short control slugs this lab teaches you to apply, e.g. "action-sha-pinning". */
+  remediates?: string[];
   steps: LessonStep[];
   /** Optional branching decision points interleaved with steps. */
   decisions?: LessonDecision[];
@@ -104,12 +134,55 @@ export interface LessonDefinition {
   drill?: LessonDrill;
   /** Optional quiz gate: 2-3 questions drawn from the lab's DETECT.md IOCs. */
   quiz?: LessonQuizQuestion[];
-  /** Optional purple-team reversal: the package the learner's control must block. */
-  reversal?: { blockedPackage: string };
+  /**
+   * Optional purple-team reversal: the package the learner's control must block.
+   * With `variant`, a second round re-runs a mutated attacker (new package name,
+   * new payload shape) so a name-only block fails and a behavioral gate passes.
+   */
+  reversal?: LessonReversal;
   /** Opt-in teaching injection: show the PR Triage Inbox after the first 4 steps. */
   prTriageStep?: boolean;
   /** PR Triage Inbox data for this scenario. */
   prTriage?: LessonPrTriage;
+  /** Opt-in Tarball-vs-Git diff workbench backed by in-repo fixture files. */
+  diffWorkbench?: LessonDiffWorkbench;
+}
+
+/**
+ * Side-by-side "clean git tree vs published tarball" workbench. Both trees are
+ * small fixture directories under scenarios/<slug>/<fixtureDir>/{git,tarball}.
+ * Nothing is fetched from a real registry.
+ */
+export interface LessonDiffWorkbench {
+  /** Path relative to scenarios/<slug>/, no "..". Holds `git/` and `tarball/` subfolders. */
+  fixtureDir: string;
+  title?: string;
+  /** One or two sentences shown above the panes. */
+  prompt?: string;
+  /** Label for the left pane, e.g. "git tag v2.5.4". */
+  gitLabel?: string;
+  /** Label for the right pane, e.g. "npm pack secure-validator@2.5.4". */
+  tarballLabel?: string;
+  /** Show the workbench once this lesson step is active or verified. Always shown when unset. */
+  afterStep?: string;
+}
+
+export type DiffWorkbenchFileStatus = 'same' | 'modified' | 'git-only' | 'tarball-only';
+
+export interface DiffWorkbenchFile {
+  path: string;
+  status: DiffWorkbenchFileStatus;
+  git: string | null;
+  tarball: string | null;
+}
+
+/** Payload served by GET /scenarios/:id/diff-workbench. */
+export interface DiffWorkbenchPayload {
+  title: string;
+  prompt?: string;
+  gitLabel: string;
+  tarballLabel: string;
+  files: DiffWorkbenchFile[];
 }
 
 /** A single multiple-choice quiz question. */

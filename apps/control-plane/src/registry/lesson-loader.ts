@@ -55,6 +55,11 @@ export function validateLessonAgainstRegistry(
       );
     }
   }
+
+  const afterStep = lesson.diffWorkbench?.afterStep;
+  if (afterStep && !lesson.steps.some((s) => s.id === afterStep)) {
+    throw new Error(`diffWorkbench.afterStep "${afterStep}" does not match any lesson step id`);
+  }
 }
 
 export function withLesson<T extends ScenarioDefinition>(

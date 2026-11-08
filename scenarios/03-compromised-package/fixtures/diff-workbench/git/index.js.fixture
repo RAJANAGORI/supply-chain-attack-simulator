@@ -1,0 +1,35 @@
+'use strict';
+
+const { sanitizeHtml } = require('./lib/sanitize');
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validateEmail(email) {
+  return EMAIL_RE.test(email);
+}
+
+function validateUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function validateInput(input, type = 'string') {
+  if (!input) return { valid: false, error: 'Input is required' };
+
+  switch (type) {
+    case 'email':
+      return { valid: validateEmail(input), sanitized: input.trim().toLowerCase() };
+    case 'url':
+      return { valid: validateUrl(input), sanitized: input.trim() };
+    case 'html':
+      return { valid: true, sanitized: sanitizeHtml(input) };
+    default:
+      return { valid: typeof input === 'string', sanitized: input.trim() };
+  }
+}
+
+module.exports = { validateEmail, validateUrl, validateInput, sanitizeHtml };

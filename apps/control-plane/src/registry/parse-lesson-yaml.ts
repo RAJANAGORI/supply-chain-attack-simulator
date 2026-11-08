@@ -2,15 +2,19 @@
  * Minimal YAML subset parser for lesson.yaml files.
  * Supports maps, lists, quoted/unquoted scalars, null, and inline { k: v } objects.
  */
+import { CLASSROOM_ROLES } from './lesson-types.js';
 import type {
+  ClassroomRole,
   DecisionChoice,
   LessonAudience,
   LessonDefinition,
   LessonDrill,
   LessonDecision,
+  LessonDiffWorkbench,
   LessonPrTriage,
   LessonTriagedPR,
   LessonQuizQuestion,
+  LessonReversal,
   LessonStep,
   LessonVerify,
 } from './lesson-types.js';
@@ -221,6 +225,11 @@ export function normalizeLesson(raw: Record<string, unknown>, expectedId: string
     if (mitigation.length === 0) mitigation = undefined;
   }
 
+  const attck = optionalTagList(raw.attck, 'attck');
+  const nist = optionalTagList(raw.nist, 'nist');
+  const prereqs = optionalTagList(raw.prereqs, 'prereqs');
+  const remediates = optionalTagList(raw.remediates, 'remediates');
+
   if (!Array.isArray(raw.steps) || raw.steps.length === 0) {
     throw new Error('steps must be a non-empty list');
   }
@@ -252,11 +261,76 @@ export function normalizeLesson(raw: Record<string, unknown>, expectedId: string
   const reversal = normalizeReversal(raw.reversal);
   const prTriageStep = raw.prTriageStep === true || raw.prTriageStep === 'true';
   const prTriage = normalizePrTriage(raw.prTriage);
+  const diffWorkbench = normalizeDiffWorkbench(raw.diffWorkbench);
 
-  return { id, etaMinutes, category, incidents, objectives, caseStudy, mitigation, steps, drill, quiz, decisions, reversal, prTriageStep, prTriage };
+  return {
+    id,
+    etaMinutes,
+    category,
+    incidents,
+    objectives,
+    caseStudy,
+    mitigation,
+    attck,
+    nist,
+    prereqs,
+    remediates,
+    steps,
+    drill,
+    quiz,
+    decisions,
+    reversal,
+    prTriageStep,
+    prTriage,
+    diffWorkbench,
+  };
 }
 
-function normalizeReversal(raw: unknown): { blockedPackage: string } | undefined {
+function optionalString(raw: Record<string, unknown>, key: string, field: string): string | undefined {
+  const v = raw[key];
+  if (v === undefined || v === null) return undefined;
+  const s = asString(v, `${field}.${key}`).trim();
+  return s || undefined;
+}
+
+/** Normalize a lesson.yaml `diffWorkbench` block (Tarball-vs-Git fixtures). */
+function normalizeDiffWorkbench(raw: unknown): LessonDiffWorkbench | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('diffWorkbench must be a mapping');
+  }
+  const d = raw as Record<string, unknown>;
+  const fixtureDir = asString(d.fixtureDir, 'diffWorkbench.fixtureDir').trim();
+  const segments = fixtureDir.split(/[\\/]/);
+  if (
+    !fixtureDir ||
+    fixtureDir.startsWith('/') ||
+    fixtureDir.startsWith('\\') ||
+    /^[A-Za-z]:/.test(fixtureDir) ||
+    segments.includes('..')
+  ) {
+    throw new Error('diffWorkbench.fixtureDir must be a relative path inside the scenario folder');
+  }
+  return {
+    fixtureDir,
+    title: optionalString(d, 'title', 'diffWorkbench'),
+    prompt: optionalString(d, 'prompt', 'diffWorkbench'),
+    gitLabel: optionalString(d, 'gitLabel', 'diffWorkbench'),
+    tarballLabel: optionalString(d, 'tarballLabel', 'diffWorkbench'),
+    afterStep: optionalString(d, 'afterStep', 'diffWorkbench'),
+  };
+}
+
+/** Optional list of non-empty strings (ATT&CK ids, NIST refs, lab ids, control slugs). */
+function optionalTagList(raw: unknown, field: string): string[] | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (!Array.isArray(raw)) throw new Error(`${field} must be a list of strings`);
+  const out = raw.map((x, i) => asString(x, `${field}[${i}]`).trim());
+  if (out.some((x) => !x)) throw new Error(`${field} entries must be non-empty`);
+  return out.length ? out : undefined;
+}
+
+function normalizeReversal(raw: unknown): LessonReversal | undefined {
   if (raw === undefined || raw === null) return undefined;
   if (typeof raw !== 'object' || Array.isArray(raw)) {
     throw new Error('reversal must be a mapping');
@@ -264,7 +338,23 @@ function normalizeReversal(raw: unknown): { blockedPackage: string } | undefined
   const r = raw as Record<string, unknown>;
   const blockedPackage = asString(r.blockedPackage, 'reversal.blockedPackage').trim();
   if (!blockedPackage) throw new Error('reversal.blockedPackage must be non-empty');
-  return { blockedPackage };
+  if (r.variant === undefined || r.variant === null) return { blockedPackage };
+  if (typeof r.variant !== 'object' || Array.isArray(r.variant)) {
+    throw new Error('reversal.variant must be a mapping');
+  }
+  const v = r.variant as Record<string, unknown>;
+  const entry = asString(v.entry, 'reversal.variant.entry').trim();
+  if (!entry || entry.startsWith('/') || entry.includes('..')) {
+    throw new Error('reversal.variant.entry must be a relative file inside the victim directory');
+  }
+  let port: number | undefined;
+  if (v.port !== undefined && v.port !== null) {
+    port = Number(v.port);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      throw new Error('reversal.variant.port must be a port number');
+    }
+  }
+  return { blockedPackage, variant: { entry, ...(port !== undefined ? { port } : {}) } };
 }
 
 function normalizeQuiz(raw: unknown): LessonQuizQuestion[] | undefined {
@@ -406,10 +496,30 @@ function normalizeDecisions(raw: unknown): LessonDecision[] | undefined {
       }
     });
 
+    // roles[] (optional): tabletop roles that own this call
+    let roles: ClassroomRole[] | undefined;
+    if (d.roles !== undefined && d.roles !== null) {
+      if (!Array.isArray(d.roles) || d.roles.length === 0) {
+        throw new Error(`decisions[${i}].roles must be a non-empty list`);
+      }
+      roles = d.roles.map((r, k) => {
+        const match = CLASSROOM_ROLES.find(
+          (known) => known.toLowerCase() === String(r).trim().toLowerCase(),
+        );
+        if (!match) {
+          throw new Error(
+            `decisions[${i}].roles[${k}] must be one of ${CLASSROOM_ROLES.join('|')}, got ${String(r)}`,
+          );
+        }
+        return match;
+      });
+    }
+
     return {
       id,
       afterStep,
       prompt,
+      ...(roles ? { roles } : {}),
       choices: choices.map((ch) => ({
         id: ch.id,
         label: ch.label,

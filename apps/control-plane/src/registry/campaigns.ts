@@ -41,6 +41,8 @@ export interface CampaignInject {
   evidence?: CampaignEvidence[];
   /** Confidence score 0–1. */
   confidence: number;
+  /** Optional tabletop clock position (minutes after T+0) when the instructor releases this inject. */
+  tMinute?: number;
 }
 
 /** One chapter in the campaign chain. */

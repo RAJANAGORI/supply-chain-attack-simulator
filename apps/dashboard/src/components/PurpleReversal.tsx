@@ -2,35 +2,62 @@
 
 import { useState } from 'react';
 import { Alert, Btn, Card, StatusPill } from '@/components/ui';
-import { cp, waitForSession, type ReversalResult } from '@/lib/api';
+import {
+  cp,
+  waitForSession,
+  type ReversalGrade,
+  type ReversalGuardPolicy,
+  type ReversalResult,
+  type ReversalRound,
+} from '@/lib/api';
 
 /**
  * Purple-team reversal. The learner has run the attack and detected it; now
  * they author the control that would have stopped it and re-run the attack to
  * prove the control holds. For package labs the control is a dependency-guard
- * blocklist in the victim working directory; the control plane re-runs the
+ * policy in the victim working directory; the control plane re-runs the
  * victim with the guard preloaded and checks whether a new capture appears.
+ *
+ * Labs with a `reversal.variant` fixture are polymorphic: round 2 replays the
+ * attack under a mutated package name and payload shape. A name-only block
+ * passes round 1 and fails round 2, so the learner has to author a behavioral
+ * gate (allowOnly, denyDependencyEgress) instead.
  *
  * This is the step that closes the loop: attack -> detect -> prevent.
  */
 export function PurpleReversal({
   scenarioId,
   blockedPackage,
+  polymorphic = false,
 }: {
   scenarioId: string;
   /** The package name the learner should block, e.g. "request-lib". */
   blockedPackage: string;
+  /** True when the lab ships a mutated second round. */
+  polymorphic?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<ReversalResult | null>(null);
   const [error, setError] = useState('');
+  const [policyText, setPolicyText] = useState(
+    JSON.stringify({ block: [blockedPackage] }, null, 2),
+  );
 
   const run = async () => {
-    setBusy(true);
     setError('');
+    let guard: ReversalGuardPolicy | undefined;
+    if (polymorphic) {
+      try {
+        guard = JSON.parse(policyText) as ReversalGuardPolicy;
+      } catch {
+        setError('Your policy is not valid JSON yet. Fix it and run again.');
+        return;
+      }
+    }
+    setBusy(true);
     setResult(null);
     try {
-      const res = await cp.runReversal(scenarioId);
+      const res = await cp.runReversal(scenarioId, guard);
       if (res.sessionId) void waitForSession(res.sessionId).catch(() => undefined);
       if (res.reversal) setResult(res.reversal);
     } catch (e) {
@@ -40,10 +67,37 @@ export function PurpleReversal({
     }
   };
 
+  const addKey = (patch: Partial<ReversalGuardPolicy>) => {
+    try {
+      const cur = JSON.parse(policyText) as ReversalGuardPolicy;
+      setPolicyText(JSON.stringify({ ...cur, ...patch }, null, 2));
+    } catch {
+      setPolicyText(JSON.stringify(patch, null, 2));
+    }
+  };
+
+  const pillStatus = (r: ReversalResult) =>
+    r.commandOk === false || r.grade === 'untested'
+      ? 'warn'
+      : r.held
+        ? 'online'
+        : 'warn';
+  const pillLabel = (r: ReversalResult) => {
+    if (r.commandOk === false || r.grade === 'untested') return 'Run failed';
+    if (r.grade === 'behavioral') return 'Behavioral control held';
+    if (r.grade === 'name-only') return 'Name-only: bypassed';
+    if (r.grade === 'failed') return 'Attack still fired';
+    return r.held ? 'Control held' : 'Attack still fired';
+  };
+
   return (
     <Card
       title="Purple-team reversal"
-      subtitle="Author the control, then re-run the attack against it"
+      subtitle={
+        polymorphic
+          ? 'Author the control. The attacker will change its name.'
+          : 'Author the control, then re-run the attack against it'
+      }
       className={
         result ? (result.held ? 'ring-1 ring-state-ok/40' : 'ring-1 ring-state-error/40') : ''
       }
@@ -53,40 +107,72 @@ export function PurpleReversal({
         <code className="rounded bg-canvas-hover px-1.5 py-0.5 font-mono text-[11px] text-ink-primary">
           dependency-guard.json
         </code>{' '}
-        into this lab's victim directory with the block list below, then starts the app with that guard loaded:
+        into this lab's victim directory
+        {polymorphic ? ' from the policy below' : ' with the block list below'}, then starts the app
+        with that guard loaded:
       </p>
-      <pre className="mt-3 overflow-auto rounded-xl border border-line bg-[#0c0b14] p-4 font-mono text-[11px] leading-relaxed text-white/80">
-        {`{
+
+      {polymorphic ? (
+        <>
+          <textarea
+            value={policyText}
+            onChange={(e) => setPolicyText(e.target.value)}
+            spellCheck={false}
+            rows={6}
+            aria-label="dependency-guard.json policy"
+            className="mt-3 w-full rounded-xl border border-line bg-[#0c0b14] p-4 font-mono text-[11px] leading-relaxed text-white/80 focus:border-accent focus:outline-none"
+          />
+          <p className="mt-3 text-[11px] leading-relaxed text-ink-faint">
+            Round 1 replays the attacker you already saw. Round 2 replays it after it republishes
+            under a new package name with a reshaped payload, and that name is different every run.
+            A block list only knows names, so it has to hold on behavior to pass. Keys the guard
+            understands:{' '}
+            <code className="font-mono text-ink-secondary">block</code>,{' '}
+            <code className="font-mono text-ink-secondary">allowOnly</code>,{' '}
+            <code className="font-mono text-ink-secondary">denyDependencyEgress</code>,{' '}
+            <code className="font-mono text-ink-secondary">egressAllow</code>.
+          </p>
+        </>
+      ) : (
+        <>
+          <pre className="mt-3 overflow-auto rounded-xl border border-line bg-[#0c0b14] p-4 font-mono text-[11px] leading-relaxed text-white/80">
+            {`{
   "block": ["${blockedPackage}"]
 }`}
-      </pre>
-      <p className="mt-3 text-[11px] leading-relaxed text-ink-faint">
-        When you run the reversal, the victim starts with your guard preloaded. If the guard refuses
-        the package, the payload never executes and no new capture lands in the inspector.
-      </p>
+          </pre>
+          <p className="mt-3 text-[11px] leading-relaxed text-ink-faint">
+            When you run the reversal, the victim starts with your guard preloaded. If the guard
+            refuses the package, the payload never executes and no new capture lands in the
+            inspector.
+          </p>
+        </>
+      )}
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <Btn variant="success" disabled={busy} onClick={() => void run()}>
-          {busy ? 'Re-running attack…' : 'Re-run attack against my control'}
+          {busy
+            ? polymorphic
+              ? 'Running both rounds…'
+              : 'Re-running attack…'
+            : polymorphic
+              ? 'Re-run original + mutated attack'
+              : 'Re-run attack against my control'}
         </Btn>
-        {result && (
-          <StatusPill
-            status={result.commandOk === false ? 'warn' : result.held ? 'online' : 'warn'}
-            label={
-              result.commandOk === false
-                ? 'Run failed'
-                : result.held
-                  ? 'Control held'
-                  : 'Attack still fired'
-            }
-          />
-        )}
+        {result && <StatusPill status={pillStatus(result)} label={pillLabel(result)} />}
       </div>
 
       {error && (
         <div className="mt-3">
           <Alert variant="error">{error}</Alert>
         </div>
+      )}
+
+      {result && result.rounds && (
+        <ul className="mt-4 space-y-2">
+          {result.rounds.map((r) => (
+            <RoundRow key={r.id} round={r} />
+          ))}
+        </ul>
       )}
 
       {result && (
@@ -109,6 +195,85 @@ export function PurpleReversal({
           )}
         </div>
       )}
+
+      {result && result.grade === 'name-only' && (
+        <NameOnlyHelp grade={result.grade} onAdd={addKey} />
+      )}
     </Card>
+  );
+}
+
+function RoundRow({ round }: { round: ReversalRound }) {
+  const gate =
+    round.blockedBy === 'egress'
+      ? 'denyDependencyEgress'
+      : round.blockedBy === 'allowlist'
+        ? 'allowOnly'
+        : round.blockedBy === 'blocklist'
+          ? 'block list'
+          : null;
+  return (
+    <li className="rounded-xl border border-line bg-canvas-hover px-3 py-2 text-[12px] leading-relaxed">
+      <div className="flex flex-wrap items-center gap-2">
+        <StatusPill
+          status={round.commandOk ? (round.held ? 'online' : 'warn') : 'warn'}
+          label={!round.commandOk ? 'Run failed' : round.held ? 'Blocked' : 'Got through'}
+        />
+        <span className="font-medium text-ink-primary">{round.label}</span>
+        {gate && <span className="text-ink-faint">stopped by {gate}</span>}
+      </div>
+      {round.attacker && (
+        <p className="mt-1 font-mono text-[11px] text-ink-faint">
+          {round.attacker.packageName} · {round.attacker.mutation} · {round.attacker.delivery}
+          {round.attacker.delivery === 'timer' ? ` ${round.attacker.delayMs}ms` : ''} ·{' '}
+          {round.attacker.encoding} payload · seed {round.attacker.seed}
+        </p>
+      )}
+      <p className="mt-1 text-[11px] text-ink-faint">
+        captures {round.capturesBefore} to {round.capturesAfter}
+      </p>
+    </li>
+  );
+}
+
+function NameOnlyHelp({
+  grade,
+  onAdd,
+}: {
+  grade: ReversalGrade;
+  onAdd: (patch: Partial<ReversalGuardPolicy>) => void;
+}) {
+  if (grade !== 'name-only') return null;
+  return (
+    <div className="mt-4 rounded-xl border border-line px-4 py-3 text-[12px] leading-relaxed text-ink-secondary">
+      <p className="font-medium text-ink-primary">Why the name block was not enough</p>
+      <p className="mt-1">
+        Your block list matched one string. The attacker changed the string and the payload still
+        ran. Pick a control that does not care what the package is called:
+      </p>
+      <ul className="mt-2 list-disc space-y-1 pl-5">
+        <li>
+          <code className="font-mono">allowOnly</code> - list the third-party packages the app is
+          supposed to import. Everything else is refused, whatever its name.
+        </li>
+        <li>
+          <code className="font-mono">denyDependencyEgress</code> - dependency code may not open
+          outbound http, https or fetch connections at all. The exfil call dies even if the package
+          loads.
+        </li>
+      </ul>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Btn variant="secondary" onClick={() => onAdd({ allowOnly: [] })}>
+          Add allowOnly key
+        </Btn>
+        <Btn variant="secondary" onClick={() => onAdd({ denyDependencyEgress: true })}>
+          Add denyDependencyEgress
+        </Btn>
+      </div>
+      <p className="mt-2 text-[11px] text-ink-faint">
+        The allowOnly button adds an empty list. Fill in the package you actually want to keep, for
+        example requests-lib, before you re-run.
+      </p>
+    </div>
   );
 }

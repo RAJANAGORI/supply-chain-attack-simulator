@@ -5,8 +5,12 @@ import { dirname, resolve } from 'node:path';
 import { SCENARIOS } from './registry/scenarios.js';
 import { loadLesson } from './registry/lesson-loader.js';
 import { readProgress } from './progress.js';
+import { getCampaign, type CampaignInject } from './registry/campaigns.js';
+import { CLASSROOM_ROLES, type ClassroomRole } from './registry/lesson-types.js';
 
-function scasDir(): string {
+export { CLASSROOM_ROLES, type ClassroomRole };
+
+export function scasDir(): string {
   return process.env.SCAS_PROGRESS_PATH
     ? dirname(resolve(process.env.SCAS_PROGRESS_PATH))
     : resolve(homedir(), '.scas');
@@ -21,12 +25,59 @@ export interface SkillCategory {
   completedIds: string[];
 }
 
-export function buildSkillMatrix(): {
+/** ATT&CK technique coverage across guided labs (only labs that declare `attck`). */
+export interface SkillTechnique {
+  id: string;
+  labIds: string[];
+  completedIds: string[];
+}
+
+/** Minimal adaptive tip: the next lab that shares tags with, or builds on, what you finished. */
+export interface NextLabSuggestion {
+  id: string;
+  title: string;
+  reason: string;
+}
+
+export interface SkillMatrix {
   categories: SkillCategory[];
+  techniques: SkillTechnique[];
+  nextLab: NextLabSuggestion | null;
   completedLabs: number;
   totalLabs: number;
   exportedAt: string;
-} {
+}
+
+/** Pure ranking so the tip is easy to reason about: prereq link counts 2, each shared technique 1. */
+export function suggestNextLab(
+  labs: Array<{ id: string; title: string; attck: string[]; prereqs: string[]; completed: boolean }>,
+): NextLabSuggestion | null {
+  const done = labs.filter((l) => l.completed);
+  if (done.length === 0) return null;
+  const doneIds = new Set(done.map((l) => l.id));
+  const doneTechniques = new Set(done.flatMap((l) => l.attck));
+
+  let best: { lab: (typeof labs)[number]; score: number; shared: string[]; via: string[] } | null = null;
+  for (const lab of labs) {
+    if (lab.completed) continue;
+    if (lab.prereqs.some((p) => !doneIds.has(p))) continue;
+    const shared = lab.attck.filter((t) => doneTechniques.has(t));
+    const via = lab.prereqs.filter((p) => doneIds.has(p));
+    const score = shared.length + (via.length ? 2 : 0);
+    if (score === 0) continue;
+    if (!best || score > best.score || (score === best.score && lab.id < best.lab.id)) {
+      best = { lab, score, shared, via };
+    }
+  }
+  if (!best) return null;
+
+  const parts: string[] = [];
+  if (best.via.length) parts.push(`builds on lab ${best.via.join(', ')}`);
+  if (best.shared.length) parts.push(`shares ${best.shared.join(', ')} with labs you finished`);
+  return { id: best.lab.id, title: best.lab.title, reason: parts.join('; ') };
+}
+
+export function buildSkillMatrix(): SkillMatrix {
   const progress = readProgress();
   const byCat = new Map<string, { total: string[]; done: string[] }>();
 
@@ -64,8 +115,32 @@ export function buildSkillMatrix(): {
     return lesson.steps.length > 0 && (entry?.completedSteps?.length ?? 0) >= lesson.steps.length;
   }).length;
 
+  const techById = new Map<string, SkillTechnique>();
+  const tagged: Array<{ id: string; title: string; attck: string[]; prereqs: string[]; completed: boolean }> = [];
+  for (const s of withLessons) {
+    const lesson = loadLesson(s)!;
+    const entry = progress.scenarios[s.id];
+    const completed = lesson.steps.length > 0 && (entry?.completedSteps?.length ?? 0) >= lesson.steps.length;
+    tagged.push({
+      id: s.id,
+      title: s.title,
+      attck: lesson.attck ?? [],
+      prereqs: lesson.prereqs ?? [],
+      completed,
+    });
+    for (const t of lesson.attck ?? []) {
+      const tech = techById.get(t) ?? { id: t, labIds: [], completedIds: [] };
+      tech.labIds.push(s.id);
+      if (completed) tech.completedIds.push(s.id);
+      techById.set(t, tech);
+    }
+  }
+  const techniques = Array.from(techById.values()).sort((a, b) => a.id.localeCompare(b.id));
+
   return {
     categories,
+    techniques,
+    nextLab: suggestNextLab(tagged),
     completedLabs,
     totalLabs: withLessons.length,
     exportedAt: new Date().toISOString(),
@@ -88,6 +163,16 @@ export function skillMatrixMarkdown(): string {
     lines.push(`| ${c.label} | ${c.completed} | ${c.total} | ${mark} |`);
   }
   lines.push('');
+  if (matrix.techniques.length) {
+    lines.push('| ATT&CK technique | Done | Labs |', '|---|---:|---|');
+    for (const t of matrix.techniques) {
+      lines.push(`| ${t.id} | ${t.completedIds.length}/${t.labIds.length} | ${t.labIds.join(', ')} |`);
+    }
+    lines.push('');
+  }
+  if (matrix.nextLab) {
+    lines.push(`Suggested next lab: ${matrix.nextLab.id} (${matrix.nextLab.title}) - ${matrix.nextLab.reason}`, '');
+  }
   return lines.join('\n');
 }
 
@@ -101,6 +186,20 @@ export interface ClassroomStudent {
   /** Assessment points at last report, for the leaderboard. */
   points?: number;
   frozen?: boolean;
+  /** Tabletop role picked at join time. Drives which decisions the learner owns. */
+  role?: ClassroomRole;
+}
+
+/** Shared tabletop clock. Everyone in the room sees the same T+ minute and released injects. */
+export interface ClassroomClock {
+  /** How many injects the instructor has released so far. */
+  tick: number;
+  /** Simulated minutes since the exercise started (T+). */
+  minute: number;
+  /** Campaign whose injects this clock releases, set on the first tick. */
+  campaignId?: string;
+  releasedInjectIds: string[];
+  updatedAt: string;
 }
 
 export interface ClassroomState {
@@ -109,10 +208,15 @@ export interface ClassroomState {
   createdAt: string;
   frozen: boolean;
   students: ClassroomStudent[];
+  clock: ClassroomClock;
 }
 
 function classroomPath(): string {
   return resolve(scasDir(), 'classroom.json');
+}
+
+function emptyClock(): ClassroomClock {
+  return { tick: 0, minute: 0, releasedInjectIds: [], updatedAt: new Date().toISOString() };
 }
 
 function emptyClassroom(): ClassroomState {
@@ -122,6 +226,7 @@ function emptyClassroom(): ClassroomState {
     createdAt: new Date().toISOString(),
     frozen: false,
     students: [],
+    clock: emptyClock(),
   };
 }
 
@@ -129,7 +234,9 @@ export function readClassroom(): ClassroomState {
   const path = classroomPath();
   if (!existsSync(path)) return emptyClassroom();
   try {
-    return JSON.parse(readFileSync(path, 'utf8')) as ClassroomState;
+    const parsed = JSON.parse(readFileSync(path, 'utf8')) as Partial<ClassroomState>;
+    // Sessions saved before roles and the clock existed still load.
+    return { ...emptyClassroom(), ...parsed, clock: parsed.clock ?? emptyClock() } as ClassroomState;
   } catch {
     return emptyClassroom();
   }
@@ -149,6 +256,7 @@ export function createClassroom(title = 'SCAS classroom'): ClassroomState {
     createdAt: new Date().toISOString(),
     frozen: false,
     students: [],
+    clock: emptyClock(),
   });
 }
 
@@ -158,20 +266,36 @@ export function setClassroomFrozen(frozen: boolean): ClassroomState {
   return writeClassroom({ ...current, frozen });
 }
 
-export function joinClassroom(code: string, name: string): ClassroomState {
+export function parseClassroomRole(raw: unknown): ClassroomRole | undefined {
+  if (raw === undefined || raw === null || raw === '') return undefined;
+  const match = CLASSROOM_ROLES.find((r) => r.toLowerCase() === String(raw).trim().toLowerCase());
+  if (!match) throw new Error(`Role must be one of ${CLASSROOM_ROLES.join(', ')}`);
+  return match;
+}
+
+export function joinClassroom(code: string, name: string, roleRaw?: unknown): ClassroomState {
   const current = readClassroom();
   if (!current.code || current.code.toUpperCase() !== code.toUpperCase()) {
     throw new Error('Invalid classroom code');
   }
   if (current.frozen) throw new Error('Classroom is frozen for debrief');
+  const role = parseClassroomRole(roleRaw);
   const clean = name.trim().slice(0, 64) || 'Learner';
   const existing = current.students.find((s) => s.name.toLowerCase() === clean.toLowerCase());
-  if (existing) return current;
+  if (existing) {
+    // Rejoining with the same name lets a learner switch seats.
+    if (!role || existing.role === role) return current;
+    return writeClassroom({
+      ...current,
+      students: current.students.map((s) => (s.id === existing.id ? { ...s, role } : s)),
+    });
+  }
   const student: ClassroomStudent = {
     id: randomBytes(4).toString('hex'),
     name: clean,
     joinedAt: new Date().toISOString(),
     completedSteps: 0,
+    ...(role ? { role } : {}),
   };
   return writeClassroom({ ...current, students: [...current.students, student] });
 }
@@ -207,7 +331,60 @@ export function resetClassroomLearnerProgress(): ClassroomState {
     lastStepId: undefined,
     completedSteps: 0,
   }));
-  return writeClassroom({ ...current, students, frozen: false });
+  return writeClassroom({ ...current, students, frozen: false, clock: emptyClock() });
+}
+
+const DEFAULT_TICK_MINUTES = 5;
+
+/**
+ * Instructor tick for the shared tabletop clock.
+ * With a campaignId it releases the next campaign inject (file order) and jumps to
+ * that inject's `tMinute` when set, else adds `minutes`. Without one it only moves the clock.
+ * `reset` puts the clock back to T+0.
+ */
+export function tickClassroomClock(opts: {
+  campaignId?: string;
+  minutes?: number;
+  reset?: boolean;
+}): ClassroomState {
+  const current = readClassroom();
+  if (!current.code) throw new Error('No classroom session. Create one first.');
+  if (opts.reset) return writeClassroom({ ...current, clock: emptyClock() });
+
+  const clock = current.clock ?? emptyClock();
+  const campaignId = opts.campaignId || clock.campaignId;
+  const step =
+    Number.isFinite(opts.minutes) && (opts.minutes as number) > 0
+      ? Math.floor(opts.minutes as number)
+      : DEFAULT_TICK_MINUTES;
+
+  let minute = clock.minute + step;
+  let tick = clock.tick;
+  let released = clock.releasedInjectIds;
+  if (campaignId) {
+    const campaign = getCampaign(campaignId);
+    if (!campaign) throw new Error('Campaign not found');
+    const next = (campaign.injects ?? []).find((inj) => !released.includes(inj.id));
+    if (next) {
+      released = [...released, next.id];
+      tick = released.length;
+      if (typeof next.tMinute === 'number' && next.tMinute >= 0) {
+        minute = Math.max(clock.minute, next.tMinute);
+      }
+    }
+  }
+  return writeClassroom({
+    ...current,
+    clock: { tick, minute, campaignId, releasedInjectIds: released, updatedAt: new Date().toISOString() },
+  });
+}
+
+/** Injects the instructor has released so far, for the classroom and campaign pages. */
+export function readClassroomInjects(): { clock: ClassroomClock; injects: CampaignInject[] } {
+  const { clock } = readClassroom();
+  const campaign = clock.campaignId ? getCampaign(clock.campaignId) : undefined;
+  const injects = (campaign?.injects ?? []).filter((inj) => clock.releasedInjectIds.includes(inj.id));
+  return { clock, injects };
 }
 
 export function buildBriefing(scenarioId?: string): {
@@ -220,6 +397,10 @@ export function buildBriefing(scenarioId?: string): {
     completedSteps: string[];
     objectives: string[];
     incidents: string[];
+    attck: string[];
+    nist: string[];
+    prereqs: string[];
+    remediates: string[];
   }>;
   skills: ReturnType<typeof buildSkillMatrix>;
 } {
@@ -238,6 +419,10 @@ export function buildBriefing(scenarioId?: string): {
         completedSteps,
         objectives: lesson.objectives,
         incidents: lesson.incidents,
+        attck: lesson.attck ?? [],
+        nist: lesson.nist ?? [],
+        prereqs: lesson.prereqs ?? [],
+        remediates: lesson.remediates ?? [],
       };
     })
     .filter((x): x is NonNullable<typeof x> => x !== null);

@@ -15,6 +15,18 @@ mitigation:
   - "Set minimum workflow permissions; avoid contents: write unless required"
   - "Do not hand long-lived secrets to third-party actions; prefer OIDC short-lived tokens"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+attck:
+  - "T1195.002"
+  - "T1199"
+  - "T1041"
+nist:
+  - "SP 800-218 PO.3"
+  - "SP 800-53 SA-10"
+prereqs:
+  - "01"
+remediates:
+  - "action-sha-pinning"
+  - "least-privilege-tokens"
 drill:
   prompt: "Your CI pipeline ran this morning and went green. One step in the log is below. Anything worth a second look?"
   artifactType: ci-log
@@ -36,6 +48,25 @@ drill:
   answer: 1
   reveal: "The green checkmark is the camouflage. The codecov step did upload coverage, but it also read every CI secret in the environment and shipped them to a collector before reporting success. This is the Codecov bash uploader pattern: a trusted build helper running with your secrets, exfiltrating while the log still says success."
   explanation: "CI logs are built to reassure you. Every line here looks routine until you read the two that matter: env dumped in full, then an outbound POST. The step stays green precisely so nobody scrolls back. Hunting this means reading for the secret-access-then-egress sequence, not for failures - the attack is designed to produce none."
+decisions:
+  - id: decision-compromised-action
+    afterStep: run-ci
+    prompt: "The build is green, but the collector just received your CI secrets from the vendor/build-action@v1 step. Your release is due in an hour. What do you do first?"
+    choices:
+      - id: pin-and-rotate
+        label: "Freeze releases, pin the action to a commit SHA, and rotate every secret that job could read"
+        effects:
+          score: 3
+          flag: "ci_contained_fast"
+          goto: detect
+          feedback: "Right order. A mutable @v1 tag means the code that ran is not the code you reviewed, so treat every secret in that job as burned. Pin first, rotate second, then go hunt for what the token touched."
+      - id: ship-and-watch
+        label: "Ship the release and ask the vendor to look into it"
+        effects:
+          score: -2
+          flag: "delayed_response"
+          goto: detect-late
+          feedback: "The token stayed live while you waited. Leaked CI secrets are usable the moment they leave the runner, and every extra hour widens what you have to audit."
 steps:
   - id: setup
     registry: setup
@@ -64,6 +95,13 @@ steps:
     title: Harden the workflow
     teaching: "Inspect the capture, then open DETECT.md. Pin actions by commit SHA, drop unnecessary permissions, and treat reusable actions like any other dependency."
     hint: "Optional Floci seed/verify buttons exist on this lab if you are on the cloud track."
+    verify: { type: capture-count, min: 1 }
+  - id: detect-late
+    registry: null
+    audience: detect
+    title: Clean up after the delay
+    teaching: "You shipped before containing it, so the stolen token had extra time to be used. Re-read the capture to see exactly which secrets left the runner, assume each one was used, and then pin the action by SHA and rotate. DETECT.md lists what to hunt for."
+    hint: "Compare the env keys in the capture with the secrets your workflow exposes, then follow the same SHA pinning fix from the detect step."
     verify: { type: capture-count, min: 1 }
 quiz:
   - question: "What is the strongest IOC that a workflow is exposed to action hijacking?"

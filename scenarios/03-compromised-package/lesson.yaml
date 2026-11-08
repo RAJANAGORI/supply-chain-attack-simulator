@@ -17,6 +17,13 @@ mitigation:
   - "Full blue-team runbook: DETECT.md in this lab folder"
 reversal:
   blockedPackage: "secure-validator"
+diffWorkbench:
+  fixtureDir: "fixtures/diff-workbench"
+  afterStep: install-bad
+  title: "Tarball vs Git"
+  prompt: "The repo on GitHub looks clean. The tarball npm served you is what actually ran. Open each changed file and find what only exists in the published copy."
+  gitLabel: "git tag v2.5.4 (what reviewers read)"
+  tarballLabel: "npm pack secure-validator@2.5.4 (what you installed)"
 drill:
   prompt: "secure-validator has been in your tree for two years. This morning it published v1.0.1, a patch release. The full diff of that release is below. Ship the update?"
   artifactType: diff

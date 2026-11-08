@@ -52,6 +52,9 @@ export interface DecisionChoice {
   effects: DecisionEffect;
 }
 
+export const CLASSROOM_ROLES = ['IC', 'Eng', 'Comms', 'Legal'] as const;
+export type ClassroomRole = (typeof CLASSROOM_ROLES)[number];
+
 /** A branching decision point interleaved with steps. */
 export interface LessonDecision {
   /** Unique within this lesson. */
@@ -60,6 +63,8 @@ export interface LessonDecision {
   afterStep: string;
   /** Question presented to the learner. */
   prompt: string;
+  /** Optional tabletop roles that own this call. Omitted means everyone. */
+  roles?: ClassroomRole[];
   /** Choices rendered as selectable buttons. */
   choices: DecisionChoice[];
 }
@@ -90,6 +95,33 @@ export interface LessonPrTriage {
   prs: LessonTriagedPR[];
 }
 
+export interface LessonDiffWorkbench {
+  fixtureDir: string;
+  title?: string;
+  prompt?: string;
+  gitLabel?: string;
+  tarballLabel?: string;
+  /** Show once this step is active or verified. */
+  afterStep?: string;
+}
+
+export type DiffWorkbenchFileStatus = 'same' | 'modified' | 'git-only' | 'tarball-only';
+
+export interface DiffWorkbenchFile {
+  path: string;
+  status: DiffWorkbenchFileStatus;
+  git: string | null;
+  tarball: string | null;
+}
+
+export interface DiffWorkbenchPayload {
+  title: string;
+  prompt?: string;
+  gitLabel: string;
+  tarballLabel: string;
+  files: DiffWorkbenchFile[];
+}
+
 export interface LessonDefinition {
   id: string;
   etaMinutes: number;
@@ -100,6 +132,14 @@ export interface LessonDefinition {
   caseStudy?: string;
   /** Optional: short mitigation bullets distilled from DETECT.md. */
   mitigation?: string[];
+  /** Optional: MITRE ATT&CK technique ids, e.g. "T1195.002". */
+  attck?: string[];
+  /** Optional: NIST control or practice refs. */
+  nist?: string[];
+  /** Optional: lab ids worth finishing first. */
+  prereqs?: string[];
+  /** Optional: control slugs this lab teaches you to apply. */
+  remediates?: string[];
   steps: LessonStep[];
   /** Optional branching decision points interleaved with steps. */
   decisions?: LessonDecision[];
@@ -107,8 +147,13 @@ export interface LessonDefinition {
   drill?: LessonDrill;
   /** Optional quiz gate: 2-3 questions drawn from the lab's DETECT.md IOCs. */
   quiz?: LessonQuizQuestion[];
-  /** Optional purple-team reversal: the package the learner's control must block. */
-  reversal?: { blockedPackage: string };
+  /**
+   * Optional purple-team reversal: the package the learner's control must block.
+   * `variant` means a second, mutated attacker round runs and name-only blocks fail.
+   */
+  reversal?: { blockedPackage: string; variant?: { entry: string; port?: number } };
+  /** Opt-in Tarball-vs-Git diff workbench (fixture-backed). */
+  diffWorkbench?: LessonDiffWorkbench;
   /** Opt-in teaching injection: show the PR Triage Inbox after the first 4 steps. */
   prTriageStep?: boolean;
   /** PR Triage Inbox data for this scenario. */
@@ -307,6 +352,43 @@ export interface ActionResult {
   output?: string;
 }
 
+/** Learner-authored dependency-guard.json policy. Mirrors scenarios/_shared/dependency-guard.js. */
+export interface ReversalGuardPolicy {
+  block?: string[];
+  allowOnly?: string[];
+  denyDependencyEgress?: boolean;
+  egressAllow?: string[];
+}
+
+/**
+ * behavioral: held against the original and the mutated attacker through a non-name gate.
+ * name-only: the block list stopped the known package but not the mutated one (or only
+ *   held by name).
+ * failed: the known attack still fired.
+ * untested: the victim command did not run.
+ */
+export type ReversalGrade = 'behavioral' | 'name-only' | 'failed' | 'untested';
+
+export interface ReversalRound {
+  id: 'baseline' | 'variant';
+  label: string;
+  held: boolean;
+  commandOk: boolean;
+  capturesBefore: number;
+  capturesAfter: number;
+  /** Which guard gate refused the attack, read from the guard's log markers. */
+  blockedBy?: 'blocklist' | 'allowlist' | 'egress';
+  /** Variant round only: how the attacker mutated. */
+  attacker?: {
+    packageName: string;
+    mutation: string;
+    delivery: string;
+    delayMs: number;
+    encoding: string;
+    seed: number;
+  };
+}
+
 export interface ReversalResult {
   held: boolean;
   /** False when the victim command itself failed, so the control was never tested. */
@@ -314,6 +396,13 @@ export interface ReversalResult {
   capturesBefore: number;
   capturesAfter: number;
   message: string;
+  /** Present when the lab has a mutated second round. */
+  grade?: ReversalGrade;
+  /** True when the name block stopped the known attacker but the mutated one got through. */
+  nameOnlyFailed?: boolean;
+  rounds?: ReversalRound[];
+  /** The policy the control plane wrote and ran with. */
+  policy?: ReversalGuardPolicy;
 }
 
 export interface LessonVerifyResult {
@@ -330,6 +419,10 @@ export interface SkillMatrix {
     scenarioIds: string[];
     completedIds: string[];
   }>;
+  /** ATT&CK coverage from lesson.yaml `attck` (empty until labs are tagged). */
+  techniques: Array<{ id: string; labIds: string[]; completedIds: string[] }>;
+  /** Minimal adaptive tip: next lab sharing tags with, or building on, finished labs. */
+  nextLab: { id: string; title: string; reason: string } | null;
   completedLabs: number;
   totalLabs: number;
   exportedAt: string;
@@ -345,6 +438,10 @@ export interface BriefingPayload {
     completedSteps: string[];
     objectives: string[];
     incidents: string[];
+    attck: string[];
+    nist: string[];
+    prereqs: string[];
+    remediates: string[];
   }>;
   skills: SkillMatrix;
 }
@@ -388,6 +485,15 @@ export interface ClassroomStudent {
   lastStepId?: string;
   completedSteps: number;
   points?: number;
+  role?: ClassroomRole;
+}
+
+export interface ClassroomClock {
+  tick: number;
+  minute: number;
+  campaignId?: string;
+  releasedInjectIds: string[];
+  updatedAt: string;
 }
 
 export interface ClassroomState {
@@ -396,6 +502,64 @@ export interface ClassroomState {
   createdAt: string;
   frozen: boolean;
   students: ClassroomStudent[];
+  clock?: ClassroomClock;
+}
+
+export interface ClassroomClockState {
+  clock: ClassroomClock;
+  injects: CampaignInject[];
+}
+
+export type RuleFormat = 'sigma' | 'semgrep';
+
+export interface RuleChallengeSummary {
+  scenarioId: string;
+  title: string;
+  formats: RuleFormat[];
+}
+
+export interface RuleChallenge {
+  scenarioId: string;
+  title: string;
+  brief: string;
+  formats: RuleFormat[];
+  starters: Partial<Record<RuleFormat, string>>;
+  sampleLog?: Record<string, unknown>;
+  iocs: string[];
+  caseCounts: Record<RuleFormat, { tp: number; benign: number }>;
+  scoring: { tp: number; benign: number; indicators: number; max: number };
+  deadline: string | null;
+  locked: 'classroom-frozen' | 'deadline-passed' | null;
+  best: number | null;
+  attempts: number;
+  board: Array<{ name: string; score: number; passed: boolean; format: RuleFormat; attempts: number; at: string }>;
+  reference?: { sigma?: string; semgrep?: string };
+}
+
+export interface RuleCaseResult {
+  id: string;
+  kind: 'tp' | 'benign';
+  label: string;
+  input: string;
+  matched: boolean;
+  ok: boolean;
+}
+
+export interface RuleSubmitResult {
+  ok: boolean;
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  score: number;
+  max: number;
+  passed: boolean;
+  breakdown?: {
+    tp: { caught: number; total: number; points: number; max: number };
+    benign: { clean: number; total: number; points: number; max: number };
+    indicators: { hit: number; total: number; points: number; max: number };
+  };
+  cases?: RuleCaseResult[];
+  attempt?: number;
 }
 
 export interface AssistantReply {
@@ -465,6 +629,7 @@ export const cp = {
   getCaptures: (id: string) => api<Record<string, unknown>>(`/scenarios/${id}/captures`),
   getArchify: (id: string) => api<ArchifyPackInfo>(`/scenarios/${id}/archify`),
   getArchifyBrief: (id: string) => api<ArchifyBriefPayload>(`/scenarios/${id}/archify/brief`),
+  getDiffWorkbench: (id: string) => api<DiffWorkbenchPayload>(`/scenarios/${id}/diff-workbench`),
   clearCaptures: (id: string) => api(`/scenarios/${id}/captures`, { method: 'DELETE' }),
   verifyLesson: (id: string) => api<LessonVerifyResult>(`/scenarios/${id}/lesson/verify`),
   getProgress: () => api<ProgressState>('/progress'),
@@ -495,8 +660,11 @@ export const cp = {
     api<ClassroomState>('/classroom', { method: 'POST', body: JSON.stringify({ title }) }),
   freezeClassroom: (frozen: boolean) =>
     api<ClassroomState>('/classroom/freeze', { method: 'POST', body: JSON.stringify({ frozen }) }),
-  joinClassroom: (code: string, name: string) =>
-    api<ClassroomState>('/classroom/join', { method: 'POST', body: JSON.stringify({ code, name }) }),
+  joinClassroom: (code: string, name: string, role?: ClassroomRole) =>
+    api<ClassroomState>('/classroom/join', { method: 'POST', body: JSON.stringify({ code, name, role }) }),
+  getClassroomClock: () => api<ClassroomClockState>('/classroom/clock'),
+  tickClassroomClock: (body: { campaignId?: string; minutes?: number; reset?: boolean }) =>
+    api<ClassroomClockState>('/classroom/clock', { method: 'POST', body: JSON.stringify(body) }),
   reportClassroomProgress: (body: {
     studentId: string;
     lastScenarioId?: string;
@@ -504,12 +672,25 @@ export const cp = {
     completedSteps?: number;
     points?: number;
   }) => api<ClassroomState>('/classroom/progress', { method: 'POST', body: JSON.stringify(body) }),
+  listRuleChallenges: () => api<RuleChallengeSummary[]>('/ctf'),
+  getRuleChallenge: (id: string, studentId?: string) =>
+    api<RuleChallenge>(`/ctf/${id}${studentId ? `?studentId=${encodeURIComponent(studentId)}` : ''}`),
+  submitRule: (id: string, body: { format: RuleFormat; rule: string; studentId?: string }) =>
+    api<RuleSubmitResult>(`/ctf/${id}/submit`, { method: 'POST', body: JSON.stringify(body) }),
+  setRuleDeadline: (id: string, body: { minutes?: number }) =>
+    api<{ scenarioId: string; deadline: string | null }>(`/ctf/${id}/deadline`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
   askAssistant: (body: { question: string; scenarioId?: string; stepId?: string }) =>
     api<AssistantReply>('/assistant', { method: 'POST', body: JSON.stringify(body) }),
   floci: (id: string, action: 'seed' | 'verify') =>
     api<ActionResult>(`/scenarios/${id}/floci/${action}`, { method: 'POST' }),
-  runReversal: (id: string) =>
-    api<ActionResult & { reversal?: ReversalResult }>(`/scenarios/${id}/reversal`, { method: 'POST' }),
+  runReversal: (id: string, guard?: ReversalGuardPolicy) =>
+    api<ActionResult & { reversal?: ReversalResult }>(`/scenarios/${id}/reversal`, {
+      method: 'POST',
+      ...(guard ? { body: JSON.stringify({ guard }) } : {}),
+    }),
   platformStatus: () => api<PlatformStatus>('/platform/status'),
   getProvenance: () => api<Provenance>('/provenance'),
   esUp: () => api<ActionResult>('/platform/elasticsearch/up', { method: 'POST' }),
@@ -550,6 +731,7 @@ export interface CampaignInject {
   body: string;
   evidence?: CampaignEvidence[];
   confidence: number;
+  tMinute?: number;
 }
 
 export interface ExecutionNode {

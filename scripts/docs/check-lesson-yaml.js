@@ -184,6 +184,24 @@ function normalizeLesson(raw, expectedId) {
     return { id: s.id, registry: s.registry === undefined ? null : s.registry };
   });
 
+  // Optional adaptive-learning tags (light checks only).
+  for (const field of ['attck', 'nist', 'prereqs', 'remediates']) {
+    const v = raw[field];
+    if (v === undefined || v === null) continue;
+    if (!Array.isArray(v)) throw new Error(`${field} must be a list of strings`);
+    v.forEach((x, i) => {
+      if (typeof x !== 'string' || !x.trim()) throw new Error(`${field}[${i}] must be a non-empty string`);
+    });
+    if (new Set(v).size !== v.length) throw new Error(`${field} has duplicate entries`);
+  }
+  (raw.attck || []).forEach((t, i) => {
+    if (!/^T\d{4}(\.\d{3})?$/.test(t)) throw new Error(`attck[${i}] "${t}" must look like T1195 or T1195.002`);
+  });
+  (raw.prereqs || []).forEach((p, i) => {
+    if (!/^\d{2}$/.test(String(p))) throw new Error(`prereqs[${i}] "${p}" must be a two-digit lab id`);
+    if (String(p) === expectedId) throw new Error(`prereqs[${i}] cannot reference the lab itself`);
+  });
+
   // Optional blind drill block.
   if (raw.drill !== undefined && raw.drill !== null) {
     const d = raw.drill;
@@ -273,7 +291,7 @@ function normalizeLesson(raw, expectedId) {
     });
   }
 
-  return { id: String(raw.id), steps };
+  return { id: String(raw.id), steps, prereqs: (raw.prereqs || []).map(String) };
 }
 
 function discoverScenarioDirs() {
@@ -325,6 +343,12 @@ function main() {
     } catch (err) {
       fail(`${dir}/lesson.yaml: ${err instanceof Error ? err.message : String(err)}`);
       continue;
+    }
+
+    for (const p of lesson.prereqs) {
+      if (!dirs.some((d) => d.startsWith(`${p}-`))) {
+        fail(`${dir}/lesson.yaml prereqs references unknown lab "${p}"`);
+      }
     }
 
     const known = registrySteps.get(id) || new Set();

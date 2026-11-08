@@ -9,8 +9,10 @@ import { useLabSession } from '@/components/LabSessionContext';
 import { LabAssistant } from '@/components/LabAssistant';
 import { BreachPanel } from '@/components/BreachPanel';
 import { DrillCard } from '@/components/DrillCard';
+import { RuleChallengeCard } from '@/components/RuleChallengeCard';
 import { QuizGate } from '@/components/QuizGate';
 import { PurpleReversal } from '@/components/PurpleReversal';
+import { DiffWorkbench } from '@/components/DiffWorkbench';
 import {
   cp,
   waitForSession,
@@ -99,6 +101,8 @@ export function ScenarioLessonRunner({
   const [decisionScore, setDecisionScore] = useState(0);
   /** Tracks which decisions have been answered: `decisionId::choiceId`. */
   const [answeredDecisions, setAnsweredDecisions] = useState<Set<string>>(new Set());
+  /** Decision whose feedback is still on screen; cleared when the active step changes. */
+  const [justAnsweredId, setJustAnsweredId] = useState<string | null>(null);
 
   const visibleSteps = useMemo(
     () => lesson.steps.filter((s) => roleAllows(s.audience, role)),
@@ -144,6 +148,7 @@ export function ScenarioLessonRunner({
   useEffect(() => {
     setHintOpen(false);
     setInspectorNote('');
+    setJustAnsweredId(null);
   }, [activeStepId, role]);
 
   const scrollToInspector = () => {
@@ -499,9 +504,12 @@ export function ScenarioLessonRunner({
           {/* Phase 1: Branching decision after a completed step */}
           {activeStep && verified[activeStep.id] && (() => {
             const decision = findDecisionAfter(visibleSteps, lesson.decisions, activeStep.id);
-            if (!decision || answeredDecisions.has(decision.id)) return null;
+            if (!decision) return null;
+            // Keep the card up after answering so the learner can read feedback.
+            if (answeredDecisions.has(decision.id) && justAnsweredId !== decision.id) return null;
             return (
               <DecisionCard
+                key={decision.id}
                 scenarioId={scenarioId}
                 decision={decision}
                 onNavigate={(gotoStepId) => {
@@ -514,6 +522,7 @@ export function ScenarioLessonRunner({
                 onScoreChange={(delta) => {
                   setDecisionScore((prev) => prev + delta);
                   setAnsweredDecisions((prev) => new Set(prev).add(decision.id));
+                  setJustAnsweredId(decision.id);
                 }}
               />
             );
@@ -695,10 +704,21 @@ export function ScenarioLessonRunner({
           </Card>
 
           {lesson.reversal && captureReady && (
-            <PurpleReversal scenarioId={scenarioId} blockedPackage={lesson.reversal.blockedPackage} />
+            <PurpleReversal
+              scenarioId={scenarioId}
+              blockedPackage={lesson.reversal.blockedPackage}
+              polymorphic={Boolean(lesson.reversal.variant)}
+            />
           )}
         </div>
       </div>
+
+      {lesson.diffWorkbench &&
+        (!lesson.diffWorkbench.afterStep ||
+          verified[lesson.diffWorkbench.afterStep] ||
+          activeStep?.id === lesson.diffWorkbench.afterStep) && (
+          <DiffWorkbench scenarioId={scenarioId} config={lesson.diffWorkbench} />
+        )}
       </div>
       )}
 
@@ -706,6 +726,7 @@ export function ScenarioLessonRunner({
         <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
           <div className="space-y-4 min-w-0">
             {lesson.drill && <DrillCard drill={lesson.drill} scenarioId={scenarioId} />}
+            <RuleChallengeCard scenarioId={scenarioId} />
             {lesson.mitigation && lesson.mitigation.length > 0 && (
               <Card title="Mitigation" subtitle="Full runbook in DETECT.md">
                 <ul className="space-y-2 text-sm text-ink-secondary">

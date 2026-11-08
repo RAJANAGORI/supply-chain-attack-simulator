@@ -6,6 +6,7 @@ import { Alert, Btn, Card, PageHeader, StatusPill } from '@/components/ui';
 import { BreachPanel } from '@/components/BreachPanel';
 import { IncidentReport } from '@/components/IncidentReport';
 import { Certificate } from '@/components/Certificate';
+import { LabTags, NextLabTip } from '@/components/LabTags';
 import { cp, type Assessment, type BriefingPayload } from '@/lib/api';
 
 export default function ReportPage() {
@@ -69,6 +70,11 @@ export default function ReportPage() {
               {briefing.skills.completedLabs}/{briefing.skills.totalLabs} guided labs complete across{' '}
               {briefing.skills.categories.length} categories.
             </p>
+            {briefing.skills.nextLab && (
+              <div className="mt-3 border-t border-line pt-3 no-print">
+                <NextLabTip nextLab={briefing.skills.nextLab} />
+              </div>
+            )}
           </Card>
 
           {/* The incident report is the centerpiece once at least one lab is done. */}
@@ -125,11 +131,15 @@ export default function ReportPage() {
                       </Link>
                       <span className="text-[11px] text-ink-faint">{lab.category}</span>
                     </div>
+                    <LabTags attck={lab.attck} nist={lab.nist} />
                     <ul className="mt-2 space-y-1 text-sm text-ink-secondary">
                       {lab.objectives.map((o) => (
                         <li key={o}>· {o}</li>
                       ))}
                     </ul>
+                    {lab.remediates.length > 0 && (
+                      <p className="mt-2 text-xs text-ink-muted">Controls practiced: {lab.remediates.join(', ')}</p>
+                    )}
                     {capturesByLab[lab.id] && (
                       <div className="mt-3">
                         <BreachPanel captures={capturesByLab[lab.id]} />
@@ -152,6 +162,9 @@ export default function ReportPage() {
                       {lab.id} · {lab.title}
                       <span className="text-ink-faint"> ({lab.completedSteps.length} steps logged)</span>
                     </Link>
+                    {lab.prereqs.length > 0 && (
+                      <span className="block text-[11px] text-ink-faint">Best after lab {lab.prereqs.join(', ')}</span>
+                    )}
                   </li>
                 ))}
               </ul>

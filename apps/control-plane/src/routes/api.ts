@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { resolve } from 'node:path';
+import { delimiter, resolve, sep } from 'node:path';
 import { readArchifyBrief, resolveArchifyPack } from '../archify.js';
 import { SCENARIOS, getScenario } from '../registry/scenarios.js';
 import type { PlatformStatus } from '../registry/types.js';
@@ -18,6 +18,7 @@ import {
   rewriteLabUrl,
 } from '../docker-labs.js';
 import { loadLesson } from '../registry/lesson-loader.js';
+import { buildDiffWorkbench } from '../diff-workbench.js';
 import { evaluateLessonSteps } from '../lesson-verify.js';
 import { mergeScenarioProgress, readProgress, resetProgress, writeProgress } from '../progress.js';
 import type { ProgressState, ScenarioProgressEntry } from '../registry/lesson-types.js';
@@ -32,11 +33,14 @@ import {
   reportClassroomProgress,
   resetClassroomLearnerProgress,
   setClassroomFrozen,
+  tickClassroomClock,
+  readClassroomInjects,
   skillMatrixMarkdown,
 } from '../learning-platform.js';
 import { getCampaign, getCampaignStatus, listCampaignStatus, resolveInjects, buildExecutionGraph, gradeRemediation } from '../registry/campaigns.js';
 import { buildAssessment } from '../assessment.js';
 import { getProvenance } from '../provenance.js';
+import { SubmitRejected, getChallenge, listChallenges, setDeadline, submitRule } from '../ctf/index.js';
 
 const REPO = getRepoRoot();
 
@@ -186,6 +190,22 @@ export function createApiRouter(): Router {
     const brief = readArchifyBrief(scenario.slug);
     if (!brief) return res.status(404).json({ error: 'No lab brief for scenario' });
     res.json(brief);
+  });
+
+  /** Fixture trees for the lesson's Tarball-vs-Git diff workbench (in-repo text only). */
+  router.get('/scenarios/:id/diff-workbench', (req, res) => {
+    const scenario = getScenario(req.params.id);
+    if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
+    let cfg;
+    try {
+      cfg = loadLesson(scenario)?.diffWorkbench;
+    } catch (err) {
+      return res.status(500).json({ error: err instanceof Error ? err.message : 'Lesson load failed' });
+    }
+    if (!cfg) return res.status(404).json({ error: 'No diff workbench for scenario' });
+    const payload = buildDiffWorkbench(scenario.slug, cfg);
+    if (!payload) return res.status(404).json({ error: 'Diff workbench fixtures not found' });
+    res.json(payload);
   });
 
   router.get('/scenarios/:id/lesson/verify', async (req, res) => {
@@ -393,6 +413,49 @@ export function createApiRouter(): Router {
     res.json(mergeScenarioProgress(scenario.id, entry));
   });
 
+  // Rule challenge (Phase 5 MVP): Sigma / Semgrep text scored offline against bundled fixtures.
+  router.get('/ctf', (_req, res) => {
+    res.json(listChallenges());
+  });
+
+  router.get('/ctf/:id', (req, res) => {
+    const learnerId = typeof req.query.studentId === 'string' ? req.query.studentId : undefined;
+    const challenge = getChallenge(req.params.id, learnerId);
+    if (!challenge) return res.status(404).json({ error: 'No rule challenge for this scenario' });
+    res.json(challenge);
+  });
+
+  router.post('/ctf/:id/submit', (req, res) => {
+    try {
+      res.json(
+        submitRule(req.params.id, {
+          format: req.body?.format,
+          rule: req.body?.rule,
+          learnerId: req.body?.studentId,
+        }),
+      );
+    } catch (err) {
+      if (err instanceof SubmitRejected) {
+        return res.status(err.status).json({ error: err.message, locked: err.reason });
+      }
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Submit failed' });
+    }
+  });
+
+  // Timed mode: body { minutes: 15 } starts a timer, { deadline: ISO } sets one, {} clears it.
+  router.post('/ctf/:id/deadline', (req, res) => {
+    if (!getChallenge(req.params.id)) return res.status(404).json({ error: 'No rule challenge for this scenario' });
+    try {
+      const deadline = setDeadline(req.params.id, {
+        minutes: typeof req.body?.minutes === 'number' ? req.body.minutes : undefined,
+        deadline: req.body?.deadline,
+      });
+      res.json({ scenarioId: req.params.id, deadline });
+    } catch (err) {
+      res.status(400).json({ error: err instanceof Error ? err.message : 'Deadline update failed' });
+    }
+  });
+
   router.get('/observe/timeline', async (req, res) => {
     const limit = Number(req.query.limit ?? 50);
     res.json(await fetchEsTimeline(Number.isFinite(limit) ? limit : 50));
@@ -420,9 +483,29 @@ export function createApiRouter(): Router {
     try {
       const code = String(req.body?.code ?? '');
       const name = String(req.body?.name ?? 'Learner');
-      res.json(joinClassroom(code, name));
+      res.json(joinClassroom(code, name, req.body?.role));
     } catch (err) {
       res.status(400).json({ error: err instanceof Error ? err.message : 'Join failed' });
+    }
+  });
+
+  /** Shared tabletop clock plus the injects released so far. Learners poll this. */
+  router.get('/classroom/clock', (_req, res) => {
+    res.json(readClassroomInjects());
+  });
+
+  /** Instructor tick: release the next campaign inject, or just move the clock. `reset: true` rewinds to T+0. */
+  router.post('/classroom/clock', (req, res) => {
+    try {
+      const minutes = req.body?.minutes === undefined ? undefined : Number(req.body.minutes);
+      tickClassroomClock({
+        campaignId: typeof req.body?.campaignId === 'string' ? req.body.campaignId : undefined,
+        minutes,
+        reset: Boolean(req.body?.reset),
+      });
+      res.json(readClassroomInjects());
+    } catch (err) {
+      res.status(400).json({ error: err instanceof Error ? err.message : 'Clock tick failed' });
     }
   });
 
@@ -704,6 +787,15 @@ export function createApiRouter(): Router {
    * dependency-guard preloaded (node -r, or NODE_OPTIONS --require for npm) and reports
    * whether the attack still produced a capture. If the guard blocked the
    * malicious package, capture count stays flat and the control held.
+   *
+   * When the lesson declares `reversal.variant`, a second round replays a mutated
+   * attacker (new package name, new payload shape, generated by
+   * scenarios/_shared/polymorphic-variant.js). A static name block passes round 1 and
+   * fails round 2; only a behavioral gate (allowOnly, denyDependencyEgress) holds both.
+   *
+   * Body (optional): { guard: ReversalGuardPolicy, seed?: number }. A learner-authored
+   * guard replaces dependency-guard.json. Without it the lesson's name-only starter
+   * block list is used.
    */
   router.post('/scenarios/:id/reversal', async (req, res) => {
     const scenario = getScenario(req.params.id);
@@ -731,81 +823,245 @@ export function createApiRouter(): Router {
       return n;
     };
 
-    const before = await countCaptures();
     const guardPath = resolve(REPO, 'scenarios/_shared/dependency-guard.js');
+    const testbenchPath = resolve(REPO, 'scenarios/_shared/testbench-env.js');
+    const variantGenPath = resolve(REPO, 'scenarios/_shared/polymorphic-variant.js');
     const cwd = resolveScenarioCwd(scenario.setup.cwd, runStep.cwd);
     const lesson = loadLesson(scenario);
     const blockedPackage = lesson?.reversal?.blockedPackage?.trim();
+    const variantCfg = lesson?.reversal?.variant;
     const guardFile = resolve(cwd, 'dependency-guard.json');
-    if (blockedPackage) {
+
+    let authored: ReversalGuardPolicy | null = null;
+    try {
+      authored = sanitizeGuardPolicy((req.body as { guard?: unknown } | undefined)?.guard);
+    } catch (e) {
+      return res.status(400).json({ error: e instanceof Error ? e.message : 'Invalid guard policy' });
+    }
+    if (authored) {
+      writeFileSync(guardFile, `${JSON.stringify(authored, null, 2)}\n`);
+    } else if (blockedPackage) {
       ensureGuardFile(guardFile, blockedPackage);
     }
+    const policy = readGuardPolicy(guardFile);
 
     // `npm start` prints `node -r testbench-env.js index.js` and npm does not
     // keep a NODE_OPTIONS --require on that process. Run that node command
     // ourselves and put the guard in front of the other -r flags.
     const nodeCmd = runStep.command === 'node' || runStep.command === 'nodejs';
     const fromNpm = !nodeCmd ? nodeArgsFromNpmStart(cwd, guardPath) : null;
-    const command = fromNpm?.command ?? runStep.command;
-    const args = fromNpm
+    const baseCommand = fromNpm?.command ?? runStep.command;
+    const baseArgs = fromNpm
       ? fromNpm.args
       : nodeCmd
         ? ['-r', guardPath, ...(runStep.args ?? [])]
         : [...(runStep.args ?? [])];
-    const env: Record<string, string> = { SCAS_GUARD_FILE: guardFile };
+    const baseEnv: Record<string, string> = { SCAS_GUARD_FILE: guardFile };
     if (!nodeCmd && !fromNpm) {
       const flag = `--require ${JSON.stringify(guardPath)}`;
       const prev = (process.env.NODE_OPTIONS ?? '').trim();
-      env.NODE_OPTIONS = prev ? `${prev} ${flag}` : flag;
+      baseEnv.NODE_OPTIONS = prev ? `${prev} ${flag}` : flag;
     }
 
-    const record = processManager.runCommand({
-      label: `Reversal: ${runStep.label} (guarded)`,
-      command,
-      args,
-      cwd,
-      scenarioId: scenario.id,
-      stepId: 'reversal',
-      shell: runStep.shell,
-      env,
-    });
-
-    // Give the guarded run a moment to either fire or be blocked, then compare.
-    await new Promise((r) => setTimeout(r, 2500));
-    const after = await countCaptures();
-    const logs = processManager.getLogs(record.id).map((l) => l.line).join('\n');
-    const finished = processManager.get(record.id);
-    const guardBlocked = logs.includes('[dependency-guard] blocked require');
-    const commandOk =
-      guardBlocked ||
-      finished?.status === 'running' ||
-      finished?.status === 'completed' ||
-      finished?.exitCode === 0;
-    const held = commandOk && after <= before;
-
-    let message: string;
-    if (!commandOk) {
-      message =
-        'The guarded run failed before the control could be tested. The victim command did not start. Check the terminal for the error.';
-    } else if (held) {
-      message = guardBlocked
-        ? 'Your control held. The guard refused the package, so the payload did not run and no new capture landed.'
-        : 'Your control held - the guarded run produced no new capture. The attack was blocked.';
-    } else {
-      message =
-        'The attack still fired. Check that dependency-guard.json names the malicious package and sits in the victim working directory.';
-    }
-
-    res.json({
-      async: true,
-      sessionId: record.id,
-      record,
-      reversal: {
+    const runRound = async (opts: {
+      id: ReversalRoundResult['id'];
+      label: string;
+      command: string;
+      args: string[];
+      env: Record<string, string>;
+    }) => {
+      const before = await countCaptures();
+      const record = processManager.runCommand({
+        label: `Reversal ${opts.id}: ${runStep.label} (guarded)`,
+        command: opts.command,
+        args: opts.args,
+        cwd,
+        scenarioId: scenario.id,
+        stepId: 'reversal',
+        shell: opts.id === 'baseline' ? runStep.shell : undefined,
+        env: opts.env,
+      });
+      // Let the guarded run fire or get blocked: wait for exit (max 2.5s), then let a
+      // delayed payload and the collector settle before comparing counts.
+      const deadline = Date.now() + 2500;
+      while (Date.now() < deadline && processManager.get(record.id)?.status === 'running') {
+        await new Promise((r) => setTimeout(r, 150));
+      }
+      await new Promise((r) => setTimeout(r, 600));
+      const after = await countCaptures();
+      const logs = processManager.getLogs(record.id).map((l) => l.line).join('\n');
+      const finished = processManager.get(record.id);
+      const guardBlocked = logs.includes('[dependency-guard] blocked ');
+      const commandOk =
+        guardBlocked ||
+        finished?.status === 'running' ||
+        finished?.status === 'completed' ||
+        finished?.exitCode === 0;
+      const reason = logs.match(/\[dependency-guard\] blocked [^\n]*reason=(blocklist|allowlist|dependency-egress)/)?.[1];
+      const blockedBy: ReversalRoundResult['blockedBy'] =
+        reason === 'dependency-egress' ? 'egress' : (reason as 'blocklist' | 'allowlist' | undefined);
+      const held = commandOk && after <= before;
+      const round: ReversalRoundResult = {
+        id: opts.id,
+        label: opts.label,
         held,
         commandOk,
         capturesBefore: before,
         capturesAfter: after,
+        ...(blockedBy ? { blockedBy } : {}),
+      };
+      return { round, record, guardBlocked };
+    };
+
+    const baseline = await runRound({
+      id: 'baseline',
+      label: 'Round 1: the attacker you already saw',
+      command: baseCommand,
+      args: baseArgs,
+      env: baseEnv,
+    });
+
+    // Legacy single-round labs keep their original wording and shape.
+    if (!variantCfg || !blockedPackage) {
+      let message: string;
+      if (!baseline.round.commandOk) {
+        message =
+          'The guarded run failed before the control could be tested. The victim command did not start. Check the terminal for the error.';
+      } else if (baseline.round.held) {
+        message = baseline.guardBlocked
+          ? 'Your control held. The guard refused the package, so the payload did not run and no new capture landed.'
+          : 'Your control held - the guarded run produced no new capture. The attack was blocked.';
+      } else {
+        message =
+          'The attack still fired. Check that dependency-guard.json names the malicious package and sits in the victim working directory.';
+      }
+      return res.json({
+        async: true,
+        sessionId: baseline.record.id,
+        record: baseline.record,
+        reversal: {
+          held: baseline.round.held,
+          commandOk: baseline.round.commandOk,
+          capturesBefore: baseline.round.capturesBefore,
+          capturesAfter: baseline.round.capturesAfter,
+          message,
+          policy,
+        },
+      });
+    }
+
+    // Round 2: the attacker mutates. Skipped (graded untested) only if the fixture can't be built.
+    const entryPath = resolve(cwd, variantCfg.entry);
+    let attacker: ReversalRoundResult['attacker'];
+    let nodePath = '';
+    let variantError = '';
+    if (!entryPath.startsWith(cwd + sep) || !existsSync(entryPath)) {
+      variantError = `Variant entry ${variantCfg.entry} is missing from the victim directory.`;
+    } else {
+      try {
+        const rawSeed = (req.body as { seed?: unknown } | undefined)?.seed;
+        const seedArgs =
+          typeof rawSeed === 'number' && Number.isInteger(rawSeed) && rawSeed >= 0
+            ? ['--seed', String(rawSeed)]
+            : [];
+        const out = execFileSync(
+          process.execPath,
+          [
+            variantGenPath,
+            '--base', blockedPackage,
+            '--port', String(variantCfg.port ?? 3000),
+            '--out', resolve(cwd, '.scas-variant'),
+            ...seedArgs,
+          ],
+          { encoding: 'utf8', timeout: 5000 },
+        );
+        const parsed = JSON.parse(out.trim()) as NonNullable<ReversalRoundResult['attacker']> & {
+          nodePath: string;
+        };
+        nodePath = parsed.nodePath;
+        attacker = {
+          packageName: parsed.packageName,
+          mutation: parsed.mutation,
+          delivery: parsed.delivery,
+          delayMs: parsed.delayMs,
+          encoding: parsed.encoding,
+          seed: parsed.seed,
+        };
+      } catch (e) {
+        variantError = `Could not generate the mutated attacker: ${e instanceof Error ? e.message : String(e)}`;
+      }
+    }
+
+    if (variantError || !attacker) {
+      return res.json({
+        async: true,
+        sessionId: baseline.record.id,
+        record: baseline.record,
+        reversal: {
+          held: false,
+          commandOk: false,
+          capturesBefore: baseline.round.capturesBefore,
+          capturesAfter: baseline.round.capturesAfter,
+          message: variantError || 'Mutated attacker fixture failed.',
+          grade: 'untested',
+          rounds: [baseline.round],
+          policy,
+        },
+      });
+    }
+
+    const prevNodePath = (process.env.NODE_PATH ?? '').trim();
+    const variant = await runRound({
+      id: 'variant',
+      label: `Round 2: attacker republished as ${attacker.packageName}`,
+      command: 'node',
+      args: ['-r', guardPath, '-r', testbenchPath, variantCfg.entry],
+      env: {
+        SCAS_GUARD_FILE: guardFile,
+        SCAS_VARIANT_PACKAGE: attacker.packageName,
+        NODE_PATH: prevNodePath ? `${nodePath}${delimiter}${prevNodePath}` : nodePath,
+      },
+    });
+    variant.round.attacker = attacker;
+
+    const b = baseline.round;
+    const v = variant.round;
+    let grade: ReversalGrade;
+    let message: string;
+    if (!b.commandOk || !v.commandOk) {
+      grade = 'untested';
+      message =
+        'A guarded run failed before the control could be tested. Check the terminal for the error.';
+    } else if (!b.held) {
+      grade = 'failed';
+      message =
+        'The attack still fired in round 1. Your policy did not stop even the package you already saw. Check that dependency-guard.json is valid and names the malicious package.';
+    } else if (!v.held) {
+      grade = 'name-only';
+      message = `Name-only block failed. Round 1 held, but the attacker republished as "${attacker.packageName}" (${attacker.mutation}, ${attacker.delivery} delivery, ${attacker.encoding} payload) and it still posted to the collector. Add a behavioral gate: allowOnly to allowlist what the app may import, or denyDependencyEgress to stop dependency code from opening connections.`;
+    } else if (v.blockedBy === 'blocklist') {
+      grade = 'name-only';
+      message = `Round 2 held only because "${attacker.packageName}" happened to be on your block list. The attacker picks a new name each run. Add allowOnly or denyDependencyEgress so the control does not depend on guessing it.`;
+    } else {
+      grade = 'behavioral';
+      const gate = v.blockedBy === 'egress' ? 'denyDependencyEgress gate' : 'allowOnly policy';
+      message = `Behavioral control held. Round 1 and the mutated attacker "${attacker.packageName}" were both stopped, round 2 by your ${gate}. A new package name does not get past it.`;
+    }
+
+    res.json({
+      async: true,
+      sessionId: variant.record.id,
+      record: variant.record,
+      reversal: {
+        held: grade === 'behavioral',
+        commandOk: b.commandOk && v.commandOk,
+        capturesBefore: b.capturesBefore,
+        capturesAfter: v.capturesAfter,
         message,
+        grade,
+        nameOnlyFailed: b.held && !v.held,
+        rounds: [b, v],
+        policy,
       },
     });
   });
@@ -1002,20 +1258,88 @@ function nodeArgsFromNpmStart(
   }
 }
 
-/** Place the lesson block list where the guard reads it, without wiping a file the learner already edited. */
+/** Place the lesson block list where the guard reads it, without wiping a policy the learner already authored. */
 function ensureGuardFile(file: string, blockedPackage: string): void {
-  let names: string[] = [];
+  let existing: Record<string, unknown> = {};
   if (existsSync(file)) {
     try {
-      const raw = JSON.parse(readFileSync(file, 'utf8')) as { block?: unknown };
-      if (Array.isArray(raw.block)) {
-        names = raw.block.filter((x): x is string => typeof x === 'string');
-      }
+      const raw = JSON.parse(readFileSync(file, 'utf8')) as unknown;
+      if (raw && typeof raw === 'object' && !Array.isArray(raw)) existing = raw as Record<string, unknown>;
     } catch {
-      names = [];
+      existing = {};
     }
   }
+  const names = Array.isArray(existing.block)
+    ? existing.block.filter((x): x is string => typeof x === 'string')
+    : [];
   if (names.includes(blockedPackage)) return;
   names.push(blockedPackage);
-  writeFileSync(file, `${JSON.stringify({ block: names }, null, 2)}\n`);
+  writeFileSync(file, `${JSON.stringify({ ...existing, block: names }, null, 2)}\n`);
+}
+
+export interface ReversalGuardPolicy {
+  block?: string[];
+  allowOnly?: string[];
+  denyDependencyEgress?: boolean;
+  egressAllow?: string[];
+}
+
+export interface ReversalRoundResult {
+  id: 'baseline' | 'variant';
+  label: string;
+  held: boolean;
+  commandOk: boolean;
+  capturesBefore: number;
+  capturesAfter: number;
+  blockedBy?: 'blocklist' | 'allowlist' | 'egress';
+  attacker?: {
+    packageName: string;
+    mutation: string;
+    delivery: string;
+    delayMs: number;
+    encoding: string;
+    seed: number;
+  };
+}
+
+type ReversalGrade = 'behavioral' | 'name-only' | 'failed' | 'untested';
+
+const PKG_NAME_RE = /^(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/i;
+const HOST_RE = /^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$/i;
+
+function cleanList(raw: unknown, field: string, re: RegExp): string[] | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (!Array.isArray(raw) || raw.length > 50) throw new Error(`guard.${field} must be a list of up to 50 strings`);
+  const out = raw.map((x) => (typeof x === 'string' ? x.trim() : ''));
+  if (out.some((x) => !re.test(x))) throw new Error(`guard.${field} has an invalid entry`);
+  return out;
+}
+
+/** Whitelist the learner's policy: only known keys, validated values, nothing else reaches disk. */
+function sanitizeGuardPolicy(raw: unknown): ReversalGuardPolicy | null {
+  if (raw === undefined || raw === null) return null;
+  if (typeof raw !== 'object' || Array.isArray(raw)) throw new Error('guard must be an object');
+  const g = raw as Record<string, unknown>;
+  const block = cleanList(g.block, 'block', PKG_NAME_RE);
+  const allowOnly = cleanList(g.allowOnly, 'allowOnly', PKG_NAME_RE);
+  const egressAllow = cleanList(g.egressAllow, 'egressAllow', HOST_RE);
+  const denyDependencyEgress = g.denyDependencyEgress === true;
+  const policy: ReversalGuardPolicy = {
+    ...(block?.length ? { block } : {}),
+    ...(allowOnly?.length ? { allowOnly } : {}),
+    ...(denyDependencyEgress ? { denyDependencyEgress: true } : {}),
+    ...(egressAllow?.length ? { egressAllow } : {}),
+  };
+  if (!policy.block && !policy.allowOnly && !policy.denyDependencyEgress) {
+    throw new Error('guard needs at least one of block, allowOnly or denyDependencyEgress');
+  }
+  return policy;
+}
+
+function readGuardPolicy(file: string): ReversalGuardPolicy | undefined {
+  try {
+    return sanitizeGuardPolicy(JSON.parse(readFileSync(file, 'utf8'))) ?? undefined;
+  } catch {
+    return undefined;
+  }
 }

@@ -14,6 +14,16 @@ mitigation:
   - "Scope registry routes and review every new dependency name before merge"
   - "Prefer ignore-scripts in CI until a package is explicitly trusted"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+attck:
+  - "T1195.002"
+  - "T1059.007"
+  - "T1041"
+nist:
+  - "SP 800-218 PW.4"
+  - "SP 800-161 SR-3"
+remediates:
+  - "lockfile-pinning"
+  - "ignore-scripts"
 drill:
   prompt: "A teammate opened this PR to add a helper to your app. The diff is the whole change. Merge it?"
   artifactType: diff
@@ -39,25 +49,51 @@ drill:
   explanation: "Nothing in the diff says malicious. The only signal is a single missing letter in a name you have typed a hundred times. This is exactly how crossenv and the python3-dateutil lookalikes spread: the review that would have caught it takes three seconds, but only if you read the name instead of the diff shape."
 reversal:
   blockedPackage: "request-lib"
+  variant:
+    entry: "index.variant.js"
+    port: 3000
 prTriageStep: true
 
 decisions:
   - id: decision-approve-typosquat
     afterStep: run
     prompt: "A PR landed adding 'request-lib' as a dependency. You just watched it exfiltrate env vars. Approve or block?"
+    roles:
+      - IC
+      - Eng
     choices:
       - id: block
-        label: "Block — request-lib is a typosquat for requests-lib"
+        label: "Block - request-lib is a typosquat for requests-lib"
         effects:
           score: 3
           flag: "correct_pr_triage"
+          goto: detect
           feedback: "Right. That name is one character off the real package and runs a postinstall that posts to your collector."
       - id: approve
-        label: "Approve — it is a valid helper, just needs a security review"
+        label: "Approve - it is a valid helper, just needs a security review"
         effects:
           score: -2
           flag: "incorrect_pr_triage"
           feedback: "That name is a typosquat. Its postinstall script exfiltrated environment variables to the mock collector on install."
+  - id: decision-notify-typosquat
+    afterStep: detect
+    prompt: "The collector shows a CI token pattern left a developer laptop. Customers have not been touched yet. Do you notify now or wait for a full forensic report?"
+    roles:
+      - Comms
+      - Legal
+    choices:
+      - id: notify-now
+        label: "Send a short holding statement and start the notification clock"
+        effects:
+          score: 3
+          flag: "early_notification"
+          feedback: "Right. Credential exposure on a laptop is enough to start the clock. Say what you know, what you are doing, and when the next update lands."
+      - id: wait-report
+        label: "Hold all messaging until forensics is done"
+        effects:
+          score: -2
+          flag: "delayed_notification"
+          feedback: "Waiting for certainty burns the window. Regulators and customers judge the gap between detection and first word."
 quiz:
   - question: "Which signal in this lab is the strongest IOC that a package is a typosquat?"
     choices:

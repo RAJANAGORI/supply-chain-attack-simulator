@@ -234,13 +234,28 @@ function CampaignSelector({ onSelect }: { onSelect: (id: string) => void }) {
 
 /* ── Entry Point ───────────────────────────────────────────────────────────── */
 
-export function IntelFeedPanel({ campaignId, completedScenarios }: { campaignId: string; completedScenarios?: string[] }) {
+export function IntelFeedPanel({
+  campaignId,
+  completedScenarios,
+  showSelector = false,
+}: {
+  campaignId: string;
+  completedScenarios?: string[];
+  /** When false (default), lock to the given campaignId - used on /campaign cards. */
+  showSelector?: boolean;
+}) {
   const [selected, setSelected] = useState(campaignId);
+
+  useEffect(() => {
+    setSelected(campaignId);
+  }, [campaignId]);
+
+  const activeId = showSelector ? selected : campaignId;
 
   return (
     <div className="rounded-xl border border-gray-700/50 bg-gray-900/40 p-5">
-      <CampaignSelector onSelect={(id) => setSelected(id)} />
-      <IntelFeed campaignId={selected} completedScenarios={completedScenarios || []} />
+      {showSelector && <CampaignSelector onSelect={(id) => setSelected(id)} />}
+      <IntelFeed campaignId={activeId} completedScenarios={completedScenarios || []} />
     </div>
   );
 }

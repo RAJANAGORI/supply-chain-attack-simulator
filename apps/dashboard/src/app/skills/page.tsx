@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Btn, Card, PageHeader, StatTile } from '@/components/ui';
+import { LabTags, NextLabTip } from '@/components/LabTags';
 import { cp, type SkillMatrix } from '@/lib/api';
 
 export default function SkillsPage() {
@@ -87,6 +88,31 @@ export default function SkillsPage() {
               accent="brand"
             />
           </div>
+
+          {matrix.nextLab && (
+            <div className="mt-6">
+              <Card title="Suggested next lab">
+                <NextLabTip nextLab={matrix.nextLab} />
+              </Card>
+            </div>
+          )}
+
+          {matrix.techniques.length > 0 && (
+            <div className="mt-6">
+              <Card title="ATT&CK coverage" subtitle="Techniques from tagged labs; filled once every step is verified">
+                <ul className="space-y-2 text-sm text-ink-secondary">
+                  {matrix.techniques.map((t) => (
+                    <li key={t.id} className="flex flex-wrap items-center justify-between gap-3">
+                      <LabTags attck={[t.id]} />
+                      <span className="tabular-nums text-ink-muted">
+                        {t.completedIds.length}/{t.labIds.length} labs ({t.labIds.join(', ')})
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            </div>
+          )}
 
           <div className="mt-8 space-y-3">
             {matrix.categories.map((c) => {

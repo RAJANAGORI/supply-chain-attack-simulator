@@ -37,6 +37,7 @@ tmp/
 temp/
 *.tmp
 **/dependency-guard.json
+**/.scas-variant/
 
 # Docker volumes
 verdaccio-storage/

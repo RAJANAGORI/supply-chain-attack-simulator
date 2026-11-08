@@ -21,6 +21,8 @@ debrief: "Four labs, one actor, and at no point did anyone see a warning. Every 
 # ── Campaign injects: timed intelligence events that arrive as the learner plays.
 #    Each inject carries a when (chapter beat or a scenario-id trigger), a kind,
 #    and the briefing payload so the dashboard can render a live feed.
+#    tMinute is where the classroom tabletop clock lands when the instructor
+#    releases the inject (documentation/guides/tabletop-quiet-carrier.md).
 injects:
   - id: inject-01-discovery
     when: "chapter:01"
@@ -38,6 +40,7 @@ injects:
         ip: "198.51.100.42"
         first_seen: "2026-10-13T01:15:00Z"
     confidence: 0.72
+    tMinute: 0
 
   - id: inject-02-exfil
     when: "chapter:01"
@@ -56,6 +59,7 @@ injects:
         protocol: "HTTPS"
         bytes: 847
     confidence: 0.89
+    tMinute: 10
 
   - id: inject-03-ci-drift
     when: "chapter:05"
@@ -75,6 +79,7 @@ injects:
         actor: "dependabot[bot]"
         step_added: "run: echo '[redacted]' >> $GITHUB_ENV"
     confidence: 0.65
+    tMinute: 30
 
   - id: inject-04-mirror-poison
     when: "chapter:11"
@@ -94,6 +99,7 @@ injects:
         mirror_sri: "sha512-xyz789uvw012..."
         divergence: "postinstall script present only in mirror copy"
     confidence: 0.94
+    tMinute: 55
 
 # ── Remediation checklist: graded actions the learner must complete
 #    after the campaign chain. Weighted by severity.
