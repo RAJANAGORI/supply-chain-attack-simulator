@@ -94,7 +94,7 @@ quiz:
     answer: 1
     explain: "A frozen lockfile turns the hook's dependency injection into a build failure, and a git diff gate on pnpm-lock.yaml makes the drift visible. Pinning pnpm's version helps tool integrity but does not review what the hook changed."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update pnpm resolution config"

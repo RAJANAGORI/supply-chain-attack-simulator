@@ -87,7 +87,7 @@ quiz:
     answer: 2
     explain: "Poisoning is a write-side problem - restrict who can mutate mirror storage, then continuously verify what the mirror serves against upstream digests so tampering alerts fast. Bypassing the mirror throws away caching and just moves trust to the public registry, and reinstalling the same poisoned tarball twice changes nothing."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update registry URL in .npmrc"

@@ -91,7 +91,7 @@ quiz:
     explain: "Chasing the newest release is what pulled in 1.82.7, and delisting only happens after someone gets burned. Hash pinning makes a swapped artifact fail the install outright, and the .pth scan catches anything that still lands."
 
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update litellm configuration for OpenAI proxy"

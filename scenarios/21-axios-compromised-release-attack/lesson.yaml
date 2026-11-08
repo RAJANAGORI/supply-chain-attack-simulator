@@ -94,7 +94,7 @@ quiz:
     explain: "Reputation is exactly what the attacker borrowed, and dropping the lockfile destroys your best forensic evidence. npm ci against a committed lockfile freezes what installs, and ignore-scripts removes the postinstall execution path the beacon depends on."
 
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update axios proxy configuration"

@@ -100,7 +100,7 @@ quiz:
     answer: 0
     explain: "You cannot defend what you cannot see. An SBOM plus full-tree scanning surfaces nested packages that a package.json review never shows. Reviewing direct dependencies only is precisely the blind spot this attack exploits."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update data-processor type definitions"

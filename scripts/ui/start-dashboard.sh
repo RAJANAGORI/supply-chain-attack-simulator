@@ -2,7 +2,8 @@
 # Start SCAS control center: control plane + Next.js dashboard.
 # Public marketing site: https://simulator.rajanagori.in/ (not started locally).
 #
-# Default: production (build dashboard once, then next start + control-plane start).
+# Default: production UI, rebuild dashboard every start (avoids stale .next).
+# Reuse a prior build: SCAS_FORCE_BUILD=0 ./run.sh
 # Hot-reload workshop hacking: SCAS_UI_DEV=1 ./run.sh
 # Skip GA: NEXT_PUBLIC_SCAS_DISABLE_GA=1
 set -euo pipefail
@@ -34,6 +35,9 @@ fi
 BIND_HOST="${SCAS_BIND_HOST:-0.0.0.0}"
 PUBLIC_HOST="${SCAS_PUBLIC_HOST:-0.0.0.0}"
 UI_DEV="${SCAS_UI_DEV:-0}"
+# Always rebuild unless the operator opts out. Stale apps/dashboard/.next was
+# hiding immersive-learning UI (PR triage unlock, polymorphic purple chrome).
+FORCE_BUILD="${SCAS_FORCE_BUILD:-1}"
 
 export SCAS_REPO_ROOT="$ROOT"
 export TESTBENCH_MODE="${TESTBENCH_MODE:-enabled}"
@@ -108,11 +112,11 @@ else
   # next start needs a real production build (.next/BUILD_ID). A leftover
   # empty/partial .next from failed builds or next dev is not enough.
   DASH_BUILD_ID="${ROOT}/apps/dashboard/.next/BUILD_ID"
-  if [[ "${SCAS_FORCE_BUILD:-0}" = "1" || ! -f "${DASH_BUILD_ID}" ]]; then
+  if [[ "$FORCE_BUILD" = "1" || ! -f "${DASH_BUILD_ID}" ]]; then
     scas_log "Building @scas/dashboard…"
     npm run build:dashboard
   else
-    scas_log "Reusing apps/dashboard/.next (set SCAS_FORCE_BUILD=1 to rebuild)"
+    scas_log "Reusing apps/dashboard/.next (default rebuild; SCAS_FORCE_BUILD=0 keeps this skip)"
   fi
   if [[ ! -f "${DASH_BUILD_ID}" ]]; then
     scas_fail "Dashboard production build missing after build (${DASH_BUILD_ID})"

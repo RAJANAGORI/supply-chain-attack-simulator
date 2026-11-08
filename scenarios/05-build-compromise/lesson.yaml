@@ -126,7 +126,7 @@ quiz:
     answer: 2
     explain: "SHA pinning freezes the exact code you reviewed, so a force-pushed tag can no longer swap it. The other two options are the conditions that made this lab work: broad permissions and secrets handed to code you do not control."
 prTriage:
-  prTriageStep: true
+  afterStep: run-ci
   prs:
     - id: safe-1
       title: "fix: update GitHub Actions runner to latest"

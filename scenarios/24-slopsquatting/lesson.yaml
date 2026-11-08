@@ -93,7 +93,7 @@ quiz:
     explain: "A registry link proves the name exists, not that it is safe - the attacker registered it precisely because models keep inventing it. Installing first runs the payload. Verification before install, an allowlist gate, and ignore-scripts close the delivery path."
 
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update array sort helper utility"

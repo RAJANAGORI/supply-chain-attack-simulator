@@ -87,7 +87,7 @@ quiz:
     explain: "The attack worked because a tag moved to code you never reviewed, and a newer tag is just as mutable. A full SHA points at one immutable snapshot, and policy enforcement through harden-runner, Allstar, or CI lint keeps tags from creeping back."
 
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update Trivy database URL"

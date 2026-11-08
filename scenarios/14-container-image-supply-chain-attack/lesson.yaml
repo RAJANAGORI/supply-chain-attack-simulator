@@ -83,7 +83,7 @@ quiz:
     answer: 2
     explain: "Tags are mutable, so a version tag can be repointed to a poisoned image. Digest pinning plus signature verification (cosign, admission control) makes the deploy path reject anything that is not the exact reviewed image."
 prTriage:
-  prTriageStep: true
+  afterStep: run
   prs:
     - id: safe-1
       title: "fix: update Dockerfile base image to node:20-slim"

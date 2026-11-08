@@ -89,7 +89,7 @@ quiz:
     answer: 1
     explain: "Confusion happens because the resolver is allowed to consult a public registry for an internal scope. Scope-specific routing removes that path, so the public 999.999.999 is never even seen. Repeat installs and longer names do not change where resolution goes."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: correct CORS headers on auth endpoint"

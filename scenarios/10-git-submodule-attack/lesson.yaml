@@ -95,7 +95,7 @@ quiz:
     answer: 0
     explain: "The attack needs the local file protocol to resolve, and protocol.file.allow=never closes that hole everywhere the config is set. Shallow clones still fetch submodule content, and renaming .gitmodules breaks legitimate submodules instead of the attacker. Pair the config with pinned commits and URL allowlists for the remote cases."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update submodule URLs to use SSH"

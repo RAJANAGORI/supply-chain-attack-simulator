@@ -94,7 +94,7 @@ quiz:
     answer: 1
     explain: "lockfile-lint with --allowed-hosts and --allowed-schemes https: plus git diff --exit-code package-lock.json fails the build on exactly this drift. Deleting the lockfile is worse - it removes the pin and lets anything resolve - and the Node version has no say in where tarballs come from."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update lockfile for node_modules dedup"

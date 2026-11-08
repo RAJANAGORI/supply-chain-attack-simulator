@@ -98,7 +98,7 @@ quiz:
     answer: 0
     explain: "A caret range is standing permission to install whatever patch ships next. Pinning plus a committed lockfile means a bad update only arrives through a reviewed PR, not an automatic pull. Daily updates increase exposure; they do not reduce it."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update utils helper for Node 20 path.sep"

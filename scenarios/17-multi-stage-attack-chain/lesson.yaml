@@ -89,7 +89,7 @@ quiz:
     answer: 0
     explain: "The chain needs one identity to go from build to publish. If the build runner's token cannot publish, stage 3 fails on permissions; approval gates and auto-containment on the event sequence add more chances to stop it."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update multi-stage build configuration"

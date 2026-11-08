@@ -528,21 +528,19 @@ export function ScenarioLessonRunner({
             );
           })()}
 
-          {/* Phase 1b: PR Triage Inbox — teaching injection after steps */}
-          {lesson.prTriage && (() => {
-            const { afterStep } = lesson.prTriage;
-            // Show when all steps are verified, or after the specific afterStep is verified
-            const showNow = afterStep
-              ? verified[afterStep] && doneCount > visibleSteps.findIndex((s) => s.id === afterStep)
-              : doneCount === visibleSteps.length;
-            return showNow ? (
+          {/* PR Triage Inbox: unlock once afterStep is verified (default: first install*/run step). */}
+          {lesson.prTriage &&
+            verified[
+              lesson.prTriage.afterStep ||
+                visibleSteps.find((s) => s.id.startsWith('install') || s.id.startsWith('run'))?.id ||
+                ''
+            ] && (
               <PRInbox
                 scenarioId={scenarioId}
                 prs={lesson.prTriage.prs}
                 onDone={() => void refreshVerify()}
               />
-            ) : null;
-          })()}
+            )}
 
           {lesson.quiz && lesson.quiz.length > 0 && doneCount === visibleSteps.length && (
             <QuizGate

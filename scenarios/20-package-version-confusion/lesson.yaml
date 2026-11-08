@@ -93,7 +93,7 @@ quiz:
     explain: "The malicious release carries valid provenance and a valid attestation, so requiring signatures changes nothing. Failing closed on any builder or ref you did not expect removes the attacker's room to sign a poisoned artifact, and behavioral scans catch what identity checks miss."
 
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update package version pinning for reproducible builds"

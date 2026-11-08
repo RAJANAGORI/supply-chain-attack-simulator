@@ -82,7 +82,7 @@ quiz:
     explain: "Rotation cleans up after the theft but the next force-push steals the new secrets too, and an unreviewed fork just relocates the trust problem. A SHA pins one immutable snapshot, and linting for @vN references keeps the pin from regressing."
 
 prTriage:
-  prTriageStep: true
+  afterStep: run
   prs:
     - id: safe-1
       title: "fix: update GitHub Action version pins"

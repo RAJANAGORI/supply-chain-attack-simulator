@@ -110,7 +110,7 @@ quiz:
     answer: 1
     explain: "Ownership gates force security review on exactly the files this attack edits, and --ignore-scripts removes the lifecycle execution path until a package is allowlisted. Broader runner permissions increase the blast radius, and folder layout does nothing about who can merge changes - treat every workspace package as a third-party dependency."
 prTriage:
-  prTriageStep: true
+  afterStep: install-root
   prs:
     - id: safe-1
       title: "fix: update workspace package.json scripts"

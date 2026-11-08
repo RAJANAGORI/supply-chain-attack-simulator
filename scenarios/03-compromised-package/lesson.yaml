@@ -111,7 +111,7 @@ quiz:
     answer: 1
     explain: "This attack starts with a maintainer account or publish path, so that is where the gate belongs. Download counts are what make a compromised package dangerous, and dropping the lockfile makes silent patches easier to pull, not harder."
 prTriage:
-  prTriageStep: true
+  afterStep: install-bad
   prs:
     - id: safe-1
       title: "fix: update validation error messages for clarity"

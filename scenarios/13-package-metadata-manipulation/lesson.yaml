@@ -95,7 +95,7 @@ quiz:
     answer: 0
     explain: "A field-change gate turns the attacker's best trick - a trusted-looking story - into a review trigger, and a signed internal mirror gives you a source of truth to compare against. Download counts are gameable and say nothing about metadata drift, and README reading is exactly the surface this attack exploits."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update package repository URL"

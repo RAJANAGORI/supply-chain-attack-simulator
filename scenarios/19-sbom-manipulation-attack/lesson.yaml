@@ -93,7 +93,7 @@ quiz:
     answer: 0
     explain: "If the app or an untrusted job produces the SBOM, the attacker edits the story along with the code. Generating it in trusted CI from lockfile truth, signing it, and failing the build on any SBOM-lockfile mismatch removes the tamper path."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update SBOM generator for new dependency tree"

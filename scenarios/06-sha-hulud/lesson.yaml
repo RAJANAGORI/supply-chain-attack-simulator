@@ -97,7 +97,7 @@ quiz:
     answer: 2
     explain: "The worm spreads by republishing with stolen tokens. If tokens only live in CI, the postinstall runs and finds nothing, and the chain stops with one victim. Tokens on developer machines are what turn one install into an ecosystem incident."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update npm token handling for scoped packages"

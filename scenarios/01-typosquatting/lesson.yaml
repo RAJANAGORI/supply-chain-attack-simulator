@@ -154,7 +154,8 @@ steps:
     verify: { type: capture-count, min: 1 }
 
 prTriage:
-  prTriageStep: true
+  # Show the inbox once Install the typosquat is verified (storyboard step 3).
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update jest config for Node 20 compatibility"

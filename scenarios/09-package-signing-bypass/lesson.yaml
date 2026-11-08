@@ -91,7 +91,7 @@ quiz:
     answer: 2
     explain: "Hardware-backed keys with MFA and audit logs make key theft hard and visible, and rotation bounds how long a stolen key stays useful. Longer keys do nothing once the key leaves the HSM, and pull request approvals do not stop an attacker who already holds the key - behavioral scanning is what catches the signed-but-malicious package."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update signing key expiry handling"

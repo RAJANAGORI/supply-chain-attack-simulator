@@ -90,7 +90,7 @@ quiz:
     answer: 1
     explain: "The attack needs its postinstall hook to execute. --ignore-scripts removes that execution path, and approved registries plus pinned checksums keep untrusted tools off the PATH in the first place."
 prTriage:
-  prTriageStep: true
+  afterStep: install
   prs:
     - id: safe-1
       title: "fix: update dev-tools path resolution"

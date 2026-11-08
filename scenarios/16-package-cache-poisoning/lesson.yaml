@@ -93,7 +93,7 @@ quiz:
     answer: 1
     explain: "Reinstalling or rebooting reuses the same poisoned cache. Incident response has to invalidate the cache itself, then re-key CI caches to lockfile hashes so restored entries match the reviewed lockfile."
 prTriage:
-  prTriageStep: true
+  afterStep: install1
   prs:
     - id: safe-1
       title: "fix: update npm cache cleanup script"
