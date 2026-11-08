@@ -47,11 +47,14 @@ export NEXT_PUBLIC_GA_ID="${NEXT_PUBLIC_GA_ID:-G-0EC7Y69Y12}"
 export SCAS_ES_URL="${SCAS_ES_URL:-http://127.0.0.1:9200}"
 export KIBANA_URL="${KIBANA_URL:-http://127.0.0.1:5601}"
 
-if [[ ! -d node_modules ]]; then
+# Reinstall when the tree is missing OR a known workspace dep is absent
+# (package.json can gain deps like js-yaml without wiping node_modules).
+if [[ ! -d node_modules ]] \
+  || [[ ! -e node_modules/lucide-react ]] \
+  || [[ ! -e node_modules/tailwindcss ]] \
+  || [[ ! -e node_modules/js-yaml ]] \
+  || [[ ! -e node_modules/express ]]; then
   scas_log "Installing workspace dependencies…"
-  npm install
-elif [[ ! -e node_modules/lucide-react ]] || [[ ! -e node_modules/tailwindcss ]]; then
-  scas_log "Updating workspace dependencies (new UI packages)…"
   npm install
 fi
 

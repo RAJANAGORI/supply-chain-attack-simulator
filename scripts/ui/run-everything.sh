@@ -208,7 +208,9 @@ if [[ "$SKIP_SETUP" != "1" ]]; then
   export SCAS_FROM_RUN=1
   chmod +x scripts/setup/setup.sh
   ./scripts/setup/setup.sh
-  if [[ ! -d node_modules ]]; then
+  if [[ ! -d node_modules ]] \
+    || [[ ! -e node_modules/js-yaml ]] \
+    || [[ ! -e node_modules/express ]]; then
     scas_log "npm install (workspace)…"
     npm install
   fi
