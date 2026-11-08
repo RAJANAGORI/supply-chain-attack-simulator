@@ -528,7 +528,7 @@ export function ScenarioLessonRunner({
             );
           })()}
 
-          {/* PR Triage Inbox: unlock once afterStep is verified (default: first install*/run step). */}
+          {/* PR Triage Inbox: unlock once afterStep is verified (default: first install or run step). */}
           {lesson.prTriage &&
             verified[
               lesson.prTriage.afterStep ||
