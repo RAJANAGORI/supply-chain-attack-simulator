@@ -289,6 +289,12 @@ export interface ArchifyBriefPayload {
   title: string;
   markdown: string;
   diagrams: ArchifyLink[];
+  /** MITRE ATT&CK technique IDs from lesson.yaml. */
+  attck?: string[];
+  /** NIST SP 800-xxx references from lesson.yaml. */
+  nist?: string[];
+  /** Additional taxonomy tags (e.g. MITRE attack group names). */
+  mitre?: string[];
 }
 
 export interface ScenarioDetail extends Omit<ScenarioSummary, 'lesson'> {
@@ -358,6 +364,10 @@ export interface ReversalGuardPolicy {
   allowOnly?: string[];
   denyDependencyEgress?: boolean;
   egressAllow?: string[];
+  /** Verify the package origin (registry URL, publisher) against the allow list. */
+  checkProvenance?: boolean;
+  /** Strip postinstall/preinstall hooks before any code runs. */
+  ignoreScripts?: boolean;
 }
 
 /**
@@ -377,7 +387,7 @@ export interface ReversalRound {
   capturesBefore: number;
   capturesAfter: number;
   /** Which guard gate refused the attack, read from the guard's log markers. */
-  blockedBy?: 'blocklist' | 'allowlist' | 'egress';
+  blockedBy?: 'blocklist' | 'allowlist' | 'egress' | 'provenance' | 'ignoreScripts';
   /** Variant round only: how the attacker mutated. */
   attacker?: {
     packageName: string;
@@ -386,6 +396,11 @@ export interface ReversalRound {
     delayMs: number;
     encoding: string;
     seed: number;
+  };
+  /** Provenance check result: was the registry verified or was it forged? */
+  provenance?: {
+    check: boolean;
+    registry?: string;
   };
 }
 
@@ -419,8 +434,14 @@ export interface SkillMatrix {
     scenarioIds: string[];
     completedIds: string[];
   }>;
-  /** ATT&CK coverage from lesson.yaml `attck` (empty until labs are tagged). */
-  techniques: Array<{ id: string; labIds: string[]; completedIds: string[] }>;
+  /** ATT&CK/NIST/MITRE coverage from lesson.yaml `attck`, `nist`, `mitre` fields. */
+  techniques: Array<{
+    id: string;
+    nist?: string[];
+    mitre?: string[];
+    labIds: string[];
+    completedIds: string[];
+  }>;
   /** Minimal adaptive tip: next lab sharing tags with, or building on, finished labs. */
   nextLab: { id: string; title: string; reason: string } | null;
   completedLabs: number;
@@ -440,6 +461,7 @@ export interface BriefingPayload {
     incidents: string[];
     attck: string[];
     nist: string[];
+    mitre?: string[];
     prereqs: string[];
     remediates: string[];
   }>;

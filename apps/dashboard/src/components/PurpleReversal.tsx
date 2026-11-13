@@ -23,6 +23,15 @@ import {
  * passes round 1 and fails round 2, so the learner has to author a behavioral
  * gate (allowOnly, denyDependencyEgress) instead.
  *
+ * Provenance check: when `checkProvenance: true`, the guard verifies the
+ * package's origin fingerprint (registry, publisher) matches the known good
+ * list. An attacker who re-publishes under a different registry fails this
+ * check even if the name matches.
+ *
+ * Ignore-scripts policy: when `ignoreScripts: true`, the guard skips any
+ * postinstall/preinstall hooks the package declares, preventing lifecycle
+ * hook exfil even if the package is allowed through.
+ *
  * This is the step that closes the loop: attack -> detect -> prevent.
  */
 export function PurpleReversal({
@@ -39,6 +48,7 @@ export function PurpleReversal({
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<ReversalResult | null>(null);
   const [error, setError] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [policyText, setPolicyText] = useState(
     JSON.stringify({ block: [blockedPackage] }, null, 2),
   );
@@ -132,6 +142,42 @@ export function PurpleReversal({
             <code className="font-mono text-ink-secondary">denyDependencyEgress</code>,{' '}
             <code className="font-mono text-ink-secondary">egressAllow</code>.
           </p>
+
+          {/* Provenance & lifecycle hooks explanation */}
+          <div className="mt-3 rounded-xl border border-line bg-canvas-hover/50 px-4 py-3">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex w-full items-center justify-between text-[11px] font-medium text-ink-secondary hover:text-ink-primary"
+            >
+              <span>Deeper attacks: provenance forgery & lifecycle hooks</span>
+              <span className="text-lg leading-none">{showAdvanced ? '−' : '+'}</span>
+            </button>
+            {showAdvanced && (
+              <div className="mt-3 space-y-2 text-[11px] leading-relaxed text-ink-secondary">
+                <p>
+                  A sophisticated attacker does not just change the name. Two advanced techniques:
+                </p>
+                <ol className="list-decimal space-y-2 pl-5">
+                  <li>
+                    <code className="font-mono text-ink-primary">provenance forgery</code> — the
+                    attacker publishes to a <em>different registry</em> but copies the publisher
+                    metadata so the package <em>looks</em> legitimate. A{' '}
+                    <code className="font-mono text-ink-secondary">checkProvenance</code> gate
+                    catches this by comparing the registry fingerprint against the allow list.
+                  </li>
+                  <li>
+                    <code className="font-mono text-ink-primary">lifecycle hooks</code> — the
+                    attacker adds <code className="font-mono text-ink-secondary">postinstall</code>
+                    scripts that run <em>before</em> npm import checks. Even if the package is
+                    allowed through, the hook fires. An{' '}
+                    <code className="font-mono text-ink-secondary">ignoreScripts: true</code> gate
+                    strips lifecycle hooks before any code runs.
+                  </li>
+                </ol>
+              </div>
+            )}
+          </div>
         </>
       ) : (
         <>
@@ -199,6 +245,10 @@ export function PurpleReversal({
       {result && result.grade === 'name-only' && (
         <NameOnlyHelp grade={result.grade} onAdd={addKey} />
       )}
+
+      {result && result.rounds && (
+        <AdvancedAttackHelp onAdd={addKey} />
+      )}
     </Card>
   );
 }
@@ -211,7 +261,11 @@ function RoundRow({ round }: { round: ReversalRound }) {
         ? 'allowOnly'
         : round.blockedBy === 'blocklist'
           ? 'block list'
-          : null;
+          : round.blockedBy === 'provenance'
+            ? 'checkProvenance'
+            : round.blockedBy === 'ignoreScripts'
+              ? 'ignoreScripts'
+              : null;
   return (
     <li className="rounded-xl border border-line bg-canvas-hover px-3 py-2 text-[12px] leading-relaxed">
       <div className="flex flex-wrap items-center gap-2">
@@ -227,6 +281,14 @@ function RoundRow({ round }: { round: ReversalRound }) {
           {round.attacker.packageName} · {round.attacker.mutation} · {round.attacker.delivery}
           {round.attacker.delivery === 'timer' ? ` ${round.attacker.delayMs}ms` : ''} ·{' '}
           {round.attacker.encoding} payload · seed {round.attacker.seed}
+        </p>
+      )}
+      {round.provenance && (
+        <p className="mt-1 text-[11px] text-ink-faint">
+          provenance: <span className={round.provenance.check ? 'text-green-400' : 'text-red-400'}>
+            {round.provenance.check ? 'verified' : 'forged'}
+          </span>{' '}
+          {round.provenance.registry ? `from ${round.provenance.registry}` : ''}
         </p>
       )}
       <p className="mt-1 text-[11px] text-ink-faint">
@@ -274,6 +336,47 @@ function NameOnlyHelp({
         The allowOnly button adds an empty list. Fill in the package you actually want to keep, for
         example requests-lib, before you re-run.
       </p>
+    </div>
+  );
+}
+
+/**
+ * Advanced help: shows provenance and ignore-scripts options when the learner
+ * has survived round 1 but the attacker uses provenance forgery or lifecycle
+ * hook exfil in round 2.
+ */
+function AdvancedAttackHelp({
+  onAdd,
+}: {
+  onAdd: (patch: Partial<ReversalGuardPolicy>) => void;
+}) {
+  return (
+    <div className="mt-4 rounded-xl border border-line px-4 py-3 text-[12px] leading-relaxed text-ink-secondary">
+      <p className="font-medium text-ink-primary">The attacker changed tactics</p>
+      <p className="mt-1">
+        The attacker is now publishing from a <em>different registry</em> (provenance forgery) or
+        using <em>lifecycle hooks</em> (postinstall scripts) to run code before checks. Add one of
+        these gates:
+      </p>
+      <ul className="mt-2 list-disc space-y-1 pl-5">
+        <li>
+          <code className="font-mono">checkProvenance: true</code> — verifies the package origin
+          (registry URL, publisher) against the allow list. A provenance-forged package from a
+          different registry fails even if the name matches.
+        </li>
+        <li>
+          <code className="font-mono">ignoreScripts: true</code> — strips postinstall/preinstall
+          hooks before any code runs. Lifecycle hook exfil cannot fire.
+        </li>
+      </ul>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Btn variant="secondary" onClick={() => onAdd({ checkProvenance: true })}>
+          Add checkProvenance
+        </Btn>
+        <Btn variant="secondary" onClick={() => onAdd({ ignoreScripts: true })}>
+          Add ignoreScripts
+        </Btn>
+      </div>
     </div>
   );
 }

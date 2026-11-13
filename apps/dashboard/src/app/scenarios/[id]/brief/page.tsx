@@ -85,6 +85,54 @@ export default function ScenarioBriefPage({ params }: { params: Promise<{ id: st
           <LabBriefMarkdown markdown={brief.markdown} slug={brief.slug} />
         </div>
       </Card>
+
+      {/* Taxonomy tags: ATT&CK, NIST, MITRE */}
+      <div className="mt-6 space-y-4">
+        {brief.attck && brief.attck.length > 0 && (
+          <div>
+            <h4 className="font-semibold uppercase tracking-wider text-xs text-brand mb-2">
+              ATT&amp;CK mapping
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {brief.attck.map((a) => (
+                <span key={a} className="text-xs font-mono px-2 py-1 bg-slate-800/60 border border-slate-700/50 rounded text-slate-300">
+                  {a}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {brief.nist && brief.nist.length > 0 && (
+          <div>
+            <h4 className="font-semibold uppercase tracking-wider text-xs text-emerald-400 mb-2">
+              NIST SP 800 refs
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {brief.nist.map((n) => (
+                <span key={n} className="text-xs font-mono px-2 py-1 bg-emerald-900/20 border border-emerald-700/40 rounded text-emerald-300">
+                  {n}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {brief.mitre && brief.mitre.length > 0 && (
+          <div>
+            <h4 className="font-semibold uppercase tracking-wider text-xs text-amber-400 mb-2">
+              MITRE context
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {brief.mitre.map((m) => (
+                <span key={m} className="text-xs font-mono px-2 py-1 bg-amber-900/20 border border-amber-700/40 rounded text-amber-300">
+                  {m}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

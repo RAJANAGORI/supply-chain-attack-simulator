@@ -1,6 +1,8 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { getRepoRoot } from './env.js';
+import { SCENARIOS } from './registry/scenarios.js';
+import { loadLesson } from './registry/lesson-loader.js';
 
 export type ArchifyLink = {
   id: string;
@@ -22,6 +24,9 @@ export type ArchifyBriefPayload = {
   title: string;
   markdown: string;
   diagrams: ArchifyLink[];
+  attck?: string[];
+  nist?: string[];
+  mitre?: string[];
 };
 
 /** Absolute path to the repo `.archify` tree (HTML + briefs). */
@@ -101,11 +106,19 @@ export function readArchifyBrief(slug: string): ArchifyBriefPayload | null {
 
   const markdown = readFileSync(briefPath, 'utf8');
   const titleMatch = markdown.match(/^#\s+(.+)$/m);
+
+  // Pull taxonomy tags from the matching scenario's lesson.yaml.
+  const scenario = SCENARIOS.find((s) => s.id === nn);
+  const lesson = scenario ? loadLesson(scenario) : null;
+
   return {
     slug,
     scenarioId: nn,
     title: titleMatch?.[1]?.trim() || `Scenario ${nn} lab brief`,
     markdown,
     diagrams: pack.diagrams,
+    attck: lesson?.attck,
+    nist: lesson?.nist,
+    mitre: lesson?.mitre,
   };
 }

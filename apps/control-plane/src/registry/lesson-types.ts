@@ -123,6 +123,8 @@ export interface LessonDefinition {
   attck?: string[];
   /** Optional: NIST control or practice refs, e.g. "SP 800-218 PW.4". */
   nist?: string[];
+  /** Optional: broader MITRE context / matrix refs for the briefing page. */
+  mitre?: string[];
   /** Optional: lab ids (e.g. "01") worth finishing before this one. */
   prereqs?: string[];
   /** Optional: short control slugs this lab teaches you to apply, e.g. "action-sha-pinning". */

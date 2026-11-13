@@ -131,7 +131,7 @@ export default function ReportPage() {
                       </Link>
                       <span className="text-[11px] text-ink-faint">{lab.category}</span>
                     </div>
-                    <LabTags attck={lab.attck} nist={lab.nist} />
+                    <LabTags attck={lab.attck} nist={lab.nist} mitre={lab.mitre} />
                     <ul className="mt-2 space-y-1 text-sm text-ink-secondary">
                       {lab.objectives.map((o) => (
                         <li key={o}>· {o}</li>

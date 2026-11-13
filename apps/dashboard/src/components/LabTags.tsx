@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import type { SkillMatrix } from '@/lib/api';
 
-/** Small chip row for ATT&CK ids and NIST refs from lesson.yaml. Renders nothing when empty. */
-export function LabTags({ attck, nist }: { attck?: string[]; nist?: string[] }) {
-  if (!attck?.length && !nist?.length) return null;
+/** Small chip row for ATT&CK ids, NIST refs, and MITRE context from lesson.yaml. Renders nothing when empty. */
+export function LabTags({ attck, nist, mitre }: { attck?: string[]; nist?: string[]; mitre?: string[] }) {
+  if (!attck?.length && !nist?.length && !mitre?.length) return null;
   return (
     <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Framework tags">
       {attck?.map((t) => (
@@ -22,6 +22,15 @@ export function LabTags({ attck, nist }: { attck?: string[]; nist?: string[] }) 
           className="rounded-md border border-line px-2 py-0.5 text-[11px] text-ink-muted"
         >
           {n}
+        </li>
+      ))}
+      {mitre?.map((m) => (
+        <li
+          key={m}
+          title="MITRE context"
+          className="rounded-md border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[11px] text-amber-300"
+        >
+          {m}
         </li>
       ))}
     </ul>

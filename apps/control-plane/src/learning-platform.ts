@@ -30,6 +30,10 @@ export interface SkillTechnique {
   id: string;
   labIds: string[];
   completedIds: string[];
+  /** NIST SP 800 / practice refs that appear on labs tagged with this technique. */
+  nist?: string[];
+  /** Broader MITRE context / matrix refs from labs tagged with this technique. */
+  mitre?: string[];
 }
 
 /** Minimal adaptive tip: the next lab that shares tags with, or builds on, what you finished. */
@@ -115,7 +119,7 @@ export function buildSkillMatrix(): SkillMatrix {
     return lesson.steps.length > 0 && (entry?.completedSteps?.length ?? 0) >= lesson.steps.length;
   }).length;
 
-  const techById = new Map<string, SkillTechnique>();
+  const techById = new Map<string, { id: string; labIds: string[]; completedIds: string[]; nist: Set<string>; mitre: Set<string> }>();
   const tagged: Array<{ id: string; title: string; attck: string[]; prereqs: string[]; completed: boolean }> = [];
   for (const s of withLessons) {
     const lesson = loadLesson(s)!;
@@ -129,13 +133,17 @@ export function buildSkillMatrix(): SkillMatrix {
       completed,
     });
     for (const t of lesson.attck ?? []) {
-      const tech = techById.get(t) ?? { id: t, labIds: [], completedIds: [] };
-      tech.labIds.push(s.id);
-      if (completed) tech.completedIds.push(s.id);
-      techById.set(t, tech);
+      const entry = techById.get(t) ?? { id: t, labIds: [], completedIds: [], nist: new Set(), mitre: new Set() };
+      entry.labIds.push(s.id);
+      if (completed) entry.completedIds.push(s.id);
+      if (lesson.nist) lesson.nist.forEach((n) => entry.nist.add(n));
+      if (lesson.mitre) lesson.mitre.forEach((m) => entry.mitre.add(m));
+      techById.set(t, entry);
     }
   }
-  const techniques = Array.from(techById.values()).sort((a, b) => a.id.localeCompare(b.id));
+  const techniques: SkillTechnique[] = Array.from(techById.values())
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((t) => ({ id: t.id, labIds: t.labIds, completedIds: t.completedIds, nist: t.nist.size ? [...t.nist] : undefined, mitre: t.mitre.size ? [...t.mitre] : undefined }));
 
   return {
     categories,
@@ -164,9 +172,11 @@ export function skillMatrixMarkdown(): string {
   }
   lines.push('');
   if (matrix.techniques.length) {
-    lines.push('| ATT&CK technique | Done | Labs |', '|---|---:|---|');
+    lines.push('| ATT&CK technique | NIST | MITRE | Done | Labs |', '|---|---|---:|---|---|');
     for (const t of matrix.techniques) {
-      lines.push(`| ${t.id} | ${t.completedIds.length}/${t.labIds.length} | ${t.labIds.join(', ')} |`);
+      const nistStr = t.nist?.join(', ') || '-';
+      const mitreStr = t.mitre?.join(', ') || '-';
+      lines.push(`| ${t.id} | ${nistStr} | ${mitreStr} | ${t.completedIds.length}/${t.labIds.length} | ${t.labIds.join(', ')} |`);
     }
     lines.push('');
   }
