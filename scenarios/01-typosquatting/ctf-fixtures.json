@@ -8,6 +8,7 @@
   ],
   "sigma": {
     "starter": "title: Suspicious npm install\nlogsource:\n  category: process_creation\ndetection:\n  selection:\n    process.command_line|contains: \"TODO\"\n  condition: selection\nlevel: medium\n",
+    "hint": "Require both an npm install and the lookalike name in process.command_line. A lone contains on request-lib will also fire on a git commit that only mentions the package, and a bare npm install of express should stay quiet.",
     "cases": [
       {
         "id": "tp-install-local",
@@ -61,6 +62,7 @@
   },
   "semgrep": {
     "starter": "rules:\n  - id: scas-lab01-typosquat-beacon\n    message: Package posts local data to a collector\n    severity: WARNING\n    languages: [javascript]\n    pattern-regex: 'TODO'\n",
+    "hint": "Use pattern-regex to tie 127.0.0.1 to a /collect path in the same short window (http.request and fetch both matter). Matching only process.env or only port 3000 will false-positive on normal app code; matching only /collection will fire on a route name that is not exfil.",
     "cases": [
       {
         "id": "tp-http-request-collect",

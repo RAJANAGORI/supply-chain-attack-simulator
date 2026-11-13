@@ -26,6 +26,13 @@ test('lab 01 DETECT.md example Sigma passes with full marks', () => {
   const challenge = getChallenge('01', 'fresh-learner');
   assert.ok(challenge);
   assert.equal(challenge.reference, undefined, 'reference stays hidden before a pass');
+  assert.ok(challenge.hints?.semgrep, 'semgrep hint is available before a pass');
+  assert.ok(challenge.hints?.sigma, 'sigma hint is available before a pass');
+  assert.equal(
+    /127\\.0\\.0\\.1[\\s\\S]{0,40}\/collect/.test(challenge.hints?.semgrep ?? ''),
+    false,
+    'hint must not dump the reference regex',
+  );
   const { parseDetectMarkdown } = createRequire(import.meta.url)(
     resolve(process.env.SCAS_REPO_ROOT!, 'detection-tools/es/parse-detect-md.js'),
   ) as { parseDetectMarkdown: (md: string) => { sigma: string } };

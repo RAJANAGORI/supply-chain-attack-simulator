@@ -194,7 +194,12 @@ export interface LessonDrill {
 export interface LessonSummary {
   etaMinutes: number;
   category: string;
+  /** Required steps (exclusive decision branches count as one). */
   stepCount: number;
+  /** Branch-aware completed count from progress. */
+  completedCount?: number;
+  /** True when the learner finished a full path. */
+  complete?: boolean;
 }
 
 /** Learner progress for a single scenario. */
@@ -546,6 +551,8 @@ export interface RuleChallenge {
   brief: string;
   formats: RuleFormat[];
   starters: Partial<Record<RuleFormat, string>>;
+  /** Per-format nudge; always available. Full answers stay in `reference`. */
+  hints?: Partial<Record<RuleFormat, string>>;
   sampleLog?: Record<string, unknown>;
   iocs: string[];
   caseCounts: Record<RuleFormat, { tp: number; benign: number }>;
@@ -676,6 +683,14 @@ export const cp = {
   }) => api<ProgressState>(`/scenarios/${id}/assessment`, { method: 'POST', body: JSON.stringify(body) }),
   recordDecision: (id: string, body: { decisionId: string; choiceId: string }) =>
     api<ProgressState>(`/scenarios/${id}/decisions`, { method: 'POST', body: JSON.stringify(body) }),
+  recordPrTriage: (
+    id: string,
+    body: { prId: string; action: 'approve' | 'block' },
+  ) =>
+    api<{
+      progress: ProgressState;
+      result: { prId: string; action: string; correct: boolean; scoreDelta: number };
+    }>(`/scenarios/${id}/pr-triage`, { method: 'POST', body: JSON.stringify(body) }),
   getTimeline: (limit = 50) => api<TimelinePayload>(`/observe/timeline?limit=${limit}`),
   getClassroom: () => api<ClassroomState>('/classroom'),
   createClassroom: (title?: string) =>

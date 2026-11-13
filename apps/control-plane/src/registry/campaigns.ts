@@ -6,6 +6,7 @@ import { load } from 'js-yaml';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { readProgress } from '../progress.js';
+import { isLessonComplete } from '../lesson-progress.js';
 import { loadLesson } from './lesson-loader.js';
 import { SCENARIOS } from './scenarios.js';
 
@@ -158,7 +159,7 @@ function scenarioCompleted(scenarioId: string): boolean {
   }
   if (!lesson || lesson.steps.length === 0) return false;
   const entry = readProgress().scenarios[scenarioId];
-  return (entry?.completedSteps?.length ?? 0) >= lesson.steps.length;
+  return isLessonComplete(lesson, entry?.completedSteps);
 }
 
 /**
@@ -240,9 +241,15 @@ export function resolveInjects(
   if (!campaign.injects) return [];
 
   return campaign.injects.filter((inj) => {
-    // Chapter beat trigger: "chapter:01" matches completed chapter scenarios
+    // Authors write chapter:05 to mean lab/scenario "05". Prefer that match.
+    // Fall back to a 1-based chapter index when no chapter has that scenario id.
     if (inj.when.startsWith('chapter:')) {
-      const chapterIndex = parseInt(inj.when.replace('chapter:', ''), 10);
+      const token = inj.when.slice('chapter:'.length).trim();
+      if (campaign.chapters.some((ch) => ch.scenario === token)) {
+        return completedScenarios.includes(token);
+      }
+      const chapterIndex = Number.parseInt(token, 10);
+      if (!Number.isFinite(chapterIndex) || chapterIndex < 1) return false;
       const chapter = campaign.chapters[chapterIndex - 1];
       if (!chapter) return false;
       return completedScenarios.includes(chapter.scenario);
@@ -269,9 +276,8 @@ export function buildExecutionGraph(
 
   for (const chapter of campaign.chapters) {
     const captures = capturesByScenario[chapter.scenario] || {};
-    const hasData = Object.keys(captures).length > 0;
 
-    // Check for exfil-specific capture keys
+    // Mock collectors usually return { captures: [...] }. Also accept flat exfil keys.
     let hasExfil = false;
     for (const payload of Object.values(captures)) {
       if (typeof payload !== 'object' || payload === null) continue;
@@ -280,6 +286,13 @@ export function buildExecutionGraph(
         hasExfil = true;
         break;
       }
+      for (const key of ['captures', 'events', 'beacons', 'publishes', 'prs'] as const) {
+        if (Array.isArray(obj[key]) && (obj[key] as unknown[]).length > 0) {
+          hasExfil = true;
+          break;
+        }
+      }
+      if (hasExfil) break;
     }
 
     // Map chapter beat to stage description

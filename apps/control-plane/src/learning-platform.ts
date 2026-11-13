@@ -5,6 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { SCENARIOS } from './registry/scenarios.js';
 import { loadLesson } from './registry/lesson-loader.js';
 import { readProgress } from './progress.js';
+import { isLessonComplete } from './lesson-progress.js';
 import { getCampaign, type CampaignInject } from './registry/campaigns.js';
 import { CLASSROOM_ROLES, type ClassroomRole } from './registry/lesson-types.js';
 
@@ -91,8 +92,7 @@ export function buildSkillMatrix(): SkillMatrix {
     const bucket = byCat.get(lesson.category) ?? { total: [], done: [] };
     bucket.total.push(s.id);
     const entry = progress.scenarios[s.id];
-    const need = lesson.steps.length;
-    if (need > 0 && (entry?.completedSteps?.length ?? 0) >= need) {
+    if (isLessonComplete(lesson, entry?.completedSteps)) {
       bucket.done.push(s.id);
     }
     byCat.set(lesson.category, bucket);
@@ -116,7 +116,7 @@ export function buildSkillMatrix(): SkillMatrix {
   const completedLabs = withLessons.filter((s) => {
     const lesson = loadLesson(s)!;
     const entry = progress.scenarios[s.id];
-    return lesson.steps.length > 0 && (entry?.completedSteps?.length ?? 0) >= lesson.steps.length;
+    return isLessonComplete(lesson, entry?.completedSteps);
   }).length;
 
   const techById = new Map<string, { id: string; labIds: string[]; completedIds: string[]; nist: Set<string>; mitre: Set<string> }>();
@@ -124,7 +124,7 @@ export function buildSkillMatrix(): SkillMatrix {
   for (const s of withLessons) {
     const lesson = loadLesson(s)!;
     const entry = progress.scenarios[s.id];
-    const completed = lesson.steps.length > 0 && (entry?.completedSteps?.length ?? 0) >= lesson.steps.length;
+    const completed = isLessonComplete(lesson, entry?.completedSteps);
     tagged.push({
       id: s.id,
       title: s.title,
@@ -425,7 +425,7 @@ export function buildBriefing(scenarioId?: string): {
         id: s.id,
         title: s.title,
         category: lesson.category,
-        completed: completedSteps.length >= lesson.steps.length && lesson.steps.length > 0,
+        completed: isLessonComplete(lesson, completedSteps),
         completedSteps,
         objectives: lesson.objectives,
         incidents: lesson.incidents,

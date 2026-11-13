@@ -47,6 +47,7 @@ export function RuleChallengeCard({
   const [busy, setBusy] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const [minutes, setMinutes] = useState('10');
+  const [hintOpen, setHintOpen] = useState(false);
 
   const studentId = () => (typeof window === 'undefined' ? '' : localStorage.getItem(STUDENT_KEY) ?? '');
 
@@ -84,6 +85,7 @@ export function RuleChallengeCard({
     setRule(challenge.starters[f] ?? '');
     setResult(null);
     setError('');
+    setHintOpen(false);
   };
 
   const submit = async () => {
@@ -149,6 +151,20 @@ export function RuleChallengeCard({
         disabled={locked}
         className="focus-ring mt-3 w-full rounded-xl border border-line bg-canvas px-3 py-2 font-mono text-xs leading-relaxed text-ink-primary disabled:opacity-60"
       />
+
+      {challenge.hints?.[format] && (
+        <div className="mt-3">
+          <Btn size="sm" variant="ghost" onClick={() => setHintOpen((v) => !v)}>
+            {hintOpen ? 'Hide hint' : `Need a ${format === 'semgrep' ? 'Semgrep' : 'Sigma'} hint?`}
+          </Btn>
+          {hintOpen && (
+            <div className="mt-2 rounded-xl border border-brand/25 bg-brand/5 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-brand">Hint</p>
+              <p className="mt-1.5 text-sm leading-relaxed text-ink-secondary">{challenge.hints[format]}</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {challenge.locked && (
         <div className="mt-3">

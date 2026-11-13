@@ -4,11 +4,6 @@ import { useState } from 'react';
 import { Alert, Btn, Card, StatusPill } from '@/components/ui';
 import { cp, type DecisionResult } from '@/lib/api';
 
-const SCORE_APPROVE_CORRECT = 2;
-const SCORE_BLOCK_WRONG = -1;
-const SCORE_BLOCK_CORRECT = 3;
-const SCORE_APPROVE_WRONG = -2;
-
 type PRStatus = 'pending' | 'approved' | 'blocked';
 
 export function PRInbox({
@@ -30,37 +25,40 @@ export function PRInbox({
 
   const allDone = prs.every((p) => statuses[p.id]);
 
-  const triage = async (pr: { id: string; title: string; dependency: string; diffSummary: string; safe: boolean; blockLabel?: string; approveLabel?: string }, approve: boolean) => {
-    if (busy) return;
+  const triage = async (
+    pr: {
+      id: string;
+      title: string;
+      dependency: string;
+      diffSummary: string;
+      safe: boolean;
+      blockLabel?: string;
+      approveLabel?: string;
+    },
+    approve: boolean,
+  ) => {
+    if (busy || statuses[pr.id]) return;
     setBusy(pr.id);
     setError('');
 
     try {
-      // Determine if the choice was correct
-      const correct = approve === pr.safe;
-      const scoreDelta = approve && correct ? SCORE_APPROVE_CORRECT
-        : approve && !correct ? SCORE_APPROVE_WRONG
-        : !approve && !pr.safe ? SCORE_BLOCK_CORRECT
-        : SCORE_BLOCK_WRONG;
-
-      // Record via the decisions API
-      await cp.recordDecision(scenarioId, {
-        decisionId: `pr-triage-${pr.id}`,
-        choiceId: approve ? 'approved' : 'blocked',
+      const { result } = await cp.recordPrTriage(scenarioId, {
+        prId: pr.id,
+        action: approve ? 'approve' : 'block',
       });
 
-      const result: DecisionResult = {
+      const entry: DecisionResult = {
         decisionId: `pr-triage-${pr.id}`,
-        choiceId: approve ? 'approved' : 'blocked',
-        scoreDelta,
-        flags: correct ? ['pr_triage_correct'] : ['pr_triage_incorrect'],
+        choiceId: result.action,
+        scoreDelta: result.scoreDelta,
+        flags: result.correct ? ['pr_triage_correct'] : ['pr_triage_incorrect'],
         answeredAt: new Date().toISOString(),
       };
-      setDecisions((prev) => [...prev, result]);
-      setTotalScore((prev) => prev + scoreDelta);
+      setDecisions((prev) => [...prev, entry]);
+      setTotalScore((prev) => prev + result.scoreDelta);
       setStatuses((prev) => ({ ...prev, [pr.id]: approve ? 'approved' : 'blocked' }));
 
-      if (allDone || prs.every((p) => p.id === pr.id || statuses[p.id])) {
+      if (prs.every((p) => p.id === pr.id || statuses[p.id])) {
         onDone();
       }
     } catch (e) {

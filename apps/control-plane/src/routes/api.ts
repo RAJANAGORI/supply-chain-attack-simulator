@@ -41,6 +41,8 @@ import { getCampaign, getCampaignStatus, listCampaignStatus, resolveInjects, bui
 import { buildAssessment } from '../assessment.js';
 import { getProvenance } from '../provenance.js';
 import { SubmitRejected, getChallenge, listChallenges, setDeadline, submitRule } from '../ctf/index.js';
+import { prTriageDecisionId, scorePrTriage } from '../pr-triage.js';
+import { requiredStepCount, summarizeLessonProgress } from '../lesson-progress.js';
 
 const REPO = getRepoRoot();
 
@@ -134,15 +136,20 @@ export function createApiRouter(): Router {
   });
 
   router.get('/scenarios', (_req, res) => {
+    const progress = readProgress();
     const list = SCENARIOS.map((s) => {
       let lessonSummary = null;
       try {
         const lesson = loadLesson(s);
         if (lesson) {
+          const summary = summarizeLessonProgress(lesson, progress.scenarios[s.id]?.completedSteps);
           lessonSummary = {
             etaMinutes: lesson.etaMinutes,
             category: lesson.category,
-            stepCount: lesson.steps.length,
+            // Exclusive decision branches (detect vs detect-late) count as one.
+            stepCount: summary.need || requiredStepCount(lesson),
+            completedCount: summary.done,
+            complete: summary.complete,
           };
         }
       } catch (err) {
@@ -411,6 +418,54 @@ export function createApiRouter(): Router {
     };
 
     res.json(mergeScenarioProgress(scenario.id, entry));
+  });
+
+  /**
+   * PR Triage Inbox: approve or block one synthetic dependency PR from
+   * lesson.yaml `prTriage.prs`. Persists as a DecisionResult so assessment
+   * can sum the score. No real GitHub API.
+   */
+  router.post('/scenarios/:id/pr-triage', (req, res) => {
+    const scenario = getScenario(req.params.id);
+    if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
+    const body = req.body as { prId?: string; action?: string };
+    if (!body.prId || (body.action !== 'approve' && body.action !== 'block')) {
+      return res.status(400).json({ error: 'prId and action (approve|block) required' });
+    }
+
+    const lesson = loadLesson(scenario);
+    if (!lesson?.prTriage?.prs?.length) {
+      return res.status(400).json({ error: 'No prTriage defined for this scenario' });
+    }
+
+    const pr = lesson.prTriage.prs.find((p) => p.id === body.prId);
+    if (!pr) {
+      return res.status(400).json({ error: 'PR not found in lesson prTriage list' });
+    }
+
+    const graded = scorePrTriage(pr.safe, body.action);
+    const entry: Partial<ScenarioProgressEntry> = {
+      decisions: [
+        {
+          decisionId: prTriageDecisionId(pr.id),
+          choiceId: graded.choiceId,
+          scoreDelta: graded.scoreDelta,
+          flags: graded.correct ? ['pr_triage_correct'] : ['pr_triage_incorrect'],
+          answeredAt: new Date().toISOString(),
+        },
+      ],
+      flags: graded.correct ? ['pr_triage_correct'] : ['pr_triage_incorrect'],
+    };
+
+    res.json({
+      progress: mergeScenarioProgress(scenario.id, entry),
+      result: {
+        prId: pr.id,
+        action: graded.choiceId,
+        correct: graded.correct,
+        scoreDelta: graded.scoreDelta,
+      },
+    });
   });
 
   // Rule challenge (Phase 5 MVP): Sigma / Semgrep text scored offline against bundled fixtures.
@@ -900,7 +955,9 @@ export function createApiRouter(): Router {
       const reason = logs.match(/\[dependency-guard\] blocked [^\n]*reason=(blocklist|allowlist|dependency-egress)/)?.[1];
       const blockedBy: ReversalRoundResult['blockedBy'] =
         reason === 'dependency-egress' ? 'egress' : (reason as 'blocklist' | 'allowlist' | undefined);
-      const held = commandOk && after <= before;
+      // Flat capture count alone is not enough - a downed collector looks the same.
+      // Require a guard log line so "held" means the policy actually refused something.
+      const held = commandOk && after <= before && Boolean(blockedBy);
       const round: ReversalRoundResult = {
         id: opts.id,
         label: opts.label,

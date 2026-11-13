@@ -68,12 +68,12 @@ export function mergeScenarioProgress(
     ? Array.from(new Set([...(prev.flags ?? []), ...patch.flags]))
     : prev.flags;
 
-  // Merge decisions: keep latest entry per (decisionId + choiceId) pair.
+  // Merge decisions: one result per decisionId so a re-pick replaces the old choice.
   const mergedDecisions = patch.decisions && patch.decisions.length > 0
     ? (() => {
         const map = new Map<string, import('./registry/lesson-types.js').DecisionResult>();
-        [...(prev.decisions ?? [])].forEach((d) => map.set(`${d.decisionId}::${d.choiceId}`, d));
-        patch.decisions.forEach((d) => map.set(`${d.decisionId}::${d.choiceId}`, d));
+        [...(prev.decisions ?? [])].forEach((d) => map.set(d.decisionId, d));
+        patch.decisions.forEach((d) => map.set(d.decisionId, d));
         return Array.from(map.values());
       })()
     : prev.decisions;

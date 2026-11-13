@@ -6,7 +6,7 @@
 import { SCENARIOS } from './registry/scenarios.js';
 import { loadLesson } from './registry/lesson-loader.js';
 import { readProgress } from './progress.js';
-import type { LessonDefinition } from './registry/lesson-types.js';
+import { isLessonComplete } from './lesson-progress.js';
 
 export interface Badge {
   id: string;
@@ -57,23 +57,23 @@ export function buildAssessment(): Assessment {
     const lesson = loadLesson(s);
     if (!lesson) continue;
     const entry = progress.scenarios[s.id];
-    const completedSteps = entry?.completedSteps?.length ?? 0;
-    const completed = lesson.steps.length > 0 && completedSteps >= lesson.steps.length;
+    const completed = isLessonComplete(lesson, entry?.completedSteps);
 
     const quizTotal = lesson.quiz?.length ?? 0;
     const quizPassed = quizTotal > 0 && !!entry?.quiz && entry.quiz.score >= Math.ceil(quizTotal * 0.999);
     const drillCorrect = lesson.drill ? entry?.drill?.correct : undefined;
 
-    // Decision scoring: count choices that carried a positive score effect.
+    // Decision + PR triage scoring. Prefer lesson.yaml effects when present;
+    // otherwise trust the persisted scoreDelta (PR triage uses that path).
+    // Latest choice per decisionId (progress merge keeps one). Include penalties.
     const decisionResults = entry?.decisions ?? [];
-    const decisionPoints = lesson.decisions
-      ? decisionResults.reduce((sum, dr) => {
-          const choice = lesson.decisions!.find((dec) => dec.id === dr.decisionId)?.choices.find((c) => c.id === dr.choiceId);
-          if (!choice) return sum;
-          const score = choice.effects?.score ?? 0;
-          return sum + (score > 0 ? score : 0);
-        }, 0)
-      : 0;
+    const decisionPoints = decisionResults.reduce((sum, dr) => {
+      const choice = lesson.decisions
+        ?.find((dec) => dec.id === dr.decisionId)
+        ?.choices.find((c) => c.id === dr.choiceId);
+      const score = choice ? (choice.effects?.score ?? 0) : dr.scoreDelta;
+      return sum + score;
+    }, 0);
 
     let points = 0;
     if (completed) points += POINTS_COMPLETE;
@@ -89,7 +89,7 @@ export function buildAssessment(): Assessment {
       quizScore: entry?.quiz?.score,
       quizTotal: quizTotal || undefined,
       drillCorrect,
-      decisionPoints: decisionPoints > 0 ? decisionPoints : undefined,
+      decisionPoints: decisionPoints !== 0 ? decisionPoints : undefined,
       points,
     });
   }

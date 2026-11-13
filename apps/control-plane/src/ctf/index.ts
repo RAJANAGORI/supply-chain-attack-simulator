@@ -26,13 +26,20 @@ interface FixtureCase {
   code?: string;
 }
 
+interface FormatFixtures {
+  starter: string;
+  cases: FixtureCase[];
+  /** Optional nudge shown on demand. Not the full answer (that stays in `reference`). */
+  hint?: string;
+}
+
 interface Fixtures {
   scenario_id: string;
   title: string;
   brief: string;
   expected_indicators: string[][];
-  sigma?: { starter: string; cases: FixtureCase[] };
-  semgrep?: { starter: string; cases: FixtureCase[] };
+  sigma?: FormatFixtures;
+  semgrep?: FormatFixtures;
   reference?: { sigma?: string; semgrep?: string };
 }
 
@@ -197,6 +204,11 @@ export function getChallenge(scenarioId: string, learnerId?: string) {
     starters: {
       sigma: fixtures.sigma?.starter,
       semgrep: fixtures.semgrep?.starter,
+    },
+    // Always available: a short nudge per format. Full answers stay in `reference`.
+    hints: {
+      sigma: fixtures.sigma?.hint,
+      semgrep: fixtures.semgrep?.hint,
     },
     // Shown up front: the sample log line from DETECT.md, so the learner sees what the field names look like.
     sampleLog: detect?.sampleLog,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { campaign as campaignApi } from '@/lib/api';
 
 /* ── Types ─────────────────────────────────────────────────────────────────── */
@@ -144,21 +144,26 @@ export function RemediationPanel({ campaignId }: { campaignId: string }) {
     }
   });
 
-  const loadRemediation = useCallback(async () => {
-    try {
-      const result = await campaignApi.getRemediation(campaignId, completedFlags);
-      setItems(result.items || []);
-      setGrade(result.grade || null);
-    } catch {
-      // Silently fail — panel shows empty state
-    } finally {
-      setLoading(false);
-    }
-  }, [campaignId, completedFlags]);
+  const loadRemediation = useCallback(
+    async (flags: string[]) => {
+      try {
+        const result = await campaignApi.getRemediation(campaignId, flags);
+        setItems(result.items || []);
+        setGrade(result.grade || null);
+      } catch {
+        // Silently fail - panel shows empty state
+      } finally {
+        setLoading(false);
+      }
+    },
+    [campaignId],
+  );
 
   useEffect(() => {
-    loadRemediation();
-  }, [loadRemediation]);
+    void loadRemediation(completedFlags);
+    // Only re-fetch when the campaign changes; toggles call loadRemediation with the next flags.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [campaignId, loadRemediation]);
 
   const toggleItem = (flag: string) => {
     const next = completedFlags.includes(flag)
@@ -167,9 +172,10 @@ export function RemediationPanel({ campaignId }: { campaignId: string }) {
     setCompletedFlags(next);
     try {
       localStorage.setItem(`campaign-${campaignId}-remediation`, JSON.stringify(next));
-    } catch { /* storage full */ }
-    // Reload to get updated grade
-    setTimeout(loadRemediation, 100);
+    } catch {
+      /* storage full */
+    }
+    void loadRemediation(next);
   };
 
   if (loading) {

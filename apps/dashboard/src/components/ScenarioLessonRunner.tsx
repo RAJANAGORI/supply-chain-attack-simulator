@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActRunnerCard } from '@/components/ActRunnerCard';
 import { ArchifyPackCard } from '@/components/ArchifyPackCard';
 import { FlociRunnerCard } from '@/components/FlociRunnerCard';
@@ -99,14 +99,44 @@ export function ScenarioLessonRunner({
   const [error, setError] = useState('');
   const [inspectorNote, setInspectorNote] = useState('');
   const [decisionScore, setDecisionScore] = useState(0);
-  /** Tracks which decisions have been answered: `decisionId::choiceId`. */
+  /** Decision ids the learner has already answered (hydrated from progress). */
   const [answeredDecisions, setAnsweredDecisions] = useState<Set<string>>(new Set());
   /** Decision whose feedback is still on screen; cleared when the active step changes. */
   const [justAnsweredId, setJustAnsweredId] = useState<string | null>(null);
+  /** Step ids already merged into progress from live verify (avoid rewriting every poll). */
+  const syncedVerifiedRef = useRef<Set<string>>(new Set());
+  /** Completed step ids from progress - drives quiz unlock / Done, not live verify alone. */
+  const [progressSteps, setProgressSteps] = useState<string[]>([]);
 
   const visibleSteps = useMemo(
     () => lesson.steps.filter((s) => roleAllows(s.audience, role)),
     [lesson.steps, role],
+  );
+
+  const persistProgress = useCallback(
+    async (patch: { completedSteps?: string[]; hintsOpened?: string[]; currentStepId?: string }) => {
+      try {
+        const next = await cp.putProgress({
+          scenarioId,
+          entry: {
+            ...patch,
+            lastStepId: patch.currentStepId,
+          },
+        });
+        const entry = next.scenarios[scenarioId];
+        if (entry?.completedSteps) setProgressSteps(entry.completedSteps);
+        if (patch.currentStepId) {
+          void syncClassroom(
+            scenarioId,
+            patch.currentStepId,
+            entry?.completedSteps?.length ?? patch.completedSteps?.length ?? 0,
+          );
+        }
+      } catch {
+        /* progress is best-effort */
+      }
+    },
+    [scenarioId],
   );
 
   const refreshVerify = useCallback(async () => {
@@ -114,6 +144,22 @@ export function ScenarioLessonRunner({
       const res = await cp.verifyLesson(scenarioId);
       setVerified(res.steps);
       setCaptures(res.captures);
+      // Persist only steps the poller can honestly claim. Capture-count detect
+      // steps stay false in progress until the learner hits Check inspector -
+      // otherwise Done unlocks the moment exfil lands.
+      const fresh = Object.entries(res.steps)
+        .filter(([id, ok]) => {
+          if (!ok || syncedVerifiedRef.current.has(id)) return false;
+          const step = lesson.steps.find((s) => s.id === id);
+          if (!step) return false;
+          if (step.registry === null && step.verify?.type === 'capture-count') return false;
+          return true;
+        })
+        .map(([id]) => id);
+      if (fresh.length > 0) {
+        fresh.forEach((id) => syncedVerifiedRef.current.add(id));
+        await persistProgress({ completedSteps: fresh });
+      }
     } catch {
       try {
         setCaptures(await cp.getCaptures(scenarioId));
@@ -121,7 +167,7 @@ export function ScenarioLessonRunner({
         setCaptures({});
       }
     }
-  }, [scenarioId]);
+  }, [scenarioId, persistProgress, lesson.steps]);
 
   useEffect(() => {
     void refreshVerify();
@@ -130,13 +176,24 @@ export function ScenarioLessonRunner({
   }, [refreshVerify]);
 
   useEffect(() => {
-    void cp.getProgress().then((prog) => {
-      const entry = prog.scenarios[scenarioId];
-      const resume = entry?.currentStepId ?? prog.lastStepId;
-      if (resume && lesson.steps.some((s) => s.id === resume)) {
-        setActiveStepId(resume);
-      }
-    }).catch(() => undefined);
+    void cp
+      .getProgress()
+      .then((prog) => {
+        const entry = prog.scenarios[scenarioId];
+        const completed = entry?.completedSteps ?? [];
+        for (const id of completed) {
+          syncedVerifiedRef.current.add(id);
+        }
+        setProgressSteps(completed);
+        if (entry?.decisions?.length) {
+          setAnsweredDecisions(new Set(entry.decisions.map((d) => d.decisionId)));
+        }
+        const resume = entry?.currentStepId ?? prog.lastStepId;
+        if (resume && lesson.steps.some((s) => s.id === resume)) {
+          setActiveStepId(resume);
+        }
+      })
+      .catch(() => undefined);
   }, [scenarioId, lesson.steps]);
 
   useEffect(() => {
@@ -155,31 +212,6 @@ export function ScenarioLessonRunner({
     document.getElementById('live-inspector')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const persistProgress = useCallback(
-    async (patch: { completedSteps?: string[]; hintsOpened?: string[]; currentStepId?: string }) => {
-      try {
-        const next = await cp.putProgress({
-          scenarioId,
-          entry: {
-            ...patch,
-            lastStepId: patch.currentStepId,
-          },
-        });
-        const entry = next.scenarios[scenarioId];
-        if (patch.currentStepId) {
-          void syncClassroom(
-            scenarioId,
-            patch.currentStepId,
-            entry?.completedSteps?.length ?? patch.completedSteps?.length ?? 0,
-          );
-        }
-      } catch {
-        /* progress is best-effort */
-      }
-    },
-    [scenarioId],
-  );
-
   useEffect(() => {
     if (!activeStepId) return;
     void persistProgress({ currentStepId: activeStepId });
@@ -197,6 +229,29 @@ export function ScenarioLessonRunner({
       return true;
     },
     [verified, visibleSteps],
+  );
+
+  /** Stay on this step when a branching decision still needs an answer. */
+  const advanceAfterStep = useCallback(
+    (stepId: string, opts?: { noteOnAdvance?: string; noteOnDecision?: string }) => {
+      const decision = findDecisionAfter(visibleSteps, lesson.decisions, stepId);
+      if (decision && !answeredDecisions.has(decision.id)) {
+        setInspectorNote(
+          opts?.noteOnDecision ??
+            'Step verified. Make the call below before you continue.',
+        );
+        return;
+      }
+      const idx = visibleSteps.findIndex((s) => s.id === stepId);
+      const next = idx >= 0 ? visibleSteps[idx + 1] : undefined;
+      if (next) {
+        setActiveStepId(next.id);
+        if (opts?.noteOnAdvance) setInspectorNote(opts.noteOnAdvance);
+      } else if (opts?.noteOnAdvance) {
+        setInspectorNote(opts.noteOnAdvance);
+      }
+    },
+    [visibleSteps, lesson.decisions, answeredDecisions],
   );
 
   const runLessonStep = async () => {
@@ -219,16 +274,14 @@ export function ScenarioLessonRunner({
 
         const ok = !!(check.steps[activeStep.id] || hasCaptureData(check.captures));
         if (ok) {
+          syncedVerifiedRef.current.add(activeStep.id);
           await persistProgress({ completedSteps: [activeStep.id], currentStepId: activeStep.id });
-          const next = visibleSteps[activeIndex + 1];
-          if (next) {
-            setActiveStepId(next.id);
-            setInspectorNote('Capture looks good. Moved you to the next step.');
-          } else {
-            setInspectorNote(
-              'Inspector is up to date. Review the JSON below, then open DETECT.md for hardening.',
-            );
-          }
+          advanceAfterStep(activeStep.id, {
+            noteOnAdvance:
+              visibleSteps[activeIndex + 1]
+                ? 'Capture looks good. Moved you to the next step.'
+                : 'Inspector is up to date. Review the JSON below, then open DETECT.md for hardening.',
+          });
         } else {
           setError('No capture data yet. Run the attack steps first, then come back.');
         }
@@ -279,9 +332,9 @@ export function ScenarioLessonRunner({
       setCaptures(check.captures);
 
       if (check.steps[activeStep.id]) {
+        syncedVerifiedRef.current.add(activeStep.id);
         await persistProgress({ completedSteps: [activeStep.id], currentStepId: activeStep.id });
-        const next = visibleSteps[activeIndex + 1];
-        if (next) setActiveStepId(next.id);
+        advanceAfterStep(activeStep.id);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Action failed');
@@ -298,6 +351,30 @@ export function ScenarioLessonRunner({
   };
 
   const doneCount = visibleSteps.filter((s) => verified[s.id]).length;
+  /** Quiz / path-complete: progress steps only, with exclusive decision branches counting as one. */
+  const pathComplete = useMemo(() => {
+    const done = new Set(progressSteps);
+    const groups: string[][] = [];
+    for (const d of lesson.decisions ?? []) {
+      const targets = [
+        ...new Set(
+          (d.choices ?? [])
+            .map((c) => c.effects?.goto)
+            .filter((g): g is string => typeof g === 'string' && visibleSteps.some((s) => s.id === g)),
+        ),
+      ];
+      if (targets.length >= 2) groups.push(targets);
+    }
+    const exclusiveIds = new Set(groups.flat());
+    for (const s of visibleSteps) {
+      if (exclusiveIds.has(s.id)) continue;
+      if (!done.has(s.id)) return false;
+    }
+    for (const group of groups) {
+      if (!group.some((id) => done.has(id))) return false;
+    }
+    return visibleSteps.length > 0;
+  }, [progressSteps, lesson.decisions, visibleSteps]);
   const captureReady = hasCaptureData(captures);
   // Prefer shared :3000 when this lab uses it; otherwise the primary mock/C2 port.
   const freePortTarget = useMemo(() => {
@@ -542,7 +619,7 @@ export function ScenarioLessonRunner({
               />
             )}
 
-          {lesson.quiz && lesson.quiz.length > 0 && doneCount === visibleSteps.length && (
+          {lesson.quiz && lesson.quiz.length > 0 && pathComplete && (
             <QuizGate
               scenarioId={scenarioId}
               questions={lesson.quiz}

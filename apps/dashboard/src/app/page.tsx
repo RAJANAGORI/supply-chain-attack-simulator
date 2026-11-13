@@ -139,9 +139,11 @@ export default function OverviewPage() {
 
   const guidedLabs = scenarios.filter((s) => s.lesson);
   const guidedComplete = guidedLabs.filter((s) => {
+    if (s.lesson?.complete) return true;
     const entry = progress?.scenarios[s.id];
     const need = s.lesson?.stepCount ?? 0;
-    return need > 0 && (entry?.completedSteps?.length ?? 0) >= need;
+    const done = s.lesson?.completedCount ?? entry?.completedSteps?.length ?? 0;
+    return need > 0 && done >= need;
   }).length;
 
   const resumeId = progress?.lastScenarioId;

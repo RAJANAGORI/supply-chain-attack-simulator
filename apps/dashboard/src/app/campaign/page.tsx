@@ -8,9 +8,6 @@ import { IntelFeedPanel } from '@/components/IntelFeed';
 import { ExecutionGraph } from '@/components/ExecutionGraph';
 import { RemediationPanel } from '@/components/RemediationPanel';
 
-/** Same shape ExecutionGraph defaults to, hoisted so its identity never changes between renders. */
-const NO_CAPTURES: Record<string, Record<string, unknown>> = {};
-
 function Section({ title, hint, children }: { title: string; hint: string; children: ReactNode }) {
   return (
     <section className="mt-8 border-t border-line pt-6">
@@ -35,6 +32,40 @@ function CampaignPanels({ c }: { c: CampaignStatus }) {
     () => (completedKey ? completedKey.split(',') : []),
     [completedKey],
   );
+  const scenarioKey = (c.chapters ?? []).map((ch) => ch.scenario).join(',');
+  const scenarioIds = useMemo(
+    () => (scenarioKey ? scenarioKey.split(',') : []),
+    [scenarioKey],
+  );
+  const [capturesByScenario, setCapturesByScenario] = useState<
+    Record<string, Record<string, unknown>>
+  >({});
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      if (scenarioIds.length === 0) {
+        if (!cancelled) setCapturesByScenario({});
+        return;
+      }
+      const entries = await Promise.all(
+        scenarioIds.map(async (id) => {
+          try {
+            return [id, await cp.getCaptures(id)] as const;
+          } catch {
+            return [id, {}] as const;
+          }
+        }),
+      );
+      if (!cancelled) setCapturesByScenario(Object.fromEntries(entries));
+    };
+    void load();
+    const t = setInterval(() => void load(), 10000);
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, [scenarioIds]);
 
   return (
     <>
@@ -49,7 +80,7 @@ function CampaignPanels({ c }: { c: CampaignStatus }) {
         title="Execution graph"
         hint="How the chapters chain into one intrusion, and which steps your captures confirm."
       >
-        <ExecutionGraph campaignId={c.id} capturesByScenario={NO_CAPTURES} />
+        <ExecutionGraph campaignId={c.id} capturesByScenario={capturesByScenario} />
       </Section>
 
       <Section

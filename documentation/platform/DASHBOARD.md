@@ -97,10 +97,10 @@ curl http://127.0.0.1:3101/api/health
 - Live terminal - side-by-side by default (drag the splitter to resize; Side / Bottom toggle; SM/MD/LG presets). Collapses to a thin bar when you do not need logs
 - Observatory (`/observe`) - Elasticsearch `scas-detections` timeline when the stack is up
 - Skills (`/skills`) - category matrix with Markdown/JSON export
-- Classroom (`/classroom`) - session code, leaderboard sorted by assessment points, freeze for debrief (single control plane; not per-student isolation yet)
+- Classroom (`/classroom`) - session code, optional IC/Eng/Comms/Legal seat, shared inject clock, leaderboard by assessment points, freeze for debrief (single control plane; not per-student isolation)
 - Lab coach - in-lab assistant (offline context by default; set `SCAS_AI_URL` + `SCAS_AI_API_KEY` for a live OpenAI-compatible model)
 - Stream stdout/stderr over WebSocket in the Labs dock
-- Persist progress under `~/.scas/progress.json` (steps, hints, quiz and drill results)
+- Persist progress under `~/.scas/progress.json` (steps, hints, quiz, drill, decisions, PR triage)
 - Start/stop Elasticsearch, Kibana, Floci; global teardown
 
 ### Check inspector (detect steps)
@@ -125,9 +125,11 @@ Every lab under `scenarios/NN-slug/` ships `lesson.yaml`. Teaching metadata only
 - Optional learner-experience fields:
   - `drill` - blind "spot the attack" review (`prompt`, `artifactType` = diff | package-page | ci-log, `artifact` as a list of lines, `choices`, `answer` index, `reveal`, `explanation`)
   - `quiz` - blue-team gate, a list of `{ question, choices, answer, explain }` drawn from the lab's DETECT.md
-  - `reversal` - `{ blockedPackage }` the learner's `dependency-guard.json` must block; the control plane re-runs the attack with `scenarios/_shared/dependency-guard.js` preloaded
+  - `reversal` - `{ blockedPackage }` the learner's `dependency-guard.json` must block; the control plane re-runs the attack with `scenarios/_shared/dependency-guard.js` preloaded. Optional `variant: { entry, port }` turns round 2 polymorphic: `polymorphic-variant.js` renames the attacker package so a static name blocklist fails and a behavioral gate (`allowOnly` or `denyDependencyEgress`) is required. Lab 01 is the seed.
   - `diffWorkbench` - side-by-side Tarball vs Git panes in the Labs tab. Fields: `fixtureDir` (relative to the lab folder, holds `git/` and `tarball/` trees of `*.fixture` text files), optional `title`, `prompt`, `gitLabel`, `tarballLabel`, and `afterStep` (a real step id; the panes appear once that step is active or verified). The control plane serves the fixtures from `GET /api/scenarios/:id/diff-workbench`; nothing is fetched from a real registry. Lab 03 is the seed.
-  - `decisions` - branching choice points shown right after a step is verified. Each entry has `id`, `afterStep` (a real step id), `prompt`, and at least two `choices`. A choice has `id`, `label`, and optional `effects`: `score` (number, added to the assessment total), `flag` (string or list, stored on the scenario progress), `feedback` (text shown after the pick), and `goto` (a step id). When `goto` is set, a Continue button jumps the lesson to that step, so two choices can send learners down different paths. A choice without `goto` just stays on the current step. Labs 01 and 05 are the seeds; 05 diverges to `detect` or `detect-late`.
+  - `decisions` - branching choice points shown right after a step is verified. Each entry has `id`, `afterStep` (a real step id), `prompt`, optional `roles` (IC / Eng / Comms / Legal for tabletop), and at least two `choices`. A choice has `id`, `label`, and optional `effects`: `score` (number, added to the assessment total), `flag` (string or list, stored on the scenario progress), `feedback` (text shown after the pick), and `goto` (a step id). When `goto` is set, a Continue button jumps the lesson to that step, so two choices can send learners down different paths. A choice without `goto` just stays on the current step. Labs 01 and 05 are the seeds; 05 diverges to `detect` or `detect-late`.
+  - `prTriage` - synthetic dependency-bump inbox in the Labs tab. Fields: optional `afterStep` (inbox unlocks once that step is verified), and `prs` (8-10 entries with `id`, `title`, `dependency`, `diffSummary`, `safe`, optional `blockLabel` / `approveLabel`). Approve safe bumps, block the compromise. Scores land via `POST /api/scenarios/:id/pr-triage` into the same progress `decisions[]` list. No real GitHub API. Every lab ships a list; lab 01 is the reference mix.
+  - `attck` / `nist` / `prereqs` / `remediates` - taxonomy tags for Skills (`/skills`) and Briefing (`/report`). Labs 01 and 05 are the seeds; adaptive tips prefer a next lab that shares ATT&CK tags or lists a finished lab under `prereqs`.
 - Validate with `node scripts/docs/check-lesson-yaml.js` (smoke CI)
 
 Lab **01** is the seed template for `caseStudy` / `mitigation`. Other labs can adopt the same fields later without schema changes.
@@ -137,6 +139,18 @@ Lab **01** is the seed template for `caseStudy` / `mitigation`. Other labs can a
 A campaign chains existing labs into one continuous intrusion under a persistent attacker persona. It never changes how labs run - it only orders them and adds narrative. Progress derives from the same per-scenario state the storyboard writes, so finishing a lab advances the campaign map at `/campaign`.
 
 Each campaign YAML: `id`, `title`, `persona`, `tagline`, `description`, `debrief`, and a `chapters` list of `{ scenario, beat, narrative }` where `scenario` is a two-digit lab id. Two ship today: `operation-quiet-carrier` (01 -> 05 -> 25 -> 11) and `operation-cold-key` (06 -> 14 -> 17 -> 21).
+
+Optional campaign extras (Quiet Carrier is the seed):
+
+- `injects` - timed intel events (`id`, `when` as `chapter:NN`, `kind`, `from`, `subject`, `body`, optional `evidence`, `confidence`, `tMinute`). The Campaign page Intel panel resolves which ones have fired from completed chapters. Classroom tabletop reuses the same list on a shared clock.
+- `remediation` - graded post-compromise checklist (`id`, `title`, `severity`, `weight`, `steps`, `flag`). The Campaign page grades checked items over `POST /api/campaigns/:id/remediation`.
+- Execution graph - `buildExecutionGraph` turns chapter order plus live captures into a millisecond-style chain on the Campaign page (install -> lifecycle -> credential read -> pivot -> mock exfil). Extends the static blast-radius analysis; it does not replace `BreachPanel`.
+
+## Classroom tabletop and rule CTF
+
+- `/classroom` - join code, optional seat (IC / Eng / Comms / Legal), leaderboard, freeze. Role-filtered `decisions` hide calls that are not yours.
+- Shared inject clock - instructor release / +5 min / reset. Learners poll `/api/classroom/clock`. Facilitator script: `documentation/guides/tabletop-quiet-carrier.md`.
+- Rule challenges - learners submit Sigma or Semgrep text against fixtures under `scenarios/<slug>/ctf-fixtures.json` (lab 01 seed). Scored offline for true positives vs false positives. Instructor can set a deadline; classroom freeze locks submissions. BYOT external-exit-zero stays the thin verify hook for custom tooling.
 
 ## App boundaries (current merge state)
 
