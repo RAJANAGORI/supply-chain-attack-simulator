@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, Btn, Card, StatusPill } from '@/components/ui';
 import { cp, type DecisionResult } from '@/lib/api';
 
-type PRStatus = 'pending' | 'approved' | 'blocked';
+type PRStatus = 'approved' | 'blocked';
 
 export function PRInbox({
   scenarioId,
@@ -24,6 +24,36 @@ export function PRInbox({
   const [error, setError] = useState('');
 
   const allDone = prs.every((p) => statuses[p.id]);
+
+  // Rehydrate triage state from progress so a reload does not pretend every PR is blocked.
+  useEffect(() => {
+    let cancelled = false;
+    void cp
+      .getProgress()
+      .then((prog) => {
+        if (cancelled) return;
+        const known = new Set(prs.map((p) => p.id));
+        const next: Record<string, PRStatus> = {};
+        const restored: DecisionResult[] = [];
+        let score = 0;
+        for (const d of prog.scenarios[scenarioId]?.decisions ?? []) {
+          const m = /^pr-triage-(.+)$/.exec(d.decisionId);
+          if (!m || !known.has(m[1])) continue;
+          const status: PRStatus = d.choiceId === 'approve' ? 'approved' : 'blocked';
+          next[m[1]] = status;
+          restored.push(d);
+          score += d.scoreDelta ?? 0;
+        }
+        if (Object.keys(next).length === 0) return;
+        setStatuses((prev) => ({ ...next, ...prev }));
+        setDecisions((prev) => (prev.length ? prev : restored));
+        setTotalScore((prev) => (prev !== 0 ? prev : score));
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [scenarioId, prs]);
 
   const triage = async (
     pr: {
@@ -100,7 +130,7 @@ export function PRInbox({
                   </div>
                 </div>
 
-                {status === 'pending' ? (
+                {!status ? (
                   <div className="flex shrink-0 gap-2">
                     <Btn
                       size="sm"

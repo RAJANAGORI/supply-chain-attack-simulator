@@ -148,10 +148,16 @@ export default function OverviewPage() {
 
   const resumeId = progress?.lastScenarioId;
   const resumeScenario = resumeId ? scenarios.find((s) => s.id === resumeId) : undefined;
-  const resumeStep =
-    resumeScenario && progress?.scenarios[resumeScenario.id]?.currentStepId
-      ? progress.scenarios[resumeScenario.id].currentStepId
-      : progress?.lastStepId;
+  // Prefer last completed step when the lab path is done so stale currentStepId
+  // (e.g. "setup" on a finished lab) does not mislabel the Overview resume card.
+  const resumeEntry = resumeScenario ? progress?.scenarios[resumeScenario.id] : undefined;
+  const resumeDone = resumeEntry?.completedSteps ?? [];
+  const resumeNeed = resumeScenario?.lesson?.stepCount ?? 0;
+  const resumeComplete =
+    !!resumeScenario?.lesson?.complete || (resumeNeed > 0 && resumeDone.length >= resumeNeed);
+  const resumeStep = resumeComplete
+    ? resumeDone.at(-1) ?? resumeEntry?.currentStepId
+    : resumeEntry?.currentStepId ?? progress?.lastStepId;
 
   return (
     <div className="animate-fade-in">

@@ -54,6 +54,30 @@ function findDecisionAfter(steps: LessonDefinition['steps'], decisions: LessonDe
   return found;
 }
 
+/** Mutually exclusive goto targets (detect vs detect-late). */
+function exclusiveGotoGroups(
+  decisions: LessonDefinition['decisions'],
+  stepIds: Set<string>,
+): string[][] {
+  const groups: string[][] = [];
+  const seen = new Set<string>();
+  for (const decision of decisions ?? []) {
+    const targets = [
+      ...new Set(
+        (decision.choices ?? [])
+          .map((c) => c.effects?.goto)
+          .filter((g): g is string => typeof g === 'string' && stepIds.has(g)),
+      ),
+    ];
+    if (targets.length < 2) continue;
+    const key = [...targets].sort().join('|');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    groups.push(targets);
+  }
+  return groups;
+}
+
 async function syncClassroom(scenarioId: string, stepId: string, completedSteps: number) {
   try {
     const studentId = localStorage.getItem(STUDENT_KEY);
@@ -101,6 +125,8 @@ export function ScenarioLessonRunner({
   const [decisionScore, setDecisionScore] = useState(0);
   /** Decision ids the learner has already answered (hydrated from progress). */
   const [answeredDecisions, setAnsweredDecisions] = useState<Set<string>>(new Set());
+  /** decisionId -> chosen goto step (exclusive branches). */
+  const [branchGotos, setBranchGotos] = useState<Record<string, string>>({});
   /** Decision whose feedback is still on screen; cleared when the active step changes. */
   const [justAnsweredId, setJustAnsweredId] = useState<string | null>(null);
   /** Step ids already merged into progress from live verify (avoid rewriting every poll). */
@@ -108,10 +134,22 @@ export function ScenarioLessonRunner({
   /** Completed step ids from progress - drives quiz unlock / Done, not live verify alone. */
   const [progressSteps, setProgressSteps] = useState<string[]>([]);
 
-  const visibleSteps = useMemo(
+  const roleSteps = useMemo(
     () => lesson.steps.filter((s) => roleAllows(s.audience, role)),
     [lesson.steps, role],
   );
+
+  const exclusiveGroups = useMemo(
+    () => exclusiveGotoGroups(lesson.decisions, new Set(roleSteps.map((s) => s.id))),
+    [lesson.decisions, roleSteps],
+  );
+  const exclusiveIds = useMemo(() => new Set(exclusiveGroups.flat()), [exclusiveGroups]);
+
+  // Hide unchosen exclusive branches so detect-late is not locked behind detect (lab 05).
+  const visibleSteps = useMemo(() => {
+    const chosen = new Set(Object.values(branchGotos));
+    return roleSteps.filter((s) => !exclusiveIds.has(s.id) || chosen.has(s.id));
+  }, [roleSteps, exclusiveIds, branchGotos]);
 
   const persistProgress = useCallback(
     async (patch: { completedSteps?: string[]; hintsOpened?: string[]; currentStepId?: string }) => {
@@ -185,12 +223,26 @@ export function ScenarioLessonRunner({
           syncedVerifiedRef.current.add(id);
         }
         setProgressSteps(completed);
+        const gotos: Record<string, string> = {};
         if (entry?.decisions?.length) {
           setAnsweredDecisions(new Set(entry.decisions.map((d) => d.decisionId)));
+          for (const d of entry.decisions) {
+            const def = lesson.decisions?.find((x) => x.id === d.decisionId);
+            const choice = def?.choices?.find((c) => c.id === d.choiceId);
+            const goto = choice?.effects?.goto;
+            if (goto) gotos[d.decisionId] = goto;
+          }
+          setBranchGotos(gotos);
         }
-        // Prefer the first unfinished visible step; if the path is done, land on the last one.
+        // Prefer the first unfinished path step; exclusive branches not yet chosen stay hidden.
         // Do not blindly trust currentStepId when it points at an early step of a finished lab.
-        const ordered = lesson.steps.map((s) => s.id);
+        const chosen = new Set(Object.values(gotos));
+        const exclusive = new Set(
+          exclusiveGotoGroups(lesson.decisions, new Set(lesson.steps.map((s) => s.id))).flat(),
+        );
+        const ordered = lesson.steps
+          .filter((s) => !exclusive.has(s.id) || chosen.has(s.id))
+          .map((s) => s.id);
         const done = new Set(completed);
         const firstOpen = ordered.find((id) => !done.has(id));
         const resume =
@@ -203,7 +255,7 @@ export function ScenarioLessonRunner({
         }
       })
       .catch(() => undefined);
-  }, [scenarioId, lesson.steps]);
+  }, [scenarioId, lesson.steps, lesson.decisions]);
 
   useEffect(() => {
     if (!visibleSteps.some((s) => s.id === activeStepId)) {
@@ -258,6 +310,13 @@ export function ScenarioLessonRunner({
         );
         return;
       }
+      // Prefer the decision's chosen goto over the next list index (exclusive branches).
+      const branchTarget = decision ? branchGotos[decision.id] : undefined;
+      if (branchTarget && visibleSteps.some((s) => s.id === branchTarget)) {
+        setActiveStepId(branchTarget);
+        if (opts?.noteOnAdvance) setInspectorNote(opts.noteOnAdvance);
+        return;
+      }
       const idx = visibleSteps.findIndex((s) => s.id === stepId);
       const next = idx >= 0 ? visibleSteps[idx + 1] : undefined;
       if (next) {
@@ -267,7 +326,7 @@ export function ScenarioLessonRunner({
         setInspectorNote(opts.noteOnAdvance);
       }
     },
-    [visibleSteps, lesson.decisions, answeredDecisions],
+    [visibleSteps, lesson.decisions, answeredDecisions, branchGotos],
   );
 
   const runLessonStep = async () => {
@@ -366,31 +425,47 @@ export function ScenarioLessonRunner({
     }
   };
 
-  const doneCount = visibleSteps.filter((s) => stepClaimed(s.id)).length;
+  // Progress against the full path (spine + one exclusive branch), not the
+  // filtered storyboard list - otherwise quiz unlocks after run-ci on lab 05.
+  const doneCount = useMemo(() => {
+    const done = new Set(
+      roleSteps.map((s) => s.id).filter((id) => progressSteps.includes(id) || !!verified[id]),
+    );
+    let n = 0;
+    for (const s of roleSteps) {
+      if (exclusiveIds.has(s.id)) continue;
+      if (done.has(s.id)) n += 1;
+    }
+    for (const group of exclusiveGroups) {
+      const visible = group.filter((id) => roleSteps.some((s) => s.id === id));
+      if (visible.length === 0) continue;
+      if (visible.some((id) => done.has(id))) n += 1;
+    }
+    return n;
+  }, [roleSteps, exclusiveIds, exclusiveGroups, progressSteps, verified]);
+
+  const needCount = useMemo(() => {
+    let n = roleSteps.filter((s) => !exclusiveIds.has(s.id)).length;
+    for (const group of exclusiveGroups) {
+      if (group.some((id) => roleSteps.some((s) => s.id === id))) n += 1;
+    }
+    return n;
+  }, [roleSteps, exclusiveIds, exclusiveGroups]);
+
   /** Quiz / path-complete: progress steps only, with exclusive decision branches counting as one. */
   const pathComplete = useMemo(() => {
     const done = new Set(progressSteps);
-    const groups: string[][] = [];
-    for (const d of lesson.decisions ?? []) {
-      const targets = [
-        ...new Set(
-          (d.choices ?? [])
-            .map((c) => c.effects?.goto)
-            .filter((g): g is string => typeof g === 'string' && visibleSteps.some((s) => s.id === g)),
-        ),
-      ];
-      if (targets.length >= 2) groups.push(targets);
-    }
-    const exclusiveIds = new Set(groups.flat());
-    for (const s of visibleSteps) {
+    for (const s of roleSteps) {
       if (exclusiveIds.has(s.id)) continue;
       if (!done.has(s.id)) return false;
     }
-    for (const group of groups) {
-      if (!group.some((id) => done.has(id))) return false;
+    for (const group of exclusiveGroups) {
+      const visible = group.filter((id) => roleSteps.some((s) => s.id === id));
+      if (visible.length === 0) continue;
+      if (!visible.some((id) => done.has(id))) return false;
     }
-    return visibleSteps.length > 0;
-  }, [progressSteps, lesson.decisions, visibleSteps]);
+    return roleSteps.length > 0;
+  }, [progressSteps, roleSteps, exclusiveIds, exclusiveGroups]);
   const captureReady = hasCaptureData(captures);
   // Prefer shared :3000 when this lab uses it; otherwise the primary mock/C2 port.
   const freePortTarget = useMemo(() => {
@@ -460,11 +535,12 @@ export function ScenarioLessonRunner({
         </div>
         <div className="flex flex-wrap items-center gap-2 text-xs text-ink-muted">
           <span>
-            Step {Math.max(activeIndex, 0) + 1}/{visibleSteps.length}
+            Step {Math.max(activeIndex, 0) + 1}/{Math.max(visibleSteps.length, 1)}
           </span>
           <span>·</span>
           <span>
-            {doneCount} verified · ~{lesson.etaMinutes} min · {lesson.category}
+            {doneCount}/{needCount || visibleSteps.length} verified · ~{lesson.etaMinutes} min ·{' '}
+            {lesson.category}
           </span>
         </div>
       </div>
@@ -608,12 +684,12 @@ export function ScenarioLessonRunner({
                 key={decision.id}
                 scenarioId={scenarioId}
                 decision={decision}
+                onPathChosen={(gotoStepId) => {
+                  setBranchGotos((prev) => ({ ...prev, [decision.id]: gotoStepId }));
+                }}
                 onNavigate={(gotoStepId) => {
-                  // Jump to the step the decision points to
-                  const targetStep = visibleSteps.find((s) => s.id === gotoStepId);
-                  if (targetStep) {
-                    setActiveStepId(targetStep.id);
-                  }
+                  setBranchGotos((prev) => ({ ...prev, [decision.id]: gotoStepId }));
+                  setActiveStepId(gotoStepId);
                 }}
                 onScoreChange={(delta) => {
                   setDecisionScore((prev) => prev + delta);

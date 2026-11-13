@@ -16,6 +16,7 @@ export function DecisionCard({
   decision,
   onNavigate,
   onScoreChange,
+  onPathChosen,
 }: {
   scenarioId: string;
   decision: {
@@ -29,6 +30,8 @@ export function DecisionCard({
   onNavigate: (stepId: string) => void;
   /** Called once per answer (delta may be 0) so the parent can track score and answered state. */
   onScoreChange: (delta: number) => void;
+  /** Reveal the exclusive branch as soon as the choice is recorded (before Continue). */
+  onPathChosen?: (stepId: string) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<DecisionResult | null>(null);
@@ -62,6 +65,12 @@ export function DecisionCard({
 
       // Always report so the parent marks this decision answered, even at score 0.
       onScoreChange(decisionResult.scoreDelta);
+
+      // Reveal the branch in the storyboard immediately so a click away from
+      // this card cannot strand the learner with no next step.
+      if (choice.effects?.goto) {
+        onPathChosen?.(choice.effects.goto);
+      }
 
       // Feedback renders inline. With a goto we wait for the learner to press
       // Continue, otherwise the card would unmount before they read it.

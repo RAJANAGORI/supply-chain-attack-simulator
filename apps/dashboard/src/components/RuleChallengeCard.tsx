@@ -112,7 +112,12 @@ export function RuleChallengeCard({
   };
 
   const clock = remaining(challenge.deadline, now);
-  const locked = challenge.locked !== null || (challenge.deadline !== null && Date.parse(challenge.deadline) <= now);
+  const deadlinePassed =
+    challenge.locked === 'deadline-passed' ||
+    (challenge.deadline !== null && Date.parse(challenge.deadline) <= now);
+  const classroomFrozen = challenge.locked === 'classroom-frozen';
+  // Editor stays closed while the timer is expired; Clear timer reopens practice.
+  const editorLocked = classroomFrozen || deadlinePassed;
   const counts = challenge.caseCounts[format];
 
   return (
@@ -148,7 +153,7 @@ export function RuleChallengeCard({
         onChange={(e) => setRule(e.target.value)}
         spellCheck={false}
         rows={12}
-        disabled={locked}
+        disabled={editorLocked}
         className="focus-ring mt-3 w-full rounded-xl border border-line bg-canvas px-3 py-2 font-mono text-xs leading-relaxed text-ink-primary disabled:opacity-60"
       />
 
@@ -166,25 +171,30 @@ export function RuleChallengeCard({
         </div>
       )}
 
-      {challenge.locked && (
+      {(classroomFrozen || deadlinePassed) && (
         <div className="mt-3">
           <Alert variant="warn">
-            {challenge.locked === 'classroom-frozen'
+            {classroomFrozen
               ? 'Classroom is frozen for debrief. Submissions are closed.'
-              : 'The deadline passed. Submissions are closed.'}
+              : 'The deadline passed. Clear the timer to keep practicing.'}
           </Alert>
         </div>
       )}
-      {error && !challenge.locked && (
+      {error && !classroomFrozen && (
         <div className="mt-3">
           <Alert variant="error">{error}</Alert>
         </div>
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <Btn disabled={busy || locked || !rule.trim()} onClick={() => void submit()}>
+        <Btn disabled={busy || editorLocked || !rule.trim()} onClick={() => void submit()}>
           {busy ? 'Scoring...' : 'Submit rule'}
         </Btn>
+        {deadlinePassed && !classroomFrozen && (
+          <Btn size="sm" variant="secondary" onClick={() => void setTimer()}>
+            Clear timer
+          </Btn>
+        )}
         {challenge.best !== null && (
           <span className="text-xs text-ink-muted">
             Best {challenge.best}/{challenge.scoring.max} over {challenge.attempts} attempt{challenge.attempts === 1 ? '' : 's'}
