@@ -188,7 +188,16 @@ export function ScenarioLessonRunner({
         if (entry?.decisions?.length) {
           setAnsweredDecisions(new Set(entry.decisions.map((d) => d.decisionId)));
         }
-        const resume = entry?.currentStepId ?? prog.lastStepId;
+        // Prefer the first unfinished visible step; if the path is done, land on the last one.
+        // Do not blindly trust currentStepId when it points at an early step of a finished lab.
+        const ordered = lesson.steps.map((s) => s.id);
+        const done = new Set(completed);
+        const firstOpen = ordered.find((id) => !done.has(id));
+        const resume =
+          firstOpen ??
+          ordered.filter((id) => done.has(id)).at(-1) ??
+          entry?.currentStepId ??
+          prog.lastStepId;
         if (resume && lesson.steps.some((s) => s.id === resume)) {
           setActiveStepId(resume);
         }
@@ -220,15 +229,22 @@ export function ScenarioLessonRunner({
   const activeIndex = visibleSteps.findIndex((s) => s.id === activeStepId);
   const activeStep = activeIndex >= 0 ? visibleSteps[activeIndex] : undefined;
 
+  const stepClaimed = useCallback(
+    (stepId: string) => progressSteps.includes(stepId) || !!verified[stepId],
+    [progressSteps, verified],
+  );
+
   const stepUnlocked = useCallback(
     (index: number) => {
       if (index <= 0) return true;
+      // Progress beats a temporarily-down mock server: a finished step stays unlocked
+      // even when live verify flips false after services stop.
       for (let i = 0; i < index; i++) {
-        if (!verified[visibleSteps[i].id]) return false;
+        if (!stepClaimed(visibleSteps[i].id)) return false;
       }
       return true;
     },
-    [verified, visibleSteps],
+    [stepClaimed, visibleSteps],
   );
 
   /** Stay on this step when a branching decision still needs an answer. */
@@ -350,7 +366,7 @@ export function ScenarioLessonRunner({
     }
   };
 
-  const doneCount = visibleSteps.filter((s) => verified[s.id]).length;
+  const doneCount = visibleSteps.filter((s) => stepClaimed(s.id)).length;
   /** Quiz / path-complete: progress steps only, with exclusive decision branches counting as one. */
   const pathComplete = useMemo(() => {
     const done = new Set(progressSteps);
@@ -473,7 +489,7 @@ export function ScenarioLessonRunner({
           <Card title="Storyboard" subtitle="Guided steps for this lab">
             <ol className="space-y-1">
               {visibleSteps.map((step, i) => {
-                const done = !!verified[step.id];
+                const done = stepClaimed(step.id);
                 const current = step.id === activeStepId;
                 const locked = !stepUnlocked(i);
                 return (
@@ -570,16 +586,19 @@ export function ScenarioLessonRunner({
                   {activeStep.hint}
                 </div>
               )}
-              {verified[activeStep.id] && (
+              {stepClaimed(activeStep.id) && (
                 <div className="mt-4">
-                  <StatusPill status="online" label="Step verified" />
+                  <StatusPill
+                    status="online"
+                    label={verified[activeStep.id] ? 'Step verified' : 'Step completed'}
+                  />
                 </div>
               )}
             </Card>
           )}
 
           {/* Phase 1: Branching decision after a completed step */}
-          {activeStep && verified[activeStep.id] && (() => {
+          {activeStep && stepClaimed(activeStep.id) && (() => {
             const decision = findDecisionAfter(visibleSteps, lesson.decisions, activeStep.id);
             if (!decision) return null;
             // Keep the card up after answering so the learner can read feedback.
@@ -605,13 +624,13 @@ export function ScenarioLessonRunner({
             );
           })()}
 
-          {/* PR Triage Inbox: unlock once afterStep is verified (default: first install or run step). */}
+          {/* PR Triage Inbox: unlock once afterStep is claimed (progress or live verify). */}
           {lesson.prTriage &&
-            verified[
+            stepClaimed(
               lesson.prTriage.afterStep ||
                 visibleSteps.find((s) => s.id.startsWith('install') || s.id.startsWith('run'))?.id ||
-                ''
-            ] && (
+                '',
+            ) && (
               <PRInbox
                 scenarioId={scenarioId}
                 prs={lesson.prTriage.prs}
@@ -778,19 +797,22 @@ export function ScenarioLessonRunner({
             )}
           </Card>
 
-          {lesson.reversal && captureReady && (
+          {lesson.reversal && (captureReady || stepClaimed('run') || stepClaimed('run-ci') || pathComplete) && (
             <PurpleReversal
               scenarioId={scenarioId}
               blockedPackage={lesson.reversal.blockedPackage}
               polymorphic={Boolean(lesson.reversal.variant)}
             />
           )}
+
+          {/* CTF rule challenge lives on the Labs tab so Semgrep/Sigma is not buried in Quick reference. */}
+          <RuleChallengeCard scenarioId={scenarioId} />
         </div>
       </div>
 
       {lesson.diffWorkbench &&
         (!lesson.diffWorkbench.afterStep ||
-          verified[lesson.diffWorkbench.afterStep] ||
+          stepClaimed(lesson.diffWorkbench.afterStep) ||
           activeStep?.id === lesson.diffWorkbench.afterStep) && (
           <DiffWorkbench scenarioId={scenarioId} config={lesson.diffWorkbench} />
         )}
@@ -801,7 +823,6 @@ export function ScenarioLessonRunner({
         <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
           <div className="space-y-4 min-w-0">
             {lesson.drill && <DrillCard drill={lesson.drill} scenarioId={scenarioId} />}
-            <RuleChallengeCard scenarioId={scenarioId} />
             {lesson.mitigation && lesson.mitigation.length > 0 && (
               <Card title="Mitigation" subtitle="Full runbook in DETECT.md">
                 <ul className="space-y-2 text-sm text-ink-secondary">

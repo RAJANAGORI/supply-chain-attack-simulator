@@ -101,6 +101,7 @@ function CampaignPanels({ c }: { c: CampaignStatus }) {
 export default function CampaignPage() {
   const [campaigns, setCampaigns] = useState<CampaignStatus[]>([]);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
   const [tabletop, setTabletop] = useState<ClassroomClock | null>(null);
 
   const load = useCallback(async () => {
@@ -111,6 +112,8 @@ export default function CampaignPage() {
       setError('');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load campaigns');
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -135,7 +138,13 @@ export default function CampaignPage() {
 
       {error && <Alert variant="error">{error}</Alert>}
 
-      {campaigns.length === 0 && !error && (
+      {loading && campaigns.length === 0 && !error && (
+        <Card title="Loading campaigns" subtitle="Reading campaigns/*.yaml from the control plane">
+          <p className="text-sm text-ink-muted">Hang on - pulling the campaign map.</p>
+        </Card>
+      )}
+
+      {!loading && campaigns.length === 0 && !error && (
         <Card title="No campaigns" subtitle="Add a YAML file under campaigns/ to define one">
           <p className="text-sm text-ink-muted">
             Campaigns chain existing labs into a narrative. They never change how labs run.
