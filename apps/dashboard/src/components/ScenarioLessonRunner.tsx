@@ -39,10 +39,25 @@ function hasCaptureData(captures: Record<string, unknown>): boolean {
   return Object.values(captures).some((v) => {
     if (!v || typeof v !== 'object') return false;
     if (Array.isArray(v) && v.length > 0) return true;
-    const obj = v as { captures?: unknown[]; events?: unknown[]; beacons?: unknown[] };
+    const obj = v as {
+      captures?: unknown[];
+      events?: unknown[];
+      beacons?: unknown[];
+      publishes?: unknown[];
+      prs?: unknown[];
+      credentials?: unknown[];
+      unreachable?: boolean;
+    };
+    // Disk/HTTP empty shells with unreachable:true are not real evidence.
+    if (obj.unreachable && !(obj.captures?.length || obj.events?.length || obj.beacons?.length)) {
+      return false;
+    }
     if (Array.isArray(obj.captures) && obj.captures.length > 0) return true;
     if (Array.isArray(obj.events) && obj.events.length > 0) return true;
     if (Array.isArray(obj.beacons) && obj.beacons.length > 0) return true;
+    if (Array.isArray(obj.publishes) && obj.publishes.length > 0) return true;
+    if (Array.isArray(obj.prs) && obj.prs.length > 0) return true;
+    if (Array.isArray(obj.credentials) && obj.credentials.length > 0) return true;
     return false;
   });
 }
@@ -828,7 +843,11 @@ export function ScenarioLessonRunner({
                 );
               })}
             </ul>
-            {freePortTarget != null && (
+            {/* Only when nothing we track is running — otherwise the tip fights the Running pill. */}
+            {freePortTarget != null &&
+              !scenario.services.some((svc) =>
+                scenario.processes?.some((p) => p.serviceId === svc.id && p.status === 'running'),
+              ) && (
               <div className="mt-4 rounded-xl border border-brand/35 bg-brand/10 px-3 py-3">
                 <p className="text-xs font-medium text-ink-primary">
                   Port busy / EADDRINUSE?

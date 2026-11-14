@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, resolve } from 'node:path';
-import type { ProgressState, ScenarioProgressEntry } from './registry/lesson-types.js';
+import type { ProgressState, ScenarioProgressEntry } from '../registry/lesson-types.js';
 
 function progressPath(): string {
   if (process.env.SCAS_PROGRESS_PATH) {
@@ -71,7 +71,7 @@ export function mergeScenarioProgress(
   // Merge decisions: one result per decisionId so a re-pick replaces the old choice.
   const mergedDecisions = patch.decisions && patch.decisions.length > 0
     ? (() => {
-        const map = new Map<string, import('./registry/lesson-types.js').DecisionResult>();
+        const map = new Map<string, import('../registry/lesson-types.js').DecisionResult>();
         [...(prev.decisions ?? [])].forEach((d) => map.set(d.decisionId, d));
         patch.decisions.forEach((d) => map.set(d.decisionId, d));
         return Array.from(map.values());

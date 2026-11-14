@@ -1,4 +1,4 @@
-import type { ScenarioFloci } from './registry/types.js';
+import type { ScenarioFloci } from '../registry/types.js';
 import { buildLabEnv } from './env.js';
 import { probeFlociStack, platformHost } from './platform-probe.js';
 

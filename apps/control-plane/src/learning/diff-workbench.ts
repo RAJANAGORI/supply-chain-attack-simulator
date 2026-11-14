@@ -1,11 +1,11 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { isAbsolute, relative, resolve, sep } from 'node:path';
-import { getRepoRoot } from './env.js';
+import { getRepoRoot } from '../labs/env.js';
 import type {
   DiffWorkbenchFile,
   DiffWorkbenchPayload,
   LessonDiffWorkbench,
-} from './registry/lesson-types.js';
+} from '../registry/lesson-types.js';
 
 /** Fixture files carry this suffix so scanners and linters ignore the teaching copies. */
 const FIXTURE_SUFFIX = '.fixture';

@@ -2,14 +2,14 @@ import { randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, resolve } from 'node:path';
-import { SCENARIOS } from './registry/scenarios.js';
-import { loadLesson } from './registry/lesson-loader.js';
+import { SCENARIOS } from '../registry/scenarios.js';
+import { loadLesson } from '../registry/lesson-loader.js';
 import { readProgress } from './progress.js';
 import { isLessonComplete } from './lesson-progress.js';
-import { getCampaign, type CampaignInject } from './registry/campaigns.js';
-import { CLASSROOM_ROLES, type ClassroomRole } from './registry/lesson-types.js';
-import { buildLabEnv } from './env.js';
-import { platformHost } from './platform-probe.js';
+import { getCampaign, type CampaignInject } from '../registry/campaigns.js';
+import { CLASSROOM_ROLES, type ClassroomRole } from '../registry/lesson-types.js';
+import { buildLabEnv } from '../labs/env.js';
+import { platformHost } from '../labs/platform-probe.js';
 
 export { CLASSROOM_ROLES, type ClassroomRole };
 

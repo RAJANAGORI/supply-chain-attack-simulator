@@ -60,7 +60,7 @@ function CampaignPanels({ c }: { c: CampaignStatus }) {
       if (!cancelled) setCapturesByScenario(Object.fromEntries(entries));
     };
     void load();
-    const t = setInterval(() => void load(), 10000);
+    const t = setInterval(() => void load(), 15000);
     return () => {
       cancelled = true;
       clearInterval(t);
@@ -119,7 +119,7 @@ export default function CampaignPage() {
 
   useEffect(() => {
     void load();
-    const t = setInterval(() => void load(), 5000);
+    const t = setInterval(() => void load(), 15000);
     return () => clearInterval(t);
   }, [load]);
 

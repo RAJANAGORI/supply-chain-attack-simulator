@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { getRepoRoot } from '../env.js';
+import { getRepoRoot } from '../labs/env.js';
 import type { LessonDefinition } from './lesson-types.js';
 import { normalizeLesson, parseLessonYaml } from './parse-lesson-yaml.js';
 import type { ScenarioDefinition } from './types.js';

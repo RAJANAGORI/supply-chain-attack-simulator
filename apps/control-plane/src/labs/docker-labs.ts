@@ -7,7 +7,7 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { getRepoRoot } from './env.js';
 import { processManager } from './process-manager.js';
-import type { ScenarioDefinition } from './registry/types.js';
+import type { ScenarioDefinition } from '../registry/types.js';
 
 export function labBackend(): 'docker' | 'host' {
   return process.env.SCAS_LAB_BACKEND === 'docker' ? 'docker' : 'host';

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'node:events';
-import type { LogEntry, ProcessRecord } from './registry/types.js';
+import type { LogEntry, ProcessRecord } from '../registry/types.js';
 import { buildLabEnv, resolveScenarioCwd } from './env.js';
 
 const MAX_LOG_LINES = 5000;

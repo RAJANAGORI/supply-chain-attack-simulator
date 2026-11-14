@@ -1,8 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { getRepoRoot } from '../env.js';
-import { readClassroom, scasDir } from '../learning-platform.js';
+import { getRepoRoot } from '../labs/env.js';
+import { readClassroom, scasDir } from '../learning/learning-platform.js';
 import { SCENARIOS, getScenario } from '../registry/scenarios.js';
 import { RegexRejected } from './safe-regex.js';
 import { parseSemgrep, semgrepMatches } from './semgrep-eval.js';

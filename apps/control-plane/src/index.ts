@@ -3,9 +3,9 @@ import cors from 'cors';
 import { createServer } from 'node:http';
 import { WebSocketServer } from 'ws';
 import { resolve } from 'node:path';
-import { getArchifyRoot } from './archify.js';
+import { getArchifyRoot } from './learning/archify.js';
 import { createApiRouter } from './routes/api.js';
-import { processManager } from './process-manager.js';
+import { processManager } from './labs/process-manager.js';
 
 const HOST = process.env.CONTROL_PLANE_HOST ?? '0.0.0.0';
 const PORT = Number(process.env.CONTROL_PLANE_PORT ?? 3101);
@@ -41,6 +41,16 @@ app.get('/', (_req, res) => {
   });
 });
 
+const archifyIndex = (_req: express.Request, res: express.Response) => {
+  res.json({
+    ok: true,
+    hint: 'Archify packs live under /archify/scenarios/<NN-slug>/',
+    example: '/archify/scenarios/01-typosquatting/architecture/sc01-typosquatting-architecture.html',
+  });
+};
+app.get('/archify', archifyIndex);
+app.get('/archify/', archifyIndex);
+
 // Archify pack (architecture / sequence HTML + briefs). Dashboard proxies /archify.
 app.use(
   '/archify',
@@ -60,6 +70,24 @@ app.use(
 );
 
 app.use('/api', createApiRouter());
+
+// Always JSON for API errors (never Express HTML error pages in the dashboard).
+app.use(
+  (
+    err: unknown,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
+    const message = err instanceof Error ? err.message : 'Internal error';
+    const code = (err as { status?: number; statusCode?: number })?.status
+      ?? (err as { status?: number; statusCode?: number })?.statusCode
+      ?? 500;
+    if (!res.headersSent) {
+      res.status(typeof code === 'number' && code >= 400 ? code : 500).json({ error: message });
+    }
+  },
+);
 
 const server = createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws/logs' });

@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { getRepoRoot } from './env.js';
-import { SCENARIOS } from './registry/scenarios.js';
-import { loadLesson } from './registry/lesson-loader.js';
+import { getRepoRoot } from '../labs/env.js';
+import { SCENARIOS } from '../registry/scenarios.js';
+import { loadLesson } from '../registry/lesson-loader.js';
 
 export type ArchifyLink = {
   id: string;

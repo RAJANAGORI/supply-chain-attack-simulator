@@ -5,7 +5,7 @@
  * are an exclusive group: finishing either path counts, not both. Spine steps
  * (everything else) are always required.
  */
-import type { LessonDefinition } from './registry/lesson-types.js';
+import type { LessonDefinition } from '../registry/lesson-types.js';
 
 /** Mutually exclusive goto targets from decisions where every listed target is a real step. */
 export function exclusiveStepGroups(lesson: LessonDefinition): string[][] {

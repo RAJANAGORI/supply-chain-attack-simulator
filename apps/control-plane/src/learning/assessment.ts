@@ -3,8 +3,8 @@
  * existing per-scenario progress. Nothing here gates the labs - it recognizes
  * what the learner already did and gives the classroom a scoreboard.
  */
-import { SCENARIOS } from './registry/scenarios.js';
-import { loadLesson } from './registry/lesson-loader.js';
+import { SCENARIOS } from '../registry/scenarios.js';
+import { loadLesson } from '../registry/lesson-loader.js';
 import { readProgress } from './progress.js';
 import { isLessonComplete } from './lesson-progress.js';
 

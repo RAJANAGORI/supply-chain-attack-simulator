@@ -5,8 +5,8 @@ import path from 'path';
 import { load } from 'js-yaml';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { readProgress } from '../progress.js';
-import { isLessonComplete } from '../lesson-progress.js';
+import { readProgress } from '../learning/progress.js';
+import { isLessonComplete } from '../learning/lesson-progress.js';
 import { loadLesson } from './lesson-loader.js';
 import { SCENARIOS } from './scenarios.js';
 
@@ -295,34 +295,21 @@ export function buildExecutionGraph(
       if (hasExfil) break;
     }
 
-    // Map chapter beat to stage description
-    const stageMap: Record<string, { stage: string; desc: string }> = {
-      'Initial access': {
-        stage: 'Initial Access',
-        desc: `Misnamed dependency install (${chapter.narrative.substring(0, 60)}…)`,
-      },
-      'Build compromise': {
-        stage: 'Build Compromise',
-        desc: `CI pipeline access gained via initial foothold (${chapter.narrative.substring(0, 60)}…)`,
-      },
-      'Trusted-action takeover': {
-        stage: 'Action Takeover',
-        desc: `Trusted action moved to execute attacker code with CI secrets (${chapter.narrative.substring(0, 60)}…)`,
-      },
-      'Persistence': {
-        stage: 'Persistence',
-        desc: `Registry mirror poisoned to maintain long-term access (${chapter.narrative.substring(0, 60)}…)`,
-      },
-    };
-
-    const mapping = stageMap[chapter.beat] || {
-      stage: chapter.beat,
-      desc: chapter.narrative.substring(0, 80),
+    // Beat → stage title only. Full chapter narrative is the description (no mid-word cuts).
+    const stageTitles: Record<string, string> = {
+      'Initial access': 'Initial Access',
+      'Build compromise': 'Build Compromise',
+      'Trusted-action takeover': 'Action Takeover',
+      Persistence: 'Persistence',
+      'Credential harvest': 'Credential Harvest',
+      'Image poisoning': 'Image Poisoning',
+      'The full chain': 'Full Chain',
+      'The trusted release': 'Trusted Release',
     };
 
     nodes.push({
-      stage: mapping.stage,
-      description: mapping.desc,
+      stage: stageTitles[chapter.beat] || chapter.beat,
+      description: chapter.narrative,
       severity: hasExfil ? 'critical' : 'info',
       source: `scenario ${chapter.scenario}`,
       confirmed: hasExfil,

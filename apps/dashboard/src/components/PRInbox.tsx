@@ -6,6 +6,23 @@ import { cp, type DecisionResult } from '@/lib/api';
 
 type PRStatus = 'approved' | 'blocked';
 
+type TriagePr = {
+  id: string;
+  title: string;
+  dependency: string;
+  diffSummary: string;
+  safe: boolean;
+  blockLabel?: string;
+  approveLabel?: string;
+};
+
+/** Lesson YAML often stores "Block — reason"; show the reason under the title, not on the button. */
+function blockReason(label?: string): string | undefined {
+  if (!label) return undefined;
+  const stripped = label.replace(/^Block\s*[—–-]\s*/i, '').trim();
+  return stripped || undefined;
+}
+
 export function PRInbox({
   scenarioId,
   prs,
@@ -13,7 +30,7 @@ export function PRInbox({
 }: {
   scenarioId: string;
   /** PR list from the lesson's prTriage config. */
-  prs: { id: string; title: string; dependency: string; diffSummary: string; safe: boolean; blockLabel?: string; approveLabel?: string }[];
+  prs: TriagePr[];
   /** Called when all PRs have been triaged. */
   onDone: () => void;
 }) {
@@ -55,18 +72,7 @@ export function PRInbox({
     };
   }, [scenarioId, prs]);
 
-  const triage = async (
-    pr: {
-      id: string;
-      title: string;
-      dependency: string;
-      diffSummary: string;
-      safe: boolean;
-      blockLabel?: string;
-      approveLabel?: string;
-    },
-    approve: boolean,
-  ) => {
+  const triage = async (pr: TriagePr, approve: boolean) => {
     if (busy || statuses[pr.id]) return;
     setBusy(pr.id);
     setError('');
@@ -108,6 +114,7 @@ export function PRInbox({
         {prs.map((pr) => {
           const status = statuses[pr.id];
           const isBusy = busy === pr.id;
+          const reason = blockReason(pr.blockLabel);
 
           return (
             <div
@@ -120,33 +127,45 @@ export function PRInbox({
                     : 'border-line bg-[#0c0b14]/30'
               }`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-ink-primary">{pr.title}</p>
-                  <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-ink-muted">
-                    <code className="rounded bg-canvas-hover px-1.5 py-0.5 font-mono">{pr.dependency}</code>
-                    <span>·</span>
-                    <span className="text-ink-faint truncate">{pr.diffSummary}</span>
+              <div className="min-w-0 space-y-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium leading-snug text-ink-primary break-words">
+                    {pr.title}
+                  </p>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-ink-muted">
+                    <code className="max-w-full truncate rounded bg-canvas-hover px-1.5 py-0.5 font-mono">
+                      {pr.dependency}
+                    </code>
+                    <span className="text-ink-faint" aria-hidden>
+                      ·
+                    </span>
+                    <span className="min-w-0 break-words text-ink-faint">{pr.diffSummary}</span>
                   </div>
+                  {!status && reason && (
+                    <p className="mt-1.5 text-[11px] leading-snug text-state-error/80">
+                      Block if: {reason}
+                    </p>
+                  )}
                 </div>
 
                 {!status ? (
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Btn
                       size="sm"
                       variant="success"
                       disabled={isBusy}
                       onClick={() => triage(pr, true)}
                     >
-                      {pr.approveLabel || 'Approve'}
+                      Approve
                     </Btn>
                     <Btn
                       size="sm"
                       variant="danger"
                       disabled={isBusy}
                       onClick={() => triage(pr, false)}
+                      className="max-w-full"
                     >
-                      {pr.blockLabel || 'Block'}
+                      Block
                     </Btn>
                   </div>
                 ) : (

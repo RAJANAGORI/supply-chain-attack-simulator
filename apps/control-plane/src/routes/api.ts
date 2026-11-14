@@ -3,25 +3,26 @@ import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { delimiter, resolve, sep } from 'node:path';
-import { readArchifyBrief, resolveArchifyPack } from '../archify.js';
+import { readArchifyBrief, resolveArchifyPack } from '../learning/archify.js';
 import { SCENARIOS, getScenario } from '../registry/scenarios.js';
 import type { PlatformStatus } from '../registry/types.js';
-import { processManager } from '../process-manager.js';
-import { probeAct } from '../act-status.js';
-import { probeFloci } from '../floci-status.js';
-import { platformHost, probePlatformStack } from '../platform-probe.js';
-import { buildLabEnv, getRepoRoot, resolveScenarioCwd } from '../env.js';
+import { processManager } from '../labs/process-manager.js';
+import { probeAct } from '../labs/act-status.js';
+import { probeFloci } from '../labs/floci-status.js';
+import { platformHost, probePlatformStack } from '../labs/platform-probe.js';
+import { buildLabEnv, getRepoRoot, resolveScenarioCwd } from '../labs/env.js';
+import { clearAllCaptures, readAllCaptures, readCapture } from '../labs/capture-store.js';
 import {
   dockerLabSetup,
   dockerLabStart,
   dockerLabStop,
   labBackend,
   rewriteLabUrl,
-} from '../docker-labs.js';
+} from '../labs/docker-labs.js';
 import { loadLesson } from '../registry/lesson-loader.js';
-import { buildDiffWorkbench } from '../diff-workbench.js';
-import { evaluateLessonSteps } from '../lesson-verify.js';
-import { mergeScenarioProgress, readProgress, resetProgress, writeProgress } from '../progress.js';
+import { buildDiffWorkbench } from '../learning/diff-workbench.js';
+import { evaluateLessonSteps } from '../learning/lesson-verify.js';
+import { mergeScenarioProgress, readProgress, resetProgress, writeProgress } from '../learning/progress.js';
 import type { ProgressState, ScenarioProgressEntry } from '../registry/lesson-types.js';
 import {
   askLabAssistant,
@@ -37,13 +38,13 @@ import {
   tickClassroomClock,
   readClassroomInjects,
   skillMatrixMarkdown,
-} from '../learning-platform.js';
+} from '../learning/learning-platform.js';
 import { getCampaign, getCampaignStatus, listCampaignStatus, resolveInjects, buildExecutionGraph, gradeRemediation } from '../registry/campaigns.js';
-import { buildAssessment } from '../assessment.js';
-import { getProvenance } from '../provenance.js';
+import { buildAssessment } from '../learning/assessment.js';
+import { getProvenance } from '../labs/provenance.js';
 import { SubmitRejected, getChallenge, listChallenges, setDeadline, submitRule } from '../ctf/index.js';
-import { prTriageDecisionId, scorePrTriage } from '../pr-triage.js';
-import { requiredStepCount, summarizeLessonProgress } from '../lesson-progress.js';
+import { prTriageDecisionId, scorePrTriage } from '../learning/pr-triage.js';
+import { requiredStepCount, summarizeLessonProgress } from '../learning/lesson-progress.js';
 
 const REPO = getRepoRoot();
 
@@ -221,16 +222,7 @@ export function createApiRouter(): Router {
     const lesson = loadLesson(scenario);
     if (!lesson) return res.status(404).json({ error: 'No lesson for scenario' });
 
-    const captures: Record<string, unknown> = {};
-    for (const cap of scenario.captures) {
-      try {
-        const response = await fetch(rewriteLabUrl(cap.url), { signal: AbortSignal.timeout(3000) });
-        captures[cap.id] = await response.json();
-      } catch (err) {
-        captures[cap.id] = { error: err instanceof Error ? err.message : 'Fetch failed' };
-      }
-    }
-
+    const captures = await readAllCaptures(scenario);
     const processes = processManager.list().filter((p) => p.scenarioId === scenario.id);
     const steps = evaluateLessonSteps(lesson, { scenario, processes, captures });
     res.json({ steps, captures });
@@ -790,35 +782,13 @@ export function createApiRouter(): Router {
   router.get('/scenarios/:id/captures', async (req, res) => {
     const scenario = getScenario(req.params.id);
     if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
-    const results: Record<string, unknown> = {};
-    for (const cap of scenario.captures) {
-      try {
-        const response = await fetch(rewriteLabUrl(cap.url), { signal: AbortSignal.timeout(3000) });
-        results[cap.id] = await response.json();
-      } catch (err) {
-        results[cap.id] = { error: err instanceof Error ? err.message : 'Fetch failed' };
-      }
-    }
-    res.json(results);
+    res.json(await readAllCaptures(scenario));
   });
 
   router.delete('/scenarios/:id/captures', async (req, res) => {
     const scenario = getScenario(req.params.id);
     if (!scenario) return res.status(404).json({ error: 'Scenario not found' });
-    const results: Record<string, unknown> = {};
-    for (const cap of scenario.captures) {
-      if (!cap.clearUrl) continue;
-      try {
-        const response = await fetch(rewriteLabUrl(cap.clearUrl), {
-          method: 'DELETE',
-          signal: AbortSignal.timeout(3000),
-        });
-        results[cap.id] = await response.json();
-      } catch (err) {
-        results[cap.id] = { error: err instanceof Error ? err.message : 'Clear failed' };
-      }
-    }
-    res.json(results);
+    res.json(await clearAllCaptures(scenario));
   });
 
   router.post('/scenarios/:id/floci/:action', (req, res) => {
@@ -864,15 +834,10 @@ export function createApiRouter(): Router {
     const countCaptures = async (): Promise<number> => {
       let n = 0;
       for (const cap of scenario.captures) {
-        try {
-          const r = await fetch(rewriteLabUrl(cap.url), { signal: AbortSignal.timeout(3000) });
-          const body = (await r.json()) as Record<string, unknown>;
-          for (const key of ['captures', 'events', 'beacons', 'publishes', 'prs'] as const) {
-            const arr = body[key];
-            if (Array.isArray(arr)) n += arr.length;
-          }
-        } catch {
-          /* capture source offline */
+        const body = (await readCapture(scenario, cap)) as Record<string, unknown>;
+        for (const key of ['captures', 'events', 'beacons', 'publishes', 'prs', 'credentials'] as const) {
+          const arr = body[key];
+          if (Array.isArray(arr)) n += arr.length;
         }
       }
       return n;
