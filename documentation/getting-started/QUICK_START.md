@@ -1,6 +1,8 @@
-# Quick start
+# Quick start (CLI)
 
 Get a lab running in about five minutes if you already have Node and know the basics.
+
+Prefer clicking through a storyboard instead? Use the [Command Center guide](./COMMAND_CENTER.md) (`./run.sh` → `:3100`). Same labs; this page is the shell path.
 
 ## Install
 

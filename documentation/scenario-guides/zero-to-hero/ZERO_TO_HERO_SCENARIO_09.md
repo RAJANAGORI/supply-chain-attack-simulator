@@ -12,7 +12,7 @@ By the end of this guide, you will:
 - Perform incident response and key rotation
 - Implement defense strategies
 
-- Apply the **Mitigation Playbook** from this guide and the scenario README
+- Apply the Mitigation Playbook from this guide and the scenario README
 ---
 
 ## Table of Contents
@@ -39,13 +39,24 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 09 |
+| CLI | Shell steps in this guide and [`scenarios/09-package-signing-bypass/README.md`](../../../scenarios/09-package-signing-bypass/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/09-package-signing-bypass/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Package Signing (15 minutes)
 
 ### What is Package Signing?
 
-**Package signing** is a security mechanism that uses cryptographic signatures to verify the authenticity and integrity of packages. Packages are signed with private keys and verified with public keys.
+Package signing is a security mechanism that uses cryptographic signatures to verify the authenticity and integrity of packages. Packages are signed with private keys and verified with public keys.
 
-**How it works:**
+How it works:
 1. Maintainer signs package with private key
 2. Signature attached to package
 3. Users verify signature with public key
@@ -53,14 +64,14 @@ By the end of this guide, you will:
 
 ### Why Signing is Important
 
-- **Authenticity**: Proves package comes from legitimate source
-- **Integrity**: Ensures package hasn't been modified
-- **Trust**: Users can trust signed packages
-- **Security**: Prevents tampering and substitution attacks
+- Authenticity: Proves package comes from legitimate source
+- Integrity: Ensures package hasn't been modified
+- Trust: Users can trust signed packages
+- Security: Prevents tampering and substitution attacks
 
 ### The Signing Bypass Attack
 
-**The Problem**: If signing keys are compromised, attackers can:
+The Problem: If signing keys are compromised, attackers can:
 - Sign malicious packages with legitimate keys
 - Packages pass signature verification
 - Users trust the packages (signatures are valid)
@@ -101,11 +112,11 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-**What this does:**
-- Generates a real **Ed25519 keypair** (`infrastructure/keys/`)
+What this does:
+- Generates a real Ed25519 keypair (`infrastructure/keys/`)
 - Signs legitimate v1.0.0 and compromised v1.0.1 with the same key (`package.sig`)
 - Sets up victim application and detection tools
-- Creates mock C2 server on port **3000**
+- Creates mock C2 server on port 3000
 
 ---
 
@@ -118,7 +129,7 @@ cd legitimate-package/secure-utils
 cat package.json
 ```
 
-**What you'll see:**
+What you'll see:
 ```json
 {
   "signing": {
@@ -136,7 +147,7 @@ cat package.json
 cat package.sig
 ```
 
-**What you'll see:**
+What you'll see:
 ```json
 {
   "algorithm": "Ed25519",
@@ -154,7 +165,7 @@ cd ../..
 node infrastructure/verify-signature.js legitimate-package/secure-utils
 ```
 
-**Expected:** `Cryptographic signature: ✅ VALID`
+Expected: `Cryptographic signature: ✅ VALID`
 
 ---
 
@@ -162,9 +173,9 @@ node infrastructure/verify-signature.js legitimate-package/secure-utils
 
 ### Step 1: Understand the Compromise
 
-**Scenario**: Attacker has compromised the maintainer's signing keys.
+Scenario: Attacker has compromised the maintainer's signing keys.
 
-**Attack Steps:**
+Attack Steps:
 1. Attacker gains access to signing keys (phishing, credential theft, etc.)
 2. Creates malicious package version
 3. Signs malicious package with compromised keys
@@ -180,9 +191,9 @@ cat package.sig
 cat postinstall.js | head -20
 ```
 
-**Key Changes:**
+Key Changes:
 - Version: 1.0.0 → 1.0.1 (seems like normal update)
-- `package.sig`: **Still cryptographically VALID** (signed with stolen key!)
+- `package.sig`: Still cryptographically VALID (signed with stolen key!)
 - Postinstall script: Added malicious exfiltration code
 
 Verify it also passes crypto:
@@ -191,7 +202,7 @@ cd ../..
 node infrastructure/verify-signature.js compromised-package/secure-utils
 ```
 
-**Critical Point**: Both packages show `✅ VALID` - signature verification cannot detect key compromise!
+Critical Point: Both packages show `✅ VALID` - signature verification cannot detect key compromise!
 
 ### Step 3: Start the Mock Attacker Server
 
@@ -208,7 +219,7 @@ export TESTBENCH_MODE=enabled
 npm start
 ```
 
-**What happens:**
+What happens:
 1. `crypto.verify()` would pass on `package.sig`
 2. Package appears legitimate to signature-only checks
 3. Postinstall script executes during `npm install`
@@ -226,16 +237,16 @@ cd detection-tools
 node signature-validator.js ../compromised-package/secure-utils
 ```
 
-**What to look for:**
+What to look for:
 - `Cryptographic signature: ✅ VALID` (expected - key is compromised!)
 - `🚨 CRITICAL: postinstall.js contains network exfiltration`
 - Signature alone is insufficient - behavioural analysis catches the attack
 
 ### Detection Method 2: Behavioral Analysis
 
-**Key Insight**: Signature verification alone is insufficient!
+Key Insight: Signature verification alone is insufficient!
 
-**Detection Techniques:**
+Detection Techniques:
 - Check for postinstall scripts in signed packages
 - Analyze script content for malicious behavior
 - Monitor package behavior at runtime
@@ -243,7 +254,7 @@ node signature-validator.js ../compromised-package/secure-utils
 
 ### Detection Method 3: Key Compromise Detection
 
-**Monitor for:**
+Monitor for:
 - Unusual signing activity
 - Signatures from unexpected locations
 - Signatures at unusual times
@@ -261,11 +272,11 @@ node infrastructure/verify-signature.js compromised-package/secure-utils
 cat compromised-package/secure-utils/package.sig | jq '.keyFingerprint, .contentHash, .label'
 ```
 
-**Findings:**
+Findings:
 - Both packages: `Cryptographic signature: ✅ VALID`
 - Same `keyFingerprint` on legitimate and malicious releases
 - Different `contentHash` (malicious content was signed with stolen key)
-- **Conclusion**: Keys are legitimate but compromised!
+- Conclusion: Keys are legitimate but compromised!
 
 ### Investigation Step 2: Behavioral Analysis
 
@@ -273,11 +284,11 @@ cat compromised-package/secure-utils/package.sig | jq '.keyFingerprint, .content
 cat postinstall.js
 ```
 
-**Findings:**
+Findings:
 - Postinstall script contains data exfiltration
 - Script collects sensitive information
 - Network requests to attacker server
-- **Conclusion**: Package is malicious despite valid signature!
+- Conclusion: Package is malicious despite valid signature!
 
 ---
 
@@ -293,12 +304,12 @@ npm cache clean --force
 
 ### Response Step 2: Key Rotation
 
-**Critical Actions:**
-1. **Revoke compromised keys immediately**
-2. **Generate new signing keys**
-3. **Re-sign legitimate packages with new keys**
-4. **Distribute new public keys to users**
-5. **Notify users of key compromise**
+Critical Actions:
+1. Revoke compromised keys immediately
+2. Generate new signing keys
+3. Re-sign legitimate packages with new keys
+4. Distribute new public keys to users
+5. Notify users of key compromise
 
 ### Response Step 3: Package Re-signing
 
@@ -313,27 +324,27 @@ npm cache clean --force
 
 ### Prevention
 
-1. **Key Protection**: Secure storage of private keys (HSMs)
-2. **Multi-factor Authentication**: Protect key access
-3. **Key Rotation**: Regular key rotation procedures
-4. **Access Controls**: Limit who can sign packages
-5. **Monitoring**: Monitor signing activity for anomalies
+1. Key Protection: Secure storage of private keys (HSMs)
+2. Multi-factor Authentication: Protect key access
+3. Key Rotation: Regular key rotation procedures
+4. Access Controls: Limit who can sign packages
+5. Monitoring: Monitor signing activity for anomalies
 
 ### Detection
 
-1. **Signature Verification**: Always verify signatures (but not sufficient alone!)
-2. **Behavioral Analysis**: Analyze package behavior
-3. **Key Monitoring**: Monitor key usage for anomalies
-4. **Timestamp Analysis**: Check for unusual signing times
-5. **Content Review**: Review package content even if signature is valid
+1. Signature Verification: Always verify signatures (but not sufficient alone!)
+2. Behavioral Analysis: Analyze package behavior
+3. Key Monitoring: Monitor key usage for anomalies
+4. Timestamp Analysis: Check for unusual signing times
+5. Content Review: Review package content even if signature is valid
 
 ### Response
 
-1. **Immediate Key Revocation**: Revoke compromised keys
-2. **Key Rotation**: Generate and distribute new keys
-3. **Package Re-signing**: Re-sign legitimate packages
-4. **User Notification**: Notify users of compromise
-5. **Incident Documentation**: Document attack and response
+1. Immediate Key Revocation: Revoke compromised keys
+2. Key Rotation: Generate and distribute new keys
+3. Package Re-signing: Re-sign legitimate packages
+4. User Notification: Notify users of compromise
+5. Incident Documentation: Document attack and response
 
 ---
 
@@ -363,24 +374,24 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 ## Elasticsearch + Kibana observability (optional)
 
-Scenario **09 - Package Signing Bypass** is indexed in Elasticsearch when the observability stack is running.
+Scenario 09 - Package Signing Bypass is indexed in Elasticsearch when the observability stack is running.
 
 Signing bypass: secure-utils appears signed but key material was compromised.
 
-- **Detection runbook (static)** → index `scas-rules`, document id `09` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
-- **Runtime captures (dynamic)** → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
+- Detection runbook (static) → index `scas-rules`, document id `09` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
+- Runtime captures (dynamic) → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
 
 ### How to read this diagram
 
 | Phase | What you should look for |
 |-------|--------------------------|
-| **1 - Collectors** | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
-| **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
-| **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
-| **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| 1 - Collectors | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
+| 2 - Lab execution | Terminal B runs the scenario README steps. See the sequence diagram and Scenario-specific attack steps below. |
+| 3 - Exfiltration | Malicious sample sends localhost-only JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
+| 4 - Elasticsearch | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| 5 - Kibana | Use the per-scenario saved searches to compare runtime captures (Detections) with the static runbook (Rules). |
 
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+> Safety: All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 
 ### End-to-end flow
 
@@ -462,7 +473,7 @@ From the repository root:
 
 ### Run this scenario with live Elasticsearch forwarding
 
-**Terminal A - mock collector** (from `scenarios/09-package-signing-bypass`):
+Terminal A - mock collector (from `scenarios/09-package-signing-bypass`):
 
 ```bash
 cd scenarios/09-package-signing-bypass
@@ -471,7 +482,7 @@ export SCAS_ES_URL=http://localhost:9200
 node infrastructure/mock-server.js
 ```
 
-**Terminal B - execute the lab:**
+Terminal B - execute the lab:
 
 ```bash
 cd scenarios/09-package-signing-bypass
@@ -505,8 +516,8 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 ### Verify in Kibana (UI)
 
 1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 09** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 09** - compare against `iocs`, `sigma`, and `yara` fields
+2. Discover → SCAS Detections - Scenario 09 - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. Discover → SCAS Rules - Scenario 09 - compare against `iocs`, `sigma`, and `yara` fields
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
@@ -515,21 +526,21 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Why Signing Bypass is Dangerous
 
-1. **Complete Trust**: Signatures are trusted completely
-2. **Key Compromise**: One compromise affects all packages
-3. **Hard to Detect**: Packages pass verification
-4. **Wide Impact**: Affects all users who trust the keys
-5. **Persistent Attack**: Compromised keys can sign many packages
+1. Complete Trust: Signatures are trusted completely
+2. Key Compromise: One compromise affects all packages
+3. Hard to Detect: Packages pass verification
+4. Wide Impact: Affects all users who trust the keys
+5. Persistent Attack: Compromised keys can sign many packages
 
 ### Best Practices
 
-1. ✅ **Protect signing keys** - Use secure storage and HSMs
-2. ✅ **Verify signatures** - Always verify package signatures
-3. ✅ **Behavioral analysis** - Don't trust signatures alone
-4. ✅ **Rotate keys regularly** - Implement key rotation procedures
-5. ✅ **Monitor signing activity** - Detect unusual signing patterns
-6. ✅ **Use multi-factor auth** - Protect key access
-7. ✅ **Implement access controls** - Limit who can sign packages
+1. ✅ Protect signing keys - Use secure storage and HSMs
+2. ✅ Verify signatures - Always verify package signatures
+3. ✅ Behavioral analysis - Don't trust signatures alone
+4. ✅ Rotate keys regularly - Implement key rotation procedures
+5. ✅ Monitor signing activity - Detect unusual signing patterns
+6. ✅ Use multi-factor auth - Protect key access
+7. ✅ Implement access controls - Limit who can sign packages
 
 ---
 
@@ -537,7 +548,7 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 You've successfully completed Scenario 9: Package Signing Bypass!
 
-**What you've learned:**
+What you've learned:
 - ✅ How package signing works
 - ✅ How attackers bypass signature verification
 - ✅ Detection and investigation techniques

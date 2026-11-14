@@ -39,6 +39,17 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 10 |
+| CLI | Shell steps in this guide and [`scenarios/10-git-submodule-attack/README.md`](../../../scenarios/10-git-submodule-attack/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/10-git-submodule-attack/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Git Submodules (15 minutes)
 
 ### What are Git Submodules?

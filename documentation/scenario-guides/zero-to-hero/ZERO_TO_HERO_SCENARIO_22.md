@@ -2,19 +2,19 @@
 
 Welcome! This guide will take you from zero knowledge to successfully completing the LiteLLM-style PyPI compromise scenario. We'll go step by step, explaining everything along the way.
 
-**Note**: This lab uses a **fictional** package name `litellm_like` and **127.0.0.1:3022** HTTP only. It models import-time vs `.pth` startup execution patterns inspired by real PyPI incidents-no credential theft or external exfiltration.
+Note: This lab uses a fictional package name `litellm_like` and 127.0.0.1:3022 HTTP only. It models import-time vs `.pth` startup execution patterns inspired by real PyPI incidents-no credential theft or external exfiltration.
 
 ## 📚 What You'll Learn
 
 By the end of this guide, you will:
-- Compare **import-time** malware vs **`.pth` interpreter startup** hooks
+- Compare import-time malware vs `.pth` interpreter startup hooks
 - Understand why `.pth` files can execute code without `import litellm_like`
 - Set up and use a Python virtual environment for safe lab execution
 - Execute both compromise paths (`1.82.7` and `1.82.8`) safely
 - Scan `site-packages` for rogue `.pth` files
 - Implement containment, eradication, and recovery for Python supply-chain incidents
 
-- Apply the **Mitigation Playbook** from this guide and the scenario README
+- Apply the Mitigation Playbook from this guide and the scenario README
 ---
 
 ## Table of Contents
@@ -41,6 +41,17 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 22 |
+| CLI | Shell steps in this guide and [`scenarios/22-litellm-pypi-compromise/README.md`](../../../scenarios/22-litellm-pypi-compromise/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/22-litellm-pypi-compromise/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding PyPI Compromise Patterns (15 minutes)
 
 ### Two Execution Models
@@ -49,20 +60,20 @@ Real PyPI maintainer compromises have demonstrated two distinct execution paths:
 
 | Path | Version in lab | When code runs | Import required? |
 |------|----------------|----------------|------------------|
-| **Import-time** | `1.82.7` | `import litellm_like` | ✅ Yes |
-| **`.pth` startup** | `1.82.8` | Any Python process starts | ❌ No |
+| Import-time | `1.82.7` | `import litellm_like` | ✅ Yes |
+| `.pth` startup | `1.82.8` | Any Python process starts | ❌ No |
 
-Both can exfiltrate, persist, or steal credentials in real incidents. This lab only writes marker JSON and POSTs to **127.0.0.1:3022**.
+Both can exfiltrate, persist, or steal credentials in real incidents. This lab only writes marker JSON and POSTs to 127.0.0.1:3022.
 
 ### What Is a `.pth` File?
 
-Python's `site` module processes `*.pth` files in `site-packages` at **interpreter startup**. A `.pth` line can:
+Python's `site` module processes `*.pth` files in `site-packages` at interpreter startup. A `.pth` line can:
 
 ```
 import litellm_like_pth_hook
 ```
 
-That means **every** `python` invocation in that venv loads the hook-even `python -c "print(1)"`.
+That means every `python` invocation in that venv loads the hook-even `python -c "print(1)"`.
 
 ### Visual Example
 
@@ -84,22 +95,22 @@ infrastructure/
 
 ### Why `.pth` Is Especially Dangerous
 
-1. **No import needed**: Short scripts, linters, and CI steps trigger payload
-2. **Early execution**: Runs before application security hooks in some setups
-3. **Low visibility**: `.pth` files are rarely reviewed by developers
-4. **Persistence feel**: Stays in site-packages until venv rebuild
-5. **Harder EDR correlation**: No obvious `import litellm_like` in process logs
+1. No import needed: Short scripts, linters, and CI steps trigger payload
+2. Early execution: Runs before application security hooks in some setups
+3. Low visibility: `.pth` files are rarely reviewed by developers
+4. Persistence feel: Stays in site-packages until venv rebuild
+5. Harder EDR correlation: No obvious `import litellm_like` in process logs
 
 ### Import-Time vs `.pth` - Detection Asymmetry
 
-**Import-time (`1.82.7`)**:
+Import-time (`1.82.7`):
 - Visible in import traces, dependency scanners that analyze package code
 - Blocked if app never imports the package (until something else does)
 
-**`.pth` startup (`1.82.8`)**:
+`.pth` startup (`1.82.8`):
 - Runs on any Python in the venv
 - May evade import-focused monitoring
-- Requires **site-packages filesystem** and startup hook scanning
+- Requires site-packages filesystem and startup hook scanning
 
 ### Real-World Context
 
@@ -107,7 +118,7 @@ infrastructure/
 - Community advisories (GHSA) documenting import vs startup hook variants
 - Vendor analyses linked from [GitHub issue #4](https://github.com/RAJANAGORI/supply-chain-attack-simulator/issues/4)
 
-**The Attack Chain (Path B - `.pth`)**:
+The Attack Chain (Path B - `.pth`):
 ```
 pip install litellm_like==1.82.8  (TESTBENCH_MODE=enabled)
     └── Installs zzz_testbench_litellm_like.pth in site-packages
@@ -134,7 +145,7 @@ pip --version
 echo $TESTBENCH_MODE  # Should output: enabled
 ```
 
-**Important**: This scenario **requires a venv**. Setup creates `victim-app/.venv` - always activate before pip install or python commands.
+Important: This scenario requires a venv. Setup creates `victim-app/.venv` - always activate before pip install or python commands.
 
 ---
 
@@ -154,15 +165,15 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-**What this does:**
+What this does:
 - Creates `victim-app/.venv` Python virtual environment
-- Prepares `infrastructure/mock_server.py` on port **3022**
+- Prepares `infrastructure/mock_server.py` on port 3022
 - Initializes capture storage
 - Prints instructions for import path and `.pth` path
 
 ### Step 3: Understand the Environment
 
-**Release table**:
+Release table:
 
 | Path | Version | Behavior |
 |------|---------|----------|
@@ -170,10 +181,10 @@ chmod +x setup.sh
 | `python-packages/v1_82_7` | `1.82.7` | Import trigger in `__init__.py` |
 | `python-packages/v1_82_8` | `1.82.8` | Adds `.pth` hook at install time |
 
-**Mock server**:
+Mock server:
 - Python script: `infrastructure/mock_server.py`
-- Port: **3022**
-- Endpoint: **`POST /collect`**
+- Port: 3022
+- Endpoint: `POST /collect`
 
 ---
 
@@ -185,7 +196,7 @@ chmod +x setup.sh
 cat python-packages/v1_82_6/litellm_like/__init__.py
 ```
 
-**What you'll see**: Normal package initialization - no testbench triggers.
+What you'll see: Normal package initialization - no testbench triggers.
 
 ### Step 2: Examine Import-Time Payload (1.82.7)
 
@@ -193,12 +204,12 @@ cat python-packages/v1_82_6/litellm_like/__init__.py
 cat python-packages/v1_82_7/litellm_like/__init__.py
 ```
 
-**Behavior when `TESTBENCH_MODE=enabled`**:
+Behavior when `TESTBENCH_MODE=enabled`:
 1. Writes `victim-app/.testbench-litellm-import.json`
 2. POSTs JSON to `http://127.0.0.1:3022/collect`
-3. Runs at **import** time via `_import_trigger()` at module load
+3. Runs at import time via `_import_trigger()` at module load
 
-**Offline mode**: `TESTBENCH_OFFLINE=1` skips marker and network.
+Offline mode: `TESTBENCH_OFFLINE=1` skips marker and network.
 
 ### Step 3: Examine `.pth` Payload (1.82.8)
 
@@ -207,7 +218,7 @@ cat python-packages/v1_82_8/setup.py
 cat python-packages/v1_82_8/litellm_like_pth_hook.py
 ```
 
-**Behavior**:
+Behavior:
 - Install with `TESTBENCH_MODE=enabled` drops `zzz_testbench_litellm_like.pth` into site-packages
 - `.pth` imports `litellm_like_pth_hook` at interpreter startup
 - Hook writes `.testbench-litellm-pth.json` and POSTs to mock server
@@ -218,7 +229,7 @@ cat python-packages/v1_82_8/litellm_like_pth_hook.py
 cat victim-app/run_victim.py
 ```
 
-**What it does**: Imports `litellm_like` - triggers **1.82.7** path only.
+What it does: Imports `litellm_like` - triggers 1.82.7 path only.
 
 ```bash
 ls -la victim-app/.venv/bin/activate
@@ -235,15 +246,15 @@ which pip
 python -c "import sys; print(sys.prefix)"
 ```
 
-**Expected**: All paths point inside `victim-app/.venv/`
+Expected: All paths point inside `victim-app/.venv/`
 
-**Never do this in the lab**:
+Never do this in the lab:
 ```bash
 # BAD - installs into system Python
 # pip install ../python-packages/v1_82_7
 ```
 
-**Why venv matters**: Compromised packages and `.pth` files stay scoped to the lab environment and are removed with `rm -rf .venv`.
+Why venv matters: Compromised packages and `.pth` files stay scoped to the lab environment and are removed with `rm -rf .venv`.
 
 ### Step 6: Baseline with Clean Version (Optional)
 
@@ -255,7 +266,7 @@ pip install ../python-packages/v1_82_6
 python -c "import litellm_like; print(litellm_like.__version__)"
 ```
 
-**Expected**: `1.82.6`, no marker files, no captures on mock server.
+Expected: `1.82.6`, no marker files, no captures on mock server.
 
 ```bash
 test ! -f .testbench-litellm-import.json && test ! -f .testbench-litellm-pth.json && echo "Clean baseline OK"
@@ -269,7 +280,7 @@ test ! -f .testbench-litellm-import.json && test ! -f .testbench-litellm-pth.jso
 
 #### Step 1: Start Mock Collector
 
-**Terminal A**:
+Terminal A:
 
 ```bash
 cd scenarios/22-litellm-pypi-compromise
@@ -277,7 +288,7 @@ export TESTBENCH_MODE=enabled
 python3 infrastructure/mock_server.py
 ```
 
-**Verify**:
+Verify:
 
 ```bash
 curl -s http://127.0.0.1:3022/captured-data
@@ -285,7 +296,7 @@ curl -s http://127.0.0.1:3022/captured-data
 
 #### Step 2: Install and Run Import Trigger
 
-**Terminal B**:
+Terminal B:
 
 ```bash
 cd scenarios/22-litellm-pypi-compromise/victim-app
@@ -295,7 +306,7 @@ export TESTBENCH_MODE=enabled
 python run_victim.py
 ```
 
-**What happens**:
+What happens:
 1. `litellm_like` imports → `__init__.py` runs `_import_trigger()`
 2. Marker written: `.testbench-litellm-import.json`
 3. POST to `127.0.0.1:3022/collect`
@@ -313,7 +324,7 @@ curl -s http://127.0.0.1:3022/captured-data | jq
 
 #### Step 4: Switch to `.pth` Version
 
-**Still in Terminal B** (venv activated):
+Still in Terminal B (venv activated):
 
 ```bash
 pip uninstall -y litellm_like
@@ -321,7 +332,7 @@ export TESTBENCH_MODE=enabled
 pip install ../python-packages/v1_82_8
 ```
 
-**Critical**: `TESTBENCH_MODE=enabled` **during install** - hook `.pth` is only added when install runs with flag set.
+Critical: `TESTBENCH_MODE=enabled` during install - hook `.pth` is only added when install runs with flag set.
 
 #### Step 5: Trigger Without Importing Package
 
@@ -329,7 +340,7 @@ pip install ../python-packages/v1_82_8
 python -c "print('hello')"
 ```
 
-**No `import litellm_like` needed!** The `.pth` file loads at startup.
+No `import litellm_like` needed! The `.pth` file loads at startup.
 
 #### Step 6: Verify `.pth`-Path Evidence
 
@@ -341,7 +352,7 @@ python -c "import site; print(site.getsitepackages())"
 find .venv -name "*.pth" -exec echo '---' \; -exec cat {} \;
 ```
 
-**Expected**: `zzz_testbench_litellm_like.pth` referencing `litellm_like_pth_hook`
+Expected: `zzz_testbench_litellm_like.pth` referencing `litellm_like_pth_hook`
 
 ```bash
 curl -s http://127.0.0.1:3022/captured-data | jq '.captures'
@@ -370,7 +381,7 @@ source victim-app/.venv/bin/activate
 python detection-tools/litellm_pth_scanner.py
 ```
 
-**What this flags:**
+What this flags:
 - Unexpected `.pth` files in site-packages
 - Suspicious import lines pointing to hook modules
 - IOC strings like `litellm_like_pth_hook`, `zzz_testbench_litellm_like.pth`
@@ -385,7 +396,7 @@ ls -la "$SITE"/*.pth 2>/dev/null || echo "No .pth files"
 grep -r "litellm_like" "$SITE" 2>/dev/null | head -20
 ```
 
-**Red flags:**
+Red flags:
 - New `.pth` files after package upgrade
 - `.pth` lines with `import` statements (not just path additions)
 - Alphabetically early names like `zzz_*` to load last/first strategically
@@ -401,12 +412,12 @@ cat .testbench-litellm-pth.json 2>/dev/null
 
 ### Detection Method 4: Network and Log Hunting
 
-**IOCs from `DETECT.md`**:
+IOCs from `DETECT.md`:
 - Beacon to `127.0.0.1:3022`
 - Marker files `.testbench-litellm-*.json`
 - `.pth` content containing `litellm_like_pth_hook`
 
-**Sample log**:
+Sample log:
 ```json
 {"scenario_id":"22","event_type":"python_startup_hook_exec","source":"litellm_like_pth_hook","destination":"127.0.0.1:3022"}
 ```
@@ -418,7 +429,7 @@ pip show litellm_like
 pip freeze | grep litellm
 ```
 
-**Policy**: Pin `litellm_like==1.82.6` (clean) or verified hash; block unpinned `-U` upgrades in CI.
+Policy: Pin `litellm_like==1.82.6` (clean) or verified hash; block unpinned `-U` upgrades in CI.
 
 ### Detection Method 6: pip Install Reproducibility
 
@@ -430,7 +441,7 @@ pip freeze > /tmp/after-freeze.txt
 diff /tmp/before-freeze.txt /tmp/after-freeze.txt
 ```
 
-**Look for**: Unexpected version bumps or new packages after a single `pip install -U`.
+Look for: Unexpected version bumps or new packages after a single `pip install -U`.
 
 ### Detection Method 7: Import vs Startup Process Comparison
 
@@ -438,12 +449,12 @@ Run both paths and compare process behavior conceptually:
 
 | Observation | Import path (1.82.7) | `.pth` path (1.82.8) |
 |-------------|----------------------|----------------------|
-| `python -c "print(1)"` triggers payload? | No | **Yes** |
+| `python -c "print(1)"` triggers payload? | No | Yes |
 | `python run_victim.py` triggers payload? | Yes | Yes (via .pth) |
 | Rogue `.pth` in site-packages? | No | Yes |
 | Marker file | `.testbench-litellm-import.json` | `.testbench-litellm-pth.json` |
 
-**Enterprise lesson**: EDR rules that only alert on `import litellm_like` miss the `.pth` path entirely.
+Enterprise lesson: EDR rules that only alert on `import litellm_like` miss the `.pth` path entirely.
 
 ---
 
@@ -458,7 +469,7 @@ pip freeze
 pip show litellm_like
 ```
 
-**Questions:**
+Questions:
 - Which version is installed?
 - When was venv last recreated?
 - Is this venv shared across projects (dangerous)?
@@ -469,7 +480,7 @@ pip show litellm_like
 find victim-app/.venv -name "*.pth" -print -exec cat {} \;
 ```
 
-**Questions:**
+Questions:
 - Which `.pth` files exist beyond this lab's IOC name?
 - Do they contain `import` lines?
 - Who created them (install timestamp vs package version)?
@@ -480,7 +491,7 @@ find victim-app/.venv -name "*.pth" -print -exec cat {} \;
 cat python-packages/v1_82_7/litellm_like/__init__.py
 ```
 
-**Questions:**
+Questions:
 - Would static analysis of PyPI tarball catch import-time side effects?
 - Does package `__init__.py` perform network I/O at import?
 
@@ -491,7 +502,7 @@ cat infrastructure/captured-data.json | jq
 ls -la victim-app/.testbench-litellm-*.json
 ```
 
-**Build timeline**:
+Build timeline:
 - When was `1.82.8` installed with TESTBENCH flag?
 - Which CI jobs ran `python` without explicit AI library import?
 - What API keys existed in environment variables during those runs?
@@ -528,7 +539,7 @@ source .venv/bin/activate
 pip install ../python-packages/v1_82_6   # known-good pin
 ```
 
-**Verify no rogue `.pth` remains**:
+Verify no rogue `.pth` remains:
 
 ```bash
 find .venv -name "*.pth" 2>/dev/null
@@ -537,12 +548,12 @@ python detection-tools/litellm_pth_scanner.py
 
 ### Response Step 3: Recovery and Long-term Defenses
 
-1. **Pin known-good version**: `litellm_like==1.82.6` in locked requirements
-2. **Hash pinning**: Use `pip-tools` / Poetry lock with integrity hashes
-3. **Vetting critical AI/ML deps**: Manual review for `__init__.py` side effects and `.pth`
-4. **Scan site-packages in CI**: Run `.pth` scanner after every `pip install`
-5. **Separate venvs per project**: Never share site-packages across apps
-6. **Rotate secrets**: PyPI tokens, API keys (real incidents - lab has no secrets)
+1. Pin known-good version: `litellm_like==1.82.6` in locked requirements
+2. Hash pinning: Use `pip-tools` / Poetry lock with integrity hashes
+3. Vetting critical AI/ML deps: Manual review for `__init__.py` side effects and `.pth`
+4. Scan site-packages in CI: Run `.pth` scanner after every `pip install`
+5. Separate venvs per project: Never share site-packages across apps
+6. Rotate secrets: PyPI tokens, API keys (real incidents - lab has no secrets)
 
 ```bash
 # Example pinned install
@@ -581,24 +592,24 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 ## Elasticsearch + Kibana observability (optional)
 
-Scenario **22 - LiteLLM-style PyPI Compromise** is indexed in Elasticsearch when the observability stack is running.
+Scenario 22 - LiteLLM-style PyPI Compromise is indexed in Elasticsearch when the observability stack is running.
 
 LiteLLM-style PyPI: litellm_like exfil on import (1.82.7) or via .pth at interpreter startup (1.82.8).
 
-- **Detection runbook (static)** → index `scas-rules`, document id `22` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
-- **Runtime captures (dynamic)** → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
+- Detection runbook (static) → index `scas-rules`, document id `22` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
+- Runtime captures (dynamic) → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
 
 ### How to read this diagram
 
 | Phase | What you should look for |
 |-------|--------------------------|
-| **1 - Collectors** | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
-| **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
-| **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
-| **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| 1 - Collectors | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
+| 2 - Lab execution | Terminal B runs the scenario README steps. See the sequence diagram and Scenario-specific attack steps below. |
+| 3 - Exfiltration | Malicious sample sends localhost-only JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
+| 4 - Elasticsearch | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| 5 - Kibana | Use the per-scenario saved searches to compare runtime captures (Detections) with the static runbook (Rules). |
 
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+> Safety: All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 
 ### End-to-end flow
 
@@ -680,7 +691,7 @@ From the repository root:
 
 ### Run this scenario with live Elasticsearch forwarding
 
-**Terminal A - mock collector** (from `scenarios/22-litellm-pypi-compromise`):
+Terminal A - mock collector (from `scenarios/22-litellm-pypi-compromise`):
 
 ```bash
 cd scenarios/22-litellm-pypi-compromise
@@ -689,7 +700,7 @@ export SCAS_ES_URL=http://localhost:9200
 python3 infrastructure/mock_server.py
 ```
 
-**Terminal B - execute the lab:**
+Terminal B - execute the lab:
 
 ```bash
 cd scenarios/22-litellm-pypi-compromise
@@ -723,8 +734,8 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 ### Verify in Kibana (UI)
 
 1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 22** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 22** - compare against `iocs`, `sigma`, and `yara` fields
+2. Discover → SCAS Detections - Scenario 22 - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. Discover → SCAS Rules - Scenario 22 - compare against `iocs`, `sigma`, and `yara` fields
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
@@ -733,30 +744,30 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Why PyPI Compromise Is Dangerous
 
-1. **Import-time execution**: Single import compromises process
-2. **`.pth` stealth**: Runs without explicit package import
-3. **AI/ML stack risk**: High-value API keys in developer/CI environments
-4. **venv persistence**: Malware survives until environment rebuild
-5. **Detection gaps**: Import-only monitoring misses startup hooks
+1. Import-time execution: Single import compromises process
+2. `.pth` stealth: Runs without explicit package import
+3. AI/ML stack risk: High-value API keys in developer/CI environments
+4. venv persistence: Malware survives until environment rebuild
+5. Detection gaps: Import-only monitoring misses startup hooks
 
 ### Best Practices
 
-1. ✅ **Use dedicated venvs** - rebuild from locked requirements after incidents
-2. ✅ **Scan `site-packages/*.pth`** - treat new files as high severity
-3. ✅ **Pin versions and hashes** - no blind `pip install -U` in CI
-4. ✅ **Review `__init__.py`** - flag network I/O at import time
-5. ✅ **Monitor all Python invocations** in CI, not just app entrypoints
-6. ✅ **Rotate credentials** after confirmed PyPI compromise advisories
-7. ✅ **Mirror/vet critical packages** through internal PyPI proxy
+1. ✅ Use dedicated venvs - rebuild from locked requirements after incidents
+2. ✅ **Scan `site-packages/*.pth` - treat new files as high severity
+3. ✅ Pin versions and hashes - no blind `pip install -U` in CI
+4. ✅ Review `__init__.py` - flag network I/O at import time
+5. ✅ Monitor all Python invocations in CI, not just app entrypoints
+6. ✅ Rotate credentials after confirmed PyPI compromise advisories
+7. ✅ Mirror/vet critical packages through internal PyPI proxy
 
 ### Import-Time vs `.pth` - Which Is Harder to Detect?
 
-**`.pth` startup** is generally harder in enterprise Python fleets because:
+`.pth` startup is generally harder in enterprise Python fleets because:
 - No import statement appears in application source
 - Linters, importers, and dependency graphs may miss it
 - Short-lived CI commands still trigger payload
 
-**Import-time** is easier when:
+Import-time is easier when:
 - You monitor imports or run static analysis on installed packages
 - App never imports the library (until a transitive does)
 
@@ -765,11 +776,11 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 ## Part 10: Advanced Exercises
 
 ### Exercise 1: Detection Asymmetry
-- Describe when **`.pth`** is more dangerous than **import-time** payloads for security monitoring
+- Describe when `.pth` is more dangerous than import-time payloads for security monitoring
 - List two EDR/data sources that catch each path
 
 ### Exercise 2: Install Policy
-- Write a one-line **`pip install`** policy your team would use for critical AI dependencies
+- Write a one-line `pip install` policy your team would use for critical AI dependencies
 - Include pin, hash, and approval requirements
 
 ### Exercise 3: Enterprise Scanning
@@ -795,17 +806,17 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ## ⚠️ Safety & Ethics
 
-**IMPORTANT**: This scenario is for **educational purposes only**.
+IMPORTANT: This scenario is for educational purposes only.
 
 - ✅ Use ONLY in isolated test environments
 - ✅ Fictional `litellm_like` package - not the real LiteLLM project
 - ✅ All malicious behavior requires `TESTBENCH_MODE=enabled`
-- ✅ Exfiltration targets **127.0.0.1:3022** only - no real external C2
+- ✅ Exfiltration targets 127.0.0.1:3022 only - no real external C2
 - ✅ Always use the provided `.venv` - never install test packages into system Python
 - ✅ Do not reuse patterns against systems you do not own
 
 ---
 
-**Remember**: Python supply-chain defense requires site-packages filesystem monitoring - not just import analysis. Rebuild venvs, scan `.pth` files, and pin your AI stack!
+Remember**: Python supply-chain defense requires site-packages filesystem monitoring - not just import analysis. Rebuild venvs, scan `.pth` files, and pin your AI stack!
 
 🔐 Happy Learning!

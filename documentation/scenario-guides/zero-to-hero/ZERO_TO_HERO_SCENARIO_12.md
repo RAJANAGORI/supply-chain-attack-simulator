@@ -12,7 +12,7 @@ By the end of this guide, you will:
 - Perform detection and forensic investigation
 - Implement defense strategies for workspaces
 
-- Apply the **Mitigation Playbook** from this guide and the scenario README
+- Apply the Mitigation Playbook from this guide and the scenario README
 ---
 
 ## Table of Contents
@@ -39,13 +39,24 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 12 |
+| CLI | Shell steps in this guide and [`scenarios/12-workspace-monorepo-attack/README.md`](../../../scenarios/12-workspace-monorepo-attack/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/12-workspace-monorepo-attack/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Workspaces and Monorepos (15 minutes)
 
 ### What is a Workspace?
 
-A **workspace** (also called a **monorepo**) is a way to manage multiple packages in a single repository. Instead of having separate repositories for each package, you can have them all in one place.
+A workspace (also called a monorepo) is a way to manage multiple packages in a single repository. Instead of having separate repositories for each package, you can have them all in one place.
 
-**Example Structure**:
+Example Structure:
 ```
 my-workspace/
 ├── package.json          # Root workspace config
@@ -59,15 +70,15 @@ my-workspace/
 
 ### Why Use Workspaces?
 
-1. **Code Sharing**: Packages can easily use each other
-2. **Single Repository**: All code in one place
-3. **Atomic Changes**: Change multiple packages together
-4. **Simplified Dependencies**: Use `workspace:*` protocol
-5. **Modern Development**: Used by Lerna, Nx, Turborepo, etc.
+1. Code Sharing: Packages can easily use each other
+2. Single Repository: All code in one place
+3. Atomic Changes: Change multiple packages together
+4. Simplified Dependencies: Use `workspace:*` protocol
+5. Modern Development: Used by Lerna, Nx, Turborepo, etc.
 
 ### How Workspace Dependencies Work
 
-**Workspace Protocol**: `workspace:*`
+Workspace Protocol: `workspace:*`
 ```json
 {
   "dependencies": {
@@ -103,21 +114,21 @@ This means: "Use the version of @devcorp/utils from this workspace"
 
 ### Why Workspace Attacks Are Risky
 
-1. **Shared Access**: Workspace packages can access each other's code
-2. **Wide Impact**: One compromised package affects entire workspace
-3. **Trust Chain**: Developers trust all workspace packages
-4. **Automatic Execution**: Postinstall scripts run during workspace install
-5. **Hard to Detect**: Workspace packages treated as internal and trusted
-6. **Modern Development**: Monorepos are increasingly common
+1. Shared Access: Workspace packages can access each other's code
+2. Wide Impact: One compromised package affects entire workspace
+3. Trust Chain: Developers trust all workspace packages
+4. Automatic Execution: Postinstall scripts run during workspace install
+5. Hard to Detect: Workspace packages treated as internal and trusted
+6. Modern Development: Monorepos are increasingly common
 
 ### Real-World Example: Monorepo Compromises
 
-- **Internal Package Attacks**: Attackers compromise internal workspace packages
-- **Build System Attacks**: Workspace packages used to compromise CI/CD
-- **Credential Theft**: Compromised workspace packages steal credentials
-- **Wide Impact**: One compromise affects all packages in workspace
+- Internal Package Attacks: Attackers compromise internal workspace packages
+- Build System Attacks: Workspace packages used to compromise CI/CD
+- Credential Theft: Compromised workspace packages steal credentials
+- Wide Impact: One compromise affects all packages in workspace
 
-**The Attack Chain**:
+The Attack Chain:
 ```
 Your Workspace
 ├── @devcorp/utils (COMPROMISED!)
@@ -164,7 +175,7 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-**What this does:**
+What this does:
 - Creates workspace root package.json
 - Sets up legitimate workspace packages (utils, api, auth)
 - Creates compromised utils package
@@ -172,14 +183,14 @@ export TESTBENCH_MODE=enabled
 - Creates detection tools
 - Sets up mock attacker server
 
-**Expected output:**
+Expected output:
 - Setup progress messages
 - Directories and files created
 - "Next Steps" displayed
 
 ### Step 3: Understand the Environment
 
-**The Workspace Structure**:
+The Workspace Structure:
 ```
 devcorp-workspace/
 ├── package.json (workspace root)
@@ -190,13 +201,13 @@ devcorp-workspace/
 └── victim-app/ (uses api and auth)
 ```
 
-**Packages**:
-- **@devcorp/utils**: Workspace package (compromised by attacker)
-- **@devcorp/api**: Workspace package that depends on utils
-- **@devcorp/auth**: Workspace package that depends on utils
-- **victim-app**: Application using workspace packages
+Packages:
+- @devcorp/utils: Workspace package (compromised by attacker)
+- @devcorp/api: Workspace package that depends on utils
+- @devcorp/auth: Workspace package that depends on utils
+- victim-app: Application using workspace packages
 
-**The Attack**: 
+The Attack: 
 - Attacker compromises `@devcorp/utils`
 - Adds malicious postinstall script
 - When workspace is installed, postinstall executes
@@ -212,7 +223,7 @@ devcorp-workspace/
 cat package.json
 ```
 
-**What you'll see:**
+What you'll see:
 ```json
 {
   "name": "devcorp-workspace",
@@ -222,7 +233,7 @@ cat package.json
 }
 ```
 
-**Notice**: The `workspaces` field tells npm which directories contain workspace packages.
+Notice: The `workspaces` field tells npm which directories contain workspace packages.
 
 ### Step 2: Examine Legitimate Workspace Packages
 
@@ -231,7 +242,7 @@ cd legitimate-packages/utils
 cat package.json
 ```
 
-**What you'll see:**
+What you'll see:
 ```json
 {
   "name": "@devcorp/utils",
@@ -244,7 +255,7 @@ cd ../api
 cat package.json
 ```
 
-**What you'll see:**
+What you'll see:
 ```json
 {
   "name": "@devcorp/api",
@@ -254,7 +265,7 @@ cat package.json
 }
 ```
 
-**Notice**: `@devcorp/api` depends on `@devcorp/utils` using `workspace:*` protocol!
+Notice: `@devcorp/api` depends on `@devcorp/utils` using `workspace:*` protocol!
 
 ### Step 3: Understand Workspace Dependencies
 
@@ -263,7 +274,7 @@ cd ../auth
 cat package.json
 ```
 
-**What you'll see:**
+What you'll see:
 ```json
 {
   "name": "@devcorp/auth",
@@ -273,7 +284,7 @@ cat package.json
 }
 ```
 
-**Key Point**: Both `@devcorp/api` and `@devcorp/auth` depend on `@devcorp/utils`!
+Key Point: Both `@devcorp/api` and `@devcorp/auth` depend on `@devcorp/utils`!
 
 ### Step 4: View the Legitimate Utils Package
 
@@ -282,7 +293,7 @@ cd ../utils
 cat index.js
 ```
 
-**What you'll see:**
+What you'll see:
 - Clean, legitimate code
 - Simple utility functions
 - No malicious behavior
@@ -295,9 +306,9 @@ This is what `@devcorp/utils` should look like.
 
 ### Step 1: Understand the Compromise
 
-**Scenario**: Attacker has compromised `@devcorp/utils` and added malicious postinstall script.
+Scenario: Attacker has compromised `@devcorp/utils` and added malicious postinstall script.
 
-**Attack Timeline**:
+Attack Timeline:
 1. Attacker gains access to workspace repository
 2. Compromises `@devcorp/utils` package
 3. Adds malicious postinstall script
@@ -311,7 +322,7 @@ cd ../../compromised-package/utils
 cat package.json
 ```
 
-**What you'll see:**
+What you'll see:
 ```json
 {
   "name": "@devcorp/utils",
@@ -322,13 +333,13 @@ cat package.json
 }
 ```
 
-**Key Change**: Version 1.0.1 has a `postinstall` script!
+Key Change: Version 1.0.1 has a `postinstall` script!
 
 ```bash
 cat postinstall.js
 ```
 
-**What it does:**
+What it does:
 - Executes automatically when workspace package is installed
 - Collects system information
 - Reads sensitive files from workspace root (.env, package.json)
@@ -341,13 +352,13 @@ cd ../../infrastructure
 node mock-server.js &
 ```
 
-**What this does:**
+What this does:
 - Starts a server on localhost:3000
 - Receives exfiltrated data
 - Logs captured information
 - Safe - only works on localhost!
 
-**Verify it's running:**
+Verify it's running:
 ```bash
 curl http://localhost:3000/captured-data
 # Should return: {"captures":[]}
@@ -361,7 +372,7 @@ cp -r legitimate-packages/* packages/
 npm install
 ```
 
-**What happens:**
+What happens:
 1. Workspace packages are copied to `packages/` directory
 2. npm recognizes them as workspace packages
 3. Workspace dependencies are resolved
@@ -374,7 +385,7 @@ cp -r compromised-package/utils packages/utils
 npm install
 ```
 
-**What happens:**
+What happens:
 1. Compromised `@devcorp/utils` replaces legitimate version
 2. npm installs workspace packages
 3. Postinstall script in compromised `@devcorp/utils` executes
@@ -396,7 +407,7 @@ npm install
 curl http://localhost:3000/captured-data | jq
 ```
 
-**What was exfiltrated:**
+What was exfiltrated:
 - Hostname
 - Username
 - Platform information
@@ -413,9 +424,9 @@ npm install
 npm start
 ```
 
-**Notice**: The application runs normally! You might not notice anything wrong.
+Notice: The application runs normally! You might not notice anything wrong.
 
-**Key Point**: The attack executed during `npm install`, not during application runtime.
+Key Point: The attack executed during `npm install`, not during application runtime.
 
 ---
 
@@ -428,13 +439,13 @@ cd detection-tools
 node workspace-scanner.js ..
 ```
 
-**What this does:**
+What this does:
 - Scans all workspace packages
 - Identifies packages with postinstall scripts
 - Checks for suspicious code patterns
 - Detects malicious workspace packages
 
-**What to look for:**
+What to look for:
 - Packages with postinstall scripts
 - Suspicious network requests
 - Unexpected file access
@@ -454,7 +465,7 @@ ls -la packages/
 npm ls --workspaces
 ```
 
-**Key Questions:**
+Key Questions:
 - Which packages are in the workspace?
 - Which packages depend on each other?
 - Are there any unexpected packages?
@@ -469,7 +480,7 @@ find packages -name "package.json" -exec grep -l "postinstall" {} \;
 cat packages/utils/package.json | grep -A 5 "scripts"
 ```
 
-**Red Flags:**
+Red Flags:
 - Postinstall scripts in workspace packages
 - Scripts that make network requests
 - Scripts that access sensitive files
@@ -484,7 +495,7 @@ npm ls --workspaces --all
 npm ls @devcorp/utils --workspaces
 ```
 
-**What to look for:**
+What to look for:
 - Unexpected dependencies
 - Suspicious version numbers
 - Packages with unusual structure
@@ -496,7 +507,7 @@ npm ls @devcorp/utils --workspaces
 curl http://localhost:3000/captured-data | jq '.captures[0].data'
 ```
 
-**What to look for:**
+What to look for:
 - Unexpected network requests during install
 - Data exfiltration to unknown servers
 - Postinstall scripts making HTTP requests
@@ -519,7 +530,7 @@ cat packages/api/package.json | grep -A 10 "dependencies"
 cat packages/auth/package.json | grep -A 10 "dependencies"
 ```
 
-**Questions:**
+Questions:
 - What is the complete workspace structure?
 - Which packages are workspace packages?
 - Which packages depend on each other?
@@ -555,7 +566,7 @@ cd ..
 npm ls --workspaces
 ```
 
-**Questions:**
+Questions:
 - Which packages depend on `@devcorp/utils`?
 - How many packages are affected?
 - What is the scope of the compromise?
@@ -573,7 +584,7 @@ cat infrastructure/captured-data.json | jq '.captures[0].timestamp'
 ls -la packages/utils
 ```
 
-**Build Timeline:**
+Build Timeline:
 - When was the package compromised?
 - When was it installed in the workspace?
 - What data was exfiltrated?
@@ -614,33 +625,33 @@ node detection-tools/workspace-scanner.js .
 
 ### Response Step 3: Long-term Defenses
 
-**Implement Multiple Layers**:
+Implement Multiple Layers:
 
-1. **Workspace Access Control**:
+1. Workspace Access Control:
    - Limit who can modify workspace packages
    - Use code review for workspace changes
    - Implement branch protection
 
-2. **Postinstall Monitoring**:
+2. Postinstall Monitoring:
    ```bash
    # Monitor for postinstall scripts
    find packages -name "package.json" -exec grep -l "postinstall" {} \;
    ```
 
-3. **Automated Scanning**:
+3. Automated Scanning:
    ```bash
    # Add to CI/CD pipeline
    node detection-tools/workspace-scanner.js .
    ```
 
-4. **Workspace Auditing**:
+4. Workspace Auditing:
    ```bash
    # Regular workspace audits
    npm audit --workspaces
    npm ls --workspaces --all
    ```
 
-5. **Version Control**:
+5. Version Control:
    - Use version control for all workspace changes
    - Review workspace package changes carefully
    - Maintain workspace package history
@@ -672,24 +683,24 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 ## Elasticsearch + Kibana observability (optional)
 
-Scenario **12 - Workspace / Monorepo Attack** is indexed in Elasticsearch when the observability stack is running.
+Scenario 12 - Workspace / Monorepo Attack is indexed in Elasticsearch when the observability stack is running.
 
 Workspace monorepo: compromised @devcorp/utils inside the workspace is linked into victim-app.
 
-- **Detection runbook (static)** → index `scas-rules`, document id `12` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
-- **Runtime captures (dynamic)** → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
+- Detection runbook (static) → index `scas-rules`, document id `12` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
+- Runtime captures (dynamic) → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
 
 ### How to read this diagram
 
 | Phase | What you should look for |
 |-------|--------------------------|
-| **1 - Collectors** | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
-| **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
-| **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
-| **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| 1 - Collectors | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
+| 2 - Lab execution | Terminal B runs the scenario README steps. See the sequence diagram and Scenario-specific attack steps below. |
+| 3 - Exfiltration | Malicious sample sends localhost-only JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
+| 4 - Elasticsearch | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| 5 - Kibana | Use the per-scenario saved searches to compare runtime captures (Detections) with the static runbook (Rules). |
 
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+> Safety: All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 
 ### End-to-end flow
 
@@ -771,7 +782,7 @@ From the repository root:
 
 ### Run this scenario with live Elasticsearch forwarding
 
-**Terminal A - mock collector** (from `scenarios/12-workspace-monorepo-attack`):
+Terminal A - mock collector (from `scenarios/12-workspace-monorepo-attack`):
 
 ```bash
 cd scenarios/12-workspace-monorepo-attack
@@ -780,7 +791,7 @@ export SCAS_ES_URL=http://localhost:9200
 node infrastructure/mock-server.js
 ```
 
-**Terminal B - execute the lab:**
+Terminal B - execute the lab:
 
 ```bash
 cd scenarios/12-workspace-monorepo-attack
@@ -814,8 +825,8 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 ### Verify in Kibana (UI)
 
 1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 12** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 12** - compare against `iocs`, `sigma`, and `yara` fields
+2. Discover → SCAS Detections - Scenario 12 - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. Discover → SCAS Rules - Scenario 12 - compare against `iocs`, `sigma`, and `yara` fields
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
@@ -824,28 +835,28 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Why Workspace Attacks Are Dangerous
 
-1. **Shared Access**: Workspace packages can access each other
-2. **Wide Impact**: One compromise affects entire workspace
-3. **Trust**: Developers trust all workspace packages
-4. **Hard to Detect**: Workspace packages treated as internal
-5. **Modern Development**: Monorepos are increasingly common
+1. Shared Access: Workspace packages can access each other
+2. Wide Impact: One compromise affects entire workspace
+3. Trust: Developers trust all workspace packages
+4. Hard to Detect: Workspace packages treated as internal
+5. Modern Development: Monorepos are increasingly common
 
 ### Best Practices
 
-1. ✅ **Audit workspace packages** - Regularly audit all workspace packages
-2. ✅ **Monitor postinstall scripts** - Monitor postinstall execution in workspaces
-3. ✅ **Limit access** - Limit who can modify workspace packages
-4. ✅ **Version control** - Use version control for all workspace changes
-5. ✅ **Dependency review** - Review workspace dependencies carefully
-6. ✅ **Integrity checks** - Verify workspace package integrity
-7. ✅ **Incident plan** - Have incident response plan for workspace attacks
+1. ✅ Audit workspace packages - Regularly audit all workspace packages
+2. ✅ Monitor postinstall scripts - Monitor postinstall execution in workspaces
+3. ✅ Limit access - Limit who can modify workspace packages
+4. ✅ Version control - Use version control for all workspace changes
+5. ✅ Dependency review - Review workspace dependencies carefully
+6. ✅ Integrity checks - Verify workspace package integrity
+7. ✅ Incident plan - Have incident response plan for workspace attacks
 
 ### Real-World Impact
 
-- **Monorepo Compromises**: Multiple organizations affected
-- **Internal Package Attacks**: Workspace packages used for attacks
-- **Detection Time**: Often weeks before discovery
-- **Wide Impact**: All packages in workspace affected
+- Monorepo Compromises: Multiple organizations affected
+- Internal Package Attacks: Workspace packages used for attacks
+- Detection Time: Often weeks before discovery
+- Wide Impact: All packages in workspace affected
 
 ---
 
@@ -882,7 +893,7 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ## ⚠️ Safety & Ethics
 
-**IMPORTANT**: This scenario is for **educational purposes only**.
+IMPORTANT: This scenario is for educational purposes only.
 
 - ✅ Use ONLY in isolated test environments
 - ✅ Never deploy malicious code to production
@@ -891,6 +902,6 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ---
 
-**Remember**: Workspace packages are a critical attack vector. Always audit workspace packages and monitor postinstall scripts!
+Remember: Workspace packages are a critical attack vector. Always audit workspace packages and monitor postinstall scripts!
 
 🔐 Happy Learning!

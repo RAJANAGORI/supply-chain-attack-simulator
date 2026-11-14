@@ -2,9 +2,11 @@
 
 Technical reference for how SCAS is built, how to run labs, and how to detect attacks.
 
+Learner UI entry is [Command Center](../getting-started/COMMAND_CENTER.md). The `DASHBOARD.md` page below is the maintainer note for `apps/dashboard` and the control plane.
+
 | Document | Description |
 |----------|-------------|
-| [DASHBOARD.md](./DASHBOARD.md) | Optional browser UI - labs dock, Observatory, LAN links, teardown clears logs |
+| [DASHBOARD.md](./DASHBOARD.md) | Maintainer notes - Command Center + control plane, `lesson.yaml`, LAN, teardown |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Repo layout, mock-server contract, safety gates, and data flow |
 | [OPERATIONS.md](./OPERATIONS.md) | Scripts, ports, teardown, and standard lab workflow |
 | [DETECTION_AND_OBSERVABILITY.md](./DETECTION_AND_OBSERVABILITY.md) | DETECT.md runbooks, scanners, Elasticsearch + Kibana integration |

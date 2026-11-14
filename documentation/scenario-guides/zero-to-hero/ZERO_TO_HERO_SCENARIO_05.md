@@ -35,6 +35,17 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 05 |
+| CLI | Shell steps in this guide and [`scenarios/05-build-compromise/README.md`](../../../scenarios/05-build-compromise/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/05-build-compromise/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Build System Compromise (10 minutes)
 
 ### What is a Build System Compromise?

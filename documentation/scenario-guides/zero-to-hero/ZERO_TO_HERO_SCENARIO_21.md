@@ -2,7 +2,7 @@
 
 Welcome! This guide will take you from zero knowledge to successfully completing the Axios-style compromised npm release scenario. We'll go step by step, explaining everything along the way.
 
-**Note**: This lab uses **fictional** package names (`axios-like`, `plain-crypto-js-like`) and **localhost-only** telemetry. It is inspired by real maintainer-compromise patterns but contains no real malware or external C2.
+Note: This lab uses fictional package names (`axios-like`, `plain-crypto-js-like`) and localhost-only telemetry. It is inspired by real maintainer-compromise patterns but contains no real malware or external C2.
 
 ## 📚 What You'll Learn
 
@@ -14,7 +14,7 @@ By the end of this guide, you will:
 - Perform forensic investigation including anti-forensics manifest swap
 - Implement pinning, lockfile-only CI, and lifecycle script defenses
 
-- Apply the **Mitigation Playbook** from this guide and the scenario README
+- Apply the Mitigation Playbook from this guide and the scenario README
 ---
 
 ## Table of Contents
@@ -41,18 +41,29 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 21 |
+| CLI | Shell steps in this guide and [`scenarios/21-axios-compromised-release-attack/README.md`](../../../scenarios/21-axios-compromised-release-attack/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/21-axios-compromised-release-attack/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Compromised npm Releases (15 minutes)
 
 ### What Happened in Real Incidents (Pattern Overview)
 
 Maintainer-account compromises on popular npm packages have shown a recurring pattern:
 
-1. Attacker publishes a **patch semver** (e.g. `1.14.0` → `1.14.1`) that looks routine
-2. The patch adds an **unexpected transitive dependency** the parent never used before
-3. The transitive runs a **`postinstall`** script during `npm install`
-4. The script beacons home, steals credentials, or drops persistence - then may **hide evidence**
+1. Attacker publishes a patch semver (e.g. `1.14.0` → `1.14.1`) that looks routine
+2. The patch adds an unexpected transitive dependency the parent never used before
+3. The transitive runs a `postinstall` script during `npm install`
+4. The script beacons home, steals credentials, or drops persistence - then may hide evidence
 
-This lab models that pattern with fictional names and **127.0.0.1:3021** beacons only.
+This lab models that pattern with fictional names and 127.0.0.1:3021 beacons only.
 
 ### The Transitive Postinstall Problem
 
@@ -66,13 +77,13 @@ const axiosLike = require('axios-like');  // Clean HTTP client stand-in
 But npm still:
 1. Resolves `axios-like@1.14.1`'s dependencies
 2. Materializes `plain-crypto-js-like` in `node_modules`
-3. Runs **`postinstall`** on the transitive during install
+3. Runs `postinstall` on the transitive during install
 
-**Key insight**: Lifecycle scripts execute for **installed** packages, not **imported** packages.
+Key insight: Lifecycle scripts execute for installed packages, not imported packages.
 
 ### Why `bundledDependencies` Matters in This Lab
 
-Real attackers need the transitive to **always install** with the parent tarball. This lab uses:
+Real attackers need the transitive to always install with the parent tarball. This lab uses:
 
 ```json
 "bundledDependencies": ["plain-crypto-js-like"]
@@ -111,11 +122,11 @@ victim-app/
 
 ### Why This Attack Class Is Dangerous
 
-1. **Trust in maintainer**: Patch bumps look normal in changelogs
-2. **Transitive blindness**: App code never references the malicious package
-3. **Install-time execution**: Attack completes before app runs
-4. **Anti-forensics**: Decoy `package.json` hides `postinstall` after install
-5. **Wide reach**: High-download packages affect thousands of CI pipelines
+1. Trust in maintainer: Patch bumps look normal in changelogs
+2. Transitive blindness: App code never references the malicious package
+3. Install-time execution: Attack completes before app runs
+4. Anti-forensics: Decoy `package.json` hides `postinstall` after install
+5. Wide reach: High-download packages affect thousands of CI pipelines
 
 ---
 
@@ -154,15 +165,15 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
-**What this does:**
+What this does:
 - Builds `axios-like-1.14.1.tgz` with bundled transitive
-- Prepares mock server on port **3021** (endpoint **`/beacon`**, not `/collect`)
+- Prepares mock server on port 3021 (endpoint `/beacon`, not `/collect`)
 - Initializes `infrastructure/captured-data.json`
 - Sets up victim-app with clean `axios-like@1.14.0` baseline
 
 ### Step 3: Understand the Environment
 
-**The Scenario Structure**:
+The Scenario Structure:
 ```
 21-axios-compromised-release-attack/
 ├── packages/
@@ -180,9 +191,9 @@ chmod +x setup.sh
     └── axios-compromise-detector.js
 ```
 
-**Mock server contract** (differs from most scenarios):
-- Port: **3021**
-- Path: **`POST /beacon`** (not `/collect`)
+Mock server contract (differs from most scenarios):
+- Port: 3021
+- Path: `POST /beacon` (not `/collect`)
 
 ---
 
@@ -195,7 +206,7 @@ cat packages/axios-like-1.14.0/package.json
 cat packages/axios-like-1.14.1/package.json
 ```
 
-**Look for in 1.14.1**:
+Look for in 1.14.1:
 - New `dependencies` or `bundledDependencies` referencing `plain-crypto-js-like`
 - Version bump from `1.14.0` to `1.14.1`
 
@@ -206,12 +217,12 @@ cat packages/plain-crypto-js-like/package.json
 cat packages/plain-crypto-js-like/postinstall.js
 ```
 
-**postinstall behavior** (when `TESTBENCH_MODE=enabled`):
+postinstall behavior (when `TESTBENCH_MODE=enabled`):
 1. Writes `.testbench-axios-ioc.json` to `INIT_CWD` (victim app root)
 2. POSTs JSON to `http://localhost:3021/beacon`
 3. Overwrites installed `package.json` with `package.clean.json` (decoy)
 
-**Forensic note**: `INIT_CWD` is set by npm to the directory where `npm install` was invoked - critical for timeline reconstruction.
+Forensic note: `INIT_CWD` is set by npm to the directory where `npm install` was invoked - critical for timeline reconstruction.
 
 ```bash
 cat packages/plain-crypto-js-like/package.clean.json
@@ -224,7 +235,7 @@ cat packages/plain-crypto-js-like/package.clean.json
 cat victim-app/index.js
 ```
 
-**What you'll see:**
+What you'll see:
 - Imports `axios-like` only
 - Never `require('plain-crypto-js-like')`
 - Logs loaded version for learner verification
@@ -235,7 +246,7 @@ cat victim-app/index.js
 ls -la packages/axios-like-1.14.1.tgz
 ```
 
-**Why tarball**: Ensures bundled dependency installs exactly as a registry release would.
+Why tarball: Ensures bundled dependency installs exactly as a registry release would.
 
 ### Step 5: Inspect Tarball Contents (Optional Deep Dive)
 
@@ -244,7 +255,7 @@ cd packages
 tar -tzf axios-like-1.14.1.tgz | head -30
 ```
 
-**Look for**:
+Look for:
 - `package/package.json` with `bundledDependencies`
 - Nested `node_modules/plain-crypto-js-like/` inside tarball
 - `postinstall.js` in the bundled transitive path
@@ -263,10 +274,10 @@ The postinstall script uses:
 const projectRoot = process.env.INIT_CWD || process.cwd();
 ```
 
-**Why this matters in real IR**:
-- `cwd` inside postinstall may be the **nested package directory**
+Why teams still get hit in real IR:
+- `cwd` inside postinstall may be the nested package directory
 - `INIT_CWD` points to where the developer ran `npm install` (victim-app)
-- Marker files and beacons should attribute to **INIT_CWD**, not nested path
+- Marker files and beacons should attribute to INIT_CWD, not nested path
 
 ```bash
 grep INIT_CWD packages/plain-crypto-js-like/postinstall.js
@@ -278,20 +289,20 @@ grep INIT_CWD packages/plain-crypto-js-like/postinstall.js
 
 ### Step 1: Understand the Attack Timeline
 
-**Scenario**: Developer or CI runs `npm install` and pulls compromised patch `axios-like@1.14.1`.
+Scenario: Developer or CI runs `npm install` and pulls compromised patch `axios-like@1.14.1`.
 
-**Attack Timeline**:
+Attack Timeline:
 1. Victim starts on clean `axios-like@1.14.0`
 2. Attacker publishes `1.14.1` with bundled transitive
 3. `npm install axios-like@file:../packages/axios-like-1.14.1.tgz`
 4. `plain-crypto-js-like` postinstall runs during install
-5. Beacon hits **localhost:3021/beacon**; marker file written
+5. Beacon hits localhost:3021/beacon; marker file written
 6. Decoy manifest replaces transitive `package.json`
 7. `npm start` runs app - which never imported the transitive
 
 ### Step 2: Start the Mock Collector
 
-**Terminal A**:
+Terminal A:
 
 ```bash
 cd scenarios/21-axios-compromised-release-attack
@@ -299,7 +310,7 @@ export TESTBENCH_MODE=enabled
 node infrastructure/mock-server.js
 ```
 
-**Verify**:
+Verify:
 
 ```bash
 curl -s http://localhost:3021/captured-data
@@ -307,7 +318,7 @@ curl -s http://localhost:3021/captured-data
 
 ### Step 3: Install the Compromised Patch
 
-**Terminal B**:
+Terminal B:
 
 ```bash
 export TESTBENCH_MODE=enabled
@@ -315,7 +326,7 @@ cd scenarios/21-axios-compromised-release-attack/victim-app
 npm install axios-like@file:../packages/axios-like-1.14.1.tgz
 ```
 
-**Watch for**:
+Watch for:
 - npm lifecycle output mentioning `plain-crypto-js-like`
 - Creation of `.testbench-axios-ioc.json`
 
@@ -329,7 +340,7 @@ cat .testbench-axios-ioc.json
 npm start
 ```
 
-**Notice**: App runs normally. The attack already happened at **install time**.
+Notice: App runs normally. The attack already happened at install time.
 
 ```bash
 # Confirm parent loaded
@@ -342,7 +353,7 @@ npm start
 curl -s http://localhost:3021/captured-data | jq
 ```
 
-**Captured payload fields**:
+Captured payload fields:
 - `type`: `postinstall-beacon`
 - `package`: `plain-crypto-js-like`
 - `cwd`: victim-app path
@@ -358,14 +369,14 @@ cat ../infrastructure/captured-data.json | jq '.captures[-1]'
 cat node_modules/plain-crypto-js-like/package.json
 ```
 
-**Compare to source**:
+Compare to source:
 
 ```bash
 diff packages/plain-crypto-js-like/package.json \
      node_modules/plain-crypto-js-like/package.json || true
 ```
 
-**Key Point**: Disk forensics must include lockfile, npm logs, and marker files - not just current `package.json`.
+Key Point: Disk forensics must include lockfile, npm logs, and marker files - not just current `package.json`.
 
 ### Step 7: Offline Install Mode (Optional)
 
@@ -389,7 +400,7 @@ From scenario root:
 node detection-tools/axios-compromise-detector.js victim-app
 ```
 
-**What this flags:**
+What this flags:
 - Unexpected transitive with `postinstall` in dependency tree
 - Marker file `.testbench-axios-ioc.json`
 - Version skew between expected clean release and installed patch
@@ -407,7 +418,7 @@ npm ls --all 2>/dev/null | head -50
 find node_modules -name package.json -exec grep -l postinstall {} \; 2>/dev/null
 ```
 
-**Red flags:**
+Red flags:
 - New transitive appearing in patch upgrade diff
 - Lifecycle scripts on packages your app never directly depends on
 
@@ -418,20 +429,20 @@ find . -name ".testbench-axios-ioc.json" 2>/dev/null
 cat .testbench-axios-ioc.json | jq
 ```
 
-**IOC fields for real incidents** (adapt names):
+IOC fields for real incidents (adapt names):
 - Unexpected marker files in project root after install
 - `INIT_CWD` in install logs vs nested package paths
 
 ### Detection Method 4: Network Monitoring
 
-**Endpoint**: `127.0.0.1:3021` path `/beacon`
+Endpoint: `127.0.0.1:3021` path `/beacon`
 
-**Sample log** (from `DETECT.md`):
+Sample log (from `DETECT.md`):
 ```json
 {"scenario_id":"21","event_type":"transitive_postinstall_beacon","source":"plain-crypto-js-like","destination":"127.0.0.1:3021"}
 ```
 
-**Sigma-style**:
+Sigma-style:
 - Process command line contains `npm install` + compromised tarball/version
 - File path contains `.testbench-axios-ioc.json`
 
@@ -443,7 +454,7 @@ shasum node_modules/plain-crypto-js-like/package.json
 shasum ../packages/plain-crypto-js-like/package.json
 ```
 
-**Policy**: Store trusted hashes for critical packages; alert on post-install drift.
+Policy: Store trusted hashes for critical packages; alert on post-install drift.
 
 ### Detection Method 6: Lockfile Diff Review
 
@@ -459,7 +470,7 @@ grep -A2 "plain-crypto-js-like" package-lock.json | head -20
 # diff package-lock.json.clean package-lock.json
 ```
 
-**CI gate idea**: Fail PR if lockfile adds a new transitive with `postinstall` under high-trust parent packages.
+CI gate idea: Fail PR if lockfile adds a new transitive with `postinstall` under high-trust parent packages.
 
 ### Detection Method 7: Lifecycle Script Inventory
 
@@ -469,7 +480,7 @@ find node_modules -name package.json -print0 2>/dev/null | \
   xargs -0 grep -l '"postinstall"' 2>/dev/null | head -20
 ```
 
-**Question**: Would your org notice a **new** package name appearing in this list after a patch bump?
+Question: Would your org notice a new package name appearing in this list after a patch bump?
 
 ---
 
@@ -482,7 +493,7 @@ cd victim-app
 npm ls --all 2>/dev/null | grep -E "axios-like|plain-crypto"
 ```
 
-**Questions:**
+Questions:
 - Who introduced `plain-crypto-js-like` - direct or transitive?
 - Which parent version pulled it in?
 - Was it bundled or resolved from registry?
@@ -496,7 +507,7 @@ cat .testbench-axios-ioc.json | jq '.time, .cwd, .phase'
 # NPM_CONFIG_LOGLEVEL=verbose npm install ...
 ```
 
-**Build timeline**:
+Build timeline:
 - When was compromised tarball installed?
 - Did postinstall run before or after app deploy?
 - Which CI runners executed the install?
@@ -511,13 +522,13 @@ grep postinstall ../packages/plain-crypto-js-like/package.json
 grep postinstall node_modules/plain-crypto-js-like/package.json || echo "postinstall removed from disk"
 ```
 
-**Questions:**
+Questions:
 - Would disk-only IR miss the attack?
 - What logs preserve original manifest?
 
 ### Investigation Step 4: Impact Assessment
 
-**Questions:**
+Questions:
 - How many repos use `^1.14.0` and auto-pulled `1.14.1`?
 - Which secrets existed in CI env during install?
 - Were npm tokens or cloud credentials exposed?
@@ -555,18 +566,18 @@ npm install axios-like@file:../packages/axios-like-1.14.0
 npm start
 ```
 
-**Real incidents also require**:
+Real incidents also require:
 - Revoke and rotate npm tokens, CI secrets, cloud API keys
 - Invalidate compromised release on registry (deprecate/unpublish per policy)
 
 ### Response Step 3: Long-term Defenses
 
-1. **Pin exact versions** - avoid caret auto-upgrade on critical HTTP/crypto libs
-2. **Lockfile-only CI** - `npm ci` with `--ignore-scripts` where safe, then targeted script audit
-3. **Trusted publishing / provenance** - verify attestations when available
-4. **Patch review** - treat patch bumps on high-download packages as security reviews
-5. **Lifecycle monitoring** - alert on postinstall network from nested deps
-6. **Org-wide lockfile hunt** - search for IOC package names from advisories
+1. Pin exact versions - avoid caret auto-upgrade on critical HTTP/crypto libs
+2. Lockfile-only CI - `npm ci` with `--ignore-scripts` where safe, then targeted script audit
+3. Trusted publishing / provenance - verify attestations when available
+4. Patch review - treat patch bumps on high-download packages as security reviews
+5. Lifecycle monitoring - alert on postinstall network from nested deps
+6. Org-wide lockfile hunt - search for IOC package names from advisories
 
 ```bash
 node detection-tools/axios-compromise-detector.js victim-app
@@ -598,24 +609,24 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 ## Elasticsearch + Kibana observability (optional)
 
-Scenario **21 - Axios-style Compromised Release** is indexed in Elasticsearch when the observability stack is running.
+Scenario 21 - Axios-style Compromised Release is indexed in Elasticsearch when the observability stack is running.
 
 Axios-style release: axios-like@1.14.1 bundles a transitive with postinstall; beacon goes to /beacon.
 
-- **Detection runbook (static)** → index `scas-rules`, document id `21` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
-- **Runtime captures (dynamic)** → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
+- Detection runbook (static) → index `scas-rules`, document id `21` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
+- Runtime captures (dynamic) → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
 
 ### How to read this diagram
 
 | Phase | What you should look for |
 |-------|--------------------------|
-| **1 - Collectors** | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
-| **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
-| **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
-| **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| 1 - Collectors | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
+| 2 - Lab execution | Terminal B runs the scenario README steps. See the sequence diagram and Scenario-specific attack steps below. |
+| 3 - Exfiltration | Malicious sample sends localhost-only JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
+| 4 - Elasticsearch | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| 5 - Kibana | Use the per-scenario saved searches to compare runtime captures (Detections) with the static runbook (Rules). |
 
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+> Safety: All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 
 ### End-to-end flow
 
@@ -697,7 +708,7 @@ From the repository root:
 
 ### Run this scenario with live Elasticsearch forwarding
 
-**Terminal A - mock collector** (from `scenarios/21-axios-compromised-release-attack`):
+Terminal A - mock collector (from `scenarios/21-axios-compromised-release-attack`):
 
 ```bash
 cd scenarios/21-axios-compromised-release-attack
@@ -706,7 +717,7 @@ export SCAS_ES_URL=http://localhost:9200
 node infrastructure/mock-server.js
 ```
 
-**Terminal B - execute the lab:**
+Terminal B - execute the lab:
 
 ```bash
 cd scenarios/21-axios-compromised-release-attack
@@ -740,8 +751,8 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 ### Verify in Kibana (UI)
 
 1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 21** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 21** - compare against `iocs`, `sigma`, and `yara` fields
+2. Discover → SCAS Detections - Scenario 21 - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. Discover → SCAS Rules - Scenario 21 - compare against `iocs`, `sigma`, and `yara` fields
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
@@ -750,38 +761,38 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Why Compromised Patch Releases Are Dangerous
 
-1. **Maintainer trust**: Small semver bumps bypass scrutiny
-2. **Transitive execution**: App code never references malicious package
-3. **Install-time payload**: Attack finishes before runtime monitoring starts
-4. **Anti-forensics**: Decoy manifests frustrate naive disk triage
-5. **CI amplification**: Every unpinned pipeline is a victim
+1. Maintainer trust: Small semver bumps bypass scrutiny
+2. Transitive execution: App code never references malicious package
+3. Install-time payload: Attack finishes before runtime monitoring starts
+4. Anti-forensics: Decoy manifests frustrate naive disk triage
+5. CI amplification: Every unpinned pipeline is a victim
 
 ### Best Practices
 
-1. ✅ **Pin exact versions** on high-impact dependencies
-2. ✅ **Lockfile-only installs** in CI with hash verification
-3. ✅ **Review patch diffs** for new transitives and lifecycle scripts
-4. ✅ **Monitor postinstall** network and filesystem activity
-5. ✅ **Preserve npm logs** and `INIT_CWD` for forensic timelines
-6. ✅ **Rotate secrets** after confirmed supply-chain incidents
-7. ✅ **Use provenance tools** where ecosystem supports them
+1. ✅ Pin exact versions on high-impact dependencies
+2. ✅ Lockfile-only installs in CI with hash verification
+3. ✅ Review patch diffs for new transitives and lifecycle scripts
+4. ✅ Monitor postinstall network and filesystem activity
+5. ✅ Preserve npm logs and `INIT_CWD` for forensic timelines
+6. ✅ Rotate secrets after confirmed supply-chain incidents
+7. ✅ Use provenance tools where ecosystem supports them
 
 ### Real-World Impact
 
-- **axios/axios incident discussion** - community pattern for unexpected transitives
-- **Detection time**: Often hours to days via registry advisories + lockfile hunts
-- **Blast radius**: Any project with semver range accepting poisoned patch
+- axios/axios incident discussion - community pattern for unexpected transitives
+- Detection time: Often hours to days via registry advisories + lockfile hunts
+- Blast radius: Any project with semver range accepting poisoned patch
 
 ---
 
 ## Part 10: Advanced Exercises
 
 ### Exercise 1: Bundled Dependencies
-- Explain why **`bundledDependencies` + `npm pack`** is used in this lab to ensure the nested package installs
+- Explain why `bundledDependencies` + `npm pack` is used in this lab to ensure the nested package installs
 - What would break if the transitive were only a `file:` dependency?
 
 ### Exercise 2: IOC Hunting
-- List three **IOC fields** you would hunt in a real org after an npm supply-chain alert
+- List three IOC fields you would hunt in a real org after an npm supply-chain alert
 - Write a Sigma rule mapping this lab's markers to production field names
 
 ### Exercise 3: Control Prioritization
@@ -790,7 +801,7 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Exercise 4: Anti-Forensics Resistance
 - What anti-forensics behavior was present, and how can detection resist it?
-- Design a control that captures manifest state **before** postinstall completes
+- Design a control that captures manifest state before postinstall completes
 
 ---
 
@@ -807,16 +818,16 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ## ⚠️ Safety & Ethics
 
-**IMPORTANT**: This scenario is for **educational purposes only**.
+IMPORTANT: This scenario is for educational purposes only.
 
 - ✅ Use ONLY in isolated test environments
 - ✅ Fictional package names - do not confuse with real `axios` or `crypto-js`
 - ✅ All malicious behavior requires `TESTBENCH_MODE=enabled`
-- ✅ Beacons target **127.0.0.1:3021/beacon** only - no real external C2
+- ✅ Beacons target 127.0.0.1:3021/beacon only - no real external C2
 - ✅ Do not point payloads at non-localhost endpoints
 
 ---
 
-**Remember**: A patch version bump is not automatically safe. Inspect new transitives, lifecycle scripts, and lockfile diffs like security releases!
+Remember: A patch version bump is not automatically safe. Inspect new transitives, lifecycle scripts, and lockfile diffs like security releases!
 
 🔐 Happy Learning!

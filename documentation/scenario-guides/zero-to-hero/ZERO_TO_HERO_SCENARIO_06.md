@@ -36,6 +36,17 @@ If you still have notes that mention `data-processor`, `mock-cdn.js`, or `bundle
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 06 |
+| CLI | Shell steps in this guide and [`scenarios/06-sha-hulud/README.md`](../../../scenarios/06-sha-hulud/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/06-sha-hulud/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Shai-Hulud
 
 ### What is Shai-Hulud?

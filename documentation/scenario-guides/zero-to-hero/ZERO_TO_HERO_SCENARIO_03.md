@@ -12,7 +12,7 @@ By the end of this guide, you will:
 - Perform incident response
 - Implement detection and prevention strategies
 
-- Apply the **Mitigation Playbook** from this guide and the scenario README
+- Apply the Mitigation Playbook from this guide and the scenario README
 ---
 
 ## Table of Contents
@@ -41,45 +41,56 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 03 |
+| CLI | Shell steps in this guide and [`scenarios/03-compromised-package/README.md`](../../../scenarios/03-compromised-package/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/03-compromised-package/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Package Compromise (10 minutes)
 
 ### What is a Compromised Package?
 
-**Package Compromise** occurs when attackers gain control of a legitimate, trusted package and inject malicious code. This is one of the most dangerous supply chain attacks because the package has already established trust.
+Package Compromise occurs when attackers gain control of a legitimate, trusted package and inject malicious code. This is one of the most dangerous supply chain attacks because the package has already established trust.
 
 ### Why It's Dangerous
 
-- **High Trust**: Package is already trusted by millions of users
-- **Wide Distribution**: Affects all users who install/update
-- **Difficult Detection**: Malicious code is hidden in legitimate package
-- **Long Duration**: Can go undetected for weeks or months
+- High Trust: Package is already trusted by millions of users
+- Wide Distribution: Affects all users who install/update
+- Difficult Detection: Malicious code is hidden in legitimate package
+- Long Duration: Can go undetected for weeks or months
 
 ### Real-World Examples
 
-**event-stream (2018)**:
+event-stream (2018):
 - 2 million weekly downloads
 - New maintainer added cryptocurrency stealer
 - Targeted Copay Bitcoin wallet
 - Went undetected for weeks
 
-**ua-parser-js (2021)**:
+ua-parser-js (2021):
 - 7 million weekly downloads
 - Maintainer account compromised
 - Versions 0.7.29, 0.8.0, 1.0.0 contained crypto miners
 - Used in Facebook, Apple, Amazon, Microsoft products
 
-**colors.js & faker.js (2022)**:
+colors.js & faker.js (2022):
 - Maintainer deliberately sabotaged own packages
 - Infinite loop causing denial of service
 - Affected thousands of projects
 
 ### Common Attack Vectors
 
-1. **Credential Theft**: Stealing maintainer npm/PyPI credentials
-2. **Social Engineering**: Tricking maintainers into adding malicious maintainers
-3. **Account Takeover**: Exploiting weak passwords or no 2FA
-4. **Abandoned Packages**: Taking over unmaintained packages
-5. **Malicious Contributors**: Long-game infiltration
+1. Credential Theft: Stealing maintainer npm/PyPI credentials
+2. Social Engineering: Tricking maintainers into adding malicious maintainers
+3. Account Takeover: Exploiting weak passwords or no 2FA
+4. Abandoned Packages: Taking over unmaintained packages
+5. Malicious Contributors: Long-game infiltration
 
 ---
 
@@ -116,28 +127,28 @@ cd scenarios/03-compromised-package
 ./setup.sh
 ```
 
-**What this does:**
+What this does:
 - Creates directory structure
 - Sets up legitimate package
 - Creates compromised package version
 - Sets up victim application
 - Creates forensic tools
 
-**Expected output:**
+Expected output:
 - Setup progress messages
 - Directories and files created
 - "Next Steps" displayed
 
 ### Step 3: Understand the Environment
 
-**The Package**: `secure-validator`
-- **Legitimate Version**: 2.5.3 (in `legitimate-package/`)
-- **Compromised Version**: 2.5.4 (in `compromised-package/`)
-- **Purpose**: Input validation and sanitization
-- **Weekly Downloads**: 10,000,000+
-- **Maintainer**: John Doe (compromised account)
+The Package: `secure-validator`
+- Legitimate Version: 2.5.3 (in `legitimate-package/`)
+- Compromised Version: 2.5.4 (in `compromised-package/`)
+- Purpose: Input validation and sanitization
+- Weekly Downloads: 10,000,000+
+- Maintainer: John Doe (compromised account)
 
-**The Attack**: 
+The Attack: 
 - Attacker obtained maintainer credentials
 - Published malicious version 2.5.4
 - Users updating from 2.5.3 to 2.5.4 get compromised
@@ -154,13 +165,13 @@ cat package.json
 cat index.js
 ```
 
-**What to notice:**
+What to notice:
 - Clean, straightforward code
 - Simple validation functions
 - No suspicious behavior
 - Version 2.5.3
 
-**Package Details:**
+Package Details:
 - Name: `secure-validator`
 - Version: 2.5.3
 - Purpose: Input validation and sanitization
@@ -181,7 +192,7 @@ This is a trusted, widely-used package.
 
 ### Step 1: Understand the Compromise
 
-**Scenario**: Attacker has obtained the maintainer's npm credentials through:
+Scenario: Attacker has obtained the maintainer's npm credentials through:
 - Phishing email with fake "npm security alert"
 - Credentials: `johndoe` / `weakpassword123`
 - No 2FA enabled on the account
@@ -194,12 +205,12 @@ cat package.json
 cat index.js
 ```
 
-**Key Changes:**
-1. **Version bump**: 2.5.3 → 2.5.4 (patch version, seems safe)
-2. **Malicious code**: Hidden in the codebase
-3. **Stealth**: Maintains all original functionality
+Key Changes:
+1. Version bump: 2.5.3 → 2.5.4 (patch version, seems safe)
+2. Malicious code: Hidden in the codebase
+3. Stealth: Maintains all original functionality
 
-**What the malicious code does:**
+What the malicious code does:
 - Collects environment variables
 - Scans for sensitive files
 - Exfiltrates data to attacker server
@@ -211,9 +222,9 @@ cat index.js
 cat ../../templates/compromised-package-template.js
 ```
 
-**Advanced Techniques Used:**
+Advanced Techniques Used:
 
-1. **Hidden in Error Handling**:
+1. Hidden in Error Handling:
    ```javascript
    try {
      // Normal code
@@ -223,21 +234,21 @@ cat ../../templates/compromised-package-template.js
    }
    ```
 
-2. **Conditional Execution**:
+2. Conditional Execution:
    ```javascript
    if (process.env.NODE_ENV === 'production') {
      // Malicious code only runs in production
    }
    ```
 
-3. **Time-Delayed Activation**:
+3. Time-Delayed Activation:
    ```javascript
    setTimeout(() => {
      // Malicious code runs after 30 days
    }, 30 * 24 * 60 * 60 * 1000);
    ```
 
-4. **Target Detection**:
+4. Target Detection:
    ```javascript
    if (process.cwd().includes('target-company-name')) {
      // Targeted attack on specific organization
@@ -254,7 +265,7 @@ cd ../../
 node infrastructure/mock-server.js &
 ```
 
-**Verify it's running:**
+Verify it's running:
 ```bash
 curl http://localhost:3000/captured-data
 ```
@@ -269,7 +280,7 @@ cd victim-app
 npm install ../compromised-package/secure-validator
 ```
 
-**What just happened:**
+What just happened:
 - Installed version 2.5.4 (compromised)
 - Malicious code is now in node_modules
 - Package appears legitimate
@@ -284,7 +295,7 @@ export TESTBENCH_MODE=enabled
 npm start
 ```
 
-**What to expect:**
+What to expect:
 - Application runs normally
 - Malicious code executes in background
 - Data is exfiltrated silently
@@ -299,7 +310,7 @@ npm list secure-validator
 curl http://localhost:3000/captured-data
 ```
 
-**What you should see:**
+What you should see:
 - Version: 2.5.4 (compromised version)
 - Captured data in mock server
 - Attack successful!
@@ -319,7 +330,7 @@ cd ../..
 ./detection-tools/network-monitor.sh
 ```
 
-**Red Flags:**
+Red Flags:
 - Unexpected network connections
 - Unusual CPU usage
 - New outbound connections
@@ -333,7 +344,7 @@ cd scenarios/03-compromised-package
 diff -ur legitimate-package/secure-validator compromised-package/secure-validator
 ```
 
-**What to Look For:**
+What to Look For:
 - Code changes in patch versions (suspicious!)
 - New dependencies added
 - Obfuscated code
@@ -351,7 +362,7 @@ diff -ur legitimate-package/secure-validator compromised-package/secure-validato
 cat compromise-diff.txt
 ```
 
-**Analysis Questions:**
+Analysis Questions:
 - What code was added?
 - Where was it added?
 - Is it necessary for the stated functionality?
@@ -368,7 +379,7 @@ cat compromise-diff.txt
 # npm owner ls secure-validator
 ```
 
-**Build Timeline:**
+Build Timeline:
 - When was the package compromised?
 - How long was it active?
 - What versions are affected?
@@ -454,7 +465,7 @@ npm list secure-validator
 
 ## Part 8: Incident Response & Mitigation (30 minutes)
 
-**The package has been confirmed as compromised. Respond!**
+The package has been confirmed as compromised. Respond!
 
 ### Response Step 1: Immediate Containment
 
@@ -481,7 +492,7 @@ npm view secure-validator versions
 
 ### Response Step 3: Remediation
 
-**Option A: Pin to Safe Version**
+Option A: Pin to Safe Version
 
 ```json
 {
@@ -491,14 +502,14 @@ npm view secure-validator versions
 }
 ```
 
-**Option B: Replace with Alternative**
+Option B: Replace with Alternative
 
 ```bash
 npm uninstall secure-validator
 npm install validator  # Alternative package
 ```
 
-**Option C: Fork and Audit**
+Option C: Fork and Audit
 
 ```bash
 # Create internal fork
@@ -520,13 +531,13 @@ git checkout v2.5.3  # Safe version
 
 Implement preventive measures:
 
-1. **Package Lock File Enforcement**:
+1. Package Lock File Enforcement:
    ```bash
    # In CI/CD, use npm ci instead of npm install
    npm ci --audit
    ```
 
-2. **Dependency Pinning**:
+2. Dependency Pinning:
    ```json
    {
      "dependencies": {
@@ -535,7 +546,7 @@ Implement preventive measures:
    }
    ```
 
-3. **Automated Scanning**:
+3. Automated Scanning:
    ```yaml
    # .github/workflows/security.yml
    - name: Security Audit
@@ -544,13 +555,13 @@ Implement preventive measures:
        npm run security-scan
    ```
 
-4. **Package Integrity Verification**:
+4. Package Integrity Verification:
    ```bash
    # Verify package signatures
    npm install --integrity
    ```
 
-5. **Runtime Monitoring**:
+5. Runtime Monitoring:
    - Deploy application monitoring
    - Alert on suspicious behavior
    - Log all package installations
@@ -561,21 +572,21 @@ Implement preventive measures:
 
 ### The Complete Attack Chain
 
-1. **Initial Compromise**: Attacker gains access to maintainer account
-2. **Package Modification**: Malicious code injected into package
-3. **Version Publishing**: New version published (2.5.4)
-4. **User Updates**: Users update to compromised version
-5. **Malicious Execution**: Malicious code runs during normal operations
-6. **Data Exfiltration**: Sensitive data sent to attacker
-7. **Persistence**: Attack continues until detected
+1. Initial Compromise: Attacker gains access to maintainer account
+2. Package Modification: Malicious code injected into package
+3. Version Publishing: New version published (2.5.4)
+4. User Updates: Users update to compromised version
+5. Malicious Execution: Malicious code runs during normal operations
+6. Data Exfiltration: Sensitive data sent to attacker
+7. Persistence: Attack continues until detected
 
 ### Why It's Hard to Detect
 
-- **Legitimate Package**: Package is already trusted
-- **Patch Version**: Users expect patches to be safe
-- **Stealth**: Malicious code is hidden
-- **Functionality Preserved**: Package still works normally
-- **Gradual Spread**: Affects users as they update
+- Legitimate Package: Package is already trusted
+- Patch Version: Users expect patches to be safe
+- Stealth: Malicious code is hidden
+- Functionality Preserved: Package still works normally
+- Gradual Spread: Affects users as they update
 
 ---
 
@@ -604,24 +615,24 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 ## Elasticsearch + Kibana observability (optional)
 
-Scenario **03 - Compromised Package** is indexed in Elasticsearch when the observability stack is running.
+Scenario 03 - Compromised Package is indexed in Elasticsearch when the observability stack is running.
 
 Compromised package: a maintainer-hijacked release of secure-validator runs malicious code after install.
 
-- **Detection runbook (static)** → index `scas-rules`, document id `03` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
-- **Runtime captures (dynamic)** → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
+- Detection runbook (static) → index `scas-rules`, document id `03` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
+- Runtime captures (dynamic) → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
 
 ### How to read this diagram
 
 | Phase | What you should look for |
 |-------|--------------------------|
-| **1 - Collectors** | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
-| **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
-| **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
-| **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| 1 - Collectors | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
+| 2 - Lab execution | Terminal B runs the scenario README steps. See the sequence diagram and Scenario-specific attack steps below. |
+| 3 - Exfiltration | Malicious sample sends localhost-only JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
+| 4 - Elasticsearch | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| 5 - Kibana | Use the per-scenario saved searches to compare runtime captures (Detections) with the static runbook (Rules). |
 
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+> Safety: All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 
 ### End-to-end flow
 
@@ -703,7 +714,7 @@ From the repository root:
 
 ### Run this scenario with live Elasticsearch forwarding
 
-**Terminal A - mock collector** (from `scenarios/03-compromised-package`):
+Terminal A - mock collector (from `scenarios/03-compromised-package`):
 
 ```bash
 cd scenarios/03-compromised-package
@@ -712,7 +723,7 @@ export SCAS_ES_URL=http://localhost:9200
 node infrastructure/mock-server.js
 ```
 
-**Terminal B - execute the lab:**
+Terminal B - execute the lab:
 
 ```bash
 cd scenarios/03-compromised-package
@@ -746,8 +757,8 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 ### Verify in Kibana (UI)
 
 1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 03** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 03** - compare against `iocs`, `sigma`, and `yara` fields
+2. Discover → SCAS Detections - Scenario 03 - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. Discover → SCAS Rules - Scenario 03 - compare against `iocs`, `sigma`, and `yara` fields
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
@@ -772,10 +783,10 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Next Steps
 
-1. **Try Scenario 6**: Shai-Hulud Self-Replicating Attack
-2. **Experiment**: Try different obfuscation techniques
-3. **Read more**: Study real-world compromise cases
-4. **Practice**: Implement detection in a real project
+1. Try Scenario 6: Shai-Hulud Self-Replicating Attack
+2. Experiment: Try different obfuscation techniques
+3. Read more: Study real-world compromise cases
+4. Practice: Implement detection in a real project
 
 ---
 
@@ -783,7 +794,7 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Problem: "Package not found"
 
-**Solution:**
+Solution:
 ```bash
 # Make sure you're using the correct path
 cd scenarios/03-compromised-package
@@ -792,7 +803,7 @@ npm install ../compromised-package/secure-validator
 
 ### Problem: "No data captured"
 
-**Solution:**
+Solution:
 ```bash
 # Verify TESTBENCH_MODE is enabled
 echo $TESTBENCH_MODE
@@ -806,7 +817,7 @@ node infrastructure/mock-server.js &
 
 ### Problem: "Diff shows no differences"
 
-**Solution:**
+Solution:
 ```bash
 # Make sure both directories exist
 ls -la legitimate-package/secure-validator
@@ -820,20 +831,20 @@ diff -ur legitimate-package/secure-validator compromised-package/secure-validato
 
 ## 📚 Additional Resources
 
-- **Main README**: `README.md`
-- **Scenario README**: `scenarios/03-compromised-package/README.md`
-- **event-stream Case Study**: Research the 2018 incident
-- **npm Security Best Practices**: https://docs.npmjs.com/security
+- Main README: `README.md`
+- Scenario README: `scenarios/03-compromised-package/README.md`
+- event-stream Case Study: Research the 2018 incident
+- npm Security Best Practices: https://docs.npmjs.com/security
 
 ---
 
 ## ⚠️ Important Reminders
 
-- ✅ This is for **EDUCATIONAL purposes only**
-- ✅ Use **ONLY in isolated environments**
-- ✅ **Never** deploy malicious code to production
-- ✅ **Always** set `TESTBENCH_MODE=enabled`
-- ✅ **Never** test on systems you don't own
+- ✅ This is for EDUCATIONAL purposes only
+- ✅ Use ONLY in isolated environments
+- ✅ Never deploy malicious code to production
+- ✅ Always set `TESTBENCH_MODE=enabled`
+- ✅ Never test on systems you don't own
 
 ---
 
@@ -845,6 +856,6 @@ You've completed the Compromised Package attack scenario! You now understand:
 - How to respond to incidents
 - How to prevent future compromises
 
-**Remember**: Trusted packages can be compromised at any time. Always verify and monitor!
+Remember: Trusted packages can be compromised at any time. Always verify and monitor!
 
 Happy learning! 🔐

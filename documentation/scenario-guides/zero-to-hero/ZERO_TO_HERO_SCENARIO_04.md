@@ -35,6 +35,17 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 04 |
+| CLI | Shell steps in this guide and [`scenarios/04-malicious-update/README.md`](../../../scenarios/04-malicious-update/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/04-malicious-update/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Malicious Updates (10 minutes)
 
 ### What is a Malicious Update?

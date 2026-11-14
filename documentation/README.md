@@ -10,7 +10,8 @@ This folder is the **canonical source of truth** for all SCAS documentation.
 
 ## Quick links
 
-- [Getting started](./getting-started/index.md) · [Scenario catalog](./scenario-guides/CATALOG.md) · [Platform & operations](./platform/index.md)
+- [Command Center](./getting-started/COMMAND_CENTER.md) · [Quick start (CLI)](./getting-started/QUICK_START.md) · [Getting started](./getting-started/index.md)
+- [Scenario catalog](./scenario-guides/CATALOG.md) · [Platform & operations](./platform/index.md)
 - [Learning path](./learning-path/index.md) · [Teaching modules](./modules/index.md) · [Integration guides](./guides/index.md) · [Reference](./reference/index.md)
 - [Tooling & doc maintenance](./platform/TOOLING.md) (for contributors)
 

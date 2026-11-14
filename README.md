@@ -12,20 +12,20 @@ Pick one path. The rest of the docs are linked so you do not have to read this w
 
 | You are... | Do this |
 |----------|---------|
-| New to the project | `./START_HERE.sh` (menu: labs / workshop / docker). Then `source .scas.env`. First lab is 01. [Zero to hero](documentation/getting-started/ZERO_TO_HERO.md) · [Workshop stack](documentation/getting-started/FULL_STACK_SETUP.md) |
+| New to the project | Prefer [Command Center](documentation/getting-started/COMMAND_CENTER.md): `./run.sh` then open `:3100`. Or `./START_HERE.sh` (menu: labs / workshop / docker), `source .scas.env`, first lab is 01. [First lab in 10 minutes](documentation/getting-started/ZERO_TO_HERO.md) · [Workshop stack](documentation/getting-started/FULL_STACK_SETUP.md) |
 | Prefer Docker | Option 3 in `./START_HERE.sh`, or `./docker/install.sh` · [Docker labs](documentation/getting-started/DOCKER_LABS.md) |
 | Pi / USB HDD host | Optional: [`install-external.sh`](install-external.sh) - [Pi storage](documentation/getting-started/RASPBERRY_PI_STORAGE.md) |
-| Prefer a browser UI | [Dashboard](documentation/platform/DASHBOARD.md) - `./scripts/ui/start-dashboard.sh` (localhost only) |
-| Teaching or building a curriculum | [Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md) |
+| Prefer the browser UI | [Command Center](documentation/getting-started/COMMAND_CENTER.md) - `./run.sh` (localhost / LAN lab host only) |
+| Teaching or building a curriculum | [Scenario learning path](documentation/learning-path/SCENARIO_LEARNING_PATH.md) · [Command Center](documentation/getting-started/COMMAND_CENTER.md) |
 | Already comfortable with npm and VMs | [Quick start](#quick-start-experienced-users) below, then open each scenario's README |
 
-**Safety:** Education only, in isolated environments. Read [Safety & ethics](#safety--ethics) before you run anything.
+Safety: Education only, in isolated environments. Read [Safety & ethics](#safety--ethics) before you run anything.
 
 ## What this is
 
-Twenty-five small labs under `scenarios/` (`01-` through `25-`). Each one walks through an attack, shows how you might detect it, and points at mitigations. You mostly work from the CLI; there is an optional [localhost dashboard](documentation/platform/DASHBOARD.md) if you want a UI.
+Twenty-five small labs under `scenarios/` (`01-` through `25-`). Each one walks through an attack, shows how you might detect it, and points at mitigations. Same labs, two drivers: [Command Center](documentation/getting-started/COMMAND_CENTER.md) for learning and demos (`./run.sh` → `:3100`), CLI for scripts, CI, and headless debugging.
 
-The dashboard turns each lab into a graded exercise: a blind **spot-the-attack drill** before anything is labeled, a **quiz gate** drawn from the lab's DETECT.md, a **purple-team reversal** where your own blocklist has to hold, **campaigns** that chain labs into one intrusion, and an **assessment score** with a printable certificate. See [DASHBOARD.md](documentation/platform/DASHBOARD.md).
+Command Center turns each lab into a graded exercise: a blind spot-the-attack drill before anything is labeled, a quiz gate drawn from the lab's DETECT.md, a purple-team reversal where your own blocklist has to hold, campaigns that chain labs into one intrusion, and an assessment score with a printable certificate. Learner tour: [COMMAND_CENTER.md](documentation/getting-started/COMMAND_CENTER.md). Maintainer notes: [DASHBOARD.md](documentation/platform/DASHBOARD.md).
 
 Guides and learning paths live in [`documentation/`](documentation/index.md). Malicious bits only run when you opt in (for example `TESTBENCH_MODE=enabled`), and exfiltration stays aimed at localhost - see [Security notice](#security-notice).
 

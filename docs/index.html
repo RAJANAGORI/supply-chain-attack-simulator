@@ -374,12 +374,12 @@
           A hands-on cybersecurity training platform with 25 real-world attack scenarios. Understand, practice, and defend against software supply chain attacks in safe, isolated environments.
         </p>
         <div class="hero-actions">
-          <a href="guide.html" class="btn btn-primary">
-            Read Documentation
+          <a href="guide.html?p=getting-started/COMMAND_CENTER.md" class="btn btn-primary">
+            Command Center guide
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m0 0L9 4m4 4L9 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
-          <a href="#scenarios" class="btn btn-secondary">
-            Explore Scenarios
+          <a href="guide.html" class="btn btn-secondary">
+            Documentation hub
           </a>
         </div>
         <div class="hero-stats">
@@ -801,6 +801,8 @@
             <div>&nbsp;&nbsp;<span class="dir">documentation/</span> <span class="comment"># canonical Markdown (guides, learning-path, modules, scenario-guides)</span></div>
             <div>&nbsp;&nbsp;<span class="dir">docs/</span> <span class="comment"># GitHub Pages: index.html + symlinks → documentation/ (md + those dirs)</span></div>
             <div>&nbsp;&nbsp;<span class="dir">scripts/</span> <span class="comment"># setup &amp; utilities</span></div>
+            <div>&nbsp;&nbsp;<span class="dir">apps/</span> <span class="comment"># Command Center (:3100) + control plane</span></div>
+            <div>&nbsp;&nbsp;<span class="file">run.sh</span> <span class="comment"># start Command Center stack</span></div>
             <div>&nbsp;&nbsp;<span class="file">START_HERE.sh</span></div>
           </div>
         </div>
@@ -820,8 +822,8 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2f27ce" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </div>
             <div>
-              <h4>CLI-First Design</h4>
-              <p>No dashboard or web UI required. Everything runs from the terminal for maximum transparency and scriptability.</p>
+              <h4>Two Run Modes</h4>
+              <p>Same 25 labs either way. Command Center (<code>./run.sh</code> → <code>:3100</code>) for learning and demos; CLI for scripts, CI, and headless debugging.</p>
             </div>
           </div>
           <div class="arch-feature">
@@ -853,7 +855,7 @@
       <div class="section-header reveal">
         <span class="section-label">Quick Start</span>
         <h2 class="section-title">Get running in <span class="gradient-text">5 minutes</span></h2>
-        <p class="section-subtitle">Clone, setup, enable testbench mode, and run your first attack scenario.</p>
+        <p class="section-subtitle">Clone, setup, enable testbench mode, then pick Command Center or the CLI for the same labs.</p>
       </div>
 
       <div class="quickstart-steps">
@@ -893,14 +895,15 @@
           <h3>Run Your First Scenario</h3>
           <div class="qs-code">
             <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy to clipboard">Copy</button>
-            <div><span class="prompt">$ </span><span class="cmd">cd scenarios/01-typosquatting</span></div>
-            <div><span class="prompt">$ </span><span class="cmd">./setup.sh</span></div>
+            <div><span class="comment"># Command Center (recommended for learning)</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">./run.sh</span>  <span class="comment"># open http://127.0.0.1:3100 → Labs → 01</span></div>
+            <div>&nbsp;</div>
+            <div><span class="comment"># or CLI</span></div>
+            <div><span class="prompt">$ </span><span class="cmd">cd scenarios/01-typosquatting && ./setup.sh</span></div>
             <div><span class="prompt">$ </span><span class="cmd">node infrastructure/mock-server.js &</span></div>
             <div><span class="prompt">$ </span><span class="cmd">cd victim-app && npm install ../malicious-packages/request-lib</span></div>
             <div><span class="prompt">$ </span><span class="cmd">source ../../.testbench.env</span>  <span class="comment"># required for lab payloads</span></div>
             <div><span class="prompt">$ </span><span class="cmd">npm start</span></div>
-            <div><span class="prompt">$ </span><span class="cmd">curl http://localhost:3000/captured-data</span></div>
-            <div><span class="prompt">$ </span><span class="cmd">cd ../.. && ./scripts/setup/teardown.sh</span>  <span class="comment"># cleanup</span></div>
           </div>
         </div>
       </div>
@@ -1059,7 +1062,7 @@
             <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="faq-answer">
-            <p>Linux, macOS, and Windows with WSL2 are all supported. The CLI-first design ensures consistent behavior across operating systems. Docker is optional and only required for Scenario 14 (Container Image Supply Chain Attack).</p>
+            <p>Linux, macOS, and Windows with WSL2 are all supported. Labs behave the same under Command Center or the CLI. Docker is optional and only required for Scenario 14 (Container Image Supply Chain Attack).</p>
           </div>
         </div>
       </div>
@@ -1111,7 +1114,8 @@
         <div class="footer-col">
           <h4>Learning</h4>
           <ul>
-            <li><a href="guide.html?p=getting-started/ZERO_TO_HERO.md">Zero to Hero</a></li>
+            <li><a href="guide.html?p=getting-started/COMMAND_CENTER.md">Command Center</a></li>
+            <li><a href="guide.html?p=getting-started/ZERO_TO_HERO.md">First lab in 10 minutes</a></li>
             <li><a href="guide.html?p=learning-path/SCENARIO_LEARNING_PATH.md">Learning path</a></li>
             <li><a href="guide.html?p=platform/ARCHITECTURE.md">Architecture</a></li>
             <li><a href="guide.html?p=platform/OPERATIONS.md">Operations</a></li>

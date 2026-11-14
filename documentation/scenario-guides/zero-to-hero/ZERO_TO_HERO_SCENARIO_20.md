@@ -12,7 +12,7 @@ By the end of this guide, you will:
 - Run detection tools and conduct forensic investigation
 - Implement pinning, lockfile, and registry controls
 
-- Apply the **Mitigation Playbook** from this guide and the scenario README
+- Apply the Mitigation Playbook from this guide and the scenario README
 ---
 
 ## Table of Contents
@@ -39,13 +39,24 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 20 |
+| CLI | Shell steps in this guide and [`scenarios/20-package-version-confusion/README.md`](../../../scenarios/20-package-version-confusion/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/20-package-version-confusion/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Version Confusion (15 minutes)
 
 ### What Is Version Confusion?
 
-**Version confusion** occurs when a package manager's resolver selects an **unintended version**-often the **highest** semver match-because of loose ranges, weak registry policy, or attacker-published absurd versions.
+Version confusion occurs when a package manager's resolver selects an unintended version-often the highest semver match-because of loose ranges, weak registry policy, or attacker-published absurd versions.
 
-**Classic pattern in this lab**:
+Classic pattern in this lab:
 ```
 Registry contains:
   version-confuser-lib@1.0.1   (benign)
@@ -62,18 +73,18 @@ Semver compares major.minor.patch numerically:
 1.0.1  <  999.999.999
 ```
 
-When a range like `*` or a loose caret allows any version, the resolver typically selects the **maximum** satisfying version. Attackers exploit this by publishing implausibly high versions.
+When a range like `*` or a loose caret allows any version, the resolver typically selects the maximum satisfying version. Attackers exploit this by publishing implausibly high versions.
 
 ### Version Confusion vs Dependency Confusion
 
 | Aspect | Version Confusion (this lab) | Dependency Confusion (Scenario 2) |
 |--------|------------------------------|----------------------------------|
-| **Mechanism** | Same package name, higher semver | Public registry wins over private scope |
-| **Registry** | Local/custom registry layout | Public npm vs internal Artifactory |
-| **Range trigger** | `*`, loose semver | Missing scope + public typosquat |
-| **Attacker action** | Publish `999.x` version | Publish same name on public registry |
+| Mechanism | Same package name, higher semver | Public registry wins over private scope |
+| Registry | Local/custom registry layout | Public npm vs internal Artifactory |
+| Range trigger | `*`, loose semver | Missing scope + public typosquat |
+| Attacker action | Publish `999.x` version | Publish same name on public registry |
 
-Both abuse **trust in the resolver**-but the root cause and fix differ.
+Both abuse trust in the resolver-but the root cause and fix differ.
 
 ### Visual Example
 
@@ -94,20 +105,20 @@ victim-app/
 
 ### Why Version Confusion Is Risky
 
-1. **Silent upgrade**: Teams expect `1.x` but get `999.x`
-2. **Range permissiveness**: `*` and broad carets hide the risk
-3. **Registry sprawl**: Multiple registries increase precedence bugs
-4. **CI automation**: Unpinned CI installs pull latest attacker version nightly
-5. **Low attacker cost**: One malicious version publish, many victims
+1. Silent upgrade: Teams expect `1.x` but get `999.x`
+2. Range permissiveness: `*` and broad carets hide the risk
+3. Registry sprawl: Multiple registries increase precedence bugs
+4. CI automation: Unpinned CI installs pull latest attacker version nightly
+5. Low attacker cost: One malicious version publish, many victims
 
 ### Real-World Context
 
-- **Malicious high semver** on public registries
-- **Custom registries** where internal and external versions collide
-- **`latest` tag abuse** and dist-tag manipulation
-- **Automated renovate/dependabot** pulling unexpected majors without review
+- Malicious high semver on public registries
+- Custom registries where internal and external versions collide
+- `latest` tag abuse and dist-tag manipulation
+- Automated renovate/dependabot pulling unexpected majors without review
 
-**The Attack Chain**:
+The Attack Chain:
 ```
 npm install / npm start
     └── Resolver lists all versions in registry/
@@ -151,15 +162,15 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-**What this does:**
-- Prepares mock server on port **3020**
+What this does:
+- Prepares mock server on port 3020
 - Initializes `captured-data.json`
 - Clears `victim-app/node_modules` for clean resolution
 - Prints Terminal A / Terminal B instructions
 
 ### Step 3: Understand the Environment
 
-**The Scenario Structure**:
+The Scenario Structure:
 ```
 20-package-version-confusion/
 ├── registry/
@@ -187,7 +198,7 @@ export TESTBENCH_MODE=enabled
 ls -la registry/version-confuser-lib/
 ```
 
-**Expected directories:**
+Expected directories:
 - `1.0.1` - legitimate release
 - `999.999.999` - attacker-controlled high version
 
@@ -198,14 +209,14 @@ cat registry/version-confuser-lib/1.0.1/package.json
 cat registry/version-confuser-lib/1.0.1/index.js
 ```
 
-**Benign behavior**: Returns `{ ok: true, version: '1.0.1' }` without network activity.
+Benign behavior: Returns `{ ok: true, version: '1.0.1' }` without network activity.
 
 ```bash
 cat registry/version-confuser-lib/999.999.999/package.json
 cat registry/version-confuser-lib/999.999.999/index.js
 ```
 
-**Malicious behavior** (when `TESTBENCH_MODE=enabled`):
+Malicious behavior (when `TESTBENCH_MODE=enabled`):
 - POSTs payload to `localhost:3020/collect` on module load
 - Reports `selectedVersion: '999.999.999'`
 
@@ -215,14 +226,14 @@ cat registry/version-confuser-lib/999.999.999/index.js
 cat victim-app/index.js
 ```
 
-**Key logic:**
+Key logic:
 1. Lists all version directories under `registry/version-confuser-lib/`
 2. Sorts by semver comparison
-3. Picks **highest** version (`slice(-1)[0]`)
+3. Picks highest version (`slice(-1)[0]`)
 4. Copies chosen version into `node_modules/`
 5. Requires package and writes `installed-version.json`
 
-**Simulated risky range**: Comments note this models `"*"` meaning "take the highest."
+Simulated risky range: Comments note this models `"*"` meaning "take the highest."
 
 ### Step 4: Review Victim Configuration
 
@@ -230,7 +241,7 @@ cat victim-app/index.js
 cat victim-app/package.json
 ```
 
-**Questions:**
+Questions:
 - Are dependencies pinned to exact versions?
 - Is there a lockfile enforcing resolution?
 - Would `npm ci` prevent drift?
@@ -243,14 +254,14 @@ The victim app implements a simplified semver sort:
 grep -A 15 "function compareSemver" victim-app/index.js
 ```
 
-**Try mentally sorting these** (as the resolver would):
+Try mentally sorting these (as the resolver would):
 ```
 1.0.1  vs  1.0.2   → 1.0.2 wins
 1.9.9  vs  2.0.0   → 2.0.0 wins
 1.0.1  vs  999.999.999  → 999.999.999 wins  ← attack wins
 ```
 
-**Key Point**: Without an upper bound in your range policy, any published high version becomes "valid."
+Key Point: Without an upper bound in your range policy, any published high version becomes "valid."
 
 ### Step 6: Document Expected vs Actual
 
@@ -270,18 +281,18 @@ Fill the "After lab" column during Part 5.
 
 ### Step 1: Understand the Attack Timeline
 
-**Scenario**: Attacker publishes `version-confuser-lib@999.999.999` to a registry the victim uses. Loose semver policy causes resolver to prefer it over `1.0.1`.
+Scenario: Attacker publishes `version-confuser-lib@999.999.999` to a registry the victim uses. Loose semver policy causes resolver to prefer it over `1.0.1`.
 
-**Attack Timeline**:
+Attack Timeline:
 1. Attacker publishes implausibly high semver
 2. Victim runs install/start with permissive range
 3. Resolver selects `999.999.999`
-4. Malicious module loads and exfiltrates to port **3020**
+4. Malicious module loads and exfiltrates to port 3020
 5. `installed-version.json` records the skew for blue team
 
 ### Step 2: Start the Mock Attacker Server
 
-**Terminal A**:
+Terminal A:
 
 ```bash
 cd scenarios/20-package-version-confusion
@@ -289,7 +300,7 @@ export TESTBENCH_MODE=enabled
 node infrastructure/mock-server.js
 ```
 
-**Verify**:
+Verify:
 
 ```bash
 curl -s http://localhost:3020/captured-data
@@ -297,7 +308,7 @@ curl -s http://localhost:3020/captured-data
 
 ### Step 3: Run Victim Resolution and Install
 
-**Terminal B**:
+Terminal B:
 
 ```bash
 cd scenarios/20-package-version-confusion/victim-app
@@ -307,7 +318,7 @@ export TESTBENCH_MODE=enabled
 npm start
 ```
 
-**Console output includes**:
+Console output includes:
 ```
 Available versions: 1.0.1, 999.999.999
 Chosen version (highest match): 999.999.999
@@ -320,7 +331,7 @@ Installed lib run: { ok: true, version: '999.999.999' }
 cat installed-version.json
 ```
 
-**Expected content**:
+Expected content:
 ```json
 {
   "lib": "version-confuser-lib",
@@ -340,7 +351,7 @@ cat node_modules/version-confuser-lib/package.json | grep version
 curl -s http://localhost:3020/captured-data | jq
 ```
 
-**Captured fields**:
+Captured fields:
 - `attack`: `package-version-confusion`
 - `selectedVersion`: `999.999.999`
 - `hostname`, `cwd`, `timestamp`
@@ -359,7 +370,7 @@ Conceptually, pinning `1.0.1` would prevent the attack:
 }
 ```
 
-In this lab the resolver simulation always picks highest from registry folders-but the **lesson** applies directly to real npm semver ranges.
+In this lab the resolver simulation always picks highest from registry folders-but the lesson applies directly to real npm semver ranges.
 
 ---
 
@@ -374,7 +385,7 @@ cd scenarios/20-package-version-confusion
 node detection-tools/version-confusion-detector.js victim-app
 ```
 
-**What this flags:**
+What this flags:
 - Suspicious high versions in `installed-version.json`
 - Loose semver ranges in `package.json`
 - Pinning gaps that enable resolver abuse
@@ -410,7 +421,7 @@ ls ../registry/version-confuser-lib/
 test -f package-lock.json && echo "Lockfile present" || echo "NO LOCKFILE - risky"
 ```
 
-**Policy**: CI must use `npm ci` and fail if lockfile missing or outdated.
+Policy: CI must use `npm ci` and fail if lockfile missing or outdated.
 
 ### Detection Method 5: Dependency Range Audit
 
@@ -428,24 +439,24 @@ node -e "
 "
 ```
 
-**Production policy examples**:
+Production policy examples:
 - Block `*` in production `package.json` via lint rule
 - Require exact pins for packages tagged `critical` in asset inventory
 - Fail CI if lockfile resolution differs from pinned manifest
 
 ### Detection Method 6: Sigma and IOC Hunting
 
-**IOCs from `DETECT.md`**:
+IOCs from `DETECT.md`:
 - Implausibly high resolved version (`999.x`)
 - Loose semver range enabling precedence abuse
 - Beacons to `127.0.0.1:3020`
 
-**Sample log**:
+Sample log:
 ```json
 {"scenario_id":"20","event_type":"version_confusion_resolution","resolved_version":"999.0.0","destination":"127.0.0.1:3020"}
 ```
 
-**YARA-like strings**: `installed-version.json`, `999.`, `3020`
+YARA-like strings: `installed-version.json`, `999.`, `3020`
 
 ---
 
@@ -472,7 +483,7 @@ head -60 index.js
 cat node_modules/version-confuser-lib/index.js
 ```
 
-**Questions:**
+Questions:
 - Does installed code match expected version's source?
 - When was malicious version published (in real incidents: registry metadata)?
 - Who approved the semver range that allowed selection?
@@ -484,7 +495,7 @@ cat node_modules/version-confuser-lib/index.js
 grep -r "version-confuser-lib" . 2>/dev/null
 ```
 
-**Questions:**
+Questions:
 - How many projects use loose ranges on this package?
 - Did CI builds across the org pull `999.x`?
 - What secrets exist in processes that `require()` this library?
@@ -526,12 +537,12 @@ export TESTBENCH_MODE=enabled
 
 ### Response Step 3: Long-term Defenses
 
-1. **Pin exact versions** for critical dependencies - no `*` or unbounded carets
-2. **Enforce lockfiles** - `npm ci` only in CI; reject installs without lockfile
-3. **Registry firewall** - block absurd semver from untrusted publishers
-4. **Scoped private packages** - explicit registry mapping for internal names
-5. **Version jump alerts** - flag major or numeric anomalies (e.g. `999.x`)
-6. **Human review** - require approval for dependency version bumps above threshold
+1. Pin exact versions for critical dependencies - no `*` or unbounded carets
+2. Enforce lockfiles - `npm ci` only in CI; reject installs without lockfile
+3. Registry firewall - block absurd semver from untrusted publishers
+4. Scoped private packages - explicit registry mapping for internal names
+5. Version jump alerts - flag major or numeric anomalies (e.g. `999.x`)
+6. Human review - require approval for dependency version bumps above threshold
 
 ```bash
 # CI gate example
@@ -566,24 +577,24 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 ## Elasticsearch + Kibana observability (optional)
 
-Scenario **20 - Package Version Confusion** is indexed in Elasticsearch when the observability stack is running.
+Scenario 20 - Package Version Confusion is indexed in Elasticsearch when the observability stack is running.
 
 Version confusion: semver picks version-confuser-lib 999.999.999 over the expected 1.x release.
 
-- **Detection runbook (static)** → index `scas-rules`, document id `20` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
-- **Runtime captures (dynamic)** → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
+- Detection runbook (static) → index `scas-rules`, document id `20` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
+- Runtime captures (dynamic) → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
 
 ### How to read this diagram
 
 | Phase | What you should look for |
 |-------|--------------------------|
-| **1 - Collectors** | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
-| **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
-| **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
-| **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| 1 - Collectors | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
+| 2 - Lab execution | Terminal B runs the scenario README steps. See the sequence diagram and Scenario-specific attack steps below. |
+| 3 - Exfiltration | Malicious sample sends localhost-only JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
+| 4 - Elasticsearch | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| 5 - Kibana | Use the per-scenario saved searches to compare runtime captures (Detections) with the static runbook (Rules). |
 
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+> Safety: All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 
 ### End-to-end flow
 
@@ -665,7 +676,7 @@ From the repository root:
 
 ### Run this scenario with live Elasticsearch forwarding
 
-**Terminal A - mock collector** (from `scenarios/20-package-version-confusion`):
+Terminal A - mock collector (from `scenarios/20-package-version-confusion`):
 
 ```bash
 cd scenarios/20-package-version-confusion
@@ -674,7 +685,7 @@ export SCAS_ES_URL=http://localhost:9200
 node infrastructure/mock-server.js
 ```
 
-**Terminal B - execute the lab:**
+Terminal B - execute the lab:
 
 ```bash
 cd scenarios/20-package-version-confusion
@@ -708,8 +719,8 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 ### Verify in Kibana (UI)
 
 1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 20** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 20** - compare against `iocs`, `sigma`, and `yara` fields
+2. Discover → SCAS Detections - Scenario 20 - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. Discover → SCAS Rules - Scenario 20 - compare against `iocs`, `sigma`, and `yara` fields
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
@@ -718,27 +729,27 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Why Version Confusion Is Dangerous
 
-1. **Resolver trust**: Teams assume semver picks "reasonable" versions
-2. **Silent malicious upgrade**: No typosquat needed-same name, higher number
-3. **Automation amplification**: CI nightly installs spread bad resolution fast
-4. **Detection difficulty**: Installed package name looks correct
-5. **Combined with confusion**: Public/private registry issues compound semver abuse
+1. Resolver trust: Teams assume semver picks "reasonable" versions
+2. Silent malicious upgrade: No typosquat needed-same name, higher number
+3. Automation amplification: CI nightly installs spread bad resolution fast
+4. Detection difficulty: Installed package name looks correct
+5. Combined with confusion: Public/private registry issues compound semver abuse
 
 ### Best Practices
 
-1. ✅ **Pin exact versions** for production-critical deps
-2. ✅ **Commit and enforce lockfiles** with `npm ci`
-3. ✅ **Scope internal packages** to private registries explicitly
-4. ✅ **Alert on semver anomalies** - first-seen maintainers, `999.x` jumps
-5. ✅ **Review dependency PRs** - treat version bumps as security events
-6. ✅ **Registry controls** - block publishing above policy max without approval
-7. ✅ **Distinguish attack types** - version vs dependency confusion need different controls
+1. ✅ Pin exact versions for production-critical deps
+2. ✅ Commit and enforce lockfiles with `npm ci`
+3. ✅ Scope internal packages to private registries explicitly
+4. ✅ Alert on semver anomalies - first-seen maintainers, `999.x` jumps
+5. ✅ Review dependency PRs - treat version bumps as security events
+6. ✅ Registry controls - block publishing above policy max without approval
+7. ✅ Distinguish attack types - version vs dependency confusion need different controls
 
 ### Real-World Impact
 
-- **Wide CI exposure**: Every unpinned pipeline pulls malicious highest version
-- **Delayed detection**: Package name matches expectation; version does not
-- **Remediation**: Lockfile regeneration, registry takedown requests, org-wide pin audit
+- Wide CI exposure: Every unpinned pipeline pulls malicious highest version
+- Delayed detection: Package name matches expectation; version does not
+- Remediation: Lockfile regeneration, registry takedown requests, org-wide pin audit
 
 ---
 
@@ -772,16 +783,16 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ## ⚠️ Safety & Ethics
 
-**IMPORTANT**: This scenario is for **educational purposes only**.
+IMPORTANT: This scenario is for educational purposes only.
 
 - ✅ Use ONLY in isolated test environments
 - ✅ Never publish malicious high-version packages to real registries
 - ✅ All malicious behavior requires `TESTBENCH_MODE=enabled`
-- ✅ Exfiltration targets **127.0.0.1:3020** only - no real external C2
+- ✅ Exfiltration targets 127.0.0.1:3020 only - no real external C2
 - ✅ Version confusion is simulated with a local registry layout
 
 ---
 
-**Remember**: Loose semver ranges are an open invitation. Pin versions, enforce lockfiles, and treat resolver output as untrusted until verified!
+Remember: Loose semver ranges are an open invitation. Pin versions, enforce lockfiles, and treat resolver output as untrusted until verified!
 
 🔐 Happy Learning!

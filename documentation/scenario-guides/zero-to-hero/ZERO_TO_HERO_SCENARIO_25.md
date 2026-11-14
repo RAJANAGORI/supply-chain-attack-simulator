@@ -32,6 +32,17 @@ By the end of this guide, you will:
 
 ---
 
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 25 |
+| CLI | Shell steps in this guide and [`scenarios/25-compromised-github-action/README.md`](../../../scenarios/25-compromised-github-action/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/25-compromised-github-action/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding the Attack
 
 Reusable GitHub Actions are one of the most trusted pieces of CI/CD infrastructure. A workflow line like `uses: example/actions/checkout@v3` tells GitHub to download and run code from another repository. If an attacker compromises the maintainer account for that action, they can force-push the mutable `v3` tag to a malicious commit. Every pipeline that references the tag will run the attacker's code on the next execution.

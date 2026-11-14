@@ -1,6 +1,8 @@
-# SCAS Dashboard (optional localhost UI)
+# Command Center - maintainer notes (apps/dashboard + control-plane)
 
-The CLI remains the canonical way to run labs. The dashboard is an optional control plane for learners who prefer a browser UI.
+Learner path: **[Command Center getting started](../getting-started/COMMAND_CENTER.md)**.
+
+This page is the maintainer / operator note for the Next.js UI (`:3100`) and the Express control plane (`:3101`). Same 25 labs as the CLI. UI for learning and demos; CLI for automation and raw scripts. README.md under each scenario stays the CLI source of truth.
 
 ## Stack
 
@@ -88,9 +90,9 @@ curl http://127.0.0.1:3101/api/health
 - Scenario payload exfiltration remains 127.0.0.1 only; the dashboard proxies existing mock APIs.
 - Do not expose the control plane to untrusted networks.
 
-## What the dashboard can do
+## What Command Center can do
 
-- Welcome - product pitch and safety model inside the dashboard (`/welcome`)
+- Welcome - product pitch and safety model inside the UI (`/welcome`)
 - Labs workspace - guided storyboard for all 25 scenarios via `lesson.yaml` (Red / Blue / Purple roles, hints, verify gates, live inspector)
 - Spot-the-attack drill - blind review of an unlabeled diff / registry page / CI log before the storyboard labels anything (`drill` block in `lesson.yaml`)
 - Breach moment - captured exfil rendered as a consequence (blast radius, leak-site paste) in the live inspector and the briefing
@@ -120,7 +122,7 @@ Reset lab (`/teardown` or Overview) runs `scripts/setup/teardown.sh`. When that 
 Every lab under `scenarios/NN-slug/` ships `lesson.yaml`. Teaching metadata only:
 
 - Steps point at registry actions (`setup`, `services`, or a step id from `apps/control-plane/src/registry/scenarios.ts`)
-- Commands stay in the TypeScript registry; README.md remains the CLI source of truth
+- Commands stay in the TypeScript registry; scenario `README.md` remains the CLI command path
 - Verify rules: `exit-zero`, `service-listening`, `capture-count`
 - Optional quick-reference fields (shown in the lab storyboard when set):
   - `caseStudy` - one or two sentences tying the lab to a named real-world supply chain incident
@@ -160,7 +162,7 @@ Optional campaign extras (Quiet Carrier is the seed):
 
 | Piece | Role |
 |-------|------|
-| Dashboard (Next.js :3100) | Primary learner UI (welcome, labs, observe, skills, briefing, classroom) |
+| Command Center (Next.js :3100) | Primary learner UI (welcome, labs, observe, skills, briefing, classroom) |
 | Control plane (Express :3101) | Process supervisor, lessons, progress, classroom, assistant, ES proxy |
 | Public site | https://simulator.rajanagori.in/ (marketing / docs hub; not part of `./run.sh`) |
 

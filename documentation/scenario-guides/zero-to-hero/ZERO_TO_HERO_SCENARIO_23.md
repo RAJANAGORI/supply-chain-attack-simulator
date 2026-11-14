@@ -41,6 +41,17 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 23 |
+| CLI | Shell steps in this guide and [`scenarios/23-trivy-supply-chain-attack/README.md`](../../../scenarios/23-trivy-supply-chain-attack/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/23-trivy-supply-chain-attack/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding the Attack (15 minutes)
 
 ### The CVE-2026-33634 Campaign at a Glance

@@ -12,7 +12,7 @@ By the end of this guide, you will:
 - Perform detection and forensic investigation
 - Implement defense strategies for image provenance and runtime controls
 
-- Apply the **Mitigation Playbook** from this guide and the scenario README
+- Apply the Mitigation Playbook from this guide and the scenario README
 ---
 
 ## Table of Contents
@@ -40,13 +40,24 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 14 |
+| CLI | Shell steps in this guide and [`scenarios/14-container-image-supply-chain-attack/README.md`](../../../scenarios/14-container-image-supply-chain-attack/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/14-container-image-supply-chain-attack/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Container Image Supply Chain Attacks (15 minutes)
 
 ### What Is a Container Image Supply Chain Attack?
 
-A **container image supply chain attack** compromises the trust consumers place in image contents - not just known vulnerabilities, but **what actually runs when the container starts**. Attackers alter entrypoints, inject startup scripts, or embed hidden network beacons that execute before your application logic.
+A container image supply chain attack compromises the trust consumers place in image contents - not just known vulnerabilities, but what actually runs when the container starts. Attackers alter entrypoints, inject startup scripts, or embed hidden network beacons that execute before your application logic.
 
-**Typical image structure**:
+Typical image structure:
 ```
 my-app-image/
 ├── Dockerfile          # Build instructions
@@ -56,15 +67,15 @@ my-app-image/
 
 ### Why Container Security Is More Than CVE Scanning
 
-1. **CVE scans miss behavior**: An image can have zero CVEs and still beacon data at startup
-2. **Tag mutability**: Same tag (`latest`) can point to different digests over time
-3. **Entrypoint drift**: `CMD` or `ENTRYPOINT` changes are easy to miss in review
-4. **Build-time vs runtime**: Malicious code may not appear in application source repos
-5. **Network at boot**: Containers often have egress; startup scripts exploit this immediately
+1. CVE scans miss behavior: An image can have zero CVEs and still beacon data at startup
+2. Tag mutability: Same tag (`latest`) can point to different digests over time
+3. Entrypoint drift: `CMD` or `ENTRYPOINT` changes are easy to miss in review
+4. Build-time vs runtime: Malicious code may not appear in application source repos
+5. Network at boot: Containers often have egress; startup scripts exploit this immediately
 
 ### Visual Example: Legitimate vs Compromised Dockerfile
 
-**Legitimate image** (`images/legitimate-image/Dockerfile`):
+Legitimate image (`images/legitimate-image/Dockerfile`):
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -72,7 +83,7 @@ COPY app.js .
 CMD ["node", "app.js"]
 ```
 
-**Compromised image** (`images/compromised-image/Dockerfile`):
+Compromised image (`images/compromised-image/Dockerfile`):
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -80,11 +91,11 @@ COPY app.js .
 CMD ["node", "malicious-start.js"]
 ```
 
-**The only visible change**: Entrypoint switched from `app.js` to `malicious-start.js`.
+The only visible change: Entrypoint switched from `app.js` to `malicious-start.js`.
 
 ### How Container Image Attacks Work
 
-**The Attack Chain**:
+The Attack Chain:
 ```
 Attacker modifies image build pipeline or registry tag
         ↓
@@ -99,20 +110,20 @@ Application may appear to run normally (or script runs standalone)
 
 ### Why Container Image Attacks Are Risky
 
-1. **Implicit trust in tags**: Teams pull `:latest` without digest pinning
-2. **CI/CD blind spots**: Pipelines verify app code but not final image CMD
-3. **Runtime visibility gaps**: Startup beacons happen before app logging initializes
-4. **Host bridge abuse**: Scripts target `host.docker.internal` to reach host-side collectors
-5. **Wide deployment**: One bad image affects every environment that pulls it
+1. Implicit trust in tags: Teams pull `:latest` without digest pinning
+2. CI/CD blind spots: Pipelines verify app code but not final image CMD
+3. Runtime visibility gaps: Startup beacons happen before app logging initializes
+4. Host bridge abuse: Scripts target `host.docker.internal` to reach host-side collectors
+5. Wide deployment: One bad image affects every environment that pulls it
 
 ### Real-World Examples
 
-- **SolarWinds-style build compromise**: Trusted build produces untrusted artifacts
-- **Registry substitution**: Attacker pushes to wrong registry namespace
-- **Base image drift**: Malicious layer added during CI build
-- **Entrypoint injection**: Hidden script added in final Dockerfile layer
+- SolarWinds-style build compromise: Trusted build produces untrusted artifacts
+- Registry substitution: Attacker pushes to wrong registry namespace
+- Base image drift: Malicious layer added during CI build
+- Entrypoint injection: Hidden script added in final Dockerfile layer
 
-**Key insight**: "No critical CVEs" ≠ "Safe to run."
+Key insight: "No critical CVEs" ≠ "Safe to run."
 
 ---
 
@@ -156,20 +167,20 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-**What this does:**
+What this does:
 - Creates `images/legitimate-image/` and `images/compromised-image/`
 - Prepares `victim-app/` reference layout
 - Initializes `infrastructure/captured-data.json`
 - Creates `detection-tools/image-scanner.js`
-- Sets up mock collector on port **3002**
+- Sets up mock collector on port 3002
 
-**Expected output:**
+Expected output:
 - Setup progress messages
 - Numbered lab flow printed to terminal
 
 ### Step 3: Understand the Environment
 
-**The Scenario Structure**:
+The Scenario Structure:
 ```
 14-container-image-supply-chain-attack/
 ├── images/
@@ -183,7 +194,7 @@ export TESTBENCH_MODE=enabled
     └── image-scanner.js      # Static Dockerfile scanner
 ```
 
-**The Attack**:
+The Attack:
 - Compromised image runs `malicious-start.js` instead of `app.js`
 - Startup script beacons to `host.docker.internal:3002` (Docker) or fails gracefully locally
 - Mock server receives `POST /capture` payloads
@@ -199,7 +210,7 @@ export TESTBENCH_MODE=enabled
 cat images/legitimate-image/Dockerfile
 ```
 
-**What you'll see:**
+What you'll see:
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -207,13 +218,13 @@ COPY app.js .
 CMD ["node", "app.js"]
 ```
 
-**Notice**: Standard Node.js Alpine base, single application entrypoint.
+Notice: Standard Node.js Alpine base, single application entrypoint.
 
 ```bash
 cat images/legitimate-image/app.js
 ```
 
-**What you'll see:**
+What you'll see:
 - Benign application logic
 - No outbound network calls
 - No environment harvesting
@@ -224,7 +235,7 @@ cat images/legitimate-image/app.js
 cat images/compromised-image/Dockerfile
 ```
 
-**What you'll see:**
+What you'll see:
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -232,7 +243,7 @@ COPY app.js .
 CMD ["node", "malicious-start.js"]
 ```
 
-**Key Change**: CMD points to `malicious-start.js` instead of `app.js`.
+Key Change: CMD points to `malicious-start.js` instead of `app.js`.
 
 ### Step 3: Inspect the Malicious Startup Script
 
@@ -240,13 +251,13 @@ CMD ["node", "malicious-start.js"]
 cat images/compromised-image/malicious-start.js
 ```
 
-**What it does:**
+What it does:
 - Checks `TESTBENCH_MODE=enabled` before malicious behavior
 - Collects hostname via `os.hostname()`
 - Sends JSON payload to `host.docker.internal:3002` at path `/capture`
 - Keeps process alive with idle interval (simulates long-running container)
 
-**Why `host.docker.internal`?**
+Why `host.docker.internal`?
 - Docker containers use this hostname to reach services on the host
 - In this lab, the mock server runs on the host at port 3002
 - Static scanner flags this as a suspicious pattern
@@ -257,7 +268,7 @@ cat images/compromised-image/malicious-start.js
 diff images/legitimate-image/Dockerfile images/compromised-image/Dockerfile
 ```
 
-**Expected diff:**
+Expected diff:
 ```
 4c4
 < CMD ["node", "app.js"]
@@ -265,7 +276,7 @@ diff images/legitimate-image/Dockerfile images/compromised-image/Dockerfile
 > CMD ["node", "malicious-start.js"]
 ```
 
-**Key Point**: A one-line CMD change is enough to compromise every container pulled from this image definition.
+Key Point: A one-line CMD change is enough to compromise every container pulled from this image definition.
 
 ---
 
@@ -273,9 +284,9 @@ diff images/legitimate-image/Dockerfile images/compromised-image/Dockerfile
 
 ### Step 1: Understand the Attack Timeline
 
-**Scenario**: An attacker modified the image build pipeline, replacing the application entrypoint with a malicious startup script.
+Scenario: An attacker modified the image build pipeline, replacing the application entrypoint with a malicious startup script.
 
-**Attack Timeline**:
+Attack Timeline:
 1. Attacker modifies Dockerfile or build template
 2. Image built and tagged with familiar name
 3. CI/CD or operator pulls and runs image
@@ -284,19 +295,19 @@ diff images/legitimate-image/Dockerfile images/compromised-image/Dockerfile
 
 ### Step 2: Start the Mock Attacker Server
 
-Open **Terminal A**:
+Open Terminal A:
 
 ```bash
 cd scenarios/14-container-image-supply-chain-attack
 node infrastructure/mock-server.js
 ```
 
-**What this does:**
+What this does:
 - Listens on `127.0.0.1:3002`
 - Accepts `POST /capture`
 - Appends entries to `infrastructure/captured-data.json`
 
-**Verify it's running:**
+Verify it's running:
 ```bash
 curl -s http://127.0.0.1:3002/captured-data
 # Should return: []
@@ -304,20 +315,20 @@ curl -s http://127.0.0.1:3002/captured-data
 
 ### Step 3: Static Detection First (Blue Team Preview)
 
-Open **Terminal B** - run scanner before executing attack:
+Open Terminal B - run scanner before executing attack:
 
 ```bash
 cd scenarios/14-container-image-supply-chain-attack
 node detection-tools/image-scanner.js images/compromised-image
 ```
 
-**Expected output:**
+Expected output:
 ```
 Potential issues found:
 - known malicious entrypoint
 ```
 
-**What this proves**: Static analysis can catch compromise **before** runtime.
+What this proves: Static analysis can catch compromise before runtime.
 
 ### Step 4: Runtime Simulation (Without Docker)
 
@@ -326,12 +337,12 @@ export TESTBENCH_MODE=enabled
 node images/compromised-image/malicious-start.js
 ```
 
-**What happens:**
+What happens:
 - Script attempts beacon to `host.docker.internal:3002`
 - On macOS, `host.docker.internal` may resolve; on Linux you may need Docker or hosts entry
 - Mock server may receive capture if routing succeeds
 
-**Check captures:**
+Check captures:
 ```bash
 curl -s http://127.0.0.1:3002/captured-data | jq
 ```
@@ -346,17 +357,17 @@ docker build -t scas-compromised images/compromised-image
 docker run --rm -e TESTBENCH_MODE=enabled --add-host=host.docker.internal:host-gateway scas-compromised
 ```
 
-**What this does:**
+What this does:
 - Builds both image variants locally
 - Runs compromised image with testbench flag enabled
 - Maps `host.docker.internal` to host gateway for beacon delivery
 
-**Verify capture after Docker run:**
+Verify capture after Docker run:
 ```bash
 curl -s http://127.0.0.1:3002/captured-data | jq
 ```
 
-**What was exfiltrated:**
+What was exfiltrated:
 - Container/host hostname
 - Timestamp (`ts` field)
 
@@ -368,7 +379,7 @@ node images/legitimate-image/app.js
 # Benign application output only - no network beacon
 ```
 
-**Key Point**: Legitimate image produces expected app behavior; compromised image prioritizes beacon at startup.
+Key Point: Legitimate image produces expected app behavior; compromised image prioritizes beacon at startup.
 
 ---
 
@@ -380,12 +391,12 @@ node images/legitimate-image/app.js
 node detection-tools/image-scanner.js images/compromised-image
 ```
 
-**What this checks:**
+What this checks:
 - Network fetch patterns in Dockerfile (`curl`, `wget`)
 - References to `host.docker.internal`
 - Known malicious entrypoint filename (`malicious-start.js`)
 
-**Exit code 2** indicates findings - integrate into CI image build gates.
+Exit code 2 indicates findings - integrate into CI image build gates.
 
 ### Detection Method 2: Dockerfile Diff Against Baseline
 
@@ -393,7 +404,7 @@ node detection-tools/image-scanner.js images/compromised-image
 diff -u images/legitimate-image/Dockerfile images/compromised-image/Dockerfile
 ```
 
-**Red flags:**
+Red flags:
 - CMD/ENTRYPOINT changes without approved change ticket
 - New COPY lines for unknown scripts
 - RUN instructions pulling remote content
@@ -404,7 +415,7 @@ diff -u images/legitimate-image/Dockerfile images/compromised-image/Dockerfile
 grep -E 'CMD|ENTRYPOINT' images/*/Dockerfile
 ```
 
-**What to look for:**
+What to look for:
 - Unexpected script names in CMD array
 - Shell-form CMD hiding commands (`CMD node malicious-start.js` vs exec form)
 
@@ -414,7 +425,7 @@ grep -E 'CMD|ENTRYPOINT' images/*/Dockerfile
 curl -s http://127.0.0.1:3002/captured-data | jq
 ```
 
-**What to look for:**
+What to look for:
 - HTTP POST at container start (before app ready)
 - Destinations to unknown hostnames or ports
 - Payloads containing hostname/metadata fields
@@ -426,7 +437,7 @@ In production Kubernetes/Docker environments, look for:
 - Child processes spawning before application server
 - Immediate outbound connections on container start
 
-**Sample log line for this scenario:**
+Sample log line for this scenario:
 ```json
 {"scenario_id":"14","event_type":"container_startup_beacon","source":"malicious-start.js","destination":"127.0.0.1:3002","timestamp_utc":"2026-04-20T13:05:00Z"}
 ```
@@ -457,7 +468,7 @@ cp images/compromised-image/Dockerfile /tmp/compromised-dockerfile.forensics
 ls -la images/compromised-image/
 ```
 
-**Questions:**
+Questions:
 - Who approved the CMD change?
 - When was the image last rebuilt?
 - Does registry digest match expected signed attestation?
@@ -468,7 +479,7 @@ ls -la images/compromised-image/
 cat images/compromised-image/malicious-start.js
 ```
 
-**Document:**
+Document:
 - Network destination (`host.docker.internal:3002`, path `/capture`)
 - Safety gate (`TESTBENCH_MODE`) - lab only
 - Data fields collected (`host`, `ts`)
@@ -479,7 +490,7 @@ cat images/compromised-image/malicious-start.js
 cat infrastructure/captured-data.json | jq '.[] | {received_at, payload}'
 ```
 
-**Build Timeline:**
+Build Timeline:
 - T0: Container start / script execution
 - T1: Outbound POST to port 3002
 - T2: Capture written to `captured-data.json`
@@ -487,7 +498,7 @@ cat infrastructure/captured-data.json | jq '.[] | {received_at, payload}'
 
 ### Investigation Step 4: Deployment Impact Assessment
 
-**Questions for a real incident:**
+Questions for a real incident:
 - Which clusters/namespaces pulled this image tag?
 - Was digest pinned or tag-only pull used?
 - How many running pods use compromised entrypoint?
@@ -503,7 +514,7 @@ node detection-tools/image-scanner.js images/compromised-image
 curl -s http://127.0.0.1:3002/captured-data | jq
 ```
 
-**Strongest case**: Scanner flagged entrypoint **before** deploy; runtime beacon confirms exploitation path.
+Strongest case: Scanner flagged entrypoint before deploy; runtime beacon confirms exploitation path.
 
 ---
 
@@ -519,7 +530,7 @@ curl -s http://127.0.0.1:3002/captured-data | jq
 docker ps --filter ancestor=scas-compromised -q | xargs -r docker stop
 ```
 
-**Production parallels:**
+Production parallels:
 - Halt deployments using affected image tag/digest
 - Quarantine nodes running compromised containers
 - Block egress from affected namespaces pending review
@@ -532,40 +543,40 @@ docker run --rm scas-legit
 # Verify benign startup only
 ```
 
-**Production parallels:**
+Production parallels:
 - Redeploy last known-good immutable digest
 - Invalidate CI cache for compromised build pipeline
 - Rotate secrets accessible to affected containers
 
 ### Response Step 3: Long-term Defenses
 
-**Implement Multiple Layers**:
+Implement Multiple Layers:
 
-1. **Image Provenance & Signing**:
+1. Image Provenance & Signing:
    - Require cosign/sigstore verification before pull
    - Reject unsigned images in admission controllers
 
-2. **Immutable Digests**:
+2. Immutable Digests:
    ```bash
    # Pull by digest, not tag
    docker pull myregistry/app@sha256:abc123...
    ```
 
-3. **Policy Gates for CMD/ENTRYPOINT**:
+3. Policy Gates for CMD/ENTRYPOINT:
    ```bash
    node detection-tools/image-scanner.js images/compromised-image
    # Fail CI on non-zero exit
    ```
 
-4. **Runtime Network Controls**:
+4. Runtime Network Controls:
    - Default-deny egress for build jobs and sensitive workloads
    - Alert on startup-time outbound connections
 
-5. **Reproducible Builds**:
+5. Reproducible Builds:
    - Pin base image digests
    - Generate and store build attestations (SLSA)
 
-6. **Separate Vulnerability vs Trust Scanning**:
+6. Separate Vulnerability vs Trust Scanning:
    - CVE scan answers "known bugs?"
    - Trust verification answers "expected contents and entrypoint?"
 
@@ -595,24 +606,24 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 ## Elasticsearch + Kibana observability (optional)
 
-Scenario **14 - Container Image Supply Chain** is indexed in Elasticsearch when the observability stack is running.
+Scenario 14 - Container Image Supply Chain is indexed in Elasticsearch when the observability stack is running.
 
 Container supply chain: compromised-image entrypoint sends build-time payload to mock-server :3002.
 
-- **Detection runbook (static)** → index `scas-rules`, document id `14` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
-- **Runtime captures (dynamic)** → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
+- Detection runbook (static) → index `scas-rules`, document id `14` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
+- Runtime captures (dynamic) → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
 
 ### How to read this diagram
 
 | Phase | What you should look for |
 |-------|--------------------------|
-| **1 - Collectors** | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
-| **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
-| **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
-| **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| 1 - Collectors | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
+| 2 - Lab execution | Terminal B runs the scenario README steps. See the sequence diagram and Scenario-specific attack steps below. |
+| 3 - Exfiltration | Malicious sample sends localhost-only JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
+| 4 - Elasticsearch | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| 5 - Kibana | Use the per-scenario saved searches to compare runtime captures (Detections) with the static runbook (Rules). |
 
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+> Safety: All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 
 ### End-to-end flow
 
@@ -694,7 +705,7 @@ From the repository root:
 
 ### Run this scenario with live Elasticsearch forwarding
 
-**Terminal A - mock collector** (from `scenarios/14-container-image-supply-chain-attack`):
+Terminal A - mock collector (from `scenarios/14-container-image-supply-chain-attack`):
 
 ```bash
 cd scenarios/14-container-image-supply-chain-attack
@@ -703,7 +714,7 @@ export SCAS_ES_URL=http://localhost:9200
 node infrastructure/mock-server.js
 ```
 
-**Terminal B - execute the lab:**
+Terminal B - execute the lab:
 
 ```bash
 cd scenarios/14-container-image-supply-chain-attack
@@ -737,8 +748,8 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 ### Verify in Kibana (UI)
 
 1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 14** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 14** - compare against `iocs`, `sigma`, and `yara` fields
+2. Discover → SCAS Detections - Scenario 14 - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. Discover → SCAS Rules - Scenario 14 - compare against `iocs`, `sigma`, and `yara` fields
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
@@ -747,28 +758,28 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Why Container Image Attacks Are Dangerous
 
-1. **Trust in tags**: Mutable tags hide digest changes
-2. **Startup blind spot**: Beacons fire before application logs exist
-3. **CMD drift**: One-line Dockerfile changes compromise all pulls
-4. **Host bridge paths**: `host.docker.internal` reaches host-side services
-5. **CVE-only mindset**: Clean scan results create false confidence
+1. Trust in tags: Mutable tags hide digest changes
+2. Startup blind spot: Beacons fire before application logs exist
+3. CMD drift: One-line Dockerfile changes compromise all pulls
+4. Host bridge paths: `host.docker.internal` reaches host-side services
+5. CVE-only mindset: Clean scan results create false confidence
 
 ### Best Practices
 
-1. ✅ **Pin image digests** - never rely on tags alone
-2. ✅ **Verify signatures and provenance** in CI/CD and admission control
-3. ✅ **Policy-check CMD/ENTRYPOINT** changes on critical images
-4. ✅ **Restrict outbound network** at build and runtime
-5. ✅ **Monitor startup network activity** in orchestrators
-6. ✅ **Maintain signed baseline images** for diff comparison
-7. ✅ **Separate vulnerability scanning from trust verification**
+1. ✅ Pin image digests - never rely on tags alone
+2. ✅ Verify signatures and provenance in CI/CD and admission control
+3. ✅ Policy-check CMD/ENTRYPOINT changes on critical images
+4. ✅ Restrict outbound network at build and runtime
+5. ✅ Monitor startup network activity in orchestrators
+6. ✅ Maintain signed baseline images for diff comparison
+7. ✅ Separate vulnerability scanning from trust verification
 
 ### Real-World Impact
 
-- **Wide deployment**: One image affects every environment that pulls it
-- **Stealthy indicators**: Startup beacons resemble health checks
-- **Detection time**: Often discovered only after anomaly detection on egress
-- **Recovery cost**: Rolling digest-pinned redeploys across all clusters
+- Wide deployment: One image affects every environment that pulls it
+- Stealthy indicators: Startup beacons resemble health checks
+- Detection time: Often discovered only after anomaly detection on egress
+- Recovery cost: Rolling digest-pinned redeploys across all clusters
 
 ---
 
@@ -806,7 +817,7 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ## ⚠️ Safety & Ethics
 
-**IMPORTANT**: This scenario is for **educational purposes only**.
+IMPORTANT: This scenario is for educational purposes only.
 
 - ✅ Use ONLY in isolated test environments
 - ✅ Never push compromised images to public registries
@@ -823,6 +834,6 @@ You've completed the Container Image Supply Chain Attack scenario! You now under
 - How to detect malicious startup scripts statically and at runtime
 - How to defend with provenance, digest pinning, and network controls
 
-**Remember**: CVE-free images can still be malicious. Verify what runs at container start, not just what's in the vulnerability database.
+Remember: CVE-free images can still be malicious. Verify what runs at container start, not just what's in the vulnerability database.
 
 🔐 Happy Learning!

@@ -40,6 +40,17 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 02 |
+| CLI | Shell steps in this guide and [`scenarios/02-dependency-confusion/README.md`](../../../scenarios/02-dependency-confusion/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/02-dependency-confusion/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Dependency Confusion (10 minutes)
 
 ### What is Dependency Confusion?

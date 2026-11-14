@@ -6,6 +6,8 @@
 
 From zero to a running lab, with the safety controls in mind.
 
+Two drivers, one lab set. Command Center for learning in the browser; CLI for shell scripts. Detection still ends in `DETECT.md`.
+
 1) Prerequisites
    - Node.js 16+, npm
    - Python 3.8+ (some helpers)
@@ -28,7 +30,18 @@ From zero to a running lab, with the safety controls in mind.
    - Mock exfiltration endpoints use `localhost`.
    - Do not run these labs on production or public networks.
 
-4) Run a first scenario (example: Transitive Dependency)
+4) Run a first scenario
+
+   **Command Center (recommended):**
+
+   ```bash
+   ./run.sh
+   # open http://127.0.0.1:3100 → Labs → 01 Typosquatting
+   ```
+
+   Full UI tour: [COMMAND_CENTER.md](./COMMAND_CENTER.md).
+
+   **CLI example (Transitive Dependency):**
 
    ```bash
    cd scenarios/07-transitive-dependency
@@ -42,7 +55,7 @@ From zero to a running lab, with the safety controls in mind.
    # follow README steps for detection & response
    ```
 
-   Prefer starting at typosquatting? Use [Scenario 01](../../scenarios/01-typosquatting/README.md) or the [Scenario 01 walkthrough](../scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md).
+   Prefer starting at typosquatting on the CLI? Use [Scenario 01](../../scenarios/01-typosquatting/README.md) or the [Scenario 01 walkthrough](../scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md).
 
 5) How to move through the labs
    - Start with scenarios 1-3 for the basic vectors.
