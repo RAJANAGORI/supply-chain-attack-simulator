@@ -12,7 +12,7 @@ By the end of this guide, you will:
 - Perform detection and forensic investigation
 - Implement defense strategies for cache hygiene and integrity verification
 
-- Apply the **Mitigation Playbook** from this guide and the scenario README
+- Apply the Mitigation Playbook from this guide and the scenario README
 ---
 
 ## Table of Contents
@@ -40,13 +40,24 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 16 |
+| CLI | Shell steps in this guide and [`scenarios/16-package-cache-poisoning/README.md`](../../../scenarios/16-package-cache-poisoning/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/16-package-cache-poisoning/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Package Cache Poisoning (15 minutes)
 
 ### What Is Package Cache Poisoning?
 
-**Package cache poisoning** occurs when a malicious or tampered artifact is stored in a package manager's cache (or internal mirror cache). Subsequent installs may **reuse the poisoned copy** even after upstream registry fixes the package - because the installer trusts the local cache as a fast path to "known" content.
+Package cache poisoning occurs when a malicious or tampered artifact is stored in a package manager's cache (or internal mirror cache). Subsequent installs may reuse the poisoned copy even after upstream registry fixes the package - because the installer trusts the local cache as a fast path to "known" content.
 
-**Cache layer in install flow**:
+Cache layer in install flow:
 ```
 Developer runs npm install
         ↓
@@ -61,11 +72,11 @@ Lifecycle scripts run on installed content
 
 ### Why Caches Are Trust Boundaries
 
-1. **Performance optimization**: Caches exist to avoid repeated downloads
-2. **Implicit trust**: Installers assume cached content matched registry at cache-write time
-3. **Persistence**: Bad cache entries survive `node_modules` deletion
-4. **Shared environments**: CI cache keys can spread poison across pipelines
-5. **Hard to inspect**: Developers rarely audit cache directories manually
+1. Performance optimization: Caches exist to avoid repeated downloads
+2. Implicit trust: Installers assume cached content matched registry at cache-write time
+3. Persistence: Bad cache entries survive `node_modules` deletion
+4. Shared environments: CI cache keys can spread poison across pipelines
+5. Hard to inspect: Developers rarely audit cache directories manually
 
 ### Visual Example: This Lab's Cache Simulation
 
@@ -79,14 +90,14 @@ This scenario simulates cache poisoning with a local folder:
 └── infrastructure/           # Mock server port 3016
 ```
 
-**On every `npm install` in victim-app:**
+On every `npm install` in victim-app:
 1. `postinstall` runs `install-from-cache.js`
 2. Script copies `cache/cache-lib` → `node_modules/cache-lib`
 3. Poisoned module loads and exfiltrates (when TESTBENCH_MODE enabled)
 
 ### How Cache Poisoning Attacks Work
 
-**The Attack Chain**:
+The Attack Chain:
 ```
 Attacker poisons cache entry (or mirror serves bad content once)
         ↓
@@ -103,20 +114,20 @@ Exfiltration to attacker server (localhost:3016 in this lab)
 
 ### Why Cache Poisoning Is Risky
 
-1. **False sense of recovery**: Deleting `node_modules` feels like a clean slate
-2. **Delayed detection**: Registry shows clean version while cache serves bad bits
-3. **CI persistence**: Shared cache restores poison across builds
-4. **Blast radius**: Any machine sharing cache infrastructure affected
-5. **Integrity gap**: Lockfiles may not re-verify cache-sourced content
+1. False sense of recovery: Deleting `node_modules` feels like a clean slate
+2. Delayed detection: Registry shows clean version while cache serves bad bits
+3. CI persistence: Shared cache restores poison across builds
+4. Blast radius: Any machine sharing cache infrastructure affected
+5. Integrity gap: Lockfiles may not re-verify cache-sourced content
 
 ### Real-World Examples
 
-- **npm cache corruption incidents**: Bad tarballs served from local cache after transient registry issue
-- **Compromised internal mirrors**: Artifacts cached before mirror takedown
-- **CI cache poisoning**: Attackers influence cache keys to inject malicious layers
-- **Air-gapped mirror drift**: Offline mirrors serving stale compromised packages
+- npm cache corruption incidents: Bad tarballs served from local cache after transient registry issue
+- Compromised internal mirrors: Artifacts cached before mirror takedown
+- CI cache poisoning: Attackers influence cache keys to inject malicious layers
+- Air-gapped mirror drift: Offline mirrors serving stale compromised packages
 
-**Key insight**: "Clean package.json" is not enough when the cache layer is untrusted.
+Key insight: "Clean package.json" is not enough when the cache layer is untrusted.
 
 ---
 
@@ -160,21 +171,21 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-**What this does:**
+What this does:
 - Prepares `cache/cache-lib/` with poisoned module code
 - Sets up `victim-app/` with `install-from-cache.js` postinstall hook
 - Initializes `infrastructure/captured-data.json`
-- Creates mock collector on port **3016**
+- Creates mock collector on port 3016
 - Creates `detection-tools/cache-poisoning-detector.js`
 - Clears `victim-app/node_modules` for clean demo
 
-**Expected output:**
+Expected output:
 - Setup confirmation
 - Numbered lab steps printed to terminal
 
 ### Step 3: Understand the Environment
 
-**The Scenario Structure**:
+The Scenario Structure:
 ```
 16-package-cache-poisoning/
 ├── cache/
@@ -190,7 +201,7 @@ export TESTBENCH_MODE=enabled
     └── cache-poisoning-detector.js
 ```
 
-**The Attack**:
+The Attack:
 - Victim app's postinstall copies poisoned `cache-lib` into `node_modules`
 - Module load triggers exfiltration when `TESTBENCH_MODE=enabled`
 - Reinstalling without clearing cache repeats the compromise
@@ -206,13 +217,13 @@ export TESTBENCH_MODE=enabled
 cat cache/cache-lib/index.js
 ```
 
-**What you'll see:**
+What you'll see:
 - Guard: `if (process.env.TESTBENCH_MODE === 'enabled')`
 - Payload with `attack: package-cache-poisoning`, stage `cache-lib-load`
 - Dual evidence path: writes to `infrastructure/captured-data.json` AND POST to `localhost:3016/collect`
 - Exported benign-looking API: `module.exports = { run: () => ({ ok: true, lib: 'cache-lib' }) }`
 
-**Key Point**: Code looks like a normal library export while exfiltrating on load.
+Key Point: Code looks like a normal library export while exfiltrating on load.
 
 ### Step 2: Review the Install-from-Cache Script
 
@@ -220,13 +231,13 @@ cat cache/cache-lib/index.js
 cat victim-app/scripts/install-from-cache.js
 ```
 
-**What it does:**
+What it does:
 1. Resolves paths: `cache/cache-lib` (source) → `node_modules/cache-lib` (destination)
 2. Removes existing `node_modules/cache-lib`
 3. Recursively copies poisoned cache content
 4. `require('cache-lib')` immediately - triggers malicious load
 
-**This simulates**: Package manager copying from poisoned cache on every install.
+This simulates: Package manager copying from poisoned cache on every install.
 
 ### Step 3: Examine Victim App Configuration
 
@@ -234,7 +245,7 @@ cat victim-app/scripts/install-from-cache.js
 cat victim-app/package.json
 ```
 
-**What you'll see:**
+What you'll see:
 ```json
 {
   "scripts": {
@@ -259,9 +270,9 @@ Victim app uses the library normally after poisoned install completes.
 ls -la cache/cache-lib/
 ```
 
-**Critical distinction**:
+Critical distinction:
 - Deleting `node_modules` removes installed copy
-- **Not** deleting `cache/` means next install re-poisons `node_modules`
+- Not deleting `cache/` means next install re-poisons `node_modules`
 - Real-world parallel: `npm cache clean --force` or purging CI cache
 
 ---
@@ -270,9 +281,9 @@ ls -la cache/cache-lib/
 
 ### Step 1: Understand the Attack Timeline
 
-**Scenario**: A poisoned cache entry for `cache-lib` persists malicious code across reinstall cycles.
+Scenario: A poisoned cache entry for `cache-lib` persists malicious code across reinstall cycles.
 
-**Attack Timeline**:
+Attack Timeline:
 1. Poisoned artifact stored in `cache/cache-lib`
 2. Developer runs first `npm install` - postinstall copies poisoned module
 3. Developer deletes `node_modules` thinking environment is clean
@@ -281,26 +292,26 @@ ls -la cache/cache-lib/
 
 ### Step 2: Start the Mock Attacker Server
 
-Open **Terminal A**:
+Open Terminal A:
 
 ```bash
 cd scenarios/16-package-cache-poisoning
 node infrastructure/mock-server.js
 ```
 
-**What this does:**
+What this does:
 - Listens on `127.0.0.1:3016`
 - Accepts `POST /collect`
 - Stores captures in `infrastructure/captured-data.json`
 
-**Verify it's running:**
+Verify it's running:
 ```bash
 curl -s http://127.0.0.1:3016/captured-data
 ```
 
 ### Step 3: First Install Cycle
 
-Open **Terminal B**:
+Open Terminal B:
 
 ```bash
 cd scenarios/16-package-cache-poisoning/victim-app
@@ -308,11 +319,11 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
-**What happens:**
+What happens:
 - postinstall copies poisoned `cache-lib` to `node_modules`
 - Module loads; if TESTBENCH_MODE not set yet, exfil may not run (gate)
 
-**Observe cache copy:**
+Observe cache copy:
 ```bash
 ls node_modules/cache-lib/
 cat node_modules/cache-lib/index.js | head -5
@@ -325,12 +336,12 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
-**What happens:**
+What happens:
 - Same postinstall script runs again
 - Same poisoned cache source copied again
 - Compromise persists without any registry fetch
 
-**Key Point**: Two installs, same poisoned source - this is the core lesson.
+Key Point: Two installs, same poisoned source - this is the core lesson.
 
 ### Step 5: Trigger Runtime Exfiltration
 
@@ -339,7 +350,7 @@ export TESTBENCH_MODE=enabled
 npm start
 ```
 
-**What happens:**
+What happens:
 - Victim app loads `cache-lib`
 - Poisoned module exfiltrates hostname, username, platform, cwd
 - Evidence written to capture file and sent to mock server
@@ -350,12 +361,12 @@ npm start
 curl -s http://127.0.0.1:3016/captured-data | jq
 ```
 
-**Alternative - read capture file:**
+Alternative - read capture file:
 ```bash
 cat ../infrastructure/captured-data.json | jq '.captures[-1]'
 ```
 
-**What was exfiltrated:**
+What was exfiltrated:
 - `attack`: `package-cache-poisoning`
 - `stage`: `cache-lib-load`
 - Hostname, username, platform, working directory
@@ -372,15 +383,15 @@ From scenario root:
 node detection-tools/cache-poisoning-detector.js .
 ```
 
-**Note**: The detector scans `cache/cache-lib/index.js` at scenario root. Use `.` as the target path when running from scenario root.
+Note: The detector scans `cache/cache-lib/index.js` at scenario root. Use `.` as the target path when running from scenario root.
 
-**What this does:**
+What this does:
 - Reads poisoned cache module source
 - Searches for `localhost:3016` or `package-cache-poisoning` strings
 - Exits with code 2 when poisoning suspected
 - Recommends cache purge and clean reinstall
 
-**Expected output:**
+Expected output:
 ```
 🚨 Cache poisoning suspected: exfiltration endpoint found in cache/lib code.
 Recommendation:
@@ -397,7 +408,7 @@ rm -rf node_modules package-lock.json && npm install
 ls node_modules/cache-lib/index.js
 ```
 
-**Indicator**: Identical malicious content reappears after each cycle without cache purge.
+Indicator: Identical malicious content reappears after each cycle without cache purge.
 
 ### Detection Method 3: Source Path Inspection
 
@@ -406,7 +417,7 @@ grep -n "cache-lib" victim-app/scripts/install-from-cache.js
 ls -la cache/cache-lib/
 ```
 
-**Red flags:**
+Red flags:
 - Install scripts copying from local cache paths outside registry control
 - Cache directories writable by untrusted processes
 - Module code containing network exfiltration
@@ -417,14 +428,14 @@ ls -la cache/cache-lib/
 cat infrastructure/captured-data.json | jq '.captures[] | .data.attack'
 ```
 
-**What to look for:**
+What to look for:
 - Multiple captures with same `cache-lib-load` stage
 - Captures after `node_modules` was deleted and reinstalled
 - Timestamps clustering around repeated `npm install` events
 
 ### Detection Method 5: Integrity Verification
 
-**Production parallel:**
+Production parallel:
 ```bash
 npm ci                    # Enforce lockfile integrity
 npm cache verify          # Validate npm cache structure
@@ -443,7 +454,7 @@ detection:
 level: medium
 ```
 
-**Sample log line:**
+Sample log line:
 ```json
 {"scenario_id":"16","event_type":"cache_persistence_exec","source":"cached-package","destination":"127.0.0.1:3016","timestamp_utc":"2026-04-20T13:15:00Z"}
 ```
@@ -459,7 +470,7 @@ cp cache/cache-lib/index.js /tmp/cache-lib-forensics.js
 cat /tmp/cache-lib-forensics.js
 ```
 
-**Questions:**
+Questions:
 - When was cache entry last modified (`ls -la cache/cache-lib/`)?
 - Who/what process can write to cache directory?
 - Is cache shared across CI runners or developer machines?
@@ -470,7 +481,7 @@ cat /tmp/cache-lib-forensics.js
 cat victim-app/scripts/install-from-cache.js
 ```
 
-**Document:**
+Document:
 - Source path: `../cache/cache-lib`
 - Destination: `node_modules/cache-lib`
 - Immediate `require('cache-lib')` triggering load-time execution
@@ -481,7 +492,7 @@ cat victim-app/scripts/install-from-cache.js
 cat infrastructure/captured-data.json | jq '.captures[] | {timestamp, stage: .data.stage}'
 ```
 
-**Build Timeline:**
+Build Timeline:
 - T0: First `npm install` - cache copy
 - T1: `node_modules` deleted
 - T2: Second `npm install` - cache copy again
@@ -489,7 +500,7 @@ cat infrastructure/captured-data.json | jq '.captures[] | {timestamp, stage: .da
 
 ### Investigation Step 4: Scope Assessment
 
-**Questions:**
+Questions:
 - How many projects share this cache infrastructure?
 - Did registry already publish fixed version while cache serves old poison?
 - Are lockfile integrity hashes validated against registry or cache?
@@ -519,7 +530,7 @@ rm -rf cache/cache-lib
 # Re-run setup.sh to restore lab state for future runs
 ```
 
-**Production parallels:**
+Production parallels:
 ```bash
 npm cache clean --force
 # Purge CI cache keys for affected projects
@@ -545,24 +556,24 @@ node detection-tools/cache-poisoning-detector.js .
 
 ### Response Step 4: Long-term Defenses
 
-**Implement Multiple Layers**:
+Implement Multiple Layers:
 
-1. **Cache purge in incident response** - mandatory after registry compromise
+1. Cache purge in incident response - mandatory after registry compromise
 
-2. **Lockfile + integrity verification**:
+2. Lockfile + integrity verification:
    ```bash
    npm ci  # Deterministic installs against lockfile hashes
    ```
 
-3. **Separate dev vs production cache trust boundaries**
+3. Separate dev vs production cache trust boundaries
 
-4. **CI cache key hygiene** - invalidate on security incidents
+4. CI cache key hygiene - invalidate on security incidents
 
-5. **Monitor postinstall and cache path mutations**
+5. Monitor postinstall and cache path mutations
 
-6. **Immutable internal mirrors** with signed artifacts
+6. Immutable internal mirrors with signed artifacts
 
-7. **Automated detector in pipeline**:
+7. Automated detector in pipeline:
    ```bash
    node detection-tools/cache-poisoning-detector.js .
    ```
@@ -594,24 +605,24 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 ## Elasticsearch + Kibana observability (optional)
 
-Scenario **16 - Package Cache Poisoning** is indexed in Elasticsearch when the observability stack is running.
+Scenario 16 - Package Cache Poisoning is indexed in Elasticsearch when the observability stack is running.
 
 Cache poisoning: repeated npm install reuses poisoned cache-lib artifact from cache/.
 
-- **Detection runbook (static)** → index `scas-rules`, document id `16` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
-- **Runtime captures (dynamic)** → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
+- Detection runbook (static) → index `scas-rules`, document id `16` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
+- Runtime captures (dynamic) → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
 
 ### How to read this diagram
 
 | Phase | What you should look for |
 |-------|--------------------------|
-| **1 - Collectors** | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
-| **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
-| **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
-| **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| 1 - Collectors | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
+| 2 - Lab execution | Terminal B runs the scenario README steps. See the sequence diagram and Scenario-specific attack steps below. |
+| 3 - Exfiltration | Malicious sample sends localhost-only JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
+| 4 - Elasticsearch | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| 5 - Kibana | Use the per-scenario saved searches to compare runtime captures (Detections) with the static runbook (Rules). |
 
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+> Safety: All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 
 ### End-to-end flow
 
@@ -693,7 +704,7 @@ From the repository root:
 
 ### Run this scenario with live Elasticsearch forwarding
 
-**Terminal A - mock collector** (from `scenarios/16-package-cache-poisoning`):
+Terminal A - mock collector (from `scenarios/16-package-cache-poisoning`):
 
 ```bash
 cd scenarios/16-package-cache-poisoning
@@ -702,7 +713,7 @@ export SCAS_ES_URL=http://localhost:9200
 node infrastructure/mock-server.js
 ```
 
-**Terminal B - execute the lab:**
+Terminal B - execute the lab:
 
 ```bash
 cd scenarios/16-package-cache-poisoning
@@ -736,8 +747,8 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 ### Verify in Kibana (UI)
 
 1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 16** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 16** - compare against `iocs`, `sigma`, and `yara` fields
+2. Discover → SCAS Detections - Scenario 16 - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. Discover → SCAS Rules - Scenario 16 - compare against `iocs`, `sigma`, and `yara` fields
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
@@ -746,28 +757,28 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Why Cache Poisoning Is Dangerous
 
-1. **Persistence**: Survives `node_modules` deletion
-2. **False recovery**: Teams think reinstall fixed the problem
-3. **Shared blast radius**: CI and developer caches spread poison
-4. **Registry mismatch**: Upstream may be clean while cache is not
-5. **Low visibility**: Cache directories rarely audited
+1. Persistence: Survives `node_modules` deletion
+2. False recovery: Teams think reinstall fixed the problem
+3. Shared blast radius: CI and developer caches spread poison
+4. Registry mismatch: Upstream may be clean while cache is not
+5. Low visibility: Cache directories rarely audited
 
 ### Best Practices
 
-1. ✅ **Purge caches** during incident response and critical pipeline runs
-2. ✅ **Enforce lockfile integrity** with `npm ci` in CI
-3. ✅ **Use deterministic installs** against immutable mirrors
-4. ✅ **Monitor cache mutations** and suspicious postinstall behavior
-5. ✅ **Separate cache trust** between dev machines and production builds
-6. ✅ **Invalidate CI caches** after supply chain incidents
-7. ✅ **Verify tarball hashes** against registry, not cache alone
+1. ✅ Purge caches during incident response and critical pipeline runs
+2. ✅ Enforce lockfile integrity with `npm ci` in CI
+3. ✅ Use deterministic installs against immutable mirrors
+4. ✅ Monitor cache mutations and suspicious postinstall behavior
+5. ✅ Separate cache trust between dev machines and production builds
+6. ✅ Invalidate CI caches after supply chain incidents
+7. ✅ Verify tarball hashes against registry, not cache alone
 
 ### Real-World Impact
 
-- **Repeat compromise**: Same malware across weeks of "clean" reinstalls
-- **Detection delay**: Focus on registry while cache serves bad content
-- **CI amplification**: Shared cache keys spread poison organization-wide
-- **Recovery**: Requires coordinated cache purge + lockfile refresh + redeploy
+- Repeat compromise: Same malware across weeks of "clean" reinstalls
+- Detection delay: Focus on registry while cache serves bad content
+- CI amplification: Shared cache keys spread poison organization-wide
+- Recovery: Requires coordinated cache purge + lockfile refresh + redeploy
 
 ---
 
@@ -803,7 +814,7 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ## ⚠️ Safety & Ethics
 
-**IMPORTANT**: This scenario is for **educational purposes only**.
+IMPORTANT: This scenario is for educational purposes only.
 
 - ✅ Use ONLY in isolated test environments
 - ✅ Never poison real npm caches or shared CI infrastructure
@@ -820,6 +831,6 @@ You've completed the Package Cache Poisoning scenario! You now understand:
 - Why deleting `node_modules` alone does not restore trust
 - How to detect, respond, and harden cache layers in your pipeline
 
-**Remember**: The cache is part of your supply chain. Purge it with the same urgency as compromised registry credentials.
+Remember: The cache is part of your supply chain. Purge it with the same urgency as compromised registry credentials.
 
 🔐 Happy Learning!

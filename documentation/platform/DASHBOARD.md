@@ -1,6 +1,8 @@
-# SCAS Dashboard (optional localhost UI)
+# Command Center - maintainer notes (apps/dashboard + control-plane)
 
-The CLI remains the canonical way to run labs. The dashboard is an optional control plane for learners who prefer a browser UI.
+Learner path: **[Command Center getting started](../getting-started/COMMAND_CENTER.md)**.
+
+This page is the maintainer / operator note for the Next.js UI (`:3100`) and the Express control plane (`:3101`). Same 25 labs as the CLI. UI for learning and demos; CLI for automation and raw scripts. README.md under each scenario stays the CLI source of truth.
 
 ## Stack
 
@@ -18,7 +20,11 @@ Services bind on `0.0.0.0`. Open the dashboard with the lab host address (for ex
 
 The dashboard proxies control-plane API and WebSocket traffic through port 3100 (`/api/cp/*`, `/ws/logs` → `127.0.0.1:3101` on the server). You only need port 3100 reachable over LAN. Port 3101 can stay loopback-only.
 
-Browser-facing service links (Overview Platform stack, Observatory Open Kibana) rewrite loopback URLs to the hostname in the address bar. So if you opened `http://192.168.64.2:3100`, Kibana opens as `http://192.168.64.2:5601`. Server-side health probes still use `127.0.0.1` on the lab host. Payload exfil in captures still shows `127.0.0.1` on purpose (TESTBENCH safety).
+Browser-facing service links (Overview Platform stack, Observatory Open Kibana) rewrite loopback URLs to the hostname in the address bar. So if you opened `http://192.168.64.2:3100`, Kibana opens as `http://192.168.64.2:5601`. Server-side health probes still use `127.0.0.1` on the lab host (or `SCAS_PLATFORM_HOST` when the control plane runs in Docker). Payload exfil in captures still shows `127.0.0.1` on purpose (TESTBENCH safety).
+
+Overview **Platform stack** Running/Stopped matches the same loopback checks as STACK RADAR in `./run.sh` (ES `/_cluster/health`, Kibana `/api/status` with root fallback, Floci `/_floci/health` with root fallback). If the terminal says UP but the UI says Stopped, restart the control plane so it loads the current probe code, then refresh Overview or hit `GET /api/platform/status` on `:3101`.
+
+Workshop env files (`.testbench.env`, `.floci.env`, `.scas.env`) are parsed by the control plane for lab children. `export KEY=value` lines and `${VAR:-default}` defaults are supported - without that, Floci/ES flags from those files were ignored unless the parent shell had already exported them.
 
 Also open these ports on the lab host / VM firewall when you demo over LAN: 3100, 5601 (Kibana), 9200 (optional direct ES), 4566 (Floci).
 
@@ -84,9 +90,9 @@ curl http://127.0.0.1:3101/api/health
 - Scenario payload exfiltration remains 127.0.0.1 only; the dashboard proxies existing mock APIs.
 - Do not expose the control plane to untrusted networks.
 
-## What the dashboard can do
+## What Command Center can do
 
-- Welcome - product pitch and safety model inside the dashboard (`/welcome`)
+- Welcome - product pitch and safety model inside the UI (`/welcome`)
 - Labs workspace - guided storyboard for all 25 scenarios via `lesson.yaml` (Red / Blue / Purple roles, hints, verify gates, live inspector)
 - Spot-the-attack drill - blind review of an unlabeled diff / registry page / CI log before the storyboard labels anything (`drill` block in `lesson.yaml`)
 - Breach moment - captured exfil rendered as a consequence (blast radius, leak-site paste) in the live inspector and the briefing
@@ -97,10 +103,10 @@ curl http://127.0.0.1:3101/api/health
 - Live terminal - side-by-side by default (drag the splitter to resize; Side / Bottom toggle; SM/MD/LG presets). Collapses to a thin bar when you do not need logs
 - Observatory (`/observe`) - Elasticsearch `scas-detections` timeline when the stack is up
 - Skills (`/skills`) - category matrix with Markdown/JSON export
-- Classroom (`/classroom`) - session code, leaderboard sorted by assessment points, freeze for debrief (single control plane; not per-student isolation yet)
+- Classroom (`/classroom`) - session code, optional IC/Eng/Comms/Legal seat, shared inject clock, leaderboard by assessment points, freeze for debrief (single control plane; not per-student isolation)
 - Lab coach - in-lab assistant (offline context by default; set `SCAS_AI_URL` + `SCAS_AI_API_KEY` for a live OpenAI-compatible model)
 - Stream stdout/stderr over WebSocket in the Labs dock
-- Persist progress under `~/.scas/progress.json` (steps, hints, quiz and drill results)
+- Persist progress under `~/.scas/progress.json` (steps, hints, quiz, drill, decisions, PR triage)
 - Start/stop Elasticsearch, Kibana, Floci; global teardown
 
 ### Check inspector (detect steps)
@@ -116,7 +122,7 @@ Reset lab (`/teardown` or Overview) runs `scripts/setup/teardown.sh`. When that 
 Every lab under `scenarios/NN-slug/` ships `lesson.yaml`. Teaching metadata only:
 
 - Steps point at registry actions (`setup`, `services`, or a step id from `apps/control-plane/src/registry/scenarios.ts`)
-- Commands stay in the TypeScript registry; README.md remains the CLI source of truth
+- Commands stay in the TypeScript registry; scenario `README.md` remains the CLI command path
 - Verify rules: `exit-zero`, `service-listening`, `capture-count`
 - Optional quick-reference fields (shown in the lab storyboard when set):
   - `caseStudy` - one or two sentences tying the lab to a named real-world supply chain incident
@@ -125,7 +131,11 @@ Every lab under `scenarios/NN-slug/` ships `lesson.yaml`. Teaching metadata only
 - Optional learner-experience fields:
   - `drill` - blind "spot the attack" review (`prompt`, `artifactType` = diff | package-page | ci-log, `artifact` as a list of lines, `choices`, `answer` index, `reveal`, `explanation`)
   - `quiz` - blue-team gate, a list of `{ question, choices, answer, explain }` drawn from the lab's DETECT.md
-  - `reversal` - `{ blockedPackage }` the learner's `dependency-guard.json` must block; the control plane re-runs the attack with `scenarios/_shared/dependency-guard.js` preloaded
+  - `reversal` - `{ blockedPackage }` the learner's `dependency-guard.json` must block; the control plane re-runs the attack with `scenarios/_shared/dependency-guard.js` preloaded. Optional `variant: { entry, port }` turns round 2 polymorphic: `polymorphic-variant.js` renames the attacker package so a static name blocklist fails and a behavioral gate (`allowOnly` or `denyDependencyEgress`) is required. Lab 01 is the seed.
+  - `diffWorkbench` - side-by-side Tarball vs Git panes in the Labs tab. Fields: `fixtureDir` (relative to the lab folder, holds `git/` and `tarball/` trees of `*.fixture` text files), optional `title`, `prompt`, `gitLabel`, `tarballLabel`, and `afterStep` (a real step id; the panes appear once that step is active or verified). The control plane serves the fixtures from `GET /api/scenarios/:id/diff-workbench`; nothing is fetched from a real registry. Lab 03 is the seed.
+  - `decisions` - branching choice points shown right after a step is verified. Each entry has `id`, `afterStep` (a real step id), `prompt`, optional `roles` (IC / Eng / Comms / Legal for tabletop), and at least two `choices`. A choice has `id`, `label`, and optional `effects`: `score` (number, added to the assessment total), `flag` (string or list, stored on the scenario progress), `feedback` (text shown after the pick), and `goto` (a step id). When `goto` is set, a Continue button jumps the lesson to that step, so two choices can send learners down different paths. A choice without `goto` just stays on the current step. Labs 01 and 05 are the seeds; 05 diverges to `detect` or `detect-late`.
+  - `prTriage` - synthetic dependency-bump inbox in the Labs tab. Fields: optional `afterStep` (inbox unlocks once that step is verified), and `prs` (8-10 entries with `id`, `title`, `dependency`, `diffSummary`, `safe`, optional `blockLabel` / `approveLabel`). Approve safe bumps, block the compromise. Scores land via `POST /api/scenarios/:id/pr-triage` into the same progress `decisions[]` list. No real GitHub API. Every lab ships a list; lab 01 is the reference mix.
+  - `attck` / `nist` / `prereqs` / `remediates` - taxonomy tags for Skills (`/skills`) and Briefing (`/report`). Labs 01 and 05 are the seeds; adaptive tips prefer a next lab that shares ATT&CK tags or lists a finished lab under `prereqs`.
 - Validate with `node scripts/docs/check-lesson-yaml.js` (smoke CI)
 
 Lab **01** is the seed template for `caseStudy` / `mitigation`. Other labs can adopt the same fields later without schema changes.
@@ -136,11 +146,23 @@ A campaign chains existing labs into one continuous intrusion under a persistent
 
 Each campaign YAML: `id`, `title`, `persona`, `tagline`, `description`, `debrief`, and a `chapters` list of `{ scenario, beat, narrative }` where `scenario` is a two-digit lab id. Two ship today: `operation-quiet-carrier` (01 -> 05 -> 25 -> 11) and `operation-cold-key` (06 -> 14 -> 17 -> 21).
 
+Optional campaign extras (Quiet Carrier is the seed):
+
+- `injects` - timed intel events (`id`, `when` as `chapter:NN`, `kind`, `from`, `subject`, `body`, optional `evidence`, `confidence`, `tMinute`). The Campaign page Intel panel resolves which ones have fired from completed chapters. Classroom tabletop reuses the same list on a shared clock.
+- `remediation` - graded post-compromise checklist (`id`, `title`, `severity`, `weight`, `steps`, `flag`). The Campaign page grades checked items over `POST /api/campaigns/:id/remediation`.
+- Execution graph - `buildExecutionGraph` turns chapter order plus live captures into a millisecond-style chain on the Campaign page (install -> lifecycle -> credential read -> pivot -> mock exfil). Extends the static blast-radius analysis; it does not replace `BreachPanel`.
+
+## Classroom tabletop and rule CTF
+
+- `/classroom` - join code, optional seat (IC / Eng / Comms / Legal), leaderboard, freeze. Role-filtered `decisions` hide calls that are not yours.
+- Shared inject clock - instructor release / +5 min / reset. Learners poll `/api/classroom/clock`. Facilitator script: `documentation/guides/tabletop-quiet-carrier.md`.
+- Rule challenges - learners submit Sigma or Semgrep text against fixtures under `scenarios/<slug>/ctf-fixtures.json` (lab 01 seed). Scored offline for true positives vs false positives. Instructor can set a deadline; classroom freeze locks submissions. BYOT external-exit-zero stays the thin verify hook for custom tooling.
+
 ## App boundaries (current merge state)
 
 | Piece | Role |
 |-------|------|
-| Dashboard (Next.js :3100) | Primary learner UI (welcome, labs, observe, skills, briefing, classroom) |
+| Command Center (Next.js :3100) | Primary learner UI (welcome, labs, observe, skills, briefing, classroom) |
 | Control plane (Express :3101) | Process supervisor, lessons, progress, classroom, assistant, ES proxy |
 | Public site | https://simulator.rajanagori.in/ (marketing / docs hub; not part of `./run.sh`) |
 

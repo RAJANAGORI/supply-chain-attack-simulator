@@ -43,6 +43,8 @@ Run **one scenario lab at a time** - many share host port 3000.
 
 ## Command Center UI (`apps/`)
 
+Learner tour: [COMMAND_CENTER.md](./COMMAND_CENTER.md). Same labs as CLI; this path runs the UI in Docker.
+
 ```bash
 ./docker/install.sh --ui-only
 # or with a lab:
@@ -51,7 +53,7 @@ Run **one scenario lab at a time** - many share host port 3000.
 
 | Service | URL |
 |---------|-----|
-| Dashboard | http://localhost:3100 |
+| Command Center | http://localhost:3100 |
 | Control plane | http://localhost:3101/api/health |
 | Public marketing | https://simulator.rajanagori.in/ |
 

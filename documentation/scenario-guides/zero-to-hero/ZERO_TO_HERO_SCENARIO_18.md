@@ -12,7 +12,7 @@ By the end of this guide, you will:
 - Perform forensic investigation of hook-driven compromise
 - Implement defense strategies for plugin governance
 
-- Apply the **Mitigation Playbook** from this guide and the scenario README
+- Apply the Mitigation Playbook from this guide and the scenario README
 ---
 
 ## Table of Contents
@@ -39,13 +39,24 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 18 |
+| CLI | Shell steps in this guide and [`scenarios/18-package-manager-plugin-attack/README.md`](../../../scenarios/18-package-manager-plugin-attack/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/18-package-manager-plugin-attack/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Package Manager Plugins (15 minutes)
 
 ### What Is a Package Manager Plugin?
 
-A **package manager plugin** is code that hooks into the install lifecycle-before, during, or after dependencies are resolved and written to disk. Ecosystems like npm, Yarn, pnpm, and others support extension points where custom logic can run with **project-level permissions**.
+A package manager plugin is code that hooks into the install lifecycle-before, during, or after dependencies are resolved and written to disk. Ecosystems like npm, Yarn, pnpm, and others support extension points where custom logic can run with project-level permissions.
 
-**Example hook surface**:
+Example hook surface:
 ```
 npm install
     └── plugin.installHook({ projectRoot })
@@ -54,14 +65,14 @@ npm install
             └── Phone home to attacker infrastructure
 ```
 
-Unlike a single malicious package, a compromised plugin can affect **every install** in a repository that loads it.
+Unlike a single malicious package, a compromised plugin can affect every install in a repository that loads it.
 
 ### Why Plugins Exist
 
-1. **Corporate policy**: Enforce license checks or registry allowlists
-2. **Developer experience**: Auto-format, lint, or scaffold after install
-3. **Security tooling**: Scan dependencies during install
-4. **Build integration**: Wire monorepo tooling into package managers
+1. Corporate policy: Enforce license checks or registry allowlists
+2. Developer experience: Auto-format, lint, or scaffold after install
+3. Security tooling: Scan dependencies during install
+4. Build integration: Wire monorepo tooling into package managers
 
 ### How Plugin Hooks Work in This Lab
 
@@ -95,20 +106,20 @@ plugins/
 
 ### Why Plugin Attacks Are Risky
 
-1. **Broad blast radius**: One plugin affects all installs using that config
-2. **High trust**: Plugins run with the same privileges as the developer or CI runner
-3. **Hard to spot**: Changes may look like normal install side effects
-4. **Persistent config**: A single `.npmrc` or config file enables the hook across machines
-5. **Supply chain multiplier**: Compromise the plugin once, hit every downstream install
+1. Broad blast radius: One plugin affects all installs using that config
+2. High trust: Plugins run with the same privileges as the developer or CI runner
+3. Hard to spot: Changes may look like normal install side effects
+4. Persistent config: A single `.npmrc` or config file enables the hook across machines
+5. Supply chain multiplier: Compromise the plugin once, hit every downstream install
 
 ### Real-World Examples
 
-- **Malicious npm tooling plugins** that patch `node_modules` after install
-- **Compromised CI install hooks** that inject credentials harvesters
-- **Typosquatted plugin packages** registered in corporate registries
-- **Insider threats** adding hooks to shared developer images
+- Malicious npm tooling plugins that patch `node_modules` after install
+- Compromised CI install hooks that inject credentials harvesters
+- Typosquatted plugin packages registered in corporate registries
+- Insider threats adding hooks to shared developer images
 
-**The Attack Chain**:
+The Attack Chain:
 ```
 Developer runs npm install
     └── Active plugin hook executes
@@ -159,20 +170,20 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-**What this does:**
-- Prepares `infrastructure/` mock server (port **3018**)
+What this does:
+- Prepares `infrastructure/` mock server (port 3018)
 - Initializes `captured-data.json` for evidence storage
 - Clears `victim-app/node_modules` for a clean install simulation
 - Prints numbered lab steps matching this guide
 
-**Expected output:**
+Expected output:
 - Setup progress messages
 - Directories and files confirmed
 - "Next Steps" displayed with Terminal A / Terminal B instructions
 
 ### Step 3: Understand the Environment
 
-**The Scenario Structure**:
+The Scenario Structure:
 ```
 18-package-manager-plugin-attack/
 ├── plugins/
@@ -191,13 +202,13 @@ export TESTBENCH_MODE=enabled
     └── plugin-attack-detector.js
 ```
 
-**Key components**:
-- **malicious-plugin**: Exports `installHook` that injects markers and exfiltrates
-- **target-lib**: Benign library copied into `node_modules` during install simulation
-- **victim-app**: Loads plugin config and runs the install hook
-- **mock server**: Receives POST `/collect` on **localhost:3018**
+Key components:
+- malicious-plugin: Exports `installHook` that injects markers and exfiltrates
+- target-lib: Benign library copied into `node_modules` during install simulation
+- victim-app: Loads plugin config and runs the install hook
+- mock server: Receives POST `/collect` on localhost:3018
 
-**The Attack**:
+The Attack:
 - Victim loads malicious plugin via `plugin-active.js`
 - Install runner copies `target-lib`, then awaits `installHook`
 - Hook writes `.infected-by-plugin` marker and POSTs JSON to mock server
@@ -213,13 +224,13 @@ cd victim-app
 cat plugin-active.js
 ```
 
-**What you'll see:**
+What you'll see:
 ```javascript
 // Plugins live at the scenario root (../plugins), not inside victim-app/.
 module.exports = '../plugins/malicious-plugin';
 ```
 
-**Notice**: A single line switches the entire install pipeline from safe to malicious!
+Notice: A single line switches the entire install pipeline from safe to malicious!
 
 ### Step 2: Compare Legitimate vs Malicious Plugin
 
@@ -228,7 +239,7 @@ cd ../plugins/legitimate-plugin
 cat index.js
 ```
 
-**What you'll see:**
+What you'll see:
 - A hook that logs install events
 - No file injection
 - No network exfiltration
@@ -238,13 +249,13 @@ cd ../malicious-plugin
 cat index.js
 ```
 
-**What you'll see:**
+What you'll see:
 - `installHook` gated by `TESTBENCH_MODE=enabled`
 - Writes marker to `node_modules/target-lib/.infected-by-plugin`
 - POSTs payload to `localhost:3018/collect`
 - Also appends evidence to `infrastructure/captured-data.json`
 
-**Key Point**: The malicious plugin runs **during install**, not when the app imports code at runtime.
+Key Point: The malicious plugin runs during install, not when the app imports code at runtime.
 
 ### Step 3: Examine the Install Runner
 
@@ -253,12 +264,12 @@ cd ../../victim-app
 cat scripts/run-plugin-install.js
 ```
 
-**What it does:**
+What it does:
 1. Copies `packages/target-lib` into `node_modules/target-lib`
-2. Calls `plugin.installHook({ projectRoot })` and **awaits** it
+2. Calls `plugin.installHook({ projectRoot })` and awaits it
 3. Requires `target-lib` after the hook completes
 
-**Why await matters**: Ensures the HTTP exfil request completes before the victim process exits.
+Why await matters: Ensures the HTTP exfil request completes before the victim process exits.
 
 ### Step 4: View the Target Library
 
@@ -267,10 +278,10 @@ cat ../packages/target-lib/index.js
 cat ../packages/target-lib/package.json
 ```
 
-**What you'll see:**
+What you'll see:
 - Clean, legitimate utility code
 - No malicious behavior in the package itself
-- The **plugin** tampers with it - not the package author
+- The plugin tampers with it - not the package author
 
 ---
 
@@ -278,18 +289,18 @@ cat ../packages/target-lib/package.json
 
 ### Step 1: Understand the Attack Timeline
 
-**Scenario**: An attacker introduces a malicious plugin into the project's install workflow.
+Scenario: An attacker introduces a malicious plugin into the project's install workflow.
 
-**Attack Timeline**:
+Attack Timeline:
 1. Attacker adds or modifies plugin configuration (`plugin-active.js` or equivalent)
 2. Developer or CI runs `npm start` (which triggers install simulation)
 3. Malicious `installHook` executes with project root access
 4. Hook injects marker file under `node_modules/target-lib/`
-5. Hook exfiltrates metadata to mock server on port **3018**
+5. Hook exfiltrates metadata to mock server on port 3018
 
 ### Step 2: Start the Mock Attacker Server
 
-**Terminal A** - from scenario root:
+Terminal A - from scenario root:
 
 ```bash
 cd scenarios/18-package-manager-plugin-attack
@@ -297,13 +308,13 @@ export TESTBENCH_MODE=enabled
 node infrastructure/mock-server.js
 ```
 
-**What this does:**
-- Starts HTTP server on **localhost:3018**
+What this does:
+- Starts HTTP server on localhost:3018
 - Listens for POST `/collect`
 - Appends captures to `infrastructure/captured-data.json`
 - Safe - only works on localhost!
 
-**Verify it's running** (new terminal):
+Verify it's running (new terminal):
 
 ```bash
 curl -s http://localhost:3018/captured-data
@@ -312,7 +323,7 @@ curl -s http://localhost:3018/captured-data
 
 ### Step 3: Run the Victim Application
 
-**Terminal B**:
+Terminal B:
 
 ```bash
 cd scenarios/18-package-manager-plugin-attack/victim-app
@@ -321,7 +332,7 @@ export TESTBENCH_MODE=enabled
 npm start
 ```
 
-**What happens:**
+What happens:
 1. `index.js` loads `plugin-active.js` → resolves to `malicious-plugin`
 2. `run-plugin-install.js` copies `target-lib` into `node_modules`
 3. `installHook` runs - writes marker and POSTs exfil payload
@@ -340,7 +351,7 @@ cat node_modules/target-lib/.infected-by-plugin
 curl -s http://localhost:3018/captured-data | jq
 ```
 
-**What was exfiltrated:**
+What was exfiltrated:
 - Attack type: `package-manager-plugin-attack`
 - Plugin name: `malicious-plugin`
 - Hostname and project root path
@@ -359,7 +370,7 @@ grep -r "installHook" ../plugins/malicious-plugin/
 grep -r "3018" ../plugins/malicious-plugin/
 ```
 
-**Key Point**: The victim application never directly imports malicious code-the **plugin hook** is the attack vector.
+Key Point: The victim application never directly imports malicious code-the plugin hook is the attack vector.
 
 ### Step 6: Switch to Legitimate Plugin (Optional Comparison)
 
@@ -370,7 +381,7 @@ rm -rf node_modules
 npm start
 ```
 
-**Notice**: No marker file, no captures - same install flow, safe plugin.
+Notice: No marker file, no captures - same install flow, safe plugin.
 
 Restore malicious plugin for detection exercises:
 
@@ -391,12 +402,12 @@ cd scenarios/18-package-manager-plugin-attack
 node detection-tools/plugin-attack-detector.js victim-app
 ```
 
-**What this does:**
+What this does:
 - Scans for injection marker `.infected-by-plugin`
 - Checks plugin hook code for exfil endpoints (`localhost:3018`)
 - Looks for `installHook` patterns in plugin implementations
 
-**Expected output when compromised:**
+Expected output when compromised:
 ```
 🚨 Potential plugin compromise detected.
 - Found injection marker: .infected-by-plugin
@@ -415,7 +426,7 @@ cat plugin-active.js
 grep -r "plugin" . --include="*.js" --include="*.json" --include=".npmrc"
 ```
 
-**Red flags:**
+Red flags:
 - Plugin paths pointing outside approved directories
 - Recently changed plugin configuration without code review
 - Unknown plugin modules in `.npmrc` or package manager config
@@ -430,7 +441,7 @@ find node_modules -name ".infected-by-plugin" 2>/dev/null
 diff -r node_modules/target-lib ../packages/target-lib || true
 ```
 
-**What to look for:**
+What to look for:
 - Files not present in the original package tarball
 - Hidden dotfiles under dependency directories
 - Timestamps on `node_modules` files newer than lockfile
@@ -441,7 +452,7 @@ diff -r node_modules/target-lib ../packages/target-lib || true
 curl -s http://localhost:3018/captured-data | jq '.captures[].data'
 ```
 
-**Sigma-style hunt** (from `DETECT.md`):
+Sigma-style hunt (from `DETECT.md`):
 - Process command line contains `plugin`
 - File path contains `node_modules`
 - Destination `127.0.0.1:3018`
@@ -453,7 +464,7 @@ In production, watch for:
 - File writes under `node_modules` after package extraction
 - Plugin modules loading before dependency tree is complete
 
-**Sample log line to hunt**:
+Sample log line to hunt:
 ```json
 {"scenario_id":"18","event_type":"plugin_hook_injection","source":"malicious-plugin","destination":"127.0.0.1:3018"}
 ```
@@ -477,7 +488,7 @@ cat plugin-active.js
 cat scripts/run-plugin-install.js
 ```
 
-**Questions:**
+Questions:
 - Which file enables the malicious plugin?
 - When does the hook run relative to dependency copy?
 - What files does the hook touch?
@@ -503,7 +514,7 @@ cat ../infrastructure/captured-data.json | jq '.captures[] | {timestamp, plugin:
 stat node_modules/target-lib/.infected-by-plugin
 ```
 
-**Build timeline:**
+Build timeline:
 - When was plugin config last modified?
 - When did install hook execute?
 - What evidence was exfiltrated?
@@ -511,7 +522,7 @@ stat node_modules/target-lib/.infected-by-plugin
 
 ### Investigation Step 4: Impact Assessment
 
-**Questions:**
+Questions:
 - Does the plugin config live in version control?
 - Are all developers and CI runners using the same plugin?
 - Could the hook modify lockfiles or inject transitive dependencies?
@@ -558,27 +569,27 @@ test ! -f node_modules/target-lib/.infected-by-plugin && echo "Clean"
 
 ### Response Step 3: Long-term Defenses
 
-**Implement multiple layers**:
+Implement multiple layers:
 
-1. **Plugin allowlists**:
+1. Plugin allowlists:
    - Only load plugins from signed internal registry paths
    - Block arbitrary `require()` of plugin modules in CI
 
-2. **Code review for hook changes**:
+2. Code review for hook changes:
    ```bash
    # PR check: flag changes to plugin-active.js, .npmrc, or hook modules
    git diff main -- '**/plugin-active.js' '.npmrc'
    ```
 
-3. **Ephemeral CI installs**:
+3. Ephemeral CI installs:
    - Run `npm ci` in disposable containers
    - Deny outbound network from install phase except approved registries
 
-4. **node_modules integrity verification**:
+4. node_modules integrity verification:
    - Compare installed tree to lockfile hashes
    - Alert on unexpected files under dependency directories
 
-5. **Automated scanning**:
+5. Automated scanning:
    ```bash
    node detection-tools/plugin-attack-detector.js victim-app
    ```
@@ -610,24 +621,24 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 ## Elasticsearch + Kibana observability (optional)
 
-Scenario **18 - Package Manager Plugin Attack** is indexed in Elasticsearch when the observability stack is running.
+Scenario 18 - Package Manager Plugin Attack is indexed in Elasticsearch when the observability stack is running.
 
 Plugin attack: malicious-plugin hooks npm install for target-lib inside victim-app.
 
-- **Detection runbook (static)** → index `scas-rules`, document id `18` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
-- **Runtime captures (dynamic)** → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
+- Detection runbook (static) → index `scas-rules`, document id `18` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
+- Runtime captures (dynamic) → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
 
 ### How to read this diagram
 
 | Phase | What you should look for |
 |-------|--------------------------|
-| **1 - Collectors** | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
-| **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
-| **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
-| **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| 1 - Collectors | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
+| 2 - Lab execution | Terminal B runs the scenario README steps. See the sequence diagram and Scenario-specific attack steps below. |
+| 3 - Exfiltration | Malicious sample sends localhost-only JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
+| 4 - Elasticsearch | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| 5 - Kibana | Use the per-scenario saved searches to compare runtime captures (Detections) with the static runbook (Rules). |
 
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+> Safety: All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 
 ### End-to-end flow
 
@@ -709,7 +720,7 @@ From the repository root:
 
 ### Run this scenario with live Elasticsearch forwarding
 
-**Terminal A - mock collector** (from `scenarios/18-package-manager-plugin-attack`):
+Terminal A - mock collector (from `scenarios/18-package-manager-plugin-attack`):
 
 ```bash
 cd scenarios/18-package-manager-plugin-attack
@@ -718,7 +729,7 @@ export SCAS_ES_URL=http://localhost:9200
 node infrastructure/mock-server.js
 ```
 
-**Terminal B - execute the lab:**
+Terminal B - execute the lab:
 
 ```bash
 cd scenarios/18-package-manager-plugin-attack
@@ -752,8 +763,8 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 ### Verify in Kibana (UI)
 
 1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 18** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 18** - compare against `iocs`, `sigma`, and `yara` fields
+2. Discover → SCAS Detections - Scenario 18 - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. Discover → SCAS Rules - Scenario 18 - compare against `iocs`, `sigma`, and `yara` fields
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
@@ -762,28 +773,28 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Why Plugin Attacks Are Dangerous
 
-1. **Wide blast radius**: One plugin config compromises every install
-2. **High privilege**: Hooks run with developer/CI credentials
-3. **Stealth**: Injection happens during install, not app runtime
-4. **Trust assumption**: Teams treat plugins as internal tooling
-5. **Hard to detect**: Changes blend into normal `node_modules` churn
+1. Wide blast radius: One plugin config compromises every install
+2. High privilege: Hooks run with developer/CI credentials
+3. Stealth: Injection happens during install, not app runtime
+4. Trust assumption: Teams treat plugins as internal tooling
+5. Hard to detect: Changes blend into normal `node_modules` churn
 
 ### Best Practices
 
-1. ✅ **Allowlist plugins** - Only approved, signed plugin sources
-2. ✅ **Review hook code** - Same rigor as build scripts and CI pipelines
-3. ✅ **Run installs in isolation** - Ephemeral CI runners with network controls
-4. ✅ **Verify node_modules integrity** - Checksums, policy tools, diff against lockfile
-5. ✅ **Monitor install-time behavior** - Network and filesystem telemetry during `npm install`
-6. ✅ **Version-control plugin config** - Audit changes to `.npmrc` and plugin pointers
-7. ✅ **Incident plan** - Document response for unauthorized plugin introduction
+1. ✅ Allowlist plugins - Only approved, signed plugin sources
+2. ✅ Review hook code - Same rigor as build scripts and CI pipelines
+3. ✅ Run installs in isolation - Ephemeral CI runners with network controls
+4. ✅ Verify node_modules integrity - Checksums, policy tools, diff against lockfile
+5. ✅ Monitor install-time behavior - Network and filesystem telemetry during `npm install`
+6. ✅ Version-control plugin config - Audit changes to `.npmrc` and plugin pointers
+7. ✅ Incident plan - Document response for unauthorized plugin introduction
 
 ### Real-World Impact
 
-- **CI pipeline compromise**: Malicious hooks in shared build images
-- **Developer workstation exposure**: Local plugin config affects every clone
-- **Detection time**: Often discovered only after secondary indicators (network, EDR)
-- **Remediation cost**: Full lockfile regeneration and secret rotation across org
+- CI pipeline compromise: Malicious hooks in shared build images
+- Developer workstation exposure: Local plugin config affects every clone
+- Detection time: Often discovered only after secondary indicators (network, EDR)
+- Remediation cost: Full lockfile regeneration and secret rotation across org
 
 ---
 
@@ -823,16 +834,16 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ## ⚠️ Safety & Ethics
 
-**IMPORTANT**: This scenario is for **educational purposes only**.
+IMPORTANT: This scenario is for educational purposes only.
 
 - ✅ Use ONLY in isolated test environments
 - ✅ Never deploy malicious plugin code to production
 - ✅ All malicious behavior requires `TESTBENCH_MODE=enabled`
-- ✅ Exfiltration targets **127.0.0.1:3018** only - no real external C2
+- ✅ Exfiltration targets 127.0.0.1:3018 only - no real external C2
 - ✅ Plugin hooks are simulated for educational purposes
 
 ---
 
-**Remember**: Package manager plugins are high-trust code. Treat every hook like production infrastructure-and allowlist, review, and monitor them accordingly!
+Remember: Package manager plugins are high-trust code. Treat every hook like production infrastructure-and allowlist, review, and monitor them accordingly!
 
 🔐 Happy Learning!

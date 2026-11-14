@@ -4,7 +4,7 @@ How the Supply Chain Attack Simulator (SCAS) is organized and how data flows thr
 
 ## Design principles
 
-- **CLI-only** - no web dashboard required to run labs (Kibana is optional for workshops).
+- **Two drivers, one lab set** - Command Center (`./run.sh` → `:3100`) for learning and demos; CLI (`START_HERE.sh` / scenario `setup.sh`) for scripts, CI, and headless debugging. Kibana stays optional for workshops.
 - **Education-only** - malicious behavior is gated by `TESTBENCH_MODE=enabled` and targets **127.0.0.1** only.
 - **Self-contained scenarios** - each folder under `scenarios/` is a complete lab with setup, attack, detection, and cleanup.
 - **Single documentation source** - edit under `documentation/`; `docs/` mirrors via symlinks for GitHub Pages.

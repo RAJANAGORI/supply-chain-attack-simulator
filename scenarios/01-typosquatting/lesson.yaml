@@ -14,6 +14,16 @@ mitigation:
   - "Scope registry routes and review every new dependency name before merge"
   - "Prefer ignore-scripts in CI until a package is explicitly trusted"
   - "Full blue-team runbook: DETECT.md in this lab folder"
+attck:
+  - "T1195.002"
+  - "T1059.007"
+  - "T1041"
+nist:
+  - "SP 800-218 PW.4"
+  - "SP 800-161 SR-3"
+remediates:
+  - "lockfile-pinning"
+  - "ignore-scripts"
 drill:
   prompt: "A teammate opened this PR to add a helper to your app. The diff is the whole change. Merge it?"
   artifactType: diff
@@ -37,6 +47,53 @@ drill:
   answer: 1
   reveal: "That one-line helper was the attack. The real package is requests-lib (with an s). request-lib is a typosquat with a postinstall script that reads your environment and posts it to a collector the moment npm finishes installing."
   explanation: "Nothing in the diff says malicious. The only signal is a single missing letter in a name you have typed a hundred times. This is exactly how crossenv and the python3-dateutil lookalikes spread: the review that would have caught it takes three seconds, but only if you read the name instead of the diff shape."
+reversal:
+  blockedPackage: "request-lib"
+  variant:
+    entry: "index.variant.js"
+    port: 3000
+prTriageStep: true
+
+decisions:
+  - id: decision-approve-typosquat
+    afterStep: run
+    prompt: "A PR landed adding 'request-lib' as a dependency. You just watched it exfiltrate env vars. Approve or block?"
+    roles:
+      - IC
+      - Eng
+    choices:
+      - id: block
+        label: "Block - request-lib is a typosquat for requests-lib"
+        effects:
+          score: 3
+          flag: "correct_pr_triage"
+          goto: detect
+          feedback: "Right. That name is one character off the real package and runs a postinstall that posts to your collector."
+      - id: approve
+        label: "Approve - it is a valid helper, just needs a security review"
+        effects:
+          score: -2
+          flag: "incorrect_pr_triage"
+          feedback: "That name is a typosquat. Its postinstall script exfiltrated environment variables to the mock collector on install."
+  - id: decision-notify-typosquat
+    afterStep: detect
+    prompt: "The collector shows a CI token pattern left a developer laptop. Customers have not been touched yet. Do you notify now or wait for a full forensic report?"
+    roles:
+      - Comms
+      - Legal
+    choices:
+      - id: notify-now
+        label: "Send a short holding statement and start the notification clock"
+        effects:
+          score: 3
+          flag: "early_notification"
+          feedback: "Right. Credential exposure on a laptop is enough to start the clock. Say what you know, what you are doing, and when the next update lands."
+      - id: wait-report
+        label: "Hold all messaging until forensics is done"
+        effects:
+          score: -2
+          flag: "delayed_notification"
+          feedback: "Waiting for certainty burns the window. Regulators and customers judge the gap between detection and first word."
 quiz:
   - question: "Which signal in this lab is the strongest IOC that a package is a typosquat?"
     choices:
@@ -59,8 +116,6 @@ quiz:
       - "Pinning the Node version"
     answer: 0
     explain: "The attack needs its install script to run. ignore-scripts (plus a committed lockfile and registry scoping) removes the execution path entirely until a package is reviewed."
-reversal:
-  blockedPackage: "request-lib"
 steps:
   - id: setup
     registry: setup
@@ -97,3 +152,52 @@ steps:
     teaching: "Open the inspector. You should see environment fields the malicious package sent. DETECT.md in this folder is the blue-team runbook."
     hint: "From the repo root you can also run node detection-tools/package-scanner.js scenarios/01-typosquatting/victim-app."
     verify: { type: capture-count, min: 1 }
+
+prTriage:
+  # Show the inbox once Install the typosquat is verified (storyboard step 3).
+  afterStep: install
+  prs:
+    - id: safe-1
+      title: "fix: update jest config for Node 20 compatibility"
+      dependency: "@jest/config"
+      diffSummary: "Updated module resolution for newer Node versions"
+      safe: true
+    - id: safe-2
+      title: "docs: add CONTRIBUTING.md with dev setup steps"
+      dependency: "CONTRIBUTING.md"
+      diffSummary: "Added development contribution guide"
+      safe: true
+    - id: safe-3
+      title: "chore(deps): bump lodash from 4.17.20 to 4.17.21"
+      dependency: "lodash"
+      diffSummary: "Routine dependency bump for security patch"
+      safe: true
+    - id: safe-4
+      title: "test: add unit tests for HTTP request helper"
+      dependency: "src/lib/request.js"
+      diffSummary: "Added comprehensive test coverage for request utilities"
+      safe: true
+    - id: bad-1
+      title: "feat: add HTTP request helper library"
+      dependency: "request-lib"
+      diffSummary: "Added request-lib dependency with postinstall exfil to collector"
+      safe: false
+      blockLabel: "Block — typosquat for requests-lib"
+    - id: bad-2
+      title: "fix: patch core http module with proxy interceptor"
+      dependency: "node_modules/request-lib/lib/proxy.js"
+      diffSummary: "Modified http request interception, sends headers to external host"
+      safe: false
+      blockLabel: "Block — postinstall exfiltration payload"
+    - id: bad-3
+      title: "chore: add build optimization with terser plugin"
+      dependency: "request-lib/scripts/optimize.mjs"
+      diffSummary: "Build script that also collects env vars and POSTs to localhost"
+      safe: false
+      blockLabel: "Block — build script exfiltration"
+    - id: bad-4
+      title: "refactor: restructure lib directory for tree-shaking"
+      dependency: "request-lib/index.js"
+      diffSummary: "Restructured exports with hidden network call on import"
+      safe: false
+      blockLabel: "Block — network call on require"

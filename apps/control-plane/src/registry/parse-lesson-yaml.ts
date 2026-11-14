@@ -2,11 +2,19 @@
  * Minimal YAML subset parser for lesson.yaml files.
  * Supports maps, lists, quoted/unquoted scalars, null, and inline { k: v } objects.
  */
+import { CLASSROOM_ROLES } from './lesson-types.js';
 import type {
+  ClassroomRole,
+  DecisionChoice,
   LessonAudience,
   LessonDefinition,
   LessonDrill,
+  LessonDecision,
+  LessonDiffWorkbench,
+  LessonPrTriage,
+  LessonTriagedPR,
   LessonQuizQuestion,
+  LessonReversal,
   LessonStep,
   LessonVerify,
 } from './lesson-types.js';
@@ -46,7 +54,8 @@ type YamlNode = Record<string, unknown> | unknown[] | string | number | boolean 
 
 function parseBlock(lines: string[], start: number, baseIndent: number): { value: YamlNode; next: number } {
   const first = lines[start];
-  if (!first) return { value: null, next: start };
+  // Empty string is a blank line, not end-of-input. Only undefined means past the last line.
+  if (first === undefined) return { value: null, next: start };
 
   const trimmed = first.trimStart();
   if (trimmed.startsWith('- ')) {
@@ -146,7 +155,12 @@ function parseBlock(lines: string[], start: number, baseIndent: number): { value
 
 export function parseLessonYaml(text: string): Record<string, unknown> {
   const lines = text.replace(/\r\n/g, '\n').split('\n');
-  const { value } = parseBlock(lines, 0, 0);
+  // Skip leading blank / comment lines so a file that starts with `\n` still parses.
+  let start = 0;
+  while (start < lines.length && (!lines[start].trim() || lines[start].trim().startsWith('#'))) {
+    start += 1;
+  }
+  const { value } = parseBlock(lines, start, 0);
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error('lesson.yaml root must be a mapping');
   }
@@ -211,6 +225,11 @@ export function normalizeLesson(raw: Record<string, unknown>, expectedId: string
     if (mitigation.length === 0) mitigation = undefined;
   }
 
+  const attck = optionalTagList(raw.attck, 'attck');
+  const nist = optionalTagList(raw.nist, 'nist');
+  const prereqs = optionalTagList(raw.prereqs, 'prereqs');
+  const remediates = optionalTagList(raw.remediates, 'remediates');
+
   if (!Array.isArray(raw.steps) || raw.steps.length === 0) {
     throw new Error('steps must be a non-empty list');
   }
@@ -238,12 +257,80 @@ export function normalizeLesson(raw: Record<string, unknown>, expectedId: string
 
   const drill = normalizeDrill(raw.drill);
   const quiz = normalizeQuiz(raw.quiz);
+  const decisions = normalizeDecisions(raw.decisions);
   const reversal = normalizeReversal(raw.reversal);
+  const prTriageStep = raw.prTriageStep === true || raw.prTriageStep === 'true';
+  const prTriage = normalizePrTriage(raw.prTriage);
+  const diffWorkbench = normalizeDiffWorkbench(raw.diffWorkbench);
 
-  return { id, etaMinutes, category, incidents, objectives, caseStudy, mitigation, steps, drill, quiz, reversal };
+  return {
+    id,
+    etaMinutes,
+    category,
+    incidents,
+    objectives,
+    caseStudy,
+    mitigation,
+    attck,
+    nist,
+    prereqs,
+    remediates,
+    steps,
+    drill,
+    quiz,
+    decisions,
+    reversal,
+    prTriageStep,
+    prTriage,
+    diffWorkbench,
+  };
 }
 
-function normalizeReversal(raw: unknown): { blockedPackage: string } | undefined {
+function optionalString(raw: Record<string, unknown>, key: string, field: string): string | undefined {
+  const v = raw[key];
+  if (v === undefined || v === null) return undefined;
+  const s = asString(v, `${field}.${key}`).trim();
+  return s || undefined;
+}
+
+/** Normalize a lesson.yaml `diffWorkbench` block (Tarball-vs-Git fixtures). */
+function normalizeDiffWorkbench(raw: unknown): LessonDiffWorkbench | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('diffWorkbench must be a mapping');
+  }
+  const d = raw as Record<string, unknown>;
+  const fixtureDir = asString(d.fixtureDir, 'diffWorkbench.fixtureDir').trim();
+  const segments = fixtureDir.split(/[\\/]/);
+  if (
+    !fixtureDir ||
+    fixtureDir.startsWith('/') ||
+    fixtureDir.startsWith('\\') ||
+    /^[A-Za-z]:/.test(fixtureDir) ||
+    segments.includes('..')
+  ) {
+    throw new Error('diffWorkbench.fixtureDir must be a relative path inside the scenario folder');
+  }
+  return {
+    fixtureDir,
+    title: optionalString(d, 'title', 'diffWorkbench'),
+    prompt: optionalString(d, 'prompt', 'diffWorkbench'),
+    gitLabel: optionalString(d, 'gitLabel', 'diffWorkbench'),
+    tarballLabel: optionalString(d, 'tarballLabel', 'diffWorkbench'),
+    afterStep: optionalString(d, 'afterStep', 'diffWorkbench'),
+  };
+}
+
+/** Optional list of non-empty strings (ATT&CK ids, NIST refs, lab ids, control slugs). */
+function optionalTagList(raw: unknown, field: string): string[] | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (!Array.isArray(raw)) throw new Error(`${field} must be a list of strings`);
+  const out = raw.map((x, i) => asString(x, `${field}[${i}]`).trim());
+  if (out.some((x) => !x)) throw new Error(`${field} entries must be non-empty`);
+  return out.length ? out : undefined;
+}
+
+function normalizeReversal(raw: unknown): LessonReversal | undefined {
   if (raw === undefined || raw === null) return undefined;
   if (typeof raw !== 'object' || Array.isArray(raw)) {
     throw new Error('reversal must be a mapping');
@@ -251,7 +338,23 @@ function normalizeReversal(raw: unknown): { blockedPackage: string } | undefined
   const r = raw as Record<string, unknown>;
   const blockedPackage = asString(r.blockedPackage, 'reversal.blockedPackage').trim();
   if (!blockedPackage) throw new Error('reversal.blockedPackage must be non-empty');
-  return { blockedPackage };
+  if (r.variant === undefined || r.variant === null) return { blockedPackage };
+  if (typeof r.variant !== 'object' || Array.isArray(r.variant)) {
+    throw new Error('reversal.variant must be a mapping');
+  }
+  const v = r.variant as Record<string, unknown>;
+  const entry = asString(v.entry, 'reversal.variant.entry').trim();
+  if (!entry || entry.startsWith('/') || entry.includes('..')) {
+    throw new Error('reversal.variant.entry must be a relative file inside the victim directory');
+  }
+  let port: number | undefined;
+  if (v.port !== undefined && v.port !== null) {
+    port = Number(v.port);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      throw new Error('reversal.variant.port must be a port number');
+    }
+  }
+  return { blockedPackage, variant: { entry, ...(port !== undefined ? { port } : {}) } };
 }
 
 function normalizeQuiz(raw: unknown): LessonQuizQuestion[] | undefined {
@@ -321,4 +424,191 @@ function normalizeDrill(raw: unknown): LessonDrill | undefined {
     reveal,
     explanation,
   };
+}
+
+/** Normalize a lesson.yaml `decisions[]` block into LessonDecision[]. */
+function normalizeDecisions(raw: unknown): LessonDecision[] | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (!Array.isArray(raw) || raw.length === 0) {
+    throw new Error('decisions must be a non-empty list of decision blocks');
+  }
+  return raw.map((item, i) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      throw new Error(`decisions[${i}] must be a mapping`);
+    }
+    const d = item as Record<string, unknown>;
+
+    const id = asString(d.id, `decisions[${i}].id`).trim();
+    const afterStep = asString(d.afterStep, `decisions[${i}].afterStep`).trim();
+    const prompt = asString(d.prompt, `decisions[${i}].prompt`).trim();
+    if (!id || !afterStep || !prompt) {
+      throw new Error(`decisions[${i}].id, .afterStep, and .prompt must be non-empty`);
+    }
+
+    // choices[]
+    if (!Array.isArray(d.choices) || d.choices.length < 2) {
+      throw new Error(`decisions[${i}].choices must be a list of at least two options`);
+    }
+    const choices: (DecisionChoice & { _rawEffects: Record<string, unknown> })[] = d.choices.map(
+      (c, j) => {
+        if (!c || typeof c !== 'object' || Array.isArray(c)) {
+          throw new Error(`decisions[${i}].choices[${j}] must be a mapping`);
+        }
+        const ch = c as Record<string, unknown>;
+        const choiceId = asString(ch.id, `decisions[${i}].choices[${j}].id`).trim();
+        const label = asString(ch.label, `decisions[${i}].choices[${j}].label`).trim();
+        if (!choiceId || !label) {
+          throw new Error(`decisions[${i}].choices[${j}].id and .label must be non-empty`);
+        }
+        // effects (optional mapping)
+        let effects: Record<string, unknown> = {};
+        if (ch.effects !== undefined && ch.effects !== null) {
+          if (typeof ch.effects !== 'object' || Array.isArray(ch.effects)) {
+            throw new Error(`decisions[${i}].choices[${j}].effects must be a mapping`);
+          }
+          effects = ch.effects as Record<string, unknown>;
+        }
+        return { id: choiceId, label, _rawEffects: effects } as (DecisionChoice & {
+          _rawEffects: Record<string, unknown>;
+        });
+      },
+    );
+
+    // Validate effects: score must be a number, flag must be string|array, goto must be string
+    choices.forEach((ch, j) => {
+      const e = ch._rawEffects;
+      if (e.score !== undefined && e.score !== null) {
+        const s = typeof e.score === 'number' ? e.score : Number(e.score);
+        if (!Number.isFinite(s)) {
+          throw new Error(`decisions[${i}].choices[${j}].effects.score must be a number`);
+        }
+      }
+      if (e.flag !== undefined && e.flag !== null) {
+        if (typeof e.flag !== 'string' && !Array.isArray(e.flag)) {
+          throw new Error(`decisions[${i}].choices[${j}].effects.flag must be string or array`);
+        }
+      }
+      if (e.goto !== undefined && e.goto !== null) {
+        asString(e.goto, `decisions[${i}].choices[${j}].effects.goto`);
+      }
+      if (e.feedback !== undefined && e.feedback !== null) {
+        asString(e.feedback, `decisions[${i}].choices[${j}].effects.feedback`);
+      }
+    });
+
+    // roles[] (optional): tabletop roles that own this call
+    let roles: ClassroomRole[] | undefined;
+    if (d.roles !== undefined && d.roles !== null) {
+      if (!Array.isArray(d.roles) || d.roles.length === 0) {
+        throw new Error(`decisions[${i}].roles must be a non-empty list`);
+      }
+      roles = d.roles.map((r, k) => {
+        const match = CLASSROOM_ROLES.find(
+          (known) => known.toLowerCase() === String(r).trim().toLowerCase(),
+        );
+        if (!match) {
+          throw new Error(
+            `decisions[${i}].roles[${k}] must be one of ${CLASSROOM_ROLES.join('|')}, got ${String(r)}`,
+          );
+        }
+        return match;
+      });
+    }
+
+    return {
+      id,
+      afterStep,
+      prompt,
+      ...(roles ? { roles } : {}),
+      choices: choices.map((ch) => ({
+        id: ch.id,
+        label: ch.label,
+        effects: normalizeDecisionEffects(ch._rawEffects),
+      })),
+    } as LessonDecision;
+  });
+}
+
+/** Convert raw effects mapping into typed DecisionEffect. */
+function normalizeDecisionEffects(raw: Record<string, unknown>): import('./lesson-types.js').DecisionEffect {
+  const score = raw.score;
+  let scoreNum: number | undefined;
+  if (score !== undefined && score !== null) {
+    scoreNum = typeof score === 'number' ? score : Number(score);
+    if (!Number.isFinite(scoreNum)) scoreNum = undefined;
+  }
+
+  const flag = raw.flag;
+  let flagVal: string | string[] | undefined;
+  if (flag !== undefined && flag !== null) {
+    flagVal = typeof flag === 'string' ? flag : (Array.isArray(flag) ? flag : undefined);
+  }
+
+  return {
+    goto: raw.goto ? asString(raw.goto, 'effects.goto') : undefined,
+    score: scoreNum,
+    flag: flagVal,
+    feedback: raw.feedback ? asString(raw.feedback, 'effects.feedback') : undefined,
+  };
+}
+
+/** Normalize a lesson.yaml `prTriage` block into LessonPrTriage. */
+function normalizePrTriage(raw: unknown): LessonPrTriage | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    throw new Error('prTriage must be a mapping');
+  }
+  const p = raw as Record<string, unknown>;
+
+  // afterStep is optional
+  let afterStep: string | undefined;
+  if (p.afterStep !== undefined && p.afterStep !== null) {
+    afterStep = asString(p.afterStep, 'prTriage.afterStep').trim();
+    if (!afterStep) afterStep = undefined;
+  }
+
+  // prs must be a non-empty array
+  if (!Array.isArray(p.prs) || p.prs.length === 0) {
+    throw new Error('prTriage.prs must be a non-empty list');
+  }
+
+  const prs: LessonTriagedPR[] = p.prs.map((item, i) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      throw new Error(`prTriage.prs[${i}] must be a mapping`);
+    }
+    const pr = item as Record<string, unknown>;
+    const id = asString(pr.id, `prTriage.prs[${i}].id`).trim();
+    const title = asString(pr.title, `prTriage.prs[${i}].title`).trim();
+    const dependency = asString(pr.dependency, `prTriage.prs[${i}].dependency`).trim();
+    const diffSummary = asString(pr.diffSummary, `prTriage.prs[${i}].diffSummary`).trim();
+    const safe = typeof pr.safe === 'boolean' ? pr.safe : pr.safe === 'true';
+    if (typeof safe !== 'boolean') {
+      throw new Error(`prTriage.prs[${i}].safe must be true or false`);
+    }
+
+    let blockLabel: string | undefined;
+    if (pr.blockLabel !== undefined && pr.blockLabel !== null) {
+      blockLabel = asString(pr.blockLabel, `prTriage.prs[${i}].blockLabel`).trim();
+      if (!blockLabel) blockLabel = undefined;
+    }
+
+    let approveLabel: string | undefined;
+    if (pr.approveLabel !== undefined && pr.approveLabel !== null) {
+      approveLabel = asString(pr.approveLabel, `prTriage.prs[${i}].approveLabel`).trim();
+      if (!approveLabel) approveLabel = undefined;
+    }
+
+    return { id, title, dependency, diffSummary, safe, blockLabel, approveLabel };
+  });
+
+  // Validate unique IDs
+  const ids = new Set<string>();
+  for (const pr of prs) {
+    if (ids.has(pr.id)) {
+      throw new Error(`prTriage.prs contains duplicate id: ${pr.id}`);
+    }
+    ids.add(pr.id);
+  }
+
+  return { afterStep, prs };
 }

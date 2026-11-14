@@ -19,16 +19,21 @@
           "title": "Documentation index"
         },
         {
+          "path": "getting-started/COMMAND_CENTER.md",
+          "title": "Command Center (browser labs)",
+          "badge": "Recommended"
+        },
+        {
           "path": "getting-started/FULL_STACK_SETUP.md",
           "title": "Full-stack setup (SCAS + ES + Floci)"
         },
         {
           "path": "getting-started/ZERO_TO_HERO.md",
-          "title": "Zero to Hero overview"
+          "title": "First lab in 10 minutes"
         },
         {
           "path": "getting-started/QUICK_START.md",
-          "title": "Quick start"
+          "title": "Quick start (CLI)"
         },
         {
           "path": "getting-started/SETUP.md",
@@ -184,6 +189,11 @@
           "title": "Architecture"
         },
         {
+          "path": "platform/DASHBOARD.md",
+          "title": "Command Center / control-plane notes",
+          "badge": "Maintainers"
+        },
+        {
           "path": "platform/OPERATIONS.md",
           "title": "Operations"
         },
@@ -215,7 +225,7 @@
       "items": [
         {
           "path": "scenario-guides/CATALOG.md",
-          "title": "Full catalog (01\u201323)"
+          "title": "Full catalog (01-25)"
         },
         {
           "path": "scenario-guides/zero-to-hero/index.md",

@@ -17,3 +17,67 @@ chapters:
     beat: "The trusted release"
     narrative: "The endgame is quiet: a familiar package ships a compromised release, and the tokens it steals open the cloud account itself. By the time anyone reads the diff, GLACIAL is already inside."
 debrief: "Every stage looked routine in isolation. That is what makes credential campaigns so expensive - there is no single alarm, only a trail you reconstruct afterward. The controls you practiced (token hygiene, image provenance, tree-wide scanning, release verification) are the trail-cutters."
+
+# Graded remediation after the credential campaign. Weights sum to 110 so the
+# grade math matches Quiet Carrier (critical/high items dominate).
+remediation:
+  - id: rem-ck-01-tokens
+    title: "Rotate stolen publish and CI tokens"
+    severity: "critical"
+    weight: 25
+    description: "Assume every NPM_TOKEN and GITHUB_TOKEN seen in the worm exfil is burned."
+    steps:
+      - "Revoke npm publish tokens from affected accounts"
+      - "Rotate GitHub Actions secrets and PATs used by CI"
+      - "Audit recent publishes for packages you did not intend to ship"
+    flag: "rem_ck_rotate_tokens"
+  - id: rem-ck-02-images
+    title: "Pin and re-verify container digests"
+    severity: "critical"
+    weight: 20
+    description: "Poisoned base layers keep shipping until digests are pinned and redeployed."
+    steps:
+      - "Switch image refs from mutable tags to digest pins"
+      - "Rebuild from known-good bases and re-push"
+      - "Scan the fleet for the poisoned digest still in use"
+    flag: "rem_ck_pin_images"
+  - id: rem-ck-03-cloud
+    title: "Invalidate cloud credentials the release stole"
+    severity: "high"
+    weight: 25
+    description: "The trusted-release chapter ends in cloud access. Kill those keys before they linger."
+    steps:
+      - "Rotate AWS keys or IAM roles touched by the compromised package"
+      - "Review CloudTrail / Floci seed events for unexpected AssumeRole"
+      - "Tighten the CI IAM role to least privilege for publish only"
+    flag: "rem_ck_cloud_creds"
+  - id: rem-ck-04-provenance
+    title: "Require release provenance on npm publishes"
+    severity: "high"
+    weight: 15
+    description: "Unsigned or unexpected provenance is how a familiar package ships a bad release quietly."
+    steps:
+      - "Enable npm provenance (or equivalent) on the release workflow"
+      - "Reject publishes that lack attestation in CI"
+      - "Diff the published tarball against the signed git tag before promote"
+    flag: "rem_ck_provenance"
+  - id: rem-ck-05-worm
+    title: "Hunt worm re-publish artifacts"
+    severity: "medium"
+    weight: 10
+    description: "Shai-Hulud-style worms leave republished packages under your identity."
+    steps:
+      - "List recent publishes under org tokens from the harvest chapter"
+      - "Quarantine packages you did not author"
+      - "Add an alert on unexpected npm publish events"
+    flag: "rem_ck_worm_hunt"
+  - id: rem-ck-06-chain
+    title: "Break the install-to-cloud path in CI"
+    severity: "high"
+    weight: 15
+    description: "The multi-stage chapter only works if install, build, and cloud share one trust boundary."
+    steps:
+      - "Split install runners from deploy runners"
+      - "Block outbound egress from install jobs except the registry"
+      - "Require a human gate before cloud credentials enter the pipeline"
+    flag: "rem_ck_break_chain"

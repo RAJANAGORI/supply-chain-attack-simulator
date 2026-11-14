@@ -32,6 +32,17 @@ By the end of this guide, you will:
 
 ---
 
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 24 |
+| CLI | Shell steps in this guide and [`scenarios/24-slopsquatting/README.md`](../../../scenarios/24-slopsquatting/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/24-slopsquatting/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding the Attack
 
 **Slopsquatting** is a supply-chain attack where an attacker publishes a malicious package under a name that an LLM, coding assistant, or forum post invented and recommended. Because the name sounds plausible, developers install it without checking whether it is a real, established library.

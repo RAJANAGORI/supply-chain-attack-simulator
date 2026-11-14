@@ -4,7 +4,7 @@
 > - New here and just want to **run your first lab**? → [First lab in 10 minutes](../../getting-started/ZERO_TO_HERO.md)
 > - Want the **conceptual curriculum**? → [Curriculum overview](../../learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md)
 
-Step-by-step learner guides for all **25** scenarios. Each guide includes a **table of contents** (jump links to every major section), lab steps, detection notes, a **Mitigation Playbook** (aligned with the scenario README), and an optional **Elasticsearch + Kibana** sequence diagram.
+Step-by-step learner guides for all 25 scenarios. Each guide opens with a "Run this lab" box (Command Center + CLI), then a table of contents, lab steps, detection notes, a Mitigation Playbook (aligned with the scenario README), and an optional Elasticsearch + Kibana sequence diagram.
 
 | # | Scenario | Guide |
 |---|----------|-------|
@@ -34,7 +34,7 @@ Step-by-step learner guides for all **25** scenarios. Each guide includes a **ta
 | 24 | Slopsquatting | [ZERO_TO_HERO_SCENARIO_24.md](./ZERO_TO_HERO_SCENARIO_24.md) |
 | 25 | Compromised reusable GitHub Action | [ZERO_TO_HERO_SCENARIO_25.md](./ZERO_TO_HERO_SCENARIO_25.md) |
 
-**New to the project?** Start with [ZERO_TO_HERO.md](../../getting-started/ZERO_TO_HERO.md) then Scenario 01.
+New to the project? Prefer [Command Center](../../getting-started/COMMAND_CENTER.md), or start with [ZERO_TO_HERO.md](../../getting-started/ZERO_TO_HERO.md) then Scenario 01.
 
 **Browse on the web:** [Documentation hub](../../../docs/guide.html?p=scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_01.md)
 

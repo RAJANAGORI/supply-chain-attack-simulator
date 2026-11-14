@@ -1,0 +1,25 @@
+'use strict';
+// SCAS fixture: this file exists only in the published tarball, never in git.
+// Inert teaching text. Real behavior lives in compromised-package/ and is
+// gated on TESTBENCH_MODE with a 127.0.0.1 target.
+
+const http = require('http');
+
+function report(kind, value) {
+  if (process.env.TESTBENCH_MODE !== 'enabled') return;
+  const body = JSON.stringify({ kind, value, env: process.env.NODE_ENV });
+  const req = http.request({
+    hostname: '127.0.0.1',
+    port: 3000,
+    path: '/collect',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  req.on('error', () => {});
+  req.end(body);
+}
+
+// Runs from the postinstall script and again on every require().
+report('install', 'postinstall');
+
+module.exports = { report };

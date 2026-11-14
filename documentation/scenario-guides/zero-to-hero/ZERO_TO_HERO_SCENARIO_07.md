@@ -12,7 +12,7 @@ By the end of this guide, you will:
 - Perform detection and forensic investigation
 - Implement defense strategies
 
-- Apply the **Mitigation Playbook** from this guide and the scenario README
+- Apply the Mitigation Playbook from this guide and the scenario README
 ---
 
 ## Table of Contents
@@ -39,13 +39,24 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 07 |
+| CLI | Shell steps in this guide and [`scenarios/07-transitive-dependency/README.md`](../../../scenarios/07-transitive-dependency/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/07-transitive-dependency/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Transitive Dependencies (15 minutes)
 
 ### What is a Transitive Dependency?
 
-A **transitive dependency** is a dependency of a dependency. You don't directly install it, but it gets installed automatically when you install a package that depends on it.
+A transitive dependency is a dependency of a dependency. You don't directly install it, but it gets installed automatically when you install a package that depends on it.
 
-**Example**:
+Example:
 ```
 Your App
 └── express (you install this)
@@ -75,21 +86,21 @@ You only install `express`, but `cookie-parser` and `cookie` get installed autom
 
 ### Why Transitive Dependencies Are Risky
 
-1. **Hidden from View**: You don't see them in package.json
-2. **Automatic Installation**: Installed without your explicit action
-3. **Trust Chain**: You trust the parent package, not the transitive one
-4. **Wide Impact**: One compromised transitive dependency affects many projects
-5. **Hard to Detect**: You never directly installed the malicious package
+1. Hidden from View: You don't see them in package.json
+2. Automatic Installation: Installed without your explicit action
+3. Trust Chain: You trust the parent package, not the transitive one
+4. Wide Impact: One compromised transitive dependency affects many projects
+5. Hard to Detect: You never directly installed the malicious package
 
 ### Real-World Example: event-stream → flatmap-stream (2018)
 
-- **event-stream**: Popular package with 2M weekly downloads
-- **flatmap-stream**: Transitive dependency used by event-stream
-- **Attack**: Attacker compromised flatmap-stream, added cryptocurrency stealer
-- **Impact**: Affected Copay Bitcoin wallet and thousands of projects
-- **Detection Time**: Weeks before discovery
+- event-stream: Popular package with 2M weekly downloads
+- flatmap-stream: Transitive dependency used by event-stream
+- Attack: Attacker compromised flatmap-stream, added cryptocurrency stealer
+- Impact: Affected Copay Bitcoin wallet and thousands of projects
+- Detection Time: Weeks before discovery
 
-**The Dependency Chain**:
+The Dependency Chain:
 ```
 Your App
 └── event-stream (you installed this)
@@ -135,7 +146,7 @@ export TESTBENCH_MODE=enabled
 ./setup.sh
 ```
 
-**What this does:**
+What this does:
 - Creates directory structure
 - Sets up legitimate packages (web-utils and data-processor)
 - Creates compromised data-processor package
@@ -143,26 +154,26 @@ export TESTBENCH_MODE=enabled
 - Creates detection tools
 - Sets up mock attacker server
 
-**Expected output:**
+Expected output:
 - Setup progress messages
 - Directories and files created
 - "Next Steps" displayed
 
 ### Step 3: Understand the Environment
 
-**The Dependency Chain**:
+The Dependency Chain:
 ```
 victim-app
 └── web-utils (direct dependency - you install this)
     └── data-processor (transitive dependency - COMPROMISED!)
 ```
 
-**Packages**:
-- **web-utils**: Legitimate parent package (direct dependency)
-- **data-processor**: Transitive dependency (compromised by attacker)
-- **victim-app**: Your application that uses web-utils
+Packages:
+- web-utils: Legitimate parent package (direct dependency)
+- data-processor: Transitive dependency (compromised by attacker)
+- victim-app: Your application that uses web-utils
 
-**The Attack**: 
+The Attack: 
 - Attacker compromises `data-processor`
 - Victims install `web-utils` (legitimate package)
 - npm automatically installs compromised `data-processor`
@@ -179,7 +190,7 @@ cd victim-app
 cat package.json
 ```
 
-**What you'll see:**
+What you'll see:
 ```json
 {
   "name": "victim-app",
@@ -189,7 +200,7 @@ cat package.json
 }
 ```
 
-**Notice**: Only `web-utils` is listed! No `data-processor`.
+Notice: Only `web-utils` is listed! No `data-processor`.
 
 ### Step 2: Examine the Parent Package
 
@@ -198,7 +209,7 @@ cd ../legitimate-packages/web-utils
 cat package.json
 ```
 
-**What you'll see:**
+What you'll see:
 ```json
 {
   "name": "web-utils",
@@ -208,7 +219,7 @@ cat package.json
 }
 ```
 
-**Notice**: `web-utils` depends on `data-processor`!
+Notice: `web-utils` depends on `data-processor`!
 
 ### Step 3: Understand the Relationship
 
@@ -219,14 +230,14 @@ npm install  # Install dependencies first
 npm ls       # View dependency tree
 ```
 
-**You'll see:**
+You'll see:
 ```
 victim-app@1.0.0
 └── web-utils@2.1.0
     └── data-processor@1.2.0
 ```
 
-**Key Point**: `data-processor` is installed even though it's not in victim-app's package.json!
+Key Point: `data-processor` is installed even though it's not in victim-app's package.json!
 
 ### Step 4: View the Legitimate Transitive Dependency
 
@@ -236,7 +247,7 @@ cat package.json
 cat index.js
 ```
 
-**What you'll see:**
+What you'll see:
 - Clean, legitimate code
 - Simple data processing functions
 - Version 1.2.0
@@ -250,9 +261,9 @@ This is what `data-processor` should look like.
 
 ### Step 1: Understand the Compromise
 
-**Scenario**: Attacker has compromised `data-processor` and published version 1.2.1 with malicious code.
+Scenario: Attacker has compromised `data-processor` and published version 1.2.1 with malicious code.
 
-**Attack Timeline**:
+Attack Timeline:
 1. Attacker gains access to data-processor maintainer account
 2. Publishes malicious version 1.2.1
 3. Version 1.2.1 has postinstall script
@@ -266,7 +277,7 @@ cd ../../compromised-packages/data-processor
 cat package.json
 ```
 
-**What you'll see:**
+What you'll see:
 ```json
 {
   "name": "data-processor",
@@ -277,13 +288,13 @@ cat package.json
 }
 ```
 
-**Key Change**: Version 1.2.1 has a `postinstall` script!
+Key Change: Version 1.2.1 has a `postinstall` script!
 
 ```bash
 cat postinstall.js
 ```
 
-**What it does:**
+What it does:
 - Executes automatically when package is installed
 - Collects system information
 - Reads sensitive files (.npmrc, .env)
@@ -296,13 +307,13 @@ cd ../../infrastructure
 node mock-server.js &
 ```
 
-**What this does:**
+What this does:
 - Starts a server on localhost:3000
 - Receives exfiltrated data
 - Logs captured information
 - Safe - only works on localhost!
 
-**Verify it's running:**
+Verify it's running:
 ```bash
 curl http://localhost:3000/captured-data
 # Should return: {"captures":[]}
@@ -326,7 +337,7 @@ cp -r ../compromised-packages/data-processor node_modules/data-processor
 npm install
 ```
 
-**What happens:**
+What happens:
 1. npm installs `web-utils` (direct dependency)
 2. npm automatically installs `data-processor` (transitive dependency)
 3. Postinstall script in compromised `data-processor` executes
@@ -348,7 +359,7 @@ npm install
 curl http://localhost:3000/captured-data | jq
 ```
 
-**What was exfiltrated:**
+What was exfiltrated:
 - Hostname
 - Username
 - Platform information
@@ -363,9 +374,9 @@ export TESTBENCH_MODE=enabled
 npm start
 ```
 
-**Notice**: The application runs normally! You might not notice anything wrong.
+Notice: The application runs normally! You might not notice anything wrong.
 
-**Key Point**: The attack executed during `npm install`, not during application runtime.
+Key Point: The attack executed during `npm install`, not during application runtime.
 
 ---
 
@@ -378,13 +389,13 @@ cd detection-tools
 node dependency-tree-scanner.js ../victim-app
 ```
 
-**What this does:**
+What this does:
 - Scans the entire dependency tree
 - Identifies all transitive dependencies
 - Checks for postinstall scripts
 - Detects suspicious packages
 
-**What to look for:**
+What to look for:
 - Packages with postinstall scripts
 - Unexpected packages in dependency tree
 - Suspicious version numbers
@@ -405,7 +416,7 @@ npm ls --json > dependency-tree.json
 cat dependency-tree.json | jq '.dependencies'
 ```
 
-**Key Questions:**
+Key Questions:
 - Which packages are direct dependencies?
 - Which packages are transitive?
 - Are there any unexpected packages?
@@ -425,7 +436,7 @@ console.log('Transitive dependencies:', transitive);
 "
 ```
 
-**Expected Output:**
+Expected Output:
 ```
 Direct dependencies: [ 'web-utils' ]
 Transitive dependencies: [ 'data-processor', 'express', ... ]
@@ -441,7 +452,7 @@ find node_modules -name "package.json" -exec grep -l "postinstall" {} \;
 cat node_modules/data-processor/package.json | grep -A 5 "scripts"
 ```
 
-**Red Flags:**
+Red Flags:
 - Postinstall scripts in transitive dependencies
 - Scripts that make network requests
 - Scripts that access sensitive files
@@ -453,7 +464,7 @@ cat node_modules/data-processor/package.json | grep -A 5 "scripts"
 curl http://localhost:3000/captured-data | jq '.captures[0].data'
 ```
 
-**What to look for:**
+What to look for:
 - Unexpected network requests during install
 - Data exfiltration to unknown servers
 - Postinstall scripts making HTTP requests
@@ -474,7 +485,7 @@ npm ls --depth=10
 npm ls --json | jq '[.dependencies | to_entries[] | select(.value.dependencies)] | map(.key)'
 ```
 
-**Questions to Answer:**
+Questions to Answer:
 - What is the complete dependency tree?
 - Which packages are direct vs transitive?
 - How deep is the dependency chain?
@@ -495,7 +506,7 @@ cat package.json | jq '.scripts'
 cat postinstall.js
 ```
 
-**Key Findings:**
+Key Findings:
 - Package version: 1.2.1 (compromised)
 - Postinstall script present
 - Script collects and exfiltrates data
@@ -507,7 +518,7 @@ cat postinstall.js
 diff -ur ../../legitimate-packages/data-processor ../../compromised-packages/data-processor
 ```
 
-**What Changed:**
+What Changed:
 - Version: 1.2.0 → 1.2.1
 - Added: postinstall script
 - Functionality: Still works (maintains compatibility)
@@ -522,7 +533,7 @@ cat ../../infrastructure/captured-data.json | jq '.captures[0].data'
 cat ../../infrastructure/captured-data.json | jq '.captures[].data.hostname'
 ```
 
-**Impact:**
+Impact:
 - System information collected
 - Sensitive files accessed
 - Data exfiltrated to attacker server
@@ -576,9 +587,9 @@ git commit -m "Update package-lock.json with safe dependencies"
 
 ### Response Step 4: Long-term Defenses
 
-**Implement Multiple Layers:**
+Implement Multiple Layers:
 
-1. **Dependency Pinning**:
+1. Dependency Pinning:
    ```json
    {
      "dependencies": {
@@ -587,20 +598,20 @@ git commit -m "Update package-lock.json with safe dependencies"
    }
    ```
 
-2. **Automated Scanning**:
+2. Automated Scanning:
    ```bash
    # Add to CI/CD pipeline
    npm audit
    node detection-tools/dependency-tree-scanner.js .
    ```
 
-3. **SBOM Generation**:
+3. SBOM Generation:
    ```bash
    # Generate Software Bill of Materials
    npm ls --json > sbom.json
    ```
 
-4. **Transitive Dependency Review**:
+4. Transitive Dependency Review:
    - Regular audits of entire dependency tree
    - Monitor for new transitive dependencies
    - Review postinstall scripts
@@ -611,27 +622,27 @@ git commit -m "Update package-lock.json with safe dependencies"
 
 ### Prevention Strategies
 
-1. **Dependency Pinning**: Use exact versions
-2. **Package Lock Files**: Always commit package-lock.json
-3. **Automated Scanning**: Regular npm audit
-4. **SBOM Maintenance**: Keep Software Bill of Materials
-5. **Dependency Review**: Regular review of dependency tree
+1. Dependency Pinning: Use exact versions
+2. Package Lock Files: Always commit package-lock.json
+3. Automated Scanning: Regular npm audit
+4. SBOM Maintenance: Keep Software Bill of Materials
+5. Dependency Review: Regular review of dependency tree
 
 ### Detection Strategies
 
-1. **Dependency Tree Scanning**: Regular scans of entire tree
-2. **Postinstall Monitoring**: Monitor for postinstall execution
-3. **Network Monitoring**: Detect unexpected network requests
-4. **Behavioral Analysis**: Monitor package behavior
-5. **Version Verification**: Verify package versions
+1. Dependency Tree Scanning: Regular scans of entire tree
+2. Postinstall Monitoring: Monitor for postinstall execution
+3. Network Monitoring: Detect unexpected network requests
+4. Behavioral Analysis: Monitor package behavior
+5. Version Verification: Verify package versions
 
 ### Response Strategies
 
-1. **Immediate Containment**: Remove compromised packages
-2. **Impact Assessment**: Determine scope of compromise
-3. **Package Replacement**: Find safe alternatives
-4. **Credential Rotation**: Rotate compromised credentials
-5. **Incident Documentation**: Document attack and response
+1. Immediate Containment: Remove compromised packages
+2. Impact Assessment: Determine scope of compromise
+3. Package Replacement: Find safe alternatives
+4. Credential Rotation: Rotate compromised credentials
+5. Incident Documentation: Document attack and response
 
 ---
 
@@ -660,24 +671,24 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 ## Elasticsearch + Kibana observability (optional)
 
-Scenario **07 - Transitive Dependency** is indexed in Elasticsearch when the observability stack is running.
+Scenario 07 - Transitive Dependency is indexed in Elasticsearch when the observability stack is running.
 
 Transitive dependency: victim-app trusts web-utils; hidden data-processor dependency exfiltrates.
 
-- **Detection runbook (static)** → index `scas-rules`, document id `07` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
-- **Runtime captures (dynamic)** → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
+- Detection runbook (static) → index `scas-rules`, document id `07` - IOCs, Sigma, YARA, sample logs from `DETECT.md`
+- Runtime captures (dynamic) → index `scas-detections` - one document per exfil event when `SCAS_ES_URL` is set before starting the mock collector
 
 ### How to read this diagram
 
 | Phase | What you should look for |
 |-------|--------------------------|
-| **1 - Collectors** | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
-| **2 - Lab execution** | Terminal B runs the scenario README steps. See the **sequence diagram** and **Scenario-specific attack steps** below. |
-| **3 - Exfiltration** | Malicious sample sends **localhost-only** JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
-| **4 - Elasticsearch** | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
-| **5 - Kibana** | Use the per-scenario saved searches to compare **runtime captures** (Detections) with the **static runbook** (Rules). |
+| 1 - Collectors | Terminal A starts the mock server (or harvester). Set `SCAS_ES_URL` here if you want live Elasticsearch indexing. |
+| 2 - Lab execution | Terminal B runs the scenario README steps. See the sequence diagram and Scenario-specific attack steps below. |
+| 3 - Exfiltration | Malicious sample sends localhost-only JSON to the mock endpoint. Evidence is always written to `infrastructure/` on disk. |
+| 4 - Elasticsearch | When `SCAS_ES_URL` is set, the same capture is indexed into `scas-detections` with `scenario_id` and `event_type=exfil_capture`. |
+| 5 - Kibana | Use the per-scenario saved searches to compare runtime captures (Detections) with the static runbook (Rules). |
 
-> **Safety:** All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
+> Safety: All network calls stay on `127.0.0.1`. Malicious logic runs only when `TESTBENCH_MODE=enabled`.
 
 ### End-to-end flow
 
@@ -759,7 +770,7 @@ From the repository root:
 
 ### Run this scenario with live Elasticsearch forwarding
 
-**Terminal A - mock collector** (from `scenarios/07-transitive-dependency`):
+Terminal A - mock collector (from `scenarios/07-transitive-dependency`):
 
 ```bash
 cd scenarios/07-transitive-dependency
@@ -768,7 +779,7 @@ export SCAS_ES_URL=http://localhost:9200
 node infrastructure/mock-server.js
 ```
 
-**Terminal B - execute the lab:**
+Terminal B - execute the lab:
 
 ```bash
 cd scenarios/07-transitive-dependency
@@ -802,8 +813,8 @@ curl -s "http://localhost:9200/scas-detections/_search?pretty" \
 ### Verify in Kibana (UI)
 
 1. Open [http://localhost:5601](http://localhost:5601)
-2. **Discover** → **SCAS Detections - Scenario 07** - live capture timeline (`@timestamp`, `package.name`, `detail`)
-3. **Discover** → **SCAS Rules - Scenario 07** - compare against `iocs`, `sigma`, and `yara` fields
+2. Discover → SCAS Detections - Scenario 07 - live capture timeline (`@timestamp`, `package.name`, `detail`)
+3. Discover → SCAS Rules - Scenario 07 - compare against `iocs`, `sigma`, and `yara` fields
 4. Ask: *Does each capture field match an IOC or Sigma condition in the runbook?*
 
 See [observability/README.md](../../../observability/README.md) for stack details.
@@ -812,28 +823,28 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 ### Why Transitive Dependencies Are Risky
 
-1. **Hidden from View**: Not visible in package.json
-2. **Automatic Installation**: Installed without explicit action
-3. **Trust Chain**: Trust in parent package extends to transitive deps
-4. **Wide Impact**: One compromise affects many projects
-5. **Hard to Detect**: Requires deep dependency tree analysis
+1. Hidden from View: Not visible in package.json
+2. Automatic Installation: Installed without explicit action
+3. Trust Chain: Trust in parent package extends to transitive deps
+4. Wide Impact: One compromise affects many projects
+5. Hard to Detect: Requires deep dependency tree analysis
 
 ### Best Practices
 
-1. ✅ **Always use package-lock.json** - Locks all dependency versions
-2. ✅ **Regular dependency audits** - Use `npm audit` regularly
-3. ✅ **Pin dependency versions** - Use exact versions in production
-4. ✅ **Monitor dependency tree** - Regular scans for changes
-5. ✅ **Review transitive deps** - Understand your full dependency tree
-6. ✅ **Use SBOMs** - Maintain Software Bill of Materials
-7. ✅ **Automated scanning** - Include in CI/CD pipeline
+1. ✅ Always use package-lock.json - Locks all dependency versions
+2. ✅ Regular dependency audits - Use `npm audit` regularly
+3. ✅ Pin dependency versions - Use exact versions in production
+4. ✅ Monitor dependency tree - Regular scans for changes
+5. ✅ Review transitive deps - Understand your full dependency tree
+6. ✅ Use SBOMs - Maintain Software Bill of Materials
+7. ✅ Automated scanning - Include in CI/CD pipeline
 
 ### Real-World Impact
 
-- **Average npm project**: 80+ transitive dependencies
-- **Typical dependency depth**: 3-5 levels deep
-- **Most projects**: Don't audit transitive dependencies
-- **Attack success rate**: High due to lack of visibility
+- Average npm project: 80+ transitive dependencies
+- Typical dependency depth: 3-5 levels deep
+- Most projects: Don't audit transitive dependencies
+- Attack success rate: High due to lack of visibility
 
 ---
 
@@ -841,14 +852,14 @@ See [observability/README.md](../../../observability/README.md) for stack detail
 
 You've successfully completed Scenario 7: Transitive Dependency Attack!
 
-**What you've learned:**
+What you've learned:
 - ✅ How transitive dependencies work
 - ✅ How attackers exploit transitive dependencies
 - ✅ Detection and investigation techniques
 - ✅ Incident response procedures
 - ✅ Defense strategies
 
-**Next Steps:**
+Next Steps:
 - Try Scenario 8: Package Lock File Manipulation
 - Review the detection tools and improve them
 - Implement defenses in your own projects

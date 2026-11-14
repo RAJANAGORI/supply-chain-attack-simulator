@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActRunnerCard } from '@/components/ActRunnerCard';
 import { ArchifyPackCard } from '@/components/ArchifyPackCard';
 import { FlociRunnerCard } from '@/components/FlociRunnerCard';
@@ -9,16 +9,21 @@ import { useLabSession } from '@/components/LabSessionContext';
 import { LabAssistant } from '@/components/LabAssistant';
 import { BreachPanel } from '@/components/BreachPanel';
 import { DrillCard } from '@/components/DrillCard';
+import { RuleChallengeCard } from '@/components/RuleChallengeCard';
 import { QuizGate } from '@/components/QuizGate';
 import { PurpleReversal } from '@/components/PurpleReversal';
+import { DiffWorkbench } from '@/components/DiffWorkbench';
 import {
   cp,
   waitForSession,
   type ActionResult,
   type LessonAudience,
   type LessonDefinition,
+  type LessonDecision,
   type ScenarioDetail,
 } from '@/lib/api';
+import { DecisionCard } from '@/components/DecisionCard';
+import { PRInbox } from '@/components/PRInbox';
 
 const STUDENT_KEY = 'scas-classroom-student';
 
@@ -34,12 +39,58 @@ function hasCaptureData(captures: Record<string, unknown>): boolean {
   return Object.values(captures).some((v) => {
     if (!v || typeof v !== 'object') return false;
     if (Array.isArray(v) && v.length > 0) return true;
-    const obj = v as { captures?: unknown[]; events?: unknown[]; beacons?: unknown[] };
+    const obj = v as {
+      captures?: unknown[];
+      events?: unknown[];
+      beacons?: unknown[];
+      publishes?: unknown[];
+      prs?: unknown[];
+      credentials?: unknown[];
+      unreachable?: boolean;
+    };
+    // Disk/HTTP empty shells with unreachable:true are not real evidence.
+    if (obj.unreachable && !(obj.captures?.length || obj.events?.length || obj.beacons?.length)) {
+      return false;
+    }
     if (Array.isArray(obj.captures) && obj.captures.length > 0) return true;
     if (Array.isArray(obj.events) && obj.events.length > 0) return true;
     if (Array.isArray(obj.beacons) && obj.beacons.length > 0) return true;
+    if (Array.isArray(obj.publishes) && obj.publishes.length > 0) return true;
+    if (Array.isArray(obj.prs) && obj.prs.length > 0) return true;
+    if (Array.isArray(obj.credentials) && obj.credentials.length > 0) return true;
     return false;
   });
+}
+
+/** Find the first decision that appears after a given step id. */
+function findDecisionAfter(steps: LessonDefinition['steps'], decisions: LessonDefinition['decisions'], afterStepId: string): LessonDecision | undefined {
+  if (!decisions) return undefined;
+  const found = decisions.find((d) => d.afterStep === afterStepId);
+  return found;
+}
+
+/** Mutually exclusive goto targets (detect vs detect-late). */
+function exclusiveGotoGroups(
+  decisions: LessonDefinition['decisions'],
+  stepIds: Set<string>,
+): string[][] {
+  const groups: string[][] = [];
+  const seen = new Set<string>();
+  for (const decision of decisions ?? []) {
+    const targets = [
+      ...new Set(
+        (decision.choices ?? [])
+          .map((c) => c.effects?.goto)
+          .filter((g): g is string => typeof g === 'string' && stepIds.has(g)),
+      ),
+    ];
+    if (targets.length < 2) continue;
+    const key = [...targets].sort().join('|');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    groups.push(targets);
+  }
+  return groups;
 }
 
 async function syncClassroom(scenarioId: string, stepId: string, completedSteps: number) {
@@ -86,56 +137,34 @@ export function ScenarioLessonRunner({
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
   const [inspectorNote, setInspectorNote] = useState('');
+  const [decisionScore, setDecisionScore] = useState(0);
+  /** Decision ids the learner has already answered (hydrated from progress). */
+  const [answeredDecisions, setAnsweredDecisions] = useState<Set<string>>(new Set());
+  /** decisionId -> chosen goto step (exclusive branches). */
+  const [branchGotos, setBranchGotos] = useState<Record<string, string>>({});
+  /** Decision whose feedback is still on screen; cleared when the active step changes. */
+  const [justAnsweredId, setJustAnsweredId] = useState<string | null>(null);
+  /** Step ids already merged into progress from live verify (avoid rewriting every poll). */
+  const syncedVerifiedRef = useRef<Set<string>>(new Set());
+  /** Completed step ids from progress - drives quiz unlock / Done, not live verify alone. */
+  const [progressSteps, setProgressSteps] = useState<string[]>([]);
 
-  const visibleSteps = useMemo(
+  const roleSteps = useMemo(
     () => lesson.steps.filter((s) => roleAllows(s.audience, role)),
     [lesson.steps, role],
   );
 
-  const refreshVerify = useCallback(async () => {
-    try {
-      const res = await cp.verifyLesson(scenarioId);
-      setVerified(res.steps);
-      setCaptures(res.captures);
-    } catch {
-      try {
-        setCaptures(await cp.getCaptures(scenarioId));
-      } catch {
-        setCaptures({});
-      }
-    }
-  }, [scenarioId]);
+  const exclusiveGroups = useMemo(
+    () => exclusiveGotoGroups(lesson.decisions, new Set(roleSteps.map((s) => s.id))),
+    [lesson.decisions, roleSteps],
+  );
+  const exclusiveIds = useMemo(() => new Set(exclusiveGroups.flat()), [exclusiveGroups]);
 
-  useEffect(() => {
-    void refreshVerify();
-    const t = setInterval(() => void refreshVerify(), 3000);
-    return () => clearInterval(t);
-  }, [refreshVerify]);
-
-  useEffect(() => {
-    void cp.getProgress().then((prog) => {
-      const entry = prog.scenarios[scenarioId];
-      const resume = entry?.currentStepId ?? prog.lastStepId;
-      if (resume && lesson.steps.some((s) => s.id === resume)) {
-        setActiveStepId(resume);
-      }
-    }).catch(() => undefined);
-  }, [scenarioId, lesson.steps]);
-
-  useEffect(() => {
-    if (!visibleSteps.some((s) => s.id === activeStepId)) {
-      setActiveStepId(visibleSteps[0]?.id ?? '');
-    }
-  }, [visibleSteps, activeStepId]);
-
-  useEffect(() => {
-    setHintOpen(false);
-    setInspectorNote('');
-  }, [activeStepId, role]);
-
-  const scrollToInspector = () => {
-    document.getElementById('live-inspector')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  // Hide unchosen exclusive branches so detect-late is not locked behind detect (lab 05).
+  const visibleSteps = useMemo(() => {
+    const chosen = new Set(Object.values(branchGotos));
+    return roleSteps.filter((s) => !exclusiveIds.has(s.id) || chosen.has(s.id));
+  }, [roleSteps, exclusiveIds, branchGotos]);
 
   const persistProgress = useCallback(
     async (patch: { completedSteps?: string[]; hintsOpened?: string[]; currentStepId?: string }) => {
@@ -148,6 +177,7 @@ export function ScenarioLessonRunner({
           },
         });
         const entry = next.scenarios[scenarioId];
+        if (entry?.completedSteps) setProgressSteps(entry.completedSteps);
         if (patch.currentStepId) {
           void syncClassroom(
             scenarioId,
@@ -162,6 +192,102 @@ export function ScenarioLessonRunner({
     [scenarioId],
   );
 
+  const refreshVerify = useCallback(async () => {
+    try {
+      const res = await cp.verifyLesson(scenarioId);
+      setVerified(res.steps);
+      setCaptures(res.captures);
+      // Persist only steps the poller can honestly claim. Capture-count detect
+      // steps stay false in progress until the learner hits Check inspector -
+      // otherwise Done unlocks the moment exfil lands.
+      const fresh = Object.entries(res.steps)
+        .filter(([id, ok]) => {
+          if (!ok || syncedVerifiedRef.current.has(id)) return false;
+          const step = lesson.steps.find((s) => s.id === id);
+          if (!step) return false;
+          if (step.registry === null && step.verify?.type === 'capture-count') return false;
+          return true;
+        })
+        .map(([id]) => id);
+      if (fresh.length > 0) {
+        fresh.forEach((id) => syncedVerifiedRef.current.add(id));
+        await persistProgress({ completedSteps: fresh });
+      }
+    } catch {
+      try {
+        setCaptures(await cp.getCaptures(scenarioId));
+      } catch {
+        setCaptures({});
+      }
+    }
+  }, [scenarioId, persistProgress, lesson.steps]);
+
+  useEffect(() => {
+    void refreshVerify();
+    const t = setInterval(() => void refreshVerify(), 3000);
+    return () => clearInterval(t);
+  }, [refreshVerify]);
+
+  useEffect(() => {
+    void cp
+      .getProgress()
+      .then((prog) => {
+        const entry = prog.scenarios[scenarioId];
+        const completed = entry?.completedSteps ?? [];
+        for (const id of completed) {
+          syncedVerifiedRef.current.add(id);
+        }
+        setProgressSteps(completed);
+        const gotos: Record<string, string> = {};
+        if (entry?.decisions?.length) {
+          setAnsweredDecisions(new Set(entry.decisions.map((d) => d.decisionId)));
+          for (const d of entry.decisions) {
+            const def = lesson.decisions?.find((x) => x.id === d.decisionId);
+            const choice = def?.choices?.find((c) => c.id === d.choiceId);
+            const goto = choice?.effects?.goto;
+            if (goto) gotos[d.decisionId] = goto;
+          }
+          setBranchGotos(gotos);
+        }
+        // Prefer the first unfinished path step; exclusive branches not yet chosen stay hidden.
+        // Do not blindly trust currentStepId when it points at an early step of a finished lab.
+        const chosen = new Set(Object.values(gotos));
+        const exclusive = new Set(
+          exclusiveGotoGroups(lesson.decisions, new Set(lesson.steps.map((s) => s.id))).flat(),
+        );
+        const ordered = lesson.steps
+          .filter((s) => !exclusive.has(s.id) || chosen.has(s.id))
+          .map((s) => s.id);
+        const done = new Set(completed);
+        const firstOpen = ordered.find((id) => !done.has(id));
+        const resume =
+          firstOpen ??
+          ordered.filter((id) => done.has(id)).at(-1) ??
+          entry?.currentStepId ??
+          prog.lastStepId;
+        if (resume && lesson.steps.some((s) => s.id === resume)) {
+          setActiveStepId(resume);
+        }
+      })
+      .catch(() => undefined);
+  }, [scenarioId, lesson.steps, lesson.decisions]);
+
+  useEffect(() => {
+    if (!visibleSteps.some((s) => s.id === activeStepId)) {
+      setActiveStepId(visibleSteps[0]?.id ?? '');
+    }
+  }, [visibleSteps, activeStepId]);
+
+  useEffect(() => {
+    setHintOpen(false);
+    setInspectorNote('');
+    setJustAnsweredId(null);
+  }, [activeStepId, role]);
+
+  const scrollToInspector = () => {
+    document.getElementById('live-inspector')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   useEffect(() => {
     if (!activeStepId) return;
     void persistProgress({ currentStepId: activeStepId });
@@ -170,15 +296,52 @@ export function ScenarioLessonRunner({
   const activeIndex = visibleSteps.findIndex((s) => s.id === activeStepId);
   const activeStep = activeIndex >= 0 ? visibleSteps[activeIndex] : undefined;
 
+  const stepClaimed = useCallback(
+    (stepId: string) => progressSteps.includes(stepId) || !!verified[stepId],
+    [progressSteps, verified],
+  );
+
   const stepUnlocked = useCallback(
     (index: number) => {
       if (index <= 0) return true;
+      // Progress beats a temporarily-down mock server: a finished step stays unlocked
+      // even when live verify flips false after services stop.
       for (let i = 0; i < index; i++) {
-        if (!verified[visibleSteps[i].id]) return false;
+        if (!stepClaimed(visibleSteps[i].id)) return false;
       }
       return true;
     },
-    [verified, visibleSteps],
+    [stepClaimed, visibleSteps],
+  );
+
+  /** Stay on this step when a branching decision still needs an answer. */
+  const advanceAfterStep = useCallback(
+    (stepId: string, opts?: { noteOnAdvance?: string; noteOnDecision?: string }) => {
+      const decision = findDecisionAfter(visibleSteps, lesson.decisions, stepId);
+      if (decision && !answeredDecisions.has(decision.id)) {
+        setInspectorNote(
+          opts?.noteOnDecision ??
+            'Step verified. Make the call below before you continue.',
+        );
+        return;
+      }
+      // Prefer the decision's chosen goto over the next list index (exclusive branches).
+      const branchTarget = decision ? branchGotos[decision.id] : undefined;
+      if (branchTarget && visibleSteps.some((s) => s.id === branchTarget)) {
+        setActiveStepId(branchTarget);
+        if (opts?.noteOnAdvance) setInspectorNote(opts.noteOnAdvance);
+        return;
+      }
+      const idx = visibleSteps.findIndex((s) => s.id === stepId);
+      const next = idx >= 0 ? visibleSteps[idx + 1] : undefined;
+      if (next) {
+        setActiveStepId(next.id);
+        if (opts?.noteOnAdvance) setInspectorNote(opts.noteOnAdvance);
+      } else if (opts?.noteOnAdvance) {
+        setInspectorNote(opts.noteOnAdvance);
+      }
+    },
+    [visibleSteps, lesson.decisions, answeredDecisions, branchGotos],
   );
 
   const runLessonStep = async () => {
@@ -201,16 +364,14 @@ export function ScenarioLessonRunner({
 
         const ok = !!(check.steps[activeStep.id] || hasCaptureData(check.captures));
         if (ok) {
+          syncedVerifiedRef.current.add(activeStep.id);
           await persistProgress({ completedSteps: [activeStep.id], currentStepId: activeStep.id });
-          const next = visibleSteps[activeIndex + 1];
-          if (next) {
-            setActiveStepId(next.id);
-            setInspectorNote('Capture looks good. Moved you to the next step.');
-          } else {
-            setInspectorNote(
-              'Inspector is up to date. Review the JSON below, then open DETECT.md for hardening.',
-            );
-          }
+          advanceAfterStep(activeStep.id, {
+            noteOnAdvance:
+              visibleSteps[activeIndex + 1]
+                ? 'Capture looks good. Moved you to the next step.'
+                : 'Inspector is up to date. Review the JSON below, then open DETECT.md for hardening.',
+          });
         } else {
           setError('No capture data yet. Run the attack steps first, then come back.');
         }
@@ -261,9 +422,9 @@ export function ScenarioLessonRunner({
       setCaptures(check.captures);
 
       if (check.steps[activeStep.id]) {
+        syncedVerifiedRef.current.add(activeStep.id);
         await persistProgress({ completedSteps: [activeStep.id], currentStepId: activeStep.id });
-        const next = visibleSteps[activeIndex + 1];
-        if (next) setActiveStepId(next.id);
+        advanceAfterStep(activeStep.id);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Action failed');
@@ -279,7 +440,47 @@ export function ScenarioLessonRunner({
     }
   };
 
-  const doneCount = visibleSteps.filter((s) => verified[s.id]).length;
+  // Progress against the full path (spine + one exclusive branch), not the
+  // filtered storyboard list - otherwise quiz unlocks after run-ci on lab 05.
+  const doneCount = useMemo(() => {
+    const done = new Set(
+      roleSteps.map((s) => s.id).filter((id) => progressSteps.includes(id) || !!verified[id]),
+    );
+    let n = 0;
+    for (const s of roleSteps) {
+      if (exclusiveIds.has(s.id)) continue;
+      if (done.has(s.id)) n += 1;
+    }
+    for (const group of exclusiveGroups) {
+      const visible = group.filter((id) => roleSteps.some((s) => s.id === id));
+      if (visible.length === 0) continue;
+      if (visible.some((id) => done.has(id))) n += 1;
+    }
+    return n;
+  }, [roleSteps, exclusiveIds, exclusiveGroups, progressSteps, verified]);
+
+  const needCount = useMemo(() => {
+    let n = roleSteps.filter((s) => !exclusiveIds.has(s.id)).length;
+    for (const group of exclusiveGroups) {
+      if (group.some((id) => roleSteps.some((s) => s.id === id))) n += 1;
+    }
+    return n;
+  }, [roleSteps, exclusiveIds, exclusiveGroups]);
+
+  /** Quiz / path-complete: progress steps only, with exclusive decision branches counting as one. */
+  const pathComplete = useMemo(() => {
+    const done = new Set(progressSteps);
+    for (const s of roleSteps) {
+      if (exclusiveIds.has(s.id)) continue;
+      if (!done.has(s.id)) return false;
+    }
+    for (const group of exclusiveGroups) {
+      const visible = group.filter((id) => roleSteps.some((s) => s.id === id));
+      if (visible.length === 0) continue;
+      if (!visible.some((id) => done.has(id))) return false;
+    }
+    return roleSteps.length > 0;
+  }, [progressSteps, roleSteps, exclusiveIds, exclusiveGroups]);
   const captureReady = hasCaptureData(captures);
   // Prefer shared :3000 when this lab uses it; otherwise the primary mock/C2 port.
   const freePortTarget = useMemo(() => {
@@ -349,11 +550,12 @@ export function ScenarioLessonRunner({
         </div>
         <div className="flex flex-wrap items-center gap-2 text-xs text-ink-muted">
           <span>
-            Step {Math.max(activeIndex, 0) + 1}/{visibleSteps.length}
+            Step {Math.max(activeIndex, 0) + 1}/{Math.max(visibleSteps.length, 1)}
           </span>
           <span>·</span>
           <span>
-            {doneCount} verified · ~{lesson.etaMinutes} min · {lesson.category}
+            {doneCount}/{needCount || visibleSteps.length} verified · ~{lesson.etaMinutes} min ·{' '}
+            {lesson.category}
           </span>
         </div>
       </div>
@@ -378,7 +580,7 @@ export function ScenarioLessonRunner({
           <Card title="Storyboard" subtitle="Guided steps for this lab">
             <ol className="space-y-1">
               {visibleSteps.map((step, i) => {
-                const done = !!verified[step.id];
+                const done = stepClaimed(step.id);
                 const current = step.id === activeStepId;
                 const locked = !stepUnlocked(i);
                 return (
@@ -475,15 +677,59 @@ export function ScenarioLessonRunner({
                   {activeStep.hint}
                 </div>
               )}
-              {verified[activeStep.id] && (
+              {stepClaimed(activeStep.id) && (
                 <div className="mt-4">
-                  <StatusPill status="online" label="Step verified" />
+                  <StatusPill
+                    status="online"
+                    label={verified[activeStep.id] ? 'Step verified' : 'Step completed'}
+                  />
                 </div>
               )}
             </Card>
           )}
 
-          {lesson.quiz && lesson.quiz.length > 0 && doneCount === visibleSteps.length && (
+          {/* Phase 1: Branching decision after a completed step */}
+          {activeStep && stepClaimed(activeStep.id) && (() => {
+            const decision = findDecisionAfter(visibleSteps, lesson.decisions, activeStep.id);
+            if (!decision) return null;
+            // Keep the card up after answering so the learner can read feedback.
+            if (answeredDecisions.has(decision.id) && justAnsweredId !== decision.id) return null;
+            return (
+              <DecisionCard
+                key={decision.id}
+                scenarioId={scenarioId}
+                decision={decision}
+                onPathChosen={(gotoStepId) => {
+                  setBranchGotos((prev) => ({ ...prev, [decision.id]: gotoStepId }));
+                }}
+                onNavigate={(gotoStepId) => {
+                  setBranchGotos((prev) => ({ ...prev, [decision.id]: gotoStepId }));
+                  setActiveStepId(gotoStepId);
+                }}
+                onScoreChange={(delta) => {
+                  setDecisionScore((prev) => prev + delta);
+                  setAnsweredDecisions((prev) => new Set(prev).add(decision.id));
+                  setJustAnsweredId(decision.id);
+                }}
+              />
+            );
+          })()}
+
+          {/* PR Triage Inbox: unlock once afterStep is claimed (progress or live verify). */}
+          {lesson.prTriage &&
+            stepClaimed(
+              lesson.prTriage.afterStep ||
+                visibleSteps.find((s) => s.id.startsWith('install') || s.id.startsWith('run'))?.id ||
+                '',
+            ) && (
+              <PRInbox
+                scenarioId={scenarioId}
+                prs={lesson.prTriage.prs}
+                onDone={() => void refreshVerify()}
+              />
+            )}
+
+          {lesson.quiz && lesson.quiz.length > 0 && pathComplete && (
             <QuizGate
               scenarioId={scenarioId}
               questions={lesson.quiz}
@@ -597,56 +843,101 @@ export function ScenarioLessonRunner({
                 );
               })}
             </ul>
-            {freePortTarget != null && (
-              <div className="mt-4 rounded-xl border border-brand/35 bg-brand/10 px-3 py-3">
-                <p className="text-xs font-medium text-ink-primary">
-                  Port busy / EADDRINUSE?
-                </p>
-                <p className="mt-1 text-[11px] leading-relaxed text-ink-muted">
-                  {freePortTarget === 3000
-                    ? 'Labs 01-05 and 07-12 share :3000. Click Free port below, then Start services again.'
-                    : `UI may show Stopped while something still holds :${freePortTarget}. Free the port, then Start services.`}
-                </p>
-                <div className="mt-3">
-                  <Btn
-                    variant="primary"
-                    size="sm"
-                    disabled={!!busy}
-                    className="w-full sm:w-auto"
-                    onClick={() =>
-                      void (async () => {
-                        setBusy('free-port');
-                        setError('');
-                        try {
-                          const res = await cp.freePort(freePortTarget);
-                          if (res.sessionId) await waitForSession(res.sessionId);
-                          if (res.ok === false) {
-                            setError(res.message || `Port :${freePortTarget} still busy`);
+            {(() => {
+              const anyRunning = scenario.services.some((svc) =>
+                scenario.processes?.some((p) => p.serviceId === svc.id && p.status === 'running'),
+              );
+              return (
+                <div className="mt-4 space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    <Btn
+                      variant="danger"
+                      size="sm"
+                      disabled={!!busy || !anyRunning}
+                      onClick={() =>
+                        void (async () => {
+                          setBusy('stop');
+                          setError('');
+                          try {
+                            await cp.stopServices(scenarioId);
+                            await onReload();
+                            await refreshVerify();
+                          } catch (e) {
+                            setError(e instanceof Error ? e.message : 'Stop services failed');
+                          } finally {
+                            setBusy('');
                           }
-                          await onReload();
-                          await refreshVerify();
-                        } catch (e) {
-                          setError(
-                            e instanceof Error ? e.message : `Failed to free :${freePortTarget}`,
-                          );
-                        } finally {
-                          setBusy('');
+                        })()
+                      }
+                    >
+                      {busy === 'stop' ? 'Stopping…' : 'Stop services'}
+                    </Btn>
+                    {freePortTarget != null && (
+                      <Btn
+                        variant={anyRunning ? 'secondary' : 'primary'}
+                        size="sm"
+                        disabled={!!busy}
+                        onClick={() =>
+                          void (async () => {
+                            setBusy('free-port');
+                            setError('');
+                            try {
+                              const res = await cp.freePort(freePortTarget);
+                              if (res.sessionId) await waitForSession(res.sessionId);
+                              if (res.ok === false) {
+                                setError(res.message || `Port :${freePortTarget} still busy`);
+                              }
+                              await onReload();
+                              await refreshVerify();
+                            } catch (e) {
+                              setError(
+                                e instanceof Error
+                                  ? e.message
+                                  : `Failed to free :${freePortTarget}`,
+                              );
+                            } finally {
+                              setBusy('');
+                            }
+                          })()
                         }
-                      })()
-                    }
-                  >
-                    {busy === 'free-port' ? 'Freeing port…' : `Free port :${freePortTarget}`}
-                  </Btn>
+                      >
+                        {busy === 'free-port'
+                          ? 'Freeing…'
+                          : `Free port :${freePortTarget}`}
+                      </Btn>
+                    )}
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-ink-faint">
+                    {anyRunning
+                      ? 'Lab done? Stop services releases the mock. Free port also kills orphans on that port.'
+                      : freePortTarget === 3000
+                        ? 'Labs 01-05 and 07-12 share :3000. Free port if Start services hits EADDRINUSE.'
+                        : `If Start services fails with EADDRINUSE, Free port clears :${freePortTarget}.`}
+                  </p>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </Card>
 
-          {lesson.reversal && captureReady && (
-            <PurpleReversal scenarioId={scenarioId} blockedPackage={lesson.reversal.blockedPackage} />
+          {lesson.reversal && (captureReady || stepClaimed('run') || stepClaimed('run-ci') || pathComplete) && (
+            <PurpleReversal
+              scenarioId={scenarioId}
+              blockedPackage={lesson.reversal.blockedPackage}
+              polymorphic={Boolean(lesson.reversal.variant)}
+            />
           )}
+
+          {/* CTF rule challenge lives on the Labs tab so Semgrep/Sigma is not buried in Quick reference. */}
+          <RuleChallengeCard scenarioId={scenarioId} />
         </div>
       </div>
+
+      {lesson.diffWorkbench &&
+        (!lesson.diffWorkbench.afterStep ||
+          stepClaimed(lesson.diffWorkbench.afterStep) ||
+          activeStep?.id === lesson.diffWorkbench.afterStep) && (
+          <DiffWorkbench scenarioId={scenarioId} config={lesson.diffWorkbench} />
+        )}
       </div>
       )}
 

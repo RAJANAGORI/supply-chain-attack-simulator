@@ -1,6 +1,8 @@
 # Scenario catalog (01-25)
 
-Complete index of every lab. Use this table as the fastest way to jump to **runtime instructions**, **blue-team runbooks**, **learner walkthroughs**, and **instructor modules**.
+Complete index of every lab. Jump to runtime instructions, blue-team runbooks, learner walkthroughs, and instructor modules from one table.
+
+How to run any row: In Command Center open Labs → lab NN. On the CLI follow that scenario's README. Concept + DETECT stay the same. UI tour: [COMMAND_CENTER.md](../getting-started/COMMAND_CENTER.md).
 
 | # | Scenario | Level | Port | Mock endpoint | Primary docs |
 |---|----------|-------|------|---------------|--------------|

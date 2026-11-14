@@ -4,7 +4,7 @@
 
 Install SCAS on an isolated lab machine (macOS, Linux, or WSL2): the core labs, optional Elasticsearch/Kibana, and Floci for the cloud-track labs.
 
-Shorter paths: [Quick start](./QUICK_START.md) (SCAS only, ~5 min) · [Complete setup](./SETUP.md) (install detail) · [Floci integration](../guides/FLOCI_INTEGRATION.md) (cloud track only)
+Shorter paths: [Command Center](./COMMAND_CENTER.md) (browser labs) · [Quick start](./QUICK_START.md) (CLI, ~5 min) · [Complete setup](./SETUP.md) (install detail) · [Floci integration](../guides/FLOCI_INTEGRATION.md) (cloud track only)
 
 ### One-shot installer
 
@@ -23,12 +23,12 @@ USB HDD / Raspberry Pi only: use [`install-external.sh`](../../install-external.
 
 ```bash
 source .scas.env                 # every session
-./run.sh                         # recommended: ES + Floci + act + dashboard
+./run.sh                         # recommended: ES + Floci + act + Command Center (:3100)
 # or UI only:
 ./scripts/ui/start-dashboard.sh
 ```
 
-On a remote demo host after pull: `./scripts/ui/conference-demo-up.sh` (see [DASHBOARD.md](../platform/DASHBOARD.md)).
+Learner UI tour: [COMMAND_CENTER.md](./COMMAND_CENTER.md). On a remote demo host after pull: `./scripts/ui/conference-demo-up.sh` (maintainer notes: [DASHBOARD.md](../platform/DASHBOARD.md)).
 
 | Flag | Effect |
 |------|--------|

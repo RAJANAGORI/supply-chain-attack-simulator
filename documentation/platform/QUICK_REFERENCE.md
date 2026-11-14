@@ -1,20 +1,21 @@
 # Quick reference
 
-One-page navigation for the test bench. **Master index:** [Documentation index](../index.md) · **Full scenario link matrix:** [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md)
+One-page navigation for the test bench. Master index: [Documentation index](../index.md) · Full scenario link matrix: [scenario-guides/CATALOG.md](../scenario-guides/CATALOG.md)
 
-Authoritative content lives under **`documentation/`**. The **`docs/`** directory (GitHub Pages) adds **`index.html`** and **symlinks** to this tree.
+Authoritative content lives under `documentation/`. The `docs/` directory (GitHub Pages) adds `index.html` and symlinks to this tree.
 
 ## Start here
 
 | Doc | Purpose |
 | --- | --- |
-| [Documentation index](../index.md) | **Master documentation index** |
-| [FAQ.md](./FAQ.md) | Troubleshooting and common questions |
+| [Documentation index](../index.md) | Master documentation index (CLI vs Command Center choice) |
+| [COMMAND_CENTER.md](../getting-started/COMMAND_CENTER.md) | Browser labs (`./run.sh` → `:3100`) |
+| [QUICK_START.md](../getting-started/QUICK_START.md) | CLI fast path |
 | [ZERO_TO_HERO.md](../getting-started/ZERO_TO_HERO.md) | First lab for beginners |
-| [QUICK_START.md](../getting-started/QUICK_START.md) | Fast setup |
+| [FAQ.md](./FAQ.md) | Troubleshooting and common questions |
 | [SETUP.md](../getting-started/SETUP.md) | Detailed setup |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Platform design |
-| [DASHBOARD.md](./DASHBOARD.md) | Optional browser UI |
+| [DASHBOARD.md](./DASHBOARD.md) | Maintainer UI / control-plane notes |
 | [OPERATIONS.md](./OPERATIONS.md) | Scripts, ports, teardown |
 | [DETECTION_AND_OBSERVABILITY.md](./DETECTION_AND_OBSERVABILITY.md) | Blue team + Elasticsearch/Kibana |
 | [BEST_PRACTICES.md](./BEST_PRACTICES.md) | Defensive patterns |
@@ -34,9 +35,9 @@ Authoritative content lives under **`documentation/`**. The **`docs/`** director
 ./START_HERE.sh         # menu: labs / workshop / docker (same as ./install.sh)
 source .scas.env        # written by the installer
 export TESTBENCH_MODE=enabled
-./run.sh                # full stack UI (ES + Floci + act + dashboard)
+./run.sh                # Command Center + ES + Floci + act → http://127.0.0.1:3100
 # ./scripts/ui/conference-demo-up.sh   # remote / conference smoke
-cd scenarios/01-typosquatting && ./setup.sh
+cd scenarios/01-typosquatting && ./setup.sh   # CLI path for lab 01
 ./scripts/setup/kill-port.sh 3000
 ./scripts/setup/kill-port.sh --all
 ./scripts/setup/teardown.sh

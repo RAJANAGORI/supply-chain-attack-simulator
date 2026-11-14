@@ -139,17 +139,25 @@ export default function OverviewPage() {
 
   const guidedLabs = scenarios.filter((s) => s.lesson);
   const guidedComplete = guidedLabs.filter((s) => {
+    if (s.lesson?.complete) return true;
     const entry = progress?.scenarios[s.id];
     const need = s.lesson?.stepCount ?? 0;
-    return need > 0 && (entry?.completedSteps?.length ?? 0) >= need;
+    const done = s.lesson?.completedCount ?? entry?.completedSteps?.length ?? 0;
+    return need > 0 && done >= need;
   }).length;
 
   const resumeId = progress?.lastScenarioId;
   const resumeScenario = resumeId ? scenarios.find((s) => s.id === resumeId) : undefined;
-  const resumeStep =
-    resumeScenario && progress?.scenarios[resumeScenario.id]?.currentStepId
-      ? progress.scenarios[resumeScenario.id].currentStepId
-      : progress?.lastStepId;
+  // Prefer last completed step when the lab path is done so stale currentStepId
+  // (e.g. "setup" on a finished lab) does not mislabel the Overview resume card.
+  const resumeEntry = resumeScenario ? progress?.scenarios[resumeScenario.id] : undefined;
+  const resumeDone = resumeEntry?.completedSteps ?? [];
+  const resumeNeed = resumeScenario?.lesson?.stepCount ?? 0;
+  const resumeComplete =
+    !!resumeScenario?.lesson?.complete || (resumeNeed > 0 && resumeDone.length >= resumeNeed);
+  const resumeStep = resumeComplete
+    ? resumeDone.at(-1) ?? resumeEntry?.currentStepId
+    : resumeEntry?.currentStepId ?? progress?.lastStepId;
 
   return (
     <div className="animate-fade-in">
@@ -220,7 +228,12 @@ export default function OverviewPage() {
           sub={cpDisplayHost}
           accent={cpReachable ? 'ok' : 'warn'}
         />
-        <StatTile label="Stack services" value={`${runningServices}/3`} sub="ES · Kibana · Floci" accent="warn" />
+        <StatTile
+          label="Stack services"
+          value={`${runningServices}/3`}
+          sub="ES · Kibana · Floci"
+          accent={runningServices === 3 ? 'ok' : runningServices > 0 ? 'brand' : 'warn'}
+        />
       </div>
 
       <div className="mt-10">
@@ -240,7 +253,12 @@ export default function OverviewPage() {
                     size="sm"
                     variant="success"
                     disabled={!!busy}
-                    onClick={() => run('es-up', cp.esUp, { waitUntil: (s) => !!s?.elasticsearch.ok })}
+                    onClick={() =>
+                      run('es-up', cp.esUp, {
+                        // elasticsearch-up.sh starts Kibana too — wait for both
+                        waitUntil: (s) => !!s?.elasticsearch.ok && !!s?.kibana.ok,
+                      })
+                    }
                   >
                     {busy === 'es-up' ? 'Starting…' : 'Start'}
                   </Btn>

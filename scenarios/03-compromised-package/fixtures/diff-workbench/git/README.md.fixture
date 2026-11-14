@@ -1,0 +1,10 @@
+# secure-validator
+
+Small input validation and HTML sanitizing helpers.
+
+```js
+const { validateEmail } = require('secure-validator');
+validateEmail('dev@example.com'); // true
+```
+
+No runtime dependencies. No network access.

@@ -1,5 +1,5 @@
-import type { LessonDefinition, LessonStep, LessonVerify } from './registry/lesson-types.js';
-import type { ProcessRecord, ScenarioDefinition } from './registry/types.js';
+import type { LessonDefinition, LessonStep, LessonVerify } from '../registry/lesson-types.js';
+import type { ProcessRecord, ScenarioDefinition } from '../registry/types.js';
 
 function captureCount(captures: Record<string, unknown>): number {
   let total = 0;

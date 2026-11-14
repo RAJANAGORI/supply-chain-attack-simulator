@@ -1,0 +1,11 @@
+'use strict';
+
+const assert = require('assert');
+const v = require('../index');
+
+assert.strictEqual(v.validateEmail('a@b.co'), true);
+assert.strictEqual(v.validateEmail('not-an-email'), false);
+assert.strictEqual(v.validateUrl('https://example.com'), true);
+assert.strictEqual(v.sanitizeHtml('<b>'), '&lt;b&gt;');
+
+console.log('ok');

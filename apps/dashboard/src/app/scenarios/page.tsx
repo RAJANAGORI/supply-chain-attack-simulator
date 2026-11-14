@@ -93,8 +93,10 @@ export default function ScenariosPage() {
         {filtered.map((s) => {
           const entry = progress?.scenarios[s.id];
           const stepCount = s.lesson?.stepCount ?? 0;
-          const doneSteps = entry?.completedSteps?.length ?? 0;
-          const guidedDone = stepCount > 0 && doneSteps >= stepCount;
+          // Prefer control-plane branch-aware counts; fall back to raw progress.
+          const doneSteps = s.lesson?.completedCount ?? entry?.completedSteps?.length ?? 0;
+          const guidedDone =
+            s.lesson?.complete === true || (stepCount > 0 && doneSteps >= stepCount);
           const inProgress = stepCount > 0 && doneSteps > 0 && !guidedDone;
 
           return (

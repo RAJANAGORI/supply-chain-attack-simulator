@@ -41,7 +41,7 @@ Every maintainer-facing script in [`scripts/`](../../scripts/), grouped by purpo
 | [`scripts/lib/scas-term.sh`](../../scripts/lib/scas-term.sh) | Phosphor / ops-console terminal chrome for `./run.sh` (`NO_COLOR=1` or `SCAS_TERM=plain` for plain text) |
 | [`scripts/ui/conference-demo-up.sh`](../../scripts/ui/conference-demo-up.sh) | Remote lab host smoke: prereqs, stack, health, lab 01 verify |
 
-Learner-facing write-up: [DASHBOARD.md](./DASHBOARD.md).
+Learner-facing write-up: [COMMAND_CENTER.md](../getting-started/COMMAND_CENTER.md). Maintainer UI / control-plane notes: [DASHBOARD.md](./DASHBOARD.md).
 
 ### Observability (Elasticsearch + Kibana)
 

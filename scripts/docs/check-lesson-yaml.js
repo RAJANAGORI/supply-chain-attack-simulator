@@ -184,6 +184,24 @@ function normalizeLesson(raw, expectedId) {
     return { id: s.id, registry: s.registry === undefined ? null : s.registry };
   });
 
+  // Optional adaptive-learning tags (light checks only).
+  for (const field of ['attck', 'nist', 'prereqs', 'remediates']) {
+    const v = raw[field];
+    if (v === undefined || v === null) continue;
+    if (!Array.isArray(v)) throw new Error(`${field} must be a list of strings`);
+    v.forEach((x, i) => {
+      if (typeof x !== 'string' || !x.trim()) throw new Error(`${field}[${i}] must be a non-empty string`);
+    });
+    if (new Set(v).size !== v.length) throw new Error(`${field} has duplicate entries`);
+  }
+  (raw.attck || []).forEach((t, i) => {
+    if (!/^T\d{4}(\.\d{3})?$/.test(t)) throw new Error(`attck[${i}] "${t}" must look like T1195 or T1195.002`);
+  });
+  (raw.prereqs || []).forEach((p, i) => {
+    if (!/^\d{2}$/.test(String(p))) throw new Error(`prereqs[${i}] "${p}" must be a two-digit lab id`);
+    if (String(p) === expectedId) throw new Error(`prereqs[${i}] cannot reference the lab itself`);
+  });
+
   // Optional blind drill block.
   if (raw.drill !== undefined && raw.drill !== null) {
     const d = raw.drill;
@@ -223,7 +241,57 @@ function normalizeLesson(raw, expectedId) {
     });
   }
 
-  return { id: String(raw.id), steps };
+  // Optional decision blocks (branching paths).
+  if (raw.decisions !== undefined && raw.decisions !== null) {
+    if (!Array.isArray(raw.decisions) || raw.decisions.length === 0) {
+      throw new Error('decisions must be a non-empty list of decision blocks');
+    }
+    raw.decisions.forEach((d, i) => {
+      if (!d || typeof d !== 'object' || Array.isArray(d)) {
+        throw new Error(`decisions[${i}] must be a mapping`);
+      }
+      if (typeof d.id !== 'string' || !String(d.id).trim()) throw new Error(`decisions[${i}].id required`);
+      if (typeof d.afterStep !== 'string' || !String(d.afterStep).trim()) {
+        throw new Error(`decisions[${i}].afterStep required`);
+      }
+      if (typeof d.prompt !== 'string' || !d.prompt.trim()) throw new Error(`decisions[${i}].prompt required`);
+      if (!Array.isArray(d.choices) || d.choices.length < 2) {
+        throw new Error(`decisions[${i}].choices needs at least 2 options`);
+      }
+      d.choices.forEach((c, j) => {
+        if (!c || typeof c !== 'object' || Array.isArray(c)) {
+          throw new Error(`decisions[${i}].choices[${j}] must be a mapping`);
+        }
+        if (typeof c.id !== 'string' || !String(c.id).trim()) {
+          throw new Error(`decisions[${i}].choices[${j}].id required`);
+        }
+        if (typeof c.label !== 'string' || !c.label.trim()) {
+          throw new Error(`decisions[${i}].choices[${j}].label required`);
+        }
+        if (c.effects !== undefined && c.effects !== null) {
+          if (typeof c.effects !== 'object' || Array.isArray(c.effects)) {
+            throw new Error(`decisions[${i}].choices[${j}].effects must be a mapping`);
+          }
+          const e = c.effects;
+          if (e.goto !== undefined && e.goto !== null && typeof e.goto !== 'string') {
+            throw new Error(`decisions[${i}].choices[${j}].effects.goto must be string`);
+          }
+          if (e.score !== undefined && e.score !== null) {
+            const s = Number(e.score);
+            if (!Number.isFinite(s)) throw new Error(`decisions[${i}].choices[${j}].effects.score must be number`);
+          }
+          if (e.flag !== undefined && e.flag !== null && typeof e.flag !== 'string' && !Array.isArray(e.flag)) {
+            throw new Error(`decisions[${i}].choices[${j}].effects.flag must be string or array`);
+          }
+          if (e.feedback !== undefined && e.feedback !== null && typeof e.feedback !== 'string') {
+            throw new Error(`decisions[${i}].choices[${j}].effects.feedback must be string`);
+          }
+        }
+      });
+    });
+  }
+
+  return { id: String(raw.id), steps, prereqs: (raw.prereqs || []).map(String) };
 }
 
 function discoverScenarioDirs() {
@@ -275,6 +343,12 @@ function main() {
     } catch (err) {
       fail(`${dir}/lesson.yaml: ${err instanceof Error ? err.message : String(err)}`);
       continue;
+    }
+
+    for (const p of lesson.prereqs) {
+      if (!dirs.some((d) => d.startsWith(`${p}-`))) {
+        fail(`${dir}/lesson.yaml prereqs references unknown lab "${p}"`);
+      }
     }
 
     const known = registrySteps.get(id) || new Set();

@@ -17,6 +17,13 @@ mitigation:
   - "Full blue-team runbook: DETECT.md in this lab folder"
 reversal:
   blockedPackage: "secure-validator"
+diffWorkbench:
+  fixtureDir: "fixtures/diff-workbench"
+  afterStep: install-bad
+  title: "Tarball vs Git"
+  prompt: "The repo on GitHub looks clean. The tarball npm served you is what actually ran. Open each changed file and find what only exists in the published copy."
+  gitLabel: "git tag v2.5.4 (what reviewers read)"
+  tarballLabel: "npm pack secure-validator@2.5.4 (what you installed)"
 drill:
   prompt: "secure-validator has been in your tree for two years. This morning it published v1.0.1, a patch release. The full diff of that release is below. Ship the update?"
   artifactType: diff
@@ -103,3 +110,50 @@ quiz:
       - "Deleting the lockfile so updates flow faster"
     answer: 1
     explain: "This attack starts with a maintainer account or publish path, so that is where the gate belongs. Download counts are what make a compromised package dangerous, and dropping the lockfile makes silent patches easier to pull, not harder."
+prTriage:
+  afterStep: install-bad
+  prs:
+    - id: safe-1
+      title: "fix: update validation error messages for clarity"
+      dependency: "src/validator/errors.js"
+      diffSummary: "Improved error message formatting"
+      safe: true
+    - id: safe-2
+      title: "chore: add TypeScript types for validator module"
+      dependency: "src/validator/types.ts"
+      diffSummary: "Added type definitions for public API"
+      safe: true
+    - id: safe-3
+      title: "docs: add validator API documentation"
+      dependency: "docs/validator.md"
+      diffSummary: "Added API reference for validation library"
+      safe: true
+    - id: safe-4
+      title: "test: add edge case tests for input validation"
+      dependency: "test/validation.edge.js"
+      diffSummary: "Added 15 new test cases for validation edge cases"
+      safe: true
+    - id: bad-1
+      title: "feat: add runtime validation to secure-validator package"
+      dependency: "secure-validator"
+      diffSummary: "Updated secure-validator with silent patch that bypasses validation silently"
+      safe: false
+      blockLabel: "Block — silent validation bypass patch"
+    - id: bad-2
+      title: "fix: resolve validation timeout on large inputs"
+      dependency: "secure-validator/lib/runtime.js"
+      diffSummary: "Fixes timeout by silently returning true for all inputs"
+      safe: false
+      blockLabel: "Block — always-true validation bypass"
+    - id: bad-3
+      title: "chore: optimize validation with caching layer"
+      dependency: "secure-validator/lib/cache.js"
+      diffSummary: "Caching layer that bypasses secure validation path"
+      safe: false
+      blockLabel: "Block — cache bypass of validation"
+    - id: bad-4
+      title: "refactor: extract validation core to separate module"
+      dependency: "secure-validator/src/core.js"
+      diffSummary: "Extracted module with hidden data exfiltration on validate()"
+      safe: false
+      blockLabel: "Block — data exfiltration in core validator"

@@ -40,6 +40,17 @@ By the end of this guide, you will:
 </div>
 
 ---
+## Run this lab
+
+Same attack either way. Pick a driver, then come back here for the teaching narrative.
+
+| Driver | How |
+|--------|-----|
+| Command Center | `./run.sh` → open `:3100` → Labs → lab 13 |
+| CLI | Shell steps in this guide and [`scenarios/13-package-metadata-manipulation/README.md`](../../../scenarios/13-package-metadata-manipulation/README.md) |
+
+Detection still ends in [`DETECT.md`](../../../scenarios/13-package-metadata-manipulation/DETECT.md). UI tour: [Command Center](../../getting-started/COMMAND_CENTER.md).
+
 ## Part 1: Understanding Package Metadata (15 minutes)
 
 ### What Is Package Metadata?

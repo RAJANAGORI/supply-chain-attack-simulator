@@ -1,5 +1,5 @@
 import type { ScenarioDefinition } from './types.js';
-import { getRepoRoot } from '../env.js';
+import { getRepoRoot } from '../labs/env.js';
 
 function scenarioPath(slug: string): string {
   return `${getRepoRoot()}/scenarios/${slug}`;
