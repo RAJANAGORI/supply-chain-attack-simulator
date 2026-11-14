@@ -843,53 +843,80 @@ export function ScenarioLessonRunner({
                 );
               })}
             </ul>
-            {/* Only when nothing we track is running — otherwise the tip fights the Running pill. */}
-            {freePortTarget != null &&
-              !scenario.services.some((svc) =>
+            {(() => {
+              const anyRunning = scenario.services.some((svc) =>
                 scenario.processes?.some((p) => p.serviceId === svc.id && p.status === 'running'),
-              ) && (
-              <div className="mt-4 rounded-xl border border-brand/35 bg-brand/10 px-3 py-3">
-                <p className="text-xs font-medium text-ink-primary">
-                  Port busy / EADDRINUSE?
-                </p>
-                <p className="mt-1 text-[11px] leading-relaxed text-ink-muted">
-                  {freePortTarget === 3000
-                    ? 'Labs 01-05 and 07-12 share :3000. Click Free port below, then Start services again.'
-                    : `UI may show Stopped while something still holds :${freePortTarget}. Free the port, then Start services.`}
-                </p>
-                <div className="mt-3">
-                  <Btn
-                    variant="primary"
-                    size="sm"
-                    disabled={!!busy}
-                    className="w-full sm:w-auto"
-                    onClick={() =>
-                      void (async () => {
-                        setBusy('free-port');
-                        setError('');
-                        try {
-                          const res = await cp.freePort(freePortTarget);
-                          if (res.sessionId) await waitForSession(res.sessionId);
-                          if (res.ok === false) {
-                            setError(res.message || `Port :${freePortTarget} still busy`);
+              );
+              return (
+                <div className="mt-4 space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    <Btn
+                      variant="danger"
+                      size="sm"
+                      disabled={!!busy || !anyRunning}
+                      onClick={() =>
+                        void (async () => {
+                          setBusy('stop');
+                          setError('');
+                          try {
+                            await cp.stopServices(scenarioId);
+                            await onReload();
+                            await refreshVerify();
+                          } catch (e) {
+                            setError(e instanceof Error ? e.message : 'Stop services failed');
+                          } finally {
+                            setBusy('');
                           }
-                          await onReload();
-                          await refreshVerify();
-                        } catch (e) {
-                          setError(
-                            e instanceof Error ? e.message : `Failed to free :${freePortTarget}`,
-                          );
-                        } finally {
-                          setBusy('');
+                        })()
+                      }
+                    >
+                      {busy === 'stop' ? 'Stopping…' : 'Stop services'}
+                    </Btn>
+                    {freePortTarget != null && (
+                      <Btn
+                        variant={anyRunning ? 'secondary' : 'primary'}
+                        size="sm"
+                        disabled={!!busy}
+                        onClick={() =>
+                          void (async () => {
+                            setBusy('free-port');
+                            setError('');
+                            try {
+                              const res = await cp.freePort(freePortTarget);
+                              if (res.sessionId) await waitForSession(res.sessionId);
+                              if (res.ok === false) {
+                                setError(res.message || `Port :${freePortTarget} still busy`);
+                              }
+                              await onReload();
+                              await refreshVerify();
+                            } catch (e) {
+                              setError(
+                                e instanceof Error
+                                  ? e.message
+                                  : `Failed to free :${freePortTarget}`,
+                              );
+                            } finally {
+                              setBusy('');
+                            }
+                          })()
                         }
-                      })()
-                    }
-                  >
-                    {busy === 'free-port' ? 'Freeing port…' : `Free port :${freePortTarget}`}
-                  </Btn>
+                      >
+                        {busy === 'free-port'
+                          ? 'Freeing…'
+                          : `Free port :${freePortTarget}`}
+                      </Btn>
+                    )}
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-ink-faint">
+                    {anyRunning
+                      ? 'Lab done? Stop services releases the mock. Free port also kills orphans on that port.'
+                      : freePortTarget === 3000
+                        ? 'Labs 01-05 and 07-12 share :3000. Free port if Start services hits EADDRINUSE.'
+                        : `If Start services fails with EADDRINUSE, Free port clears :${freePortTarget}.`}
+                  </p>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </Card>
 
           {lesson.reversal && (captureReady || stepClaimed('run') || stepClaimed('run-ci') || pathComplete) && (
