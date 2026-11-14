@@ -18,7 +18,11 @@ Services bind on `0.0.0.0`. Open the dashboard with the lab host address (for ex
 
 The dashboard proxies control-plane API and WebSocket traffic through port 3100 (`/api/cp/*`, `/ws/logs` → `127.0.0.1:3101` on the server). You only need port 3100 reachable over LAN. Port 3101 can stay loopback-only.
 
-Browser-facing service links (Overview Platform stack, Observatory Open Kibana) rewrite loopback URLs to the hostname in the address bar. So if you opened `http://192.168.64.2:3100`, Kibana opens as `http://192.168.64.2:5601`. Server-side health probes still use `127.0.0.1` on the lab host. Payload exfil in captures still shows `127.0.0.1` on purpose (TESTBENCH safety).
+Browser-facing service links (Overview Platform stack, Observatory Open Kibana) rewrite loopback URLs to the hostname in the address bar. So if you opened `http://192.168.64.2:3100`, Kibana opens as `http://192.168.64.2:5601`. Server-side health probes still use `127.0.0.1` on the lab host (or `SCAS_PLATFORM_HOST` when the control plane runs in Docker). Payload exfil in captures still shows `127.0.0.1` on purpose (TESTBENCH safety).
+
+Overview **Platform stack** Running/Stopped matches the same loopback checks as STACK RADAR in `./run.sh` (ES `/_cluster/health`, Kibana `/api/status` with root fallback, Floci `/_floci/health` with root fallback). If the terminal says UP but the UI says Stopped, restart the control plane so it loads the current probe code, then refresh Overview or hit `GET /api/platform/status` on `:3101`.
+
+Workshop env files (`.testbench.env`, `.floci.env`, `.scas.env`) are parsed by the control plane for lab children. `export KEY=value` lines and `${VAR:-default}` defaults are supported - without that, Floci/ES flags from those files were ignored unless the parent shell had already exported them.
 
 Also open these ports on the lab host / VM firewall when you demo over LAN: 3100, 5601 (Kibana), 9200 (optional direct ES), 4566 (Floci).
 

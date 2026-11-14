@@ -8,6 +8,8 @@ import { readProgress } from './progress.js';
 import { isLessonComplete } from './lesson-progress.js';
 import { getCampaign, type CampaignInject } from './registry/campaigns.js';
 import { CLASSROOM_ROLES, type ClassroomRole } from './registry/lesson-types.js';
+import { buildLabEnv } from './env.js';
+import { platformHost } from './platform-probe.js';
 
 export { CLASSROOM_ROLES, type ClassroomRole };
 
@@ -450,11 +452,14 @@ export async function fetchEsTimeline(limit = 50): Promise<{
   events: Array<Record<string, unknown>>;
   error?: string;
 }> {
-  const host = process.env.SCAS_PLATFORM_HOST || '127.0.0.1';
-  const base = process.env.SCAS_ES_URL || `http://${host}:9200`;
-  const index = process.env.SCAS_ES_INDEX || 'scas-detections';
+  // Prefer workshop env files (same as lab children) so Observatory works after
+  // ./run.sh even when the control-plane process was started without sourcing.
+  const env = buildLabEnv();
+  const host = platformHost();
+  const base = env.SCAS_ES_URL || `http://${host}:9200`;
+  const index = env.SCAS_ES_INDEX || 'scas-detections';
   try {
-    const res = await fetch(`${base}/${index}/_search`, {
+    const res = await fetch(`${base.replace(/\/$/, '')}/${index}/_search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

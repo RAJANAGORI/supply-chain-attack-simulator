@@ -1,5 +1,6 @@
 import type { ScenarioFloci } from './registry/types.js';
 import { buildLabEnv } from './env.js';
+import { probeFlociStack, platformHost } from './platform-probe.js';
 
 export interface FlociCall {
   when: string;
@@ -53,21 +54,11 @@ function bucketFor(scenarioId: string): string {
   return `scas-sc${padded}-artifacts`;
 }
 
-async function endpointUp(endpoint: string): Promise<boolean> {
-  try {
-    const response = await fetch(`${endpoint.replace(/\/$/, '')}/_floci/health`, {
-      signal: AbortSignal.timeout(2000),
-    });
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
-
 export async function probeFloci(scenarioId: string, floci?: ScenarioFloci): Promise<FlociRuntime> {
   const env = buildLabEnv();
   const enabled = env.SCAS_FLOCI_ENABLED === '1';
-  const endpoint = env.SCAS_FLOCI_ENDPOINT || env.AWS_ENDPOINT_URL || 'http://127.0.0.1:4566';
+  const endpoint =
+    env.SCAS_FLOCI_ENDPOINT || env.AWS_ENDPOINT_URL || `http://${platformHost()}:4566`;
   const bucket = bucketFor(scenarioId);
   const attackCalls = !NO_ATTACK_CALL.has(scenarioId);
   const calls: FlociCall[] = [];
@@ -104,11 +95,25 @@ export async function probeFloci(scenarioId: string, floci?: ScenarioFloci): Pro
     });
   }
 
+  // Same reachability as Overview / STACK RADAR (health, then root).
+  // Prefer host probe over a rewritten docker endpoint string when it points at loopback.
+  let reachable = false;
+  try {
+    const u = new URL(endpoint);
+    if (u.hostname === '127.0.0.1' || u.hostname === 'localhost') {
+      reachable = await probeFlociStack(platformHost());
+    } else {
+      reachable = await probeFlociStack(u.hostname);
+    }
+  } catch {
+    reachable = await probeFlociStack(platformHost());
+  }
+
   return {
     attackCalls,
     enabled,
     endpoint,
-    reachable: await endpointUp(endpoint),
+    reachable,
     bucket,
     calls,
     seedNote: SEED_NOTES[scenarioId] ?? SHARED_SEED,

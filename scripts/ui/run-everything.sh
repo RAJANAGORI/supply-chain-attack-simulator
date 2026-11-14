@@ -146,11 +146,14 @@ export SCAS_ACT_REQUIRED="${SCAS_ACT_REQUIRED:-1}"
 EOF
     fi
     if [[ "$SKIP_ES" != "1" ]]; then
-      cat <<'EOF'
-export SCAS_ES_URL="${SCAS_ES_URL:-http://127.0.0.1:9200}"
-export KIBANA_URL="${KIBANA_URL:-http://127.0.0.1:5601}"
-
-EOF
+      # Write concrete URLs (already expanded) so the control plane's Node
+      # env parser can load them without bash. Shell `source` still works.
+      local es_url kibana_url
+      es_url="${SCAS_ES_URL:-http://127.0.0.1:9200}"
+      kibana_url="${KIBANA_URL:-http://127.0.0.1:5601}"
+      printf 'export SCAS_ES_URL=%q\n' "${es_url}"
+      printf 'export KIBANA_URL=%q\n' "${kibana_url}"
+      printf '\n'
     fi
     if [[ "$SKIP_FLOCI" != "1" ]]; then
       cat <<'EOF'

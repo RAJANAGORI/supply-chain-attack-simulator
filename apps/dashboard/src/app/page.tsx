@@ -228,7 +228,12 @@ export default function OverviewPage() {
           sub={cpDisplayHost}
           accent={cpReachable ? 'ok' : 'warn'}
         />
-        <StatTile label="Stack services" value={`${runningServices}/3`} sub="ES · Kibana · Floci" accent="warn" />
+        <StatTile
+          label="Stack services"
+          value={`${runningServices}/3`}
+          sub="ES · Kibana · Floci"
+          accent={runningServices === 3 ? 'ok' : runningServices > 0 ? 'brand' : 'warn'}
+        />
       </div>
 
       <div className="mt-10">
@@ -248,7 +253,12 @@ export default function OverviewPage() {
                     size="sm"
                     variant="success"
                     disabled={!!busy}
-                    onClick={() => run('es-up', cp.esUp, { waitUntil: (s) => !!s?.elasticsearch.ok })}
+                    onClick={() =>
+                      run('es-up', cp.esUp, {
+                        // elasticsearch-up.sh starts Kibana too — wait for both
+                        waitUntil: (s) => !!s?.elasticsearch.ok && !!s?.kibana.ok,
+                      })
+                    }
                   >
                     {busy === 'es-up' ? 'Starting…' : 'Start'}
                   </Btn>
