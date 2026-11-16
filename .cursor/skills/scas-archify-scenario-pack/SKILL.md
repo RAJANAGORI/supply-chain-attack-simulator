@@ -40,7 +40,7 @@ Reference packs:
 
 Architecture must include:
 
-- Control Center (`:3100`), `setup.sh`, victim/corporate app (or scenario-specific runner), payload node, mock listener(s) with real ports, capture store(s), optional Floci when registry lists it
+- Command Center (`:3100`) + control plane (`:3101`), `setup.sh`, victim/corporate app (or scenario-specific runner), payload node, mock listener(s) with real ports, capture store(s), optional Floci when registry lists it
 - Region `127.0.0.1 lab only` + security-group `TESTBENCH_MODE=enabled` wrapping the payload when the gate exists
 - Repo-backed `sources` on components (`scenarios/NN-slug/...` and `apps/control-plane/src/registry/scenarios.ts`)
 - `meta.subtitle`, 2-3 `meta.views`, three teaching cards
@@ -73,7 +73,7 @@ Pin `meta.repository` to:
 
 ## Workflow
 
-1. **Evidence.** Read `apps/control-plane/src/registry/scenarios.ts` for this id (ports, services, steps, captures, floci, lesson). Read `setup.sh`, `README.md`, `DETECT.md`, `infrastructure/*`, victim/corporate app, malicious package/payload.
+1. **Evidence.** Read `apps/control-plane/src/registry/scenarios.ts` for this id (ports, services, steps, captures, floci, act). Read `lesson.yaml`, `setup.sh`, `README.md`, `DETECT.md`, `infrastructure/*`, victim/corporate app, malicious package/payload.
 2. **Author architecture** candidate under `.archify/scenarios/NN-slug/architecture/candidate.json`.
 3. **Author sequence** candidate under `.archify/scenarios/NN-slug/sequence/candidate.json`. Sequence stem must match the scenario slug (`scNN-slug-sequence`), not a cute alternate slug.
 4. **Finalize both** at showcase quality:
@@ -128,11 +128,13 @@ Same as SCAS core:
 - [ ] `archify_SNN.md` present, prose_guard OK, relative links resolve
 - [ ] `INDEX.md` row present
 - [ ] Folder names and HTML stems use `NN-slug` consistently
-- [ ] Control Center registry entry for the lab already exists (or is added in the same change)
+- [ ] Command Center registry entry for the lab already exists (or is added in the same change)
+- [ ] `lesson.yaml` exists for the lab (Command Center storyboard)
 
 ## Related skills / rules
 
 - Archify product skill: `.agents/skills/archify/SKILL.md` (finalize, schemas, layout repair)
 - Scenario docs: `.cursor/skills/scas-scenario-docs/SKILL.md` (README / DETECT mitigation)
+- Immersive lessons: `.cursor/skills/scas-immersive-lessons/SKILL.md` (`lesson.yaml`, campaigns, CTF)
 - Scenario code rule: `.cursor/rules/scas-scenarios.mdc`
 - Docs Excalidraw/SVG diagrams stay under `documentation/assets/diagrams/` (separate from this Archify pack)

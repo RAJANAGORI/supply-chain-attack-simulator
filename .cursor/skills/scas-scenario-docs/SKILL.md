@@ -14,12 +14,17 @@ Use this skill when writing or editing SCAS supply-chain attack lab documentatio
 scenarios/NN-slug/
 ├── README.md               # Lab instructions + Mitigation Playbook + Straightforward Implementation
 ├── DETECT.md               # IOCs, detection rules, Mitigation, Straightforward Implementation
+├── lesson.yaml             # Command Center storyboard (caseStudy + mitigation required)
 ├── setup.sh
 ├── infrastructure/
 ├── victim-app/
 ├── malicious-packages/ or templates/
 └── detection-tools/        # optional
 ```
+
+Command Center teaches from `lesson.yaml`; CLI still follows README. Dual-driver
+note: `documentation/getting-started/COMMAND_CENTER.md`. Lesson authoring details:
+`.cursor/skills/scas-immersive-lessons/SKILL.md`.
 
 ## Documentation rules
 
@@ -118,6 +123,9 @@ node scripts/docs/inject-markdown-toc.js all
 # Validate public counts, indexes, and ranges
 node scripts/docs/check-info-consistency.js
 
+# Validate lesson.yaml against the registry
+node scripts/docs/check-lesson-yaml.js
+
 # Validate ASCII hyphen / straight quotes only
 node scripts/docs/check-markdown-watermarks.js
 ```
@@ -145,11 +153,14 @@ Canonical runner: `scenarios/_shared/run-act.sh`. Examples: `05-build-compromise
 ## Adding a new scenario
 
 1. Add the scenario to `scripts/lib/mitigation-playbooks.js` with `bullets` and `implementation`.
-2. Run `node scripts/docs/sync-mitigation-gaps.js`.
-3. Run `node scripts/docs/inject-zero-to-hero-mitigation-playbooks.js`.
-4. Update `documentation/scenario-guides/CATALOG.md` and the zero-to-hero / quick-reference indexes.
-5. Update `scripts/setup/ports.env` and `documentation/platform/OPERATIONS.md` if the scenario needs a new port.
-6. Run `node scripts/docs/check-info-consistency.js`.
+2. Add `scenarios/NN-slug/lesson.yaml` (copy 01; keep `caseStudy` + `mitigation` + steps wired to the registry).
+3. Register the lab in `apps/control-plane/src/registry/scenarios.ts`.
+4. Run `node scripts/docs/sync-mitigation-gaps.js`.
+5. Run `node scripts/docs/inject-zero-to-hero-mitigation-playbooks.js`.
+6. Update `documentation/scenario-guides/CATALOG.md` and the zero-to-hero / quick-reference indexes.
+7. Update `scripts/setup/ports.env` and `documentation/platform/OPERATIONS.md` if the scenario needs a new port.
+8. Run `node scripts/docs/check-lesson-yaml.js` and `node scripts/docs/check-info-consistency.js`.
+9. Ship the Archify pack via `.cursor/skills/scas-archify-scenario-pack/SKILL.md`.
 
 ## Tooling references
 

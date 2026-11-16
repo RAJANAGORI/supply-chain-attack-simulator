@@ -1,5 +1,5 @@
 ---
-description: Scenario layout, mock-server contract, TESTBENCH hooks, scenario doc sync
+description: Scenario layout, mock-server contract, TESTBENCH hooks, lesson.yaml, scenario doc sync
 globs: scenarios/**
 alwaysApply: false
 ---
@@ -11,11 +11,15 @@ alwaysApply: false
 ```
 scenarios/NN-slug/
 ├── setup.sh              # sources _shared/enable-testbench.sh
+├── lesson.yaml           # Command Center storyboard (required)
 ├── infrastructure/       # mock-server.js (or exception infra)
 ├── victim-app/           # or corporate-app/, compromised-app/, ...
 ├── malicious-packages/   # or templates/, registry/, packages/
-└── detection-tools/      # optional
+├── detection-tools/      # optional
+└── ctf-fixtures.json     # optional Sigma/Semgrep CTF seed
 ```
+
+Also register the lab in `apps/control-plane/src/registry/scenarios.ts` (ports, services, steps, captures, optional floci/act).
 
 ## Mock server (Node majority)
 
@@ -28,6 +32,25 @@ scenarios/NN-slug/
 - Shell: `enable-testbench.sh` (via `setup.sh`)
 - Node: `npm start` with `-r ../../_shared/testbench-env.js`
 - Python (22): import `testbench_env.py`
+- Command Center: control plane injects `TESTBENCH_MODE=enabled` for lab children
+
+## lesson.yaml (Command Center)
+
+Teaching metadata only. Commands stay in the TypeScript registry; README stays the CLI path.
+
+Required-style fields every lab ships: `id`, `etaMinutes`, `category`, `incidents`, `objectives`, `steps`, plus `caseStudy` + `mitigation` (CI checks these).
+
+Optional immersive blocks (seed references):
+
+| Block | Seed | Notes |
+|-------|------|-------|
+| `drill` / `quiz` / `reversal` | 01 | Polymorphic `reversal.variant` on 01 |
+| `decisions` | 01, 05 | `afterStep` + `choices[].effects` (`goto`/`score`/`flag`) |
+| `prTriage` | 01 (all labs have a list) | Synthetic PRs; no real GitHub |
+| `diffWorkbench` | 03 | Fixture trees under the lab folder |
+| `attck` / `nist` / `prereqs` / `remediates` | 01, 05 | Skills + Briefing taxonomy |
+
+Schema owner: `apps/control-plane/src/registry/lesson-types.ts`. Validate: `node scripts/docs/check-lesson-yaml.js`. Full authoring: `.cursor/skills/scas-immersive-lessons/SKILL.md`.
 
 ## README.md / DETECT.md in this folder
 

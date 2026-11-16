@@ -1,5 +1,5 @@
 ---
-description: Documentation locations, Zero-to-Hero scope, and maintainer sync workflow
+description: Documentation locations, Zero-to-Hero scope, Command Center docs, and maintainer sync workflow
 globs: documentation/**
 alwaysApply: false
 ---
@@ -16,7 +16,9 @@ Canonical source: `documentation/` (`index.md` hub). GitHub Pages build reads `d
 | `learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md` | Full curriculum |
 | `scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_NN.md` | Per-scenario walkthrough |
 
-Quick refs: `scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_NN.md`. Floci track (05, 06, 14, 17, 21): `guides/FLOCI_INTEGRATION.md`.
+Quick refs: `scenario-guides/quick-reference/QUICK_REFERENCE_SCENARIO_NN.md`. Floci track (all 25 labs; deeper on several): `guides/FLOCI_INTEGRATION.md`.
+
+Command Center learner path: `getting-started/COMMAND_CENTER.md`. UI / lesson / campaign maintainer note: `platform/DASHBOARD.md`. Tabletop facilitator: `guides/tabletop-quiet-carrier.md`.
 
 Zero-to-hero and quick-ref trees are in `.cursorignore` for code-focused indexing - open the target file directly when editing guides.
 
@@ -30,8 +32,9 @@ Markdown prose uses ASCII hyphen `-` and straight quotes. No em dash, en dash, c
 4. `node scripts/docs/inject-markdown-toc.js all` - rebuild TOCs
 5. Observability blocks: `detection-tools/es/scenario-diagram-steps.js` → `generate-observability-section.js` (embeds shared `scas-observability-flow.svg`; no Mermaid)
 6. `node detection-tools/es/load-runbooks.js` - if `DETECT.md` structure changed
-7. **Add/remove a scenario:** update README / AUTHORS / Pages hero + `docs-manifest` / CATALOG / zero-to-hero + quick-ref + modules indexes / observability N and 2N counts / playbooks / control-plane registry - then `node scripts/docs/check-info-consistency.js` (CI-enforced)
+7. **Add/remove a scenario:** update README / AUTHORS / Pages hero + `docs-manifest` / CATALOG / zero-to-hero + quick-ref + modules indexes / observability N and 2N counts / playbooks / control-plane registry / `lesson.yaml` - then `node scripts/docs/check-info-consistency.js` and `node scripts/docs/check-lesson-yaml.js` (CI-enforced)
 8. **Hand-authored diagrams:** specs in `scripts/lib/diagram-specs.js` (nodes/edges/labels/drawing rules). Assets under `documentation/assets/diagrams/` as `.excalidraw` + `.svg` pairs. Markdown embeds SVG only - no Mermaid in contracted docs / observability sections. Escape `&` as `&amp;` in SVG. After edits: `node scripts/diagrams/check-diagram-assets.js` (CI-enforced)
 9. After Markdown edits: `node scripts/docs/check-markdown-watermarks.js` (CI-enforced in smoke.yml)
+10. Lesson / campaign / classroom copy: keep ASCII; validate lessons with `node scripts/docs/check-lesson-yaml.js`
 
 Full script catalog: `platform/TOOLING.md`.

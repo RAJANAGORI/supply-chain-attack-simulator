@@ -29,6 +29,10 @@ Mock servers call: `forwardCaptureIfEnabled(__dirname, captureEntry).catch(() =>
 - `es/scenario-observability.json` - Kibana / doc-gen metadata
 - `es/scenario-diagram-steps.js` - lab flow steps; edit before `generate-observability-section.js`
 
-## Floci track (all 23 scenarios; extended on 05, 06, 11, 14, 17, 19, 23)
+## Floci track (all 25 scenarios; extended helpers on several)
 
 Helpers in `floci/` - `floci-exfil.js`, `floci_exfil.py`, `s3-exfil-check.sh`, `cloudtrail-hunt.sh`, etc. See `documentation/guides/FLOCI_INTEGRATION.md`.
+
+## Rule CTF fixtures
+
+Lab 01 seeds Sigma / Semgrep scoring via `scenarios/<slug>/ctf-fixtures.json`. Scoring lives under `apps/control-plane/src/ctf/`. Do not point challenges at real registries or remote C2.
