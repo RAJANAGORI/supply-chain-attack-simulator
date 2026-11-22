@@ -6,11 +6,11 @@
   "status": "pass",
   "visualReview": "not-requested",
   "provenance": "current",
-  "deliveryReceiptId": "5728cb67-77d5-4eb5-86e2-92447d2373d5",
+  "deliveryReceiptId": "07256b06-9973-407a-867f-8437df1000df",
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/02-dependency-confusion/workflow/sc02-dependency-confusion-workflow.html",
-    "sha256": "3f7132cfcda0d20da4a5362fe39901de87865723fb52a66515e276ede0fb136c",
-    "bytes": 820261
+    "sha256": "f5eee771c491330e7fed9c5eea1a5286a09f098bcf3de1b434c122ad52946e31",
+    "bytes": 816316
   },
   "state": {
     "detail": "read",
@@ -32,7 +32,7 @@
         "innerWidth": 1440,
         "innerHeight": 900,
         "scrollWidth": 1440,
-        "scrollHeight": 1332,
+        "scrollHeight": 1146,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -42,25 +42,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1376,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 12,
           "headerPx": 78,
           "diagramChromePx": 78,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -69,9 +67,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -82,7 +81,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -91,20 +90,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -114,11 +103,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -141,7 +130,7 @@
         "innerWidth": 1600,
         "innerHeight": 1000,
         "scrollWidth": 1600,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -151,25 +140,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1536,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -178,9 +165,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -191,7 +179,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -200,20 +188,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -223,11 +201,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -250,7 +228,7 @@
         "innerWidth": 1920,
         "innerHeight": 1080,
         "scrollWidth": 1920,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -260,25 +238,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1856,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -287,9 +263,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -300,7 +277,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -309,20 +286,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -332,11 +299,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -359,35 +326,33 @@
         "innerWidth": 2048,
         "innerHeight": 1320,
         "scrollWidth": 2048,
-        "scrollHeight": 1416,
+        "scrollHeight": 1320,
         "overflowX": false,
-        "overflowY": true,
-        "verticalScrollAccepted": true,
-        "overflowDisposition": "readable-vertical-scroll",
+        "overflowY": false,
+        "verticalScrollAccepted": false,
+        "overflowDisposition": "contained",
         "readerLayout": "adaptive",
-        "readerOverflow": "authored",
+        "readerOverflow": null,
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1920,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 94,
-          "diagramChromePx": 94,
-          "svgPx": 1164,
+          "diagramChromePx": 172,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -396,9 +361,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -409,7 +375,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -418,20 +384,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -441,11 +397,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -453,11 +409,11 @@
         "hasNavigationDock": true,
         "legendDockIntersectionArea": 0,
         "dockStageIntersectionArea": 0,
-        "dockStageGap": 10,
+        "dockStageGap": 27.15625,
         "requiredDockStageGap": 10,
         "viewerChromeStageOk": true,
-        "viewerChromeReserve": 44,
-        "viewerChromeActive": true,
+        "viewerChromeReserve": 0,
+        "viewerChromeActive": false,
         "viewerChromeOk": true,
         "resolvedTheme": "light"
       }
@@ -521,7 +477,7 @@
         "innerWidth": 1440,
         "innerHeight": 900,
         "scrollWidth": 1440,
-        "scrollHeight": 1332,
+        "scrollHeight": 1146,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -531,25 +487,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1376,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 12,
           "headerPx": 78,
           "diagramChromePx": 78,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -558,9 +512,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -571,7 +526,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -580,20 +535,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -603,11 +548,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -630,7 +575,7 @@
         "innerWidth": 1600,
         "innerHeight": 1000,
         "scrollWidth": 1600,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -640,25 +585,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1536,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -667,9 +610,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -680,7 +624,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -689,20 +633,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -712,11 +646,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -739,7 +673,7 @@
         "innerWidth": 1920,
         "innerHeight": 1080,
         "scrollWidth": 1920,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -749,25 +683,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1856,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -776,9 +708,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -789,7 +722,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -798,20 +731,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -821,11 +744,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -848,35 +771,33 @@
         "innerWidth": 2048,
         "innerHeight": 1320,
         "scrollWidth": 2048,
-        "scrollHeight": 1416,
+        "scrollHeight": 1320,
         "overflowX": false,
-        "overflowY": true,
-        "verticalScrollAccepted": true,
-        "overflowDisposition": "readable-vertical-scroll",
+        "overflowY": false,
+        "verticalScrollAccepted": false,
+        "overflowDisposition": "contained",
         "readerLayout": "adaptive",
-        "readerOverflow": "authored",
+        "readerOverflow": null,
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1920,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 94,
-          "diagramChromePx": 94,
-          "svgPx": 1164,
+          "diagramChromePx": 172,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -885,9 +806,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -898,7 +820,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -907,20 +829,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -930,11 +842,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -942,11 +854,11 @@
         "hasNavigationDock": true,
         "legendDockIntersectionArea": 0,
         "dockStageIntersectionArea": 0,
-        "dockStageGap": 10,
+        "dockStageGap": 27.15625,
         "requiredDockStageGap": 10,
         "viewerChromeStageOk": true,
-        "viewerChromeReserve": 44,
-        "viewerChromeActive": true,
+        "viewerChromeReserve": 0,
+        "viewerChromeActive": false,
         "viewerChromeOk": true,
         "resolvedTheme": "light"
       }
@@ -962,7 +874,7 @@
         "innerWidth": 1440,
         "innerHeight": 900,
         "scrollWidth": 1440,
-        "scrollHeight": 1332,
+        "scrollHeight": 1146,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -972,25 +884,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1376,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 12,
           "headerPx": 78,
           "diagramChromePx": 78,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -999,9 +909,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1012,7 +923,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1021,20 +932,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1044,11 +945,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -1071,7 +972,7 @@
         "innerWidth": 1600,
         "innerHeight": 1000,
         "scrollWidth": 1600,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -1081,25 +982,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1536,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1108,9 +1007,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1121,7 +1021,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1130,20 +1030,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1153,11 +1043,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -1180,7 +1070,7 @@
         "innerWidth": 1920,
         "innerHeight": 1080,
         "scrollWidth": 1920,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -1190,25 +1080,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1856,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1217,9 +1105,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1230,7 +1119,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1239,20 +1128,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1262,11 +1141,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -1289,35 +1168,33 @@
         "innerWidth": 2048,
         "innerHeight": 1320,
         "scrollWidth": 2048,
-        "scrollHeight": 1416,
+        "scrollHeight": 1320,
         "overflowX": false,
-        "overflowY": true,
-        "verticalScrollAccepted": true,
-        "overflowDisposition": "readable-vertical-scroll",
+        "overflowY": false,
+        "verticalScrollAccepted": false,
+        "overflowDisposition": "contained",
         "readerLayout": "adaptive",
-        "readerOverflow": "authored",
+        "readerOverflow": null,
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1920,
-        "diagramWidth": 1158,
+        "diagramWidth": 1191,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 94,
-          "diagramChromePx": 94,
-          "svgPx": 1164,
+          "diagramChromePx": 172,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 794,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "start"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1326,9 +1203,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "init",
+              "exfil"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1339,7 +1217,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1348,20 +1226,10 @@
           {
             "frameId": "lane-3",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "hookhttp",
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1371,11 +1239,11 @@
         "minimumProjectedNodeTextPx": 6.3,
         "minimumProjectedNonEdgeTextPx": 6.3,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "npm install resolve...",
+        "minimumProjectedNodeText": "calls exfiltrateConfig",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "init"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -1383,11 +1251,11 @@
         "hasNavigationDock": true,
         "legendDockIntersectionArea": 0,
         "dockStageIntersectionArea": 0,
-        "dockStageGap": 10,
+        "dockStageGap": 27.15625,
         "requiredDockStageGap": 10,
         "viewerChromeStageOk": true,
-        "viewerChromeReserve": 44,
-        "viewerChromeActive": true,
+        "viewerChromeReserve": 0,
+        "viewerChromeActive": false,
         "viewerChromeOk": true,
         "resolvedTheme": "light"
       }

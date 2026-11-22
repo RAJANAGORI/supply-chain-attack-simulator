@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "69006b2a-1d59-482a-854a-09da617c9d18",
+  "receiptId": "0a351c4e-caea-47a0-913e-78323c4844b7",
   "status": "current",
   "command": "deliver",
   "type": "workflow",
   "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/08-package-lock-file-manipulation/workflow/candidate.json",
   "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/08-package-lock-file-manipulation/workflow/sc08-package-lock-file-manipulation-workflow.html",
   "specification": {
-    "sha256": "3f8fb049c60678e33f9b13d0c48ee6999334b37b21a871a45057344e4627d61b",
-    "bytes": 5013
+    "sha256": "6a524141ca3c085b14ae3b307b99831618d7e9e911e5938ce3c6029e9ce1da57",
+    "bytes": 2978
   },
   "artifact": {
-    "sha256": "8c5ff7b7f61ed02cc2c56ca3e9b5f10aea66a5f0d1cd8cfad88a4295b7555042",
-    "bytes": 820297
+    "sha256": "da466dcffbabd8f6e23320f4784c41555931065583deee0f4bd6c2b1a26a24a4",
+    "bytes": 811634
   }
 }

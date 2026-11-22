@@ -7,13 +7,13 @@
   "quality": "showcase",
   "specification": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/23-trivy-supply-chain-attack/workflow/candidate.json",
-    "sha256": "b12ad0466a2d4940a67ea4fea0d679f9e44b4792b63f68f40ab637f2b753043b",
-    "bytes": 5001
+    "sha256": "53bc899a7cddf2f4571019ed4af35578c2ed78c2f2b2c69f94e7fc1b6979cb5d",
+    "bytes": 3619
   },
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/23-trivy-supply-chain-attack/workflow/sc23-trivy-supply-chain-attack-workflow.html",
-    "sha256": "907774c89faf4872a10cb18bf1fba894ab468ae4cb42da5fd98b21282381f312",
-    "bytes": 820303
+    "sha256": "3a5bf08a2a0af2ed39001346c2b2b32e69fe531a74c2a47331db28cf3de81c02",
+    "bytes": 814987
   },
   "gates": {
     "validate": "pass",
@@ -43,7 +43,7 @@
     "noticeText": null
   },
   "visualReview": "not-requested",
-  "durationMs": 6035,
+  "durationMs": 2990,
   "browserCheck": {
     "requested": true,
     "ran": true

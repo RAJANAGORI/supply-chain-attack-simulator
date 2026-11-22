@@ -6,11 +6,11 @@
   "status": "pass",
   "visualReview": "not-requested",
   "provenance": "current",
-  "deliveryReceiptId": "994c1653-03c4-4f18-85b6-df8ed853def1",
+  "deliveryReceiptId": "14310eba-2699-498c-a407-e4a4e698eb0f",
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/07-transitive-dependency/workflow/sc07-transitive-dependency-workflow.html",
-    "sha256": "0fac6a4a25d7ea703d7fa0e521352c97d2cc2b0e3a8877dc1b48ff8674c85cde",
-    "bytes": 820252
+    "sha256": "f83a003345cb731171e6288aaeb7bbb1012600e0a16b584899a9eec0cd77bae4",
+    "bytes": 814978
   },
   "state": {
     "detail": "read",
@@ -42,7 +42,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1376,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 12,
           "headerPx": 78,
@@ -51,16 +51,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -71,7 +69,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -82,7 +80,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -93,7 +91,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -104,21 +102,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -151,7 +149,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1536,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
@@ -160,16 +158,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -180,7 +176,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -191,7 +187,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -202,7 +198,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -213,21 +209,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -260,7 +256,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1856,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
@@ -269,16 +265,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -289,7 +283,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -300,7 +294,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -311,7 +305,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -322,21 +316,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -369,7 +363,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1920,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 94,
@@ -378,16 +372,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -398,7 +390,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -409,7 +401,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -420,7 +412,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -431,21 +423,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -531,7 +523,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1376,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 12,
           "headerPx": 78,
@@ -540,16 +532,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -560,7 +550,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -571,7 +561,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -582,7 +572,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -593,21 +583,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -640,7 +630,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1536,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
@@ -649,16 +639,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -669,7 +657,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -680,7 +668,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -691,7 +679,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -702,21 +690,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -749,7 +737,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1856,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
@@ -758,16 +746,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -778,7 +764,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -789,7 +775,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -800,7 +786,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -811,21 +797,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -858,7 +844,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1920,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 94,
@@ -867,16 +853,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -887,7 +871,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -898,7 +882,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -909,7 +893,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -920,21 +904,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -972,7 +956,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1376,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 12,
           "headerPx": 78,
@@ -981,16 +965,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1001,7 +983,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1012,7 +994,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1023,7 +1005,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1034,21 +1016,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -1081,7 +1063,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1536,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
@@ -1090,16 +1072,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1110,7 +1090,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1121,7 +1101,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1132,7 +1112,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1143,21 +1123,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -1190,7 +1170,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1856,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
@@ -1199,16 +1179,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1219,7 +1197,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1230,7 +1208,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1241,7 +1219,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1252,21 +1230,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -1299,7 +1277,7 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1920,
-        "diagramWidth": 1158,
+        "diagramWidth": 1152,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 94,
@@ -1308,16 +1286,14 @@
           "cardsPx": 0,
           "viewBoxHeight": 776
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 768,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "run"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1328,7 +1304,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "trigger"
+              "proc"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1339,7 +1315,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "gate"
+              "group"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1350,7 +1326,7 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
+              "post"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1361,21 +1337,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "safe"
+              "http"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.6,
-        "minimumProjectedNonEdgeTextPx": 6.6,
+        "minimumProjectedNodeTextPx": 7,
+        "minimumProjectedNonEdgeTextPx": 7,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "transitive require...",
+        "minimumProjectedNodeText": "npm runs this script",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "post"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,

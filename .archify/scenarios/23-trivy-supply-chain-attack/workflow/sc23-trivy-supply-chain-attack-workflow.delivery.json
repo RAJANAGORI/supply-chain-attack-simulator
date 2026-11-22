@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "b2ced4e4-2fb6-48fd-9112-c473544769f3",
+  "receiptId": "f598de02-dc35-4245-b496-fe4b79adf511",
   "status": "current",
   "command": "deliver",
   "type": "workflow",
   "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/23-trivy-supply-chain-attack/workflow/candidate.json",
   "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/23-trivy-supply-chain-attack/workflow/sc23-trivy-supply-chain-attack-workflow.html",
   "specification": {
-    "sha256": "b12ad0466a2d4940a67ea4fea0d679f9e44b4792b63f68f40ab637f2b753043b",
-    "bytes": 5001
+    "sha256": "53bc899a7cddf2f4571019ed4af35578c2ed78c2f2b2c69f94e7fc1b6979cb5d",
+    "bytes": 3619
   },
   "artifact": {
-    "sha256": "907774c89faf4872a10cb18bf1fba894ab468ae4cb42da5fd98b21282381f312",
-    "bytes": 820303
+    "sha256": "3a5bf08a2a0af2ed39001346c2b2b32e69fe531a74c2a47331db28cf3de81c02",
+    "bytes": 814987
   }
 }

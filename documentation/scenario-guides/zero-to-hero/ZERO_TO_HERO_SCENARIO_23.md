@@ -396,15 +396,13 @@ With `egress-policy: block`, the trivy-action exfil POST to `scan.aquasecurtiy.o
 
 <iframe class="archify-embed" title="Scenario 23 code-level workflow" src="archify/scenarios/23-trivy-supply-chain-attack/workflow/sc23-trivy-supply-chain-attack-workflow.html" loading="lazy"></iframe>
 
-<p class="archify-embed-caption">Code path for Scenario 23: collector, lab run, payload, the TESTBENCH gate, localhost exfil or SAFE MODE, then verify. <a href="archify/scenarios/23-trivy-supply-chain-attack/workflow/sc23-trivy-supply-chain-attack-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/23-trivy-supply-chain-attack/workflow/sc23-trivy-supply-chain-attack-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
+<p class="archify-embed-caption">require calls harvestAndExfiltrate. The pipeline then calls scanTarget and printSummary. <a href="archify/scenarios/23-trivy-supply-chain-attack/workflow/sc23-trivy-supply-chain-attack-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/23-trivy-supply-chain-attack/workflow/sc23-trivy-supply-chain-attack-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
 
-Same path as the diagram:
+Calls in this lab:
 
-1. Collector. Start the localhost mock with `node infrastructure/mock-c2-server.js`.
-2. Run lab. `cd victim-ci && export TESTBENCH_MODE=enabled && node run-pipeline.js` (victim-ci (node run-pipeline.js)).
-3. Payload. module load in CI pipeline step. The cover behavior still returns, so the lab looks normal.
-4. TESTBENCH. The malicious call runs only when `TESTBENCH_MODE === 'enabled'`. If it is off, the payload takes SAFE MODE and does not open the network. Do not point this path at a real host.
-5. Exfil. `POST /collect` stays on localhost. Verify with `curl -s http://127.0.0.1:3023/captured-data`. Elasticsearch indexing is a later step, not this path.
+1. `run-pipeline.js` calls `require('trivy-action-like')`. The module calls `harvestAndExfiltrate()` immediately.
+2. `harvestAndExfiltrate` returns when `TESTBENCH_MODE` is off. When it is on, it calls `http.request` to port 3023.
+3. The pipeline then calls `trivy.scanTarget`, then `trivy.printSummary`. `scanTarget` does not call `harvestAndExfiltrate`.
 
 ## Mitigation Playbook
 

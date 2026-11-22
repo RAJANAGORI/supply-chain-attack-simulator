@@ -2,227 +2,116 @@
   "schema_version": 2,
   "diagram_type": "workflow",
   "meta": {
-    "title": "Scenario 08 Package Lock File Manipulation code path",
-    "subtitle": "npm install from tampered lockfile then POST /collect on localhost",
+    "title": "Scenario 08 Package Lock File Manipulation calls",
+    "subtitle": "manipulateLockFile calls injectLockfileV3. evil-utils postinstall calls http.request.",
     "output": ".archify/scenarios/08-package-lock-file-manipulation/workflow/sc08-package-lock-file-manipulation-workflow.html",
     "quality_profile": "showcase",
     "locale": "en",
     "repository": {
       "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
       "provider": "github",
-      "revision": "0fb63796644cbfb8ee650bef703e9cb7bff8db47"
+      "revision": "681c4d000271b0df0c7c3521a98a25931362dc49"
     }
   },
   "lanes": [
     {
-      "id": "learner",
-      "label": "Learner"
+      "id": "tool",
+      "label": "manipulate-lock-file.js"
     },
     {
-      "id": "payload",
-      "label": "Payload"
+      "id": "hook",
+      "label": "evil-utils"
     },
     {
-      "id": "gate",
-      "label": "TESTBENCH gate"
-    },
-    {
-      "id": "collector",
-      "label": "Localhost collector"
-    },
-    {
-      "id": "safe",
-      "label": "Safe mode",
-      "variant": "exception"
-    }
-  ],
-  "phases": [
-    {
-      "id": "run",
-      "label": "Run the lab",
-      "fromCol": 0,
-      "toCol": 1
-    },
-    {
-      "id": "gate",
-      "label": "Gate",
-      "fromCol": 2,
-      "toCol": 3,
-      "variant": "security"
-    },
-    {
-      "id": "evidence",
-      "label": "Evidence",
-      "fromCol": 4,
-      "toCol": 5,
-      "variant": "emphasis"
+      "id": "net",
+      "label": "localhost"
     }
   ],
   "mainPath": [
-    "start",
-    "run",
-    "trigger",
-    "gate",
-    "exfil",
-    "verify"
+    "man",
+    "v3"
   ],
   "nodes": [
     {
-      "id": "start",
-      "lane": "learner",
+      "id": "man",
+      "lane": "tool",
       "col": 0,
-      "type": "backend",
-      "label": "Collector",
-      "sublabel": "localhost mock",
+      "type": "security",
+      "label": "manipulateLockFile",
+      "sublabel": "picks the lock format",
       "sources": [
         {
-          "path": "scenarios/08-package-lock-file-manipulation/setup.sh",
-          "label": "TESTBENCH_MODE in setup.sh",
-          "line": 58
+          "path": "scenarios/08-package-lock-file-manipulation/templates/manipulate-lock-file.js",
+          "label": "Rewrites the lockfile",
+          "line": 96
         }
       ]
     },
     {
-      "id": "run",
-      "lane": "learner",
+      "id": "v3",
+      "lane": "tool",
       "col": 1,
-      "type": "frontend",
-      "label": "Run lab",
-      "sublabel": "victim-app",
+      "type": "security",
+      "label": "injectLockfileV3",
+      "sublabel": "writes the bad entry",
       "sources": [
         {
-          "path": "scenarios/08-package-lock-file-manipulation/README.md",
-          "label": "scenario README",
-          "line": 1
+          "path": "scenarios/08-package-lock-file-manipulation/templates/manipulate-lock-file.js",
+          "label": "Called for lockfile v3",
+          "line": 24
         }
       ]
     },
     {
-      "id": "trigger",
-      "lane": "payload",
+      "id": "post",
+      "lane": "hook",
       "col": 2,
       "type": "security",
-      "label": "Payload",
-      "sublabel": "npm install from ta...",
+      "label": "postinstall",
+      "sublabel": "npm runs evil-utils",
       "sources": [
         {
-          "path": "scenarios/08-package-lock-file-manipulation/compromised-app/index.js",
-          "label": "TESTBENCH_MODE gate",
-          "line": 106
+          "path": "scenarios/08-package-lock-file-manipulation/malicious-packages/evil-utils/postinstall.js",
+          "label": "Runs after the bad install",
+          "line": 8
         }
       ]
     },
     {
-      "id": "gate",
-      "lane": "gate",
+      "id": "http",
+      "lane": "net",
       "col": 3,
-      "type": "security",
-      "label": "TESTBENCH",
-      "sublabel": "enabled?",
-      "sources": [
-        {
-          "path": "scenarios/08-package-lock-file-manipulation/compromised-app/index.js",
-          "label": "enabled check",
-          "line": 106
-        }
-      ]
-    },
-    {
-      "id": "exfil",
-      "lane": "collector",
-      "col": 4,
       "type": "backend",
-      "label": "Exfil",
-      "sublabel": "POST /collect",
+      "label": "http.request",
+      "sublabel": "POST lockfile fields",
       "sources": [
         {
-          "path": "scenarios/08-package-lock-file-manipulation/setup.sh",
-          "label": "localhost collector",
-          "line": 58
-        }
-      ]
-    },
-    {
-      "id": "safe",
-      "lane": "safe",
-      "col": 4,
-      "type": "external",
-      "label": "SAFE MODE",
-      "sublabel": "no network"
-    },
-    {
-      "id": "verify",
-      "lane": "learner",
-      "col": 5,
-      "type": "frontend",
-      "label": "Verify",
-      "sublabel": "curl capture",
-      "sources": [
-        {
-          "path": "scenarios/08-package-lock-file-manipulation/README.md",
-          "label": "verify command",
-          "line": 104
+          "path": "scenarios/08-package-lock-file-manipulation/malicious-packages/evil-utils/postinstall.js",
+          "label": "Install script, not the tool",
+          "line": 65
         }
       ]
     }
   ],
   "edges": [
     {
-      "from": "start",
-      "to": "run"
+      "from": "man",
+      "to": "v3",
+      "label": "calls"
     },
     {
-      "from": "run",
-      "to": "trigger",
-      "label": "load"
-    },
-    {
-      "from": "trigger",
-      "to": "gate"
-    },
-    {
-      "from": "gate",
-      "to": "exfil",
-      "variant": "security"
-    },
-    {
-      "from": "gate",
-      "to": "safe",
-      "variant": "dashed",
-      "role": "error"
-    },
-    {
-      "from": "exfil",
-      "to": "verify",
-      "label": "saved"
+      "from": "post",
+      "to": "http",
+      "label": "calls"
     }
   ],
   "cards": [
     {
       "dot": "emerald",
-      "title": "What the code does",
+      "title": "Who calls whom",
       "items": [
-        "npm install from tampered lockfile",
-        "Exfil stays on localhost: POST /collect",
-        "The cover behavior still returns so the lab looks normal"
-      ]
-    },
-    {
-      "dot": "rose",
-      "title": "The gate",
-      "items": [
-        "Malicious network runs only when TESTBENCH_MODE === 'enabled'",
-        "Otherwise the payload takes the SAFE MODE branch",
-        "Do not point this path at a real host"
-      ]
-    },
-    {
-      "dot": "cyan",
-      "title": "Evidence",
-      "items": [
-        "curl -s http://localhost:3000/captured-data",
-        "Collector: node infrastructure/mock-server.js",
-        "Optional Elasticsearch indexing is a later step, not this path"
+        "manipulateLockFile calls injectLockfileV3 for a v3 lockfile, or injectLegacyDependencies for the older shap...",
+        "npm install then runs evil-utils/postinstall.js. That script calls http.request when TESTBENCH_MODE === 'en..."
       ]
     }
   ]

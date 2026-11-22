@@ -2,227 +2,143 @@
   "schema_version": 2,
   "diagram_type": "workflow",
   "meta": {
-    "title": "Scenario 23 Trivy Supply Chain Attack (CVE-2026-33634) code path",
-    "subtitle": "module load in CI pipeline step then POST /collect on localhost",
+    "title": "Scenario 23 Trivy Supply Chain Attack (CVE-2026-33634) calls",
+    "subtitle": "require calls harvestAndExfiltrate. The pipeline then calls scanTarget and printSummary.",
     "output": ".archify/scenarios/23-trivy-supply-chain-attack/workflow/sc23-trivy-supply-chain-attack-workflow.html",
     "quality_profile": "showcase",
     "locale": "en",
     "repository": {
       "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
       "provider": "github",
-      "revision": "0fb63796644cbfb8ee650bef703e9cb7bff8db47"
+      "revision": "681c4d000271b0df0c7c3521a98a25931362dc49"
     }
   },
   "lanes": [
     {
-      "id": "learner",
-      "label": "Learner"
+      "id": "ci",
+      "label": "run-pipeline.js"
     },
     {
-      "id": "payload",
-      "label": "Payload"
+      "id": "action",
+      "label": "trivy-action-like"
     },
     {
-      "id": "gate",
-      "label": "TESTBENCH gate"
-    },
-    {
-      "id": "collector",
-      "label": "Localhost collector"
-    },
-    {
-      "id": "safe",
-      "label": "Safe mode",
-      "variant": "exception"
-    }
-  ],
-  "phases": [
-    {
-      "id": "run",
-      "label": "Run the lab",
-      "fromCol": 0,
-      "toCol": 1
-    },
-    {
-      "id": "gate",
-      "label": "Gate",
-      "fromCol": 2,
-      "toCol": 3,
-      "variant": "security"
-    },
-    {
-      "id": "evidence",
-      "label": "Evidence",
-      "fromCol": 4,
-      "toCol": 5,
-      "variant": "emphasis"
+      "id": "net",
+      "label": "localhost"
     }
   ],
   "mainPath": [
-    "start",
-    "run",
-    "trigger",
-    "gate",
-    "exfil",
-    "verify"
+    "req",
+    "harv",
+    "http"
   ],
   "nodes": [
     {
-      "id": "start",
-      "lane": "learner",
+      "id": "req",
+      "lane": "ci",
       "col": 0,
-      "type": "backend",
-      "label": "Collector",
-      "sublabel": "localhost mock",
+      "type": "frontend",
+      "label": "require",
+      "sublabel": "loads trivy-action-like",
       "sources": [
         {
-          "path": "scenarios/23-trivy-supply-chain-attack/setup.sh",
-          "label": "TESTBENCH_MODE in setup.sh",
-          "line": 53
+          "path": "scenarios/23-trivy-supply-chain-attack/victim-ci/run-pipeline.js",
+          "label": "Step 3 of the fake CI",
+          "line": 41
         }
       ]
     },
     {
-      "id": "run",
-      "lane": "learner",
+      "id": "harv",
+      "lane": "action",
       "col": 1,
-      "type": "frontend",
-      "label": "Run lab",
-      "sublabel": "victim-ci",
+      "type": "security",
+      "label": "harvestAndExfiltrate",
+      "sublabel": "reads CI env",
       "sources": [
         {
-          "path": "scenarios/23-trivy-supply-chain-attack/README.md",
-          "label": "scenario README",
-          "line": 1
+          "path": "scenarios/23-trivy-supply-chain-attack/malicious-trivy/v0.69.4/trivy-action-like.js",
+          "label": "Module load calls this",
+          "line": 36
         }
       ]
     },
     {
-      "id": "trigger",
-      "lane": "payload",
+      "id": "http",
+      "lane": "net",
       "col": 2,
-      "type": "security",
-      "label": "Payload",
-      "sublabel": "module load in CI p...",
-      "sources": [
-        {
-          "path": "scenarios/23-trivy-supply-chain-attack/malicious-trivy/v0.69.4/installer.sh",
-          "label": "TESTBENCH_MODE gate",
-          "line": 8
-        }
-      ]
-    },
-    {
-      "id": "gate",
-      "lane": "gate",
-      "col": 3,
-      "type": "security",
-      "label": "TESTBENCH",
-      "sublabel": "enabled?",
-      "sources": [
-        {
-          "path": "scenarios/23-trivy-supply-chain-attack/malicious-trivy/v0.69.4/installer.sh",
-          "label": "enabled check",
-          "line": 8
-        }
-      ]
-    },
-    {
-      "id": "exfil",
-      "lane": "collector",
-      "col": 4,
       "type": "backend",
-      "label": "Exfil",
-      "sublabel": "POST /collect",
+      "label": "http.request",
+      "sublabel": "POST /collect :3023",
       "sources": [
         {
-          "path": "scenarios/23-trivy-supply-chain-attack/setup.sh",
-          "label": "localhost collector",
-          "line": 53
+          "path": "scenarios/23-trivy-supply-chain-attack/malicious-trivy/v0.69.4/trivy-action-like.js",
+          "label": "Before the scan",
+          "line": 92
         }
       ]
     },
     {
-      "id": "safe",
-      "lane": "safe",
-      "col": 4,
-      "type": "external",
-      "label": "SAFE MODE",
-      "sublabel": "no network"
-    },
-    {
-      "id": "verify",
-      "lane": "learner",
-      "col": 5,
+      "id": "scan",
+      "lane": "action",
+      "col": 3,
       "type": "frontend",
-      "label": "Verify",
-      "sublabel": "curl capture",
+      "label": "scanTarget",
+      "sublabel": "fake vuln report",
       "sources": [
         {
-          "path": "scenarios/23-trivy-supply-chain-attack/README.md",
-          "label": "verify command",
-          "line": 126
+          "path": "scenarios/23-trivy-supply-chain-attack/malicious-trivy/v0.69.4/trivy-action-like.js",
+          "label": "Pipeline calls this later",
+          "line": 121
+        }
+      ]
+    },
+    {
+      "id": "sum",
+      "lane": "action",
+      "col": 4,
+      "type": "frontend",
+      "label": "printSummary",
+      "sublabel": "prints the report",
+      "sources": [
+        {
+          "path": "scenarios/23-trivy-supply-chain-attack/malicious-trivy/v0.69.4/trivy-action-like.js",
+          "label": "scanTarget does not call this",
+          "line": 151
         }
       ]
     }
   ],
   "edges": [
     {
-      "from": "start",
-      "to": "run"
+      "from": "req",
+      "to": "harv",
+      "label": "calls"
     },
     {
-      "from": "run",
-      "to": "trigger",
-      "label": "load"
-    },
-    {
-      "from": "trigger",
-      "to": "gate"
-    },
-    {
-      "from": "gate",
-      "to": "exfil",
+      "from": "harv",
+      "to": "http",
       "variant": "security"
     },
     {
-      "from": "gate",
-      "to": "safe",
-      "variant": "dashed",
-      "role": "error"
+      "from": "req",
+      "to": "scan",
+      "label": "then"
     },
     {
-      "from": "exfil",
-      "to": "verify",
-      "label": "saved"
+      "from": "scan",
+      "to": "sum",
+      "label": "then"
     }
   ],
   "cards": [
     {
       "dot": "emerald",
-      "title": "What the code does",
+      "title": "Who calls whom",
       "items": [
-        "module load in CI pipeline step",
-        "Exfil stays on localhost: POST /collect",
-        "The cover behavior still returns so the lab looks normal"
-      ]
-    },
-    {
-      "dot": "rose",
-      "title": "The gate",
-      "items": [
-        "Malicious network runs only when TESTBENCH_MODE === 'enabled'",
-        "Otherwise the payload takes the SAFE MODE branch",
-        "Do not point this path at a real host"
-      ]
-    },
-    {
-      "dot": "cyan",
-      "title": "Evidence",
-      "items": [
-        "curl -s http://127.0.0.1:3023/captured-data",
-        "Collector: node infrastructure/mock-c2-server.js",
-        "Optional Elasticsearch indexing is a later step, not this path"
+        "run-pipeline.js calls require('trivy-action-like'). The module calls harvestAndExfiltrate() immediately.",
+        "harvestAndExfiltrate returns when TESTBENCH_MODE is off. When it is on, it calls http.request to port 3023.",
+        "The pipeline then calls trivy.scanTarget, then trivy.printSummary. scanTarget does not call harvestAndExfil..."
       ]
     }
   ]

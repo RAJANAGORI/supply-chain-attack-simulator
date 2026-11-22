@@ -23,6 +23,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { CHAINS: CALL_CHAINS } = require('./scenario-call-chains');
 
 const ROOT = path.resolve(__dirname, '../..');
 const { SCENARIO_DIAGRAMS } = require('../../detection-tools/es/scenario-diagram-steps');
@@ -683,16 +684,14 @@ ${hEdge(980, 1987, 1060, 'also', { color: C.gate.stroke, marker: '#arrowhead-gat
 }
 
 function codePathNotes(scenario) {
-  return [
-    'Same path as the diagram:',
-    '',
-    `1. Collector. Start the localhost mock with \`${scenario.mock_start}\`.`,
-    `2. Run lab. \`${scenario.lab_run}\` (${scenario.victim_label}).`,
-    `3. Payload. ${scenario.trigger_action}. The cover behavior still returns, so the lab looks normal.`,
-    "4. TESTBENCH. The malicious call runs only when `TESTBENCH_MODE === 'enabled'`. If it is off, the payload takes SAFE MODE and does not open the network. Do not point this path at a real host.",
-    `5. Exfil. \`${scenario.mock_endpoint}\` stays on localhost. Verify with \`${scenario.verify_cli}\`. Elasticsearch indexing is a later step, not this path.`,
-    '',
-  ].join('\n');
+  const chain = CALL_CHAINS[scenario.scenario_id];
+  if (!chain) return '';
+  const lines = ['Calls in this lab:', ''];
+  chain.notes.forEach((note, index) => {
+    lines.push(`${index + 1}. ${note}`);
+  });
+  lines.push('');
+  return lines.join('\n');
 }
 
 function codeflowSectionMarkdown(scenario) {
@@ -706,7 +705,7 @@ function codeflowSectionMarkdown(scenario) {
     '',
     `<iframe class="archify-embed" title="Scenario ${id} code-level workflow" src="${site}" loading="lazy"></iframe>`,
     '',
-    `<p class="archify-embed-caption">Code path for Scenario ${id}: collector, lab run, payload, the TESTBENCH gate, localhost exfil or SAFE MODE, then verify. <a href="${site}" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="${github}" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>`,
+    `<p class="archify-embed-caption">${CALL_CHAINS[id].blurb} <a href="${site}" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="${github}" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>`,
     '',
     codePathNotes(scenario),
     '',

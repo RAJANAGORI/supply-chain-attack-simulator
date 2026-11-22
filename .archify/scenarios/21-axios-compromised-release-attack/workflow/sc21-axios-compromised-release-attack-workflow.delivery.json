@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "d744fa68-8633-4d06-bbe1-b1adeed066e3",
+  "receiptId": "905582bc-eed1-48c4-a6f4-f7ef49a473cf",
   "status": "current",
   "command": "deliver",
   "type": "workflow",
   "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/21-axios-compromised-release-attack/workflow/candidate.json",
   "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/21-axios-compromised-release-attack/workflow/sc21-axios-compromised-release-attack-workflow.html",
   "specification": {
-    "sha256": "de43f658b404fe44fb715eead7997ab8f695da396bb3c3d0137fc1d2b9a61374",
-    "bytes": 5040
+    "sha256": "9b1d6a165f8cc4bf18fced5802b2786d6031d0cd06417a225f3a3705f88a2840",
+    "bytes": 2934
   },
   "artifact": {
-    "sha256": "0ea7c997741183f045d5615fb8bbf63876b66c43c3482927caa4abfc12bb14ce",
-    "bytes": 820341
+    "sha256": "f5cadc658f5df94ce91af1bf1097acf7193d6d6286e7ed4d2a524888bc11934a",
+    "bytes": 812085
   }
 }

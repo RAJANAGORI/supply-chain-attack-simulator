@@ -5,16 +5,16 @@
   "status": "pass",
   "type": "workflow",
   "quality": "showcase",
-  "startedAt": "2026-11-22T10:10:36.197Z",
+  "startedAt": "2026-11-22T18:20:12.754Z",
   "specification": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/06-sha-hulud/workflow/candidate.json",
-    "sha256": "bf714595b446dcdd0cfd50269ba7ea3577995aee90f9295f4f436a71b4444d15",
-    "bytes": 5032
+    "sha256": "44a980f2f7bceac27afba97f7b6fc095974e9f872985da7bfffc167f128c730d",
+    "bytes": 3606
   },
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.html",
-    "sha256": "dcc7a95b13f22109bc43182d319fc09442474f92ab55bc3842a998b770868dfb",
-    "bytes": 820304
+    "sha256": "f667284d8b490ef56204dad192ffbbca6afef2cdc4da0b6329470b9722a1b0a6",
+    "bytes": 815622
   },
   "stages": {
     "validate": {
@@ -40,8 +40,8 @@
         "ok": true,
         "command": "validate",
         "specification": {
-          "sha256": "bf714595b446dcdd0cfd50269ba7ea3577995aee90f9295f4f436a71b4444d15",
-          "bytes": 5032
+          "sha256": "44a980f2f7bceac27afba97f7b6fc095974e9f872985da7bfffc167f128c730d",
+          "bytes": 3606
         },
         "validation": {
           "checksPassed": 9,
@@ -56,7 +56,7 @@
     "deliver": {
       "status": "pass",
       "exitCode": 0,
-      "durationMs": 847,
+      "durationMs": 3585,
       "command": [
         "/Users/rajanagori/.nvm/versions/node/v22.15.0/bin/node",
         "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.agents/skills/archify/bin/archify.mjs",
@@ -72,19 +72,19 @@
       ],
       "receipt": {
         "schemaVersion": 1,
-        "receiptId": "2e03b999-c673-4d1a-bcbb-5e2de285cc5a",
+        "receiptId": "2d22222a-1726-4857-b81f-b77395e68fb4",
         "ok": true,
         "command": "deliver",
         "type": "workflow",
         "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/06-sha-hulud/workflow/candidate.json",
         "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.html",
         "specification": {
-          "sha256": "bf714595b446dcdd0cfd50269ba7ea3577995aee90f9295f4f436a71b4444d15",
-          "bytes": 5032
+          "sha256": "44a980f2f7bceac27afba97f7b6fc095974e9f872985da7bfffc167f128c730d",
+          "bytes": 3606
         },
         "artifact": {
-          "sha256": "dcc7a95b13f22109bc43182d319fc09442474f92ab55bc3842a998b770868dfb",
-          "bytes": 820304
+          "sha256": "f667284d8b490ef56204dad192ffbbca6afef2cdc4da0b6329470b9722a1b0a6",
+          "bytes": 815622
         },
         "validation": {
           "checksPassed": 9,
@@ -97,8 +97,8 @@
         "evidence": {
           "verified": true,
           "repository": "https://github.com/RAJANAGORI/supply-chain-attack-simulator",
-          "revision": "0fb63796644cbfb8ee650bef703e9cb7bff8db47",
-          "references": 6
+          "revision": "681c4d000271b0df0c7c3521a98a25931362dc49",
+          "references": 5
         },
         "update": {
           "status": "unavailable",
@@ -116,7 +116,7 @@
     "check": {
       "status": "pass",
       "exitCode": 0,
-      "durationMs": 255,
+      "durationMs": 816,
       "command": [
         "/Users/rajanagori/.nvm/versions/node/v22.15.0/bin/node",
         "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.agents/skills/archify/bin/archify.mjs",
@@ -128,8 +128,8 @@
         "ok": true,
         "file": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.html",
         "artifact": {
-          "sha256": "dcc7a95b13f22109bc43182d319fc09442474f92ab55bc3842a998b770868dfb",
-          "bytes": 820304
+          "sha256": "f667284d8b490ef56204dad192ffbbca6afef2cdc4da0b6329470b9722a1b0a6",
+          "bytes": 815622
         },
         "checks": [
           {
@@ -196,18 +196,18 @@
             "containerBorderRuns": 0,
             "labelRouteClearanceIssues": 0,
             "labelCanvasOverflowIssues": 0,
-            "minLabelRouteClearance": 75.2,
+            "minLabelRouteClearance": 51,
             "desktopReadabilityIssues": 0,
             "viewportHeightIssues": 0,
-            "minProjectedNodeTextPx": 6.3,
+            "minProjectedNodeTextPx": 6.6,
             "maxBends": 0,
             "routesOverSuggestedBends": 0,
             "maxStretch": 1,
             "routesOverSuggestedStretch": 0,
-            "minSegmentPx": 32,
+            "minSegmentPx": 8,
             "minInteriorSegmentPx": null,
-            "shortSegmentCount": 0,
-            "shortEndpointSegmentCount": 0,
+            "shortSegmentCount": 3,
+            "shortEndpointSegmentCount": 3,
             "shortInteriorSegmentCount": 0,
             "microSegmentCount": 0
           },
@@ -237,22 +237,22 @@
             "hardFloorMet": true,
             "minimumOwner": {
               "kind": "node",
-              "id": "trigger"
+              "id": "run"
             },
-            "minimumSourceTextPx": 6.3,
-            "minimumProjectedTextPx": 6.3,
-            "semanticTextCount": 16
+            "minimumSourceTextPx": 6.6,
+            "minimumProjectedTextPx": 6.6,
+            "semanticTextCount": 14
           },
           "issues": []
         },
         "provenance": "current",
-        "deliveryReceiptId": "2e03b999-c673-4d1a-bcbb-5e2de285cc5a"
+        "deliveryReceiptId": "2d22222a-1726-4857-b81f-b77395e68fb4"
       }
     },
     "browser-check": {
       "status": "pass",
       "exitCode": 0,
-      "durationMs": 3216,
+      "durationMs": 19055,
       "command": [
         "/Users/rajanagori/.nvm/versions/node/v22.15.0/bin/node",
         "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.agents/skills/archify/bin/archify.mjs",
@@ -270,11 +270,11 @@
         "status": "pass",
         "visualReview": "not-requested",
         "provenance": "current",
-        "deliveryReceiptId": "2e03b999-c673-4d1a-bcbb-5e2de285cc5a",
+        "deliveryReceiptId": "2d22222a-1726-4857-b81f-b77395e68fb4",
         "artifact": {
           "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.html",
-          "sha256": "dcc7a95b13f22109bc43182d319fc09442474f92ab55bc3842a998b770868dfb",
-          "bytes": 820304
+          "sha256": "f667284d8b490ef56204dad192ffbbca6afef2cdc4da0b6329470b9722a1b0a6",
+          "bytes": 815622
         },
         "state": {
           "detail": "read",
@@ -306,7 +306,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1376,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 12,
                 "headerPx": 78,
@@ -315,16 +315,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -335,7 +333,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -346,7 +344,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -357,7 +355,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -368,21 +366,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -415,7 +413,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1536,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 64,
                 "headerPx": 86,
@@ -424,16 +422,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -444,7 +440,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -455,7 +451,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -466,7 +462,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -477,21 +473,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -524,7 +520,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1856,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 64,
                 "headerPx": 86,
@@ -533,16 +529,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -553,7 +547,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -564,7 +558,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -575,7 +569,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -586,21 +580,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -633,7 +627,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1920,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 64,
                 "headerPx": 94,
@@ -642,16 +636,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -662,7 +654,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -673,7 +665,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -684,7 +676,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -695,21 +687,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -795,7 +787,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1376,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 12,
                 "headerPx": 78,
@@ -804,16 +796,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -824,7 +814,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -835,7 +825,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -846,7 +836,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -857,21 +847,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -904,7 +894,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1536,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 64,
                 "headerPx": 86,
@@ -913,16 +903,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -933,7 +921,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -944,7 +932,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -955,7 +943,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -966,21 +954,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -1013,7 +1001,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1856,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 64,
                 "headerPx": 86,
@@ -1022,16 +1010,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1042,7 +1028,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1053,7 +1039,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1064,7 +1050,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1075,21 +1061,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -1122,7 +1108,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1920,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 64,
                 "headerPx": 94,
@@ -1131,16 +1117,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1151,7 +1135,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1162,7 +1146,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1173,7 +1157,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1184,21 +1168,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -1236,7 +1220,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1376,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 12,
                 "headerPx": 78,
@@ -1245,16 +1229,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1265,7 +1247,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1276,7 +1258,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1287,7 +1269,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1298,21 +1280,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -1345,7 +1327,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1536,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 64,
                 "headerPx": 86,
@@ -1354,16 +1336,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1374,7 +1354,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1385,7 +1365,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1396,7 +1376,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1407,21 +1387,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -1454,7 +1434,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1856,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 64,
                 "headerPx": 86,
@@ -1463,16 +1443,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1483,7 +1461,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1494,7 +1472,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1505,7 +1483,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1516,21 +1494,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -1563,7 +1541,7 @@
               "readerFit": "width-first",
               "ok": true,
               "readerWidth": 1920,
-              "diagramWidth": 1158,
+              "diagramWidth": 1152,
               "pageComposition": {
                 "bodyPaddingPx": 64,
                 "headerPx": 94,
@@ -1572,16 +1550,14 @@
                 "cardsPx": 0,
                 "viewBoxHeight": 776
               },
-              "viewBoxWidth": 772,
+              "viewBoxWidth": 768,
               "workflowLanes": [
                 {
                   "frameId": "lane-0",
                   "heightPx": 156,
-                  "nodeCount": 3,
+                  "nodeCount": 1,
                   "nodeIds": [
-                    "start",
-                    "run",
-                    "verify"
+                    "run"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1592,7 +1568,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "trigger"
+                    "read"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1603,7 +1579,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "gate"
+                    "disc"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1614,7 +1590,7 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "exfil"
+                    "post"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
@@ -1625,21 +1601,21 @@
                   "heightPx": 156,
                   "nodeCount": 1,
                   "nodeIds": [
-                    "safe"
+                    "sim"
                   ],
                   "nodeSpanPx": 78,
                   "spaceAboveNodesPx": 62,
                   "spaceBelowNodesPx": 17
                 }
               ],
-              "minimumProjectedNodeTextPx": 6.3,
-              "minimumProjectedNonEdgeTextPx": 6.3,
+              "minimumProjectedNodeTextPx": 6.6,
+              "minimumProjectedNonEdgeTextPx": 6.6,
               "minimumProjectedEdgeTextPx": 8,
-              "minimumProjectedNodeText": "postinstall harvest...",
+              "minimumProjectedNodeText": "postinstall calls run",
               "minimumProjectedNodeTextDetail": "context",
               "minimumProjectedNodeTextOwner": {
                 "kind": "node",
-                "id": "trigger"
+                "id": "run"
               },
               "minimumRequiredNodeTextPx": 6,
               "readabilityOk": true,
@@ -1680,8 +1656,8 @@
     "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.browser-check.json"
   },
   "visualReview": "not-requested",
-  "finishedAt": "2026-11-22T10:10:40.925Z",
-  "durationMs": 4728,
+  "finishedAt": "2026-11-22T18:20:40.169Z",
+  "durationMs": 27414,
   "update": {
     "status": "current",
     "installedVersion": "3.2.0",

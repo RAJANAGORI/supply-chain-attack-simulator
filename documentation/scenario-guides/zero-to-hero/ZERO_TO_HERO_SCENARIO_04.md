@@ -391,15 +391,12 @@ Always review changelogs before updating:
 
 <iframe class="archify-embed" title="Scenario 04 code-level workflow" src="archify/scenarios/04-malicious-update/workflow/sc04-malicious-update-workflow.html" loading="lazy"></iframe>
 
-<p class="archify-embed-caption">Code path for Scenario 04: collector, lab run, payload, the TESTBENCH gate, localhost exfil or SAFE MODE, then verify. <a href="archify/scenarios/04-malicious-update/workflow/sc04-malicious-update-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/04-malicious-update/workflow/sc04-malicious-update-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
+<p class="archify-embed-caption">Loading utils-helper calls exfiltrateData. <a href="archify/scenarios/04-malicious-update/workflow/sc04-malicious-update-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/04-malicious-update/workflow/sc04-malicious-update-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
 
-Same path as the diagram:
+Calls in this lab:
 
-1. Collector. Start the localhost mock with `node infrastructure/mock-server.js`.
-2. Run lab. `cd victim-app && npm update && npm start` (victim-app (npm start)).
-3. Payload. npm update pulls trojanized version. The cover behavior still returns, so the lab looks normal.
-4. TESTBENCH. The malicious call runs only when `TESTBENCH_MODE === 'enabled'`. If it is off, the payload takes SAFE MODE and does not open the network. Do not point this path at a real host.
-5. Exfil. `POST /collect` stays on localhost. Verify with `curl -s http://localhost:3000/captured-data`. Elasticsearch indexing is a later step, not this path.
+1. Requiring `utils-helper` after the malicious update calls `exfiltrateData()`.
+2. `exfiltrateData` returns when `TESTBENCH_MODE` is off. When it is on, it calls `http.request` (`POST /collect` on localhost) with the update version and a few env fields.
 
 ## Mitigation Playbook
 

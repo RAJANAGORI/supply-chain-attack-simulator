@@ -584,15 +584,12 @@ Implement Multiple Layers:
 
 <iframe class="archify-embed" title="Scenario 16 code-level workflow" src="archify/scenarios/16-package-cache-poisoning/workflow/sc16-package-cache-poisoning-workflow.html" loading="lazy"></iframe>
 
-<p class="archify-embed-caption">Code path for Scenario 16: collector, lab run, payload, the TESTBENCH gate, localhost exfil or SAFE MODE, then verify. <a href="archify/scenarios/16-package-cache-poisoning/workflow/sc16-package-cache-poisoning-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/16-package-cache-poisoning/workflow/sc16-package-cache-poisoning-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
+<p class="archify-embed-caption">install-from-cache calls copyDir. Loading cache-lib calls http.request. <a href="archify/scenarios/16-package-cache-poisoning/workflow/sc16-package-cache-poisoning-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/16-package-cache-poisoning/workflow/sc16-package-cache-poisoning-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
 
-Same path as the diagram:
+Calls in this lab:
 
-1. Collector. Start the localhost mock with `node infrastructure/mock-server.js`.
-2. Run lab. `cd victim-app && npm install && npm install && npm start` (victim-app (npm install + npm start)).
-3. Payload. repeated npm install loads poisoned cache. The cover behavior still returns, so the lab looks normal.
-4. TESTBENCH. The malicious call runs only when `TESTBENCH_MODE === 'enabled'`. If it is off, the payload takes SAFE MODE and does not open the network. Do not point this path at a real host.
-5. Exfil. `POST /collect` stays on localhost. Verify with `curl -s http://127.0.0.1:3016/captured-data`. Elasticsearch indexing is a later step, not this path.
+1. `install-from-cache.js` calls `copyDir`, which copies `cache/cache-lib` into `node_modules`.
+2. The next step is a require of `cache-lib`, not a call from `copyDir`. The module body calls `http.request` to port 3016 when `TESTBENCH_MODE === 'enabled'`, and it also appends the same payload to `captured-data.json`.
 
 ## Mitigation Playbook
 

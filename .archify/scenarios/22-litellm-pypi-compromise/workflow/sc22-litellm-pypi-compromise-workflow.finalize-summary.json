@@ -7,13 +7,13 @@
   "quality": "showcase",
   "specification": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/22-litellm-pypi-compromise/workflow/candidate.json",
-    "sha256": "9b70df253ca8500c555a3dc5daa32a88ac28c00f259a0a23b0a6b94fcbeb8ada",
-    "bytes": 4993
+    "sha256": "48773802c64d38fe65aca1bf1df3d46255dbc3afdd22aeb2943ed0e611e4261f",
+    "bytes": 3130
   },
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/22-litellm-pypi-compromise/workflow/sc22-litellm-pypi-compromise-workflow.html",
-    "sha256": "833396605210514b4c60b006aa0a5d0f8e410a1507873b55bd2eae6d0410f94f",
-    "bytes": 820288
+    "sha256": "4ab5404a99ff48db344fb8cc613ebbc0e71999d336d4ff0a9c0db1decca567ce",
+    "bytes": 812890
   },
   "gates": {
     "validate": "pass",
@@ -43,7 +43,7 @@
     "noticeText": null
   },
   "visualReview": "not-requested",
-  "durationMs": 5994,
+  "durationMs": 3451,
   "browserCheck": {
     "requested": true,
     "ran": true

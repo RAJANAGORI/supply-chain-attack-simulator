@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "0d27ac6e-ef63-4d54-9b4b-bd9de54ff4a3",
+  "receiptId": "73d7bb31-b633-47b2-8f0f-4e0dc32ce23d",
   "status": "current",
   "command": "deliver",
   "type": "workflow",
   "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/17-multi-stage-attack-chain/workflow/candidate.json",
   "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/17-multi-stage-attack-chain/workflow/sc17-multi-stage-attack-chain-workflow.html",
   "specification": {
-    "sha256": "1a2fb91a1f0ef64e28f5da42add36a0999575f3758569e83db74717821c01e16",
-    "bytes": 4973
+    "sha256": "5184a5affc06eba13021705164d4040f23bd5e92d5380768707dbc9481b8c669",
+    "bytes": 3928
   },
   "artifact": {
-    "sha256": "2935f7252fd924412cf5a8f333bfc6e1fb05dfc13ce488e922bc5466d535c2bb",
-    "bytes": 820237
+    "sha256": "f3b62eff28ded875aef0b682aacaeb2b315eadef879b121168463ff27cc80d59",
+    "bytes": 817157
   }
 }

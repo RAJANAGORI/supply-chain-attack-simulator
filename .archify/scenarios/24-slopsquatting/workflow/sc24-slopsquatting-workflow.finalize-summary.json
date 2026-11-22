@@ -7,13 +7,13 @@
   "quality": "showcase",
   "specification": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/24-slopsquatting/workflow/candidate.json",
-    "sha256": "02c072de3cab1cfe60421518ce41db6f4aad566a9c20aedc7a9005bdf0d23649",
-    "bytes": 4884
+    "sha256": "0b6581363342d76bb22c0cbab9d6a1af55736fb82fcd2602f394679bed03e9c2",
+    "bytes": 3558
   },
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/24-slopsquatting/workflow/sc24-slopsquatting-workflow.html",
-    "sha256": "37286e7f6e692c01d8e6be72f1baf7fe486b8eac567d6860a35ad7e23f4b891c",
-    "bytes": 820089
+    "sha256": "d40a2539c1c118612430b35d75cb4c9b6b2e461769df51c3fc5dfb5bbca23ea7",
+    "bytes": 815196
   },
   "gates": {
     "validate": "pass",
@@ -43,7 +43,7 @@
     "noticeText": null
   },
   "visualReview": "not-requested",
-  "durationMs": 5131,
+  "durationMs": 3003,
   "browserCheck": {
     "requested": true,
     "ran": true

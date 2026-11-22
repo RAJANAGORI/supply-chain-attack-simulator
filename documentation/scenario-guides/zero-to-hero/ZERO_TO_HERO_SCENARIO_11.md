@@ -657,15 +657,12 @@ Implement multiple layers:
 
 <iframe class="archify-embed" title="Scenario 11 code-level workflow" src="archify/scenarios/11-registry-mirror-poisoning/workflow/sc11-registry-mirror-poisoning-workflow.html" loading="lazy"></iframe>
 
-<p class="archify-embed-caption">Code path for Scenario 11: collector, lab run, payload, the TESTBENCH gate, localhost exfil or SAFE MODE, then verify. <a href="archify/scenarios/11-registry-mirror-poisoning/workflow/sc11-registry-mirror-poisoning-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/11-registry-mirror-poisoning/workflow/sc11-registry-mirror-poisoning-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
+<p class="archify-embed-caption">enterprise-utils postinstall calls http.request. <a href="archify/scenarios/11-registry-mirror-poisoning/workflow/sc11-registry-mirror-poisoning-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/11-registry-mirror-poisoning/workflow/sc11-registry-mirror-poisoning-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
 
-Same path as the diagram:
+Calls in this lab:
 
-1. Collector. Start the localhost mock with `node infrastructure/mock-server.js`.
-2. Run lab. `cd corporate-app && npm install && npm start` (corporate-app (npm install + npm start)).
-3. Payload. npm install from compromised-mirror/. The cover behavior still returns, so the lab looks normal.
-4. TESTBENCH. The malicious call runs only when `TESTBENCH_MODE === 'enabled'`. If it is off, the payload takes SAFE MODE and does not open the network. Do not point this path at a real host.
-5. Exfil. `POST /collect` stays on localhost. Verify with `curl -s http://localhost:3000/captured-data`. Elasticsearch indexing is a later step, not this path.
+1. The poisoned mirror package `enterprise-utils` has no named function. npm calls `postinstall`.
+2. That script calls `http.request` when `TESTBENCH_MODE === 'enabled'`. `secure-lib/postinstall.js` in the same mirror is a second, smaller script and is not called by this one.
 
 ## Mitigation Playbook
 

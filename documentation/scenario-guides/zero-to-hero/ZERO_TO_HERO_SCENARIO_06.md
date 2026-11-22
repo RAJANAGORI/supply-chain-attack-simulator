@@ -224,15 +224,13 @@ The full step-by-step implementation flow lives in the [scenario README](../../.
 
 <iframe class="archify-embed" title="Scenario 06 code-level workflow" src="archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.html" loading="lazy"></iframe>
 
-<p class="archify-embed-caption">Code path for Scenario 06: collector, lab run, payload, the TESTBENCH gate, localhost exfil or SAFE MODE, then verify. <a href="archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
+<p class="archify-embed-caption">postinstall calls run, and run calls the harvest, lockfile, publish, and spread functions. <a href="archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
 
-Same path as the diagram:
+Calls in this lab:
 
-1. Collector. Start the localhost mock with `cd infrastructure && node credential-harvester.js & node github-actions-simulator.js & node mock-registry.js`.
-2. Run lab. `cd victim-app && npm install && npm start` (victim-app (npm install)).
-3. Payload. postinstall harvests tokens, then republishes @victim-org/* from the lockfile. The cover behavior still returns, so the lab looks normal.
-4. TESTBENCH. The malicious call runs only when `TESTBENCH_MODE === 'enabled'`. If it is off, the payload takes SAFE MODE and does not open the network. Do not point this path at a real host.
-5. Exfil. `POST /collect` stays on localhost. Verify with `curl -s http://localhost:3001/captured-credentials; curl -s http://localhost:3003/published-packages; curl -s http://localhost:3002/backdoor-prs`. Elasticsearch indexing is a later step, not this path.
+1. The postinstall script calls `run()`. `run` returns immediately when `TESTBENCH_MODE` is off.
+2. `run` calls `readFileSafe` on `.npmrc`, then `postJson` with the harvest, then `discoverTargetPackages` on the lockfile.
+3. For each discovered package, `run` calls `postJson` again (registry and the GitHub sim). It then calls `simulateTemporalSpread`. `infectPackage` is defined in this file and is not called.
 
 ## Elasticsearch + Kibana observability (optional)
 

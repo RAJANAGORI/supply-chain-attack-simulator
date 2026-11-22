@@ -6,11 +6,11 @@
   "status": "pass",
   "visualReview": "not-requested",
   "provenance": "current",
-  "deliveryReceiptId": "0d27ac6e-ef63-4d54-9b4b-bd9de54ff4a3",
+  "deliveryReceiptId": "73d7bb31-b633-47b2-8f0f-4e0dc32ce23d",
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/17-multi-stage-attack-chain/workflow/sc17-multi-stage-attack-chain-workflow.html",
-    "sha256": "2935f7252fd924412cf5a8f333bfc6e1fb05dfc13ce488e922bc5466d535c2bb",
-    "bytes": 820237
+    "sha256": "f3b62eff28ded875aef0b682aacaeb2b315eadef879b121168463ff27cc80d59",
+    "bytes": 817157
   },
   "state": {
     "detail": "read",
@@ -32,7 +32,7 @@
         "innerWidth": 1440,
         "innerHeight": 900,
         "scrollWidth": 1440,
-        "scrollHeight": 1332,
+        "scrollHeight": 1146,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -42,25 +42,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1376,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 12,
           "headerPx": 78,
           "diagramChromePx": 78,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -69,9 +67,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -80,9 +79,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -93,32 +93,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -141,7 +130,7 @@
         "innerWidth": 1600,
         "innerHeight": 1000,
         "scrollWidth": 1600,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -151,25 +140,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1536,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -178,9 +165,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -189,9 +177,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -202,32 +191,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -250,7 +228,7 @@
         "innerWidth": 1920,
         "innerHeight": 1080,
         "scrollWidth": 1920,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -260,25 +238,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1856,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -287,9 +263,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -298,9 +275,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -311,32 +289,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -359,35 +326,33 @@
         "innerWidth": 2048,
         "innerHeight": 1320,
         "scrollWidth": 2048,
-        "scrollHeight": 1416,
+        "scrollHeight": 1320,
         "overflowX": false,
-        "overflowY": true,
-        "verticalScrollAccepted": true,
-        "overflowDisposition": "readable-vertical-scroll",
+        "overflowY": false,
+        "verticalScrollAccepted": false,
+        "overflowDisposition": "contained",
         "readerLayout": "adaptive",
-        "readerOverflow": "authored",
+        "readerOverflow": null,
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1920,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 94,
-          "diagramChromePx": 94,
-          "svgPx": 1164,
+          "diagramChromePx": 172,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -396,9 +361,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -407,9 +373,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -420,32 +387,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -453,11 +409,11 @@
         "hasNavigationDock": true,
         "legendDockIntersectionArea": 0,
         "dockStageIntersectionArea": 0,
-        "dockStageGap": 10,
+        "dockStageGap": 27.15625,
         "requiredDockStageGap": 10,
         "viewerChromeStageOk": true,
-        "viewerChromeReserve": 44,
-        "viewerChromeActive": true,
+        "viewerChromeReserve": 0,
+        "viewerChromeActive": false,
         "viewerChromeOk": true,
         "resolvedTheme": "light"
       }
@@ -521,7 +477,7 @@
         "innerWidth": 1440,
         "innerHeight": 900,
         "scrollWidth": 1440,
-        "scrollHeight": 1332,
+        "scrollHeight": 1146,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -531,25 +487,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1376,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 12,
           "headerPx": 78,
           "diagramChromePx": 78,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -558,9 +512,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -569,9 +524,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -582,32 +538,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -630,7 +575,7 @@
         "innerWidth": 1600,
         "innerHeight": 1000,
         "scrollWidth": 1600,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -640,25 +585,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1536,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -667,9 +610,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -678,9 +622,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -691,32 +636,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -739,7 +673,7 @@
         "innerWidth": 1920,
         "innerHeight": 1080,
         "scrollWidth": 1920,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -749,25 +683,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1856,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -776,9 +708,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -787,9 +720,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -800,32 +734,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -848,35 +771,33 @@
         "innerWidth": 2048,
         "innerHeight": 1320,
         "scrollWidth": 2048,
-        "scrollHeight": 1416,
+        "scrollHeight": 1320,
         "overflowX": false,
-        "overflowY": true,
-        "verticalScrollAccepted": true,
-        "overflowDisposition": "readable-vertical-scroll",
+        "overflowY": false,
+        "verticalScrollAccepted": false,
+        "overflowDisposition": "contained",
         "readerLayout": "adaptive",
-        "readerOverflow": "authored",
+        "readerOverflow": null,
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1920,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 94,
-          "diagramChromePx": 94,
-          "svgPx": 1164,
+          "diagramChromePx": 172,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -885,9 +806,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -896,9 +818,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -909,32 +832,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -942,11 +854,11 @@
         "hasNavigationDock": true,
         "legendDockIntersectionArea": 0,
         "dockStageIntersectionArea": 0,
-        "dockStageGap": 10,
+        "dockStageGap": 27.15625,
         "requiredDockStageGap": 10,
         "viewerChromeStageOk": true,
-        "viewerChromeReserve": 44,
-        "viewerChromeActive": true,
+        "viewerChromeReserve": 0,
+        "viewerChromeActive": false,
         "viewerChromeOk": true,
         "resolvedTheme": "light"
       }
@@ -962,7 +874,7 @@
         "innerWidth": 1440,
         "innerHeight": 900,
         "scrollWidth": 1440,
-        "scrollHeight": 1332,
+        "scrollHeight": 1146,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -972,25 +884,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1376,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 12,
           "headerPx": 78,
           "diagramChromePx": 78,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -999,9 +909,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1010,9 +921,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1023,32 +935,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -1071,7 +972,7 @@
         "innerWidth": 1600,
         "innerHeight": 1000,
         "scrollWidth": 1600,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -1081,25 +982,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1536,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1108,9 +1007,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1119,9 +1019,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1132,32 +1033,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -1180,7 +1070,7 @@
         "innerWidth": 1920,
         "innerHeight": 1080,
         "scrollWidth": 1920,
-        "scrollHeight": 1398,
+        "scrollHeight": 1212,
         "overflowX": false,
         "overflowY": true,
         "verticalScrollAccepted": true,
@@ -1190,25 +1080,23 @@
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1856,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 86,
           "diagramChromePx": 84,
-          "svgPx": 1164,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1217,9 +1105,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1228,9 +1117,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1241,32 +1131,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -1289,35 +1168,33 @@
         "innerWidth": 2048,
         "innerHeight": 1320,
         "scrollWidth": 2048,
-        "scrollHeight": 1416,
+        "scrollHeight": 1320,
         "overflowX": false,
-        "overflowY": true,
-        "verticalScrollAccepted": true,
-        "overflowDisposition": "readable-vertical-scroll",
+        "overflowY": false,
+        "verticalScrollAccepted": false,
+        "overflowDisposition": "contained",
         "readerLayout": "adaptive",
-        "readerOverflow": "authored",
+        "readerOverflow": null,
         "readerFit": "width-first",
         "ok": true,
         "readerWidth": 1920,
-        "diagramWidth": 1158,
+        "diagramWidth": 1212,
         "pageComposition": {
           "bodyPaddingPx": 64,
           "headerPx": 94,
-          "diagramChromePx": 94,
-          "svgPx": 1164,
+          "diagramChromePx": 172,
+          "svgPx": 978,
           "cardsPx": 0,
-          "viewBoxHeight": 776
+          "viewBoxHeight": 652
         },
-        "viewBoxWidth": 772,
+        "viewBoxWidth": 808,
         "workflowLanes": [
           {
             "frameId": "lane-0",
             "heightPx": 156,
-            "nodeCount": 3,
+            "nodeCount": 1,
             "nodeIds": [
-              "start",
-              "run",
-              "verify"
+              "main"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1326,9 +1203,10 @@
           {
             "frameId": "lane-1",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "trigger"
+              "stage1",
+              "write"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1337,9 +1215,10 @@
           {
             "frameId": "lane-2",
             "heightPx": 156,
-            "nodeCount": 1,
+            "nodeCount": 2,
             "nodeIds": [
-              "gate"
+              "stage2",
+              "read"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
@@ -1350,32 +1229,21 @@
             "heightPx": 156,
             "nodeCount": 1,
             "nodeIds": [
-              "exfil"
-            ],
-            "nodeSpanPx": 78,
-            "spaceAboveNodesPx": 62,
-            "spaceBelowNodesPx": 17
-          },
-          {
-            "frameId": "lane-4",
-            "heightPx": 156,
-            "nodeCount": 1,
-            "nodeIds": [
-              "safe"
+              "post1"
             ],
             "nodeSpanPx": 78,
             "spaceAboveNodesPx": 62,
             "spaceBelowNodesPx": 17
           }
         ],
-        "minimumProjectedNodeTextPx": 6.3,
-        "minimumProjectedNonEdgeTextPx": 6.3,
+        "minimumProjectedNodeTextPx": 8,
+        "minimumProjectedNonEdgeTextPx": 8,
         "minimumProjectedEdgeTextPx": 8,
-        "minimumProjectedNodeText": "staged packages cha...",
+        "minimumProjectedNodeText": "calls both stages",
         "minimumProjectedNodeTextDetail": "context",
         "minimumProjectedNodeTextOwner": {
           "kind": "node",
-          "id": "trigger"
+          "id": "main"
         },
         "minimumRequiredNodeTextPx": 6,
         "readabilityOk": true,
@@ -1383,11 +1251,11 @@
         "hasNavigationDock": true,
         "legendDockIntersectionArea": 0,
         "dockStageIntersectionArea": 0,
-        "dockStageGap": 10,
+        "dockStageGap": 27.15625,
         "requiredDockStageGap": 10,
         "viewerChromeStageOk": true,
-        "viewerChromeReserve": 44,
-        "viewerChromeActive": true,
+        "viewerChromeReserve": 0,
+        "viewerChromeActive": false,
         "viewerChromeOk": true,
         "resolvedTheme": "light"
       }

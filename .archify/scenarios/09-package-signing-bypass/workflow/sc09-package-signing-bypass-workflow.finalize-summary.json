@@ -7,13 +7,13 @@
   "quality": "showcase",
   "specification": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/09-package-signing-bypass/workflow/candidate.json",
-    "sha256": "6b852e995adc94dd43f7c8e5441ad67065af9a35278e7a6f4e1c53ef88eed544",
-    "bytes": 4993
+    "sha256": "55e8145f5f8ab76cd0d18d379d9b996f3173e8e422b7401df692451eaa8106ec",
+    "bytes": 1988
   },
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/09-package-signing-bypass/workflow/sc09-package-signing-bypass-workflow.html",
-    "sha256": "9580828d48ddfbfb08ce4263ba5c85cb896266889a011e8c75a8186273a7f038",
-    "bytes": 820277
+    "sha256": "fece09582693d1e783133e0cea47bf2282ce2ec30e694fc632e6433ebeeeb5c7",
+    "bytes": 807421
   },
   "gates": {
     "validate": "pass",
@@ -43,7 +43,7 @@
     "noticeText": null
   },
   "visualReview": "not-requested",
-  "durationMs": 5672,
+  "durationMs": 56218,
   "browserCheck": {
     "requested": true,
     "ran": true

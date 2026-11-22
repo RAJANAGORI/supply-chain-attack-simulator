@@ -572,15 +572,13 @@ pip install litellm_like==1.82.6 --no-deps  # after verifying package integrity
 
 <iframe class="archify-embed" title="Scenario 22 code-level workflow" src="archify/scenarios/22-litellm-pypi-compromise/workflow/sc22-litellm-pypi-compromise-workflow.html" loading="lazy"></iframe>
 
-<p class="archify-embed-caption">Code path for Scenario 22: collector, lab run, payload, the TESTBENCH gate, localhost exfil or SAFE MODE, then verify. <a href="archify/scenarios/22-litellm-pypi-compromise/workflow/sc22-litellm-pypi-compromise-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/22-litellm-pypi-compromise/workflow/sc22-litellm-pypi-compromise-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
+<p class="archify-embed-caption">main imports litellm_like, which calls _import_trigger. <a href="archify/scenarios/22-litellm-pypi-compromise/workflow/sc22-litellm-pypi-compromise-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/22-litellm-pypi-compromise/workflow/sc22-litellm-pypi-compromise-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
 
-Same path as the diagram:
+Calls in this lab:
 
-1. Collector. Start the localhost mock with `python3 infrastructure/mock_server.py`.
-2. Run lab. `cd victim-app && source .venv/bin/activate && pip install -U ../python-packages/v1_82_7 && python run_victim.py` (victim-app (python run_victim.py)).
-3. Payload. import hook or .pth startup. The cover behavior still returns, so the lab looks normal.
-4. TESTBENCH. The malicious call runs only when `TESTBENCH_MODE === 'enabled'`. If it is off, the payload takes SAFE MODE and does not open the network. Do not point this path at a real host.
-5. Exfil. `POST /collect` stays on localhost. Verify with `curl -s http://127.0.0.1:3022/captured-data`. Elasticsearch indexing is a later step, not this path.
+1. `main` in `run_victim.py` imports `litellm_like`.
+2. The package calls `_import_trigger()` at import. That function returns when `TESTBENCH_MODE` is not `enabled`, or when `TESTBENCH_OFFLINE` is `1`.
+3. Otherwise it writes `.testbench-litellm-import.json` and calls `urllib.request.urlopen` to `127.0.0.1:3022/collect`.
 
 ## Mitigation Playbook
 

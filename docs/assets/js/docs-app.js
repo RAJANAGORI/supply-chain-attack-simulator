@@ -583,7 +583,7 @@
       function (_match, open, path, query, close) {
         var params = new URLSearchParams(query ? query.slice(1) : '');
         params.set('theme', theme);
-        params.set('rev', 'copyright');
+        params.set('rev', 'calls');
         return open + path + '?' + params.toString() + close;
       }
     );

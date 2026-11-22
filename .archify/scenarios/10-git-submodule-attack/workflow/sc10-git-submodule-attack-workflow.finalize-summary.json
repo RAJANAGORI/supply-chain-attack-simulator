@@ -7,13 +7,13 @@
   "quality": "showcase",
   "specification": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/10-git-submodule-attack/workflow/candidate.json",
-    "sha256": "3af42e4ef52b942bce4878dfa13f03442381971bf62edc1a240c6d588e21f7b4",
-    "bytes": 4938
+    "sha256": "69c250bbf79619b3f3f4d925b252c03a578f95d39558bbe25ba7785e0b88649d",
+    "bytes": 1857
   },
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/10-git-submodule-attack/workflow/sc10-git-submodule-attack-workflow.html",
-    "sha256": "eaef23d98e98d6867e529d29efaf79e0263d9fb52975419552a12c189062d93e",
-    "bytes": 820176
+    "sha256": "cbc25ab539ddb6ebdca3ed3d89ef422bf61b43a59502f9cdb1e3198fc084f270",
+    "bytes": 807153
   },
   "gates": {
     "validate": "pass",
@@ -32,18 +32,8 @@
     "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/10-git-submodule-attack/workflow/sc10-git-submodule-attack-workflow.finalize-summary.json",
     "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/10-git-submodule-attack/workflow/sc10-git-submodule-attack-workflow.browser-check.json"
   },
-  "update": {
-    "status": "current",
-    "installedVersion": "3.2.0",
-    "availableVersion": "3.2.0",
-    "releaseNotes": null,
-    "checkedAt": "2026-11-22T10:02:04.311Z",
-    "source": "cache",
-    "noticeRequired": false,
-    "noticeText": null
-  },
   "visualReview": "not-requested",
-  "durationMs": 5267,
+  "durationMs": 60899,
   "browserCheck": {
     "requested": true,
     "ran": true

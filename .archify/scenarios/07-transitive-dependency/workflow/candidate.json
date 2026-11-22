@@ -2,227 +2,145 @@
   "schema_version": 2,
   "diagram_type": "workflow",
   "meta": {
-    "title": "Scenario 07 Transitive Dependency code path",
-    "subtitle": "transitive require via web-utils then POST /collect on localhost",
+    "title": "Scenario 07 Transitive Dependency calls",
+    "subtitle": "runApplication calls processUsers, which calls groupBy. postinstall calls http.request on its own.",
     "output": ".archify/scenarios/07-transitive-dependency/workflow/sc07-transitive-dependency-workflow.html",
     "quality_profile": "showcase",
     "locale": "en",
     "repository": {
       "url": "https://github.com/RAJANAGORI/supply-chain-attack-simulator.git",
       "provider": "github",
-      "revision": "0fb63796644cbfb8ee650bef703e9cb7bff8db47"
+      "revision": "681c4d000271b0df0c7c3521a98a25931362dc49"
     }
   },
   "lanes": [
     {
-      "id": "learner",
-      "label": "Learner"
+      "id": "app",
+      "label": "victim index.js"
     },
     {
-      "id": "payload",
-      "label": "Payload"
+      "id": "utils",
+      "label": "web-utils"
     },
     {
-      "id": "gate",
-      "label": "TESTBENCH gate"
+      "id": "dep",
+      "label": "data-processor"
     },
     {
-      "id": "collector",
-      "label": "Localhost collector"
+      "id": "hook",
+      "label": "postinstall.js"
     },
     {
-      "id": "safe",
-      "label": "Safe mode",
-      "variant": "exception"
-    }
-  ],
-  "phases": [
-    {
-      "id": "run",
-      "label": "Run the lab",
-      "fromCol": 0,
-      "toCol": 1
-    },
-    {
-      "id": "gate",
-      "label": "Gate",
-      "fromCol": 2,
-      "toCol": 3,
-      "variant": "security"
-    },
-    {
-      "id": "evidence",
-      "label": "Evidence",
-      "fromCol": 4,
-      "toCol": 5,
-      "variant": "emphasis"
+      "id": "net",
+      "label": "localhost"
     }
   ],
   "mainPath": [
-    "start",
-    "run",
-    "trigger",
-    "gate",
-    "exfil",
-    "verify"
+    "post",
+    "http"
   ],
   "nodes": [
     {
-      "id": "start",
-      "lane": "learner",
+      "id": "run",
+      "lane": "app",
       "col": 0,
-      "type": "backend",
-      "label": "Collector",
-      "sublabel": "localhost mock",
+      "type": "frontend",
+      "label": "runApplication",
+      "sublabel": "calls processUsers",
       "sources": [
         {
-          "path": "scenarios/07-transitive-dependency/setup.sh",
-          "label": "TESTBENCH_MODE in setup.sh",
-          "line": 179
+          "path": "scenarios/07-transitive-dependency/victim-app/index.js",
+          "label": "App entry",
+          "line": 19
         }
       ]
     },
     {
-      "id": "run",
-      "lane": "learner",
+      "id": "proc",
+      "lane": "utils",
       "col": 1,
       "type": "frontend",
-      "label": "Run lab",
-      "sublabel": "victim-app",
+      "label": "processUsers",
+      "sublabel": "calls groupBy",
       "sources": [
         {
-          "path": "scenarios/07-transitive-dependency/README.md",
-          "label": "scenario README",
-          "line": 1
+          "path": "scenarios/07-transitive-dependency/legitimate-packages/web-utils/index.js",
+          "label": "The direct dependency",
+          "line": 12
         }
       ]
     },
     {
-      "id": "trigger",
-      "lane": "payload",
+      "id": "group",
+      "lane": "dep",
       "col": 2,
-      "type": "security",
-      "label": "Payload",
-      "sublabel": "transitive require...",
-      "sources": [
-        {
-          "path": "scenarios/07-transitive-dependency/compromised-packages/data-processor/postinstall.js",
-          "label": "TESTBENCH_MODE gate",
-          "line": 5
-        }
-      ]
-    },
-    {
-      "id": "gate",
-      "lane": "gate",
-      "col": 3,
-      "type": "security",
-      "label": "TESTBENCH",
-      "sublabel": "enabled?",
-      "sources": [
-        {
-          "path": "scenarios/07-transitive-dependency/compromised-packages/data-processor/postinstall.js",
-          "label": "enabled check",
-          "line": 5
-        }
-      ]
-    },
-    {
-      "id": "exfil",
-      "lane": "collector",
-      "col": 4,
-      "type": "backend",
-      "label": "Exfil",
-      "sublabel": "POST /collect",
-      "sources": [
-        {
-          "path": "scenarios/07-transitive-dependency/setup.sh",
-          "label": "localhost collector",
-          "line": 179
-        }
-      ]
-    },
-    {
-      "id": "safe",
-      "lane": "safe",
-      "col": 4,
-      "type": "external",
-      "label": "SAFE MODE",
-      "sublabel": "no network"
-    },
-    {
-      "id": "verify",
-      "lane": "learner",
-      "col": 5,
       "type": "frontend",
-      "label": "Verify",
-      "sublabel": "curl capture",
+      "label": "groupBy",
+      "sublabel": "groups the array",
       "sources": [
         {
-          "path": "scenarios/07-transitive-dependency/README.md",
-          "label": "verify command",
-          "line": 128
+          "path": "scenarios/07-transitive-dependency/compromised-packages/data-processor/index.js",
+          "label": "Cover method, no network",
+          "line": 33
+        }
+      ]
+    },
+    {
+      "id": "post",
+      "lane": "hook",
+      "col": 0,
+      "type": "security",
+      "label": "postinstall",
+      "sublabel": "npm runs this script",
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/compromised-packages/data-processor/postinstall.js",
+          "label": "Transitive install hook",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "id": "http",
+      "lane": "net",
+      "col": 1,
+      "type": "backend",
+      "label": "http.request",
+      "sublabel": "POST install data",
+      "sources": [
+        {
+          "path": "scenarios/07-transitive-dependency/compromised-packages/data-processor/postinstall.js",
+          "label": "Not called by groupBy",
+          "line": 61
         }
       ]
     }
   ],
   "edges": [
     {
-      "from": "start",
-      "to": "run"
-    },
-    {
       "from": "run",
-      "to": "trigger",
-      "label": "load"
+      "to": "proc",
+      "label": "calls"
     },
     {
-      "from": "trigger",
-      "to": "gate"
+      "from": "proc",
+      "to": "group",
+      "label": "calls"
     },
     {
-      "from": "gate",
-      "to": "exfil",
-      "variant": "security"
-    },
-    {
-      "from": "gate",
-      "to": "safe",
-      "variant": "dashed",
-      "role": "error"
-    },
-    {
-      "from": "exfil",
-      "to": "verify",
-      "label": "saved"
+      "from": "post",
+      "to": "http",
+      "label": "calls"
     }
   ],
   "cards": [
     {
       "dot": "emerald",
-      "title": "What the code does",
+      "title": "Who calls whom",
       "items": [
-        "transitive require via web-utils",
-        "Exfil stays on localhost: POST /collect",
-        "The cover behavior still returns so the lab looks normal"
-      ]
-    },
-    {
-      "dot": "rose",
-      "title": "The gate",
-      "items": [
-        "Malicious network runs only when TESTBENCH_MODE === 'enabled'",
-        "Otherwise the payload takes the SAFE MODE branch",
-        "Do not point this path at a real host"
-      ]
-    },
-    {
-      "dot": "cyan",
-      "title": "Evidence",
-      "items": [
-        "curl -s http://localhost:3000/captured-data",
-        "Collector: node infrastructure/mock-server.js",
-        "Optional Elasticsearch indexing is a later step, not this path"
+        "runApplication calls WebUtils.processUsers, which calls DataProcessor.groupBy. Those methods only reshape t...",
+        "The network call is postinstall in data-processor. npm runs it because web-utils depends on data-processor....",
+        "groupBy does not call postinstall."
       ]
     }
   ]

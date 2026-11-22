@@ -7,13 +7,13 @@
   "quality": "showcase",
   "specification": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/15-developer-tool-compromise/workflow/candidate.json",
-    "sha256": "b3debf1ecefcc8302e39e8aebc7fe30629b6e2bae13085a414dc182db9b607fa",
-    "bytes": 4994
+    "sha256": "5cd36c2066449fe47e94b8632191ecce28df5b23a759be5e45e7b7dffe024233",
+    "bytes": 2917
   },
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/15-developer-tool-compromise/workflow/sc15-developer-tool-compromise-workflow.html",
-    "sha256": "933fccfc72839c9a893eeab46a46aec38465e5e0955413c60a2f45ab13d43079",
-    "bytes": 820271
+    "sha256": "2ef49127e2cb8c7e9c9fc01566645b90ba06aa9f427f9839b1dedb95c2dd22a2",
+    "bytes": 812254
   },
   "gates": {
     "validate": "pass",
@@ -43,7 +43,7 @@
     "noticeText": null
   },
   "visualReview": "not-requested",
-  "durationMs": 5609,
+  "durationMs": 30134,
   "browserCheck": {
     "requested": true,
     "ran": true

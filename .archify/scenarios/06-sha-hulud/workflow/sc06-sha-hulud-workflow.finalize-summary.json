@@ -7,13 +7,13 @@
   "quality": "showcase",
   "specification": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/06-sha-hulud/workflow/candidate.json",
-    "sha256": "bf714595b446dcdd0cfd50269ba7ea3577995aee90f9295f4f436a71b4444d15",
-    "bytes": 5032
+    "sha256": "44a980f2f7bceac27afba97f7b6fc095974e9f872985da7bfffc167f128c730d",
+    "bytes": 3606
   },
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.html",
-    "sha256": "dcc7a95b13f22109bc43182d319fc09442474f92ab55bc3842a998b770868dfb",
-    "bytes": 820304
+    "sha256": "f667284d8b490ef56204dad192ffbbca6afef2cdc4da0b6329470b9722a1b0a6",
+    "bytes": 815622
   },
   "gates": {
     "validate": "pass",
@@ -43,7 +43,7 @@
     "noticeText": null
   },
   "visualReview": "not-requested",
-  "durationMs": 4728,
+  "durationMs": 27414,
   "browserCheck": {
     "requested": true,
     "ran": true

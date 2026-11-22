@@ -7,13 +7,13 @@
   "quality": "showcase",
   "specification": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/02-dependency-confusion/workflow/candidate.json",
-    "sha256": "abd0b4d0a57dda91ad2c668aca7e2e280ee1e007994b39023d7cc2e45c04000e",
-    "bytes": 4978
+    "sha256": "e0096176504838f2ba3f49e688bb87915299741e36b8ef67780afd50fe5e2c3b",
+    "bytes": 3969
   },
   "artifact": {
     "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/02-dependency-confusion/workflow/sc02-dependency-confusion-workflow.html",
-    "sha256": "3f7132cfcda0d20da4a5362fe39901de87865723fb52a66515e276ede0fb136c",
-    "bytes": 820261
+    "sha256": "f5eee771c491330e7fed9c5eea1a5286a09f098bcf3de1b434c122ad52946e31",
+    "bytes": 816316
   },
   "gates": {
     "validate": "pass",
@@ -43,7 +43,7 @@
     "noticeText": null
   },
   "visualReview": "not-requested",
-  "durationMs": 6628,
+  "durationMs": 46390,
   "browserCheck": {
     "requested": true,
     "ran": true
