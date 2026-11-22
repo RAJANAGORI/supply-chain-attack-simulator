@@ -159,7 +159,8 @@ documentation/talks
 .tools/
 
 .agents/
-assets/
+# Root scratch only. docs/assets and documentation/assets are tracked.
+/assets/
 data/
 logs/
 results/

@@ -1,0 +1,130 @@
+{
+  "generatedAt": "2026-11-03T15:48:27.846Z",
+  "scenarios": {
+    "10": {
+      "slug": "10-git-submodule-attack",
+      "architecture": "scenarios/10-git-submodule-attack/architecture/sc10-git-submodule-attack-architecture.html",
+      "sequence": "scenarios/10-git-submodule-attack/sequence/sc10-git-submodule-attack-sequence.html"
+    },
+    "11": {
+      "slug": "11-registry-mirror-poisoning",
+      "architecture": "scenarios/11-registry-mirror-poisoning/architecture/sc11-registry-mirror-poisoning-architecture.html",
+      "sequence": "scenarios/11-registry-mirror-poisoning/sequence/sc11-registry-mirror-poisoning-sequence.html"
+    },
+    "12": {
+      "slug": "12-workspace-monorepo-attack",
+      "architecture": "scenarios/12-workspace-monorepo-attack/architecture/sc12-workspace-monorepo-attack-architecture.html",
+      "sequence": "scenarios/12-workspace-monorepo-attack/sequence/sc12-workspace-monorepo-attack-sequence.html"
+    },
+    "13": {
+      "slug": "13-package-metadata-manipulation",
+      "architecture": "scenarios/13-package-metadata-manipulation/architecture/sc13-package-metadata-manipulation-architecture.html",
+      "sequence": "scenarios/13-package-metadata-manipulation/sequence/sc13-package-metadata-manipulation-sequence.html"
+    },
+    "14": {
+      "slug": "14-container-image-supply-chain-attack",
+      "architecture": "scenarios/14-container-image-supply-chain-attack/architecture/sc14-container-image-supply-chain-attack-architecture.html",
+      "sequence": "scenarios/14-container-image-supply-chain-attack/sequence/sc14-container-image-supply-chain-attack-sequence.html"
+    },
+    "15": {
+      "slug": "15-developer-tool-compromise",
+      "architecture": "scenarios/15-developer-tool-compromise/architecture/sc15-developer-tool-compromise-architecture.html",
+      "sequence": "scenarios/15-developer-tool-compromise/sequence/sc15-developer-tool-compromise-sequence.html"
+    },
+    "16": {
+      "slug": "16-package-cache-poisoning",
+      "architecture": "scenarios/16-package-cache-poisoning/architecture/sc16-package-cache-poisoning-architecture.html",
+      "sequence": "scenarios/16-package-cache-poisoning/sequence/sc16-package-cache-poisoning-sequence.html"
+    },
+    "17": {
+      "slug": "17-multi-stage-attack-chain",
+      "architecture": "scenarios/17-multi-stage-attack-chain/architecture/sc17-multi-stage-attack-chain-architecture.html",
+      "sequence": "scenarios/17-multi-stage-attack-chain/sequence/sc17-multi-stage-attack-chain-sequence.html"
+    },
+    "18": {
+      "slug": "18-package-manager-plugin-attack",
+      "architecture": "scenarios/18-package-manager-plugin-attack/architecture/sc18-package-manager-plugin-attack-architecture.html",
+      "sequence": "scenarios/18-package-manager-plugin-attack/sequence/sc18-package-manager-plugin-attack-sequence.html"
+    },
+    "19": {
+      "slug": "19-sbom-manipulation-attack",
+      "architecture": "scenarios/19-sbom-manipulation-attack/architecture/sc19-sbom-manipulation-attack-architecture.html",
+      "sequence": "scenarios/19-sbom-manipulation-attack/sequence/sc19-sbom-manipulation-attack-sequence.html"
+    },
+    "20": {
+      "slug": "20-package-version-confusion",
+      "architecture": "scenarios/20-package-version-confusion/architecture/sc20-package-version-confusion-architecture.html",
+      "sequence": "scenarios/20-package-version-confusion/sequence/sc20-package-version-confusion-sequence.html"
+    },
+    "21": {
+      "slug": "21-axios-compromised-release-attack",
+      "architecture": "scenarios/21-axios-compromised-release-attack/architecture/sc21-axios-compromised-release-attack-architecture.html",
+      "sequence": "scenarios/21-axios-compromised-release-attack/sequence/sc21-axios-compromised-release-attack-sequence.html"
+    },
+    "22": {
+      "slug": "22-litellm-pypi-compromise",
+      "architecture": "scenarios/22-litellm-pypi-compromise/architecture/sc22-litellm-pypi-compromise-architecture.html",
+      "sequence": "scenarios/22-litellm-pypi-compromise/sequence/sc22-litellm-pypi-compromise-sequence.html"
+    },
+    "23": {
+      "slug": "23-trivy-supply-chain-attack",
+      "architecture": "scenarios/23-trivy-supply-chain-attack/architecture/sc23-trivy-supply-chain-attack-architecture.html",
+      "sequence": "scenarios/23-trivy-supply-chain-attack/sequence/sc23-trivy-supply-chain-attack-sequence.html"
+    },
+    "24": {
+      "slug": "24-slopsquatting",
+      "architecture": "scenarios/24-slopsquatting/architecture/sc24-slopsquatting-architecture.html",
+      "sequence": "scenarios/24-slopsquatting/sequence/sc24-slopsquatting-sequence.html"
+    },
+    "25": {
+      "slug": "25-compromised-github-action",
+      "architecture": "scenarios/25-compromised-github-action/architecture/sc25-compromised-github-action-architecture.html",
+      "sequence": "scenarios/25-compromised-github-action/sequence/sc25-compromised-github-action-sequence.html"
+    },
+    "01": {
+      "slug": "01-typosquatting",
+      "architecture": "scenarios/01-typosquatting/architecture/sc01-typosquatting-architecture.html",
+      "sequence": "scenarios/01-typosquatting/sequence/sc01-typosquatting-sequence.html"
+    },
+    "02": {
+      "slug": "02-dependency-confusion",
+      "architecture": "scenarios/02-dependency-confusion/architecture/sc02-dependency-confusion-architecture.html",
+      "sequence": "scenarios/02-dependency-confusion/sequence/sc02-dependency-confusion-sequence.html"
+    },
+    "03": {
+      "slug": "03-compromised-package",
+      "architecture": "scenarios/03-compromised-package/architecture/sc03-compromised-package-architecture.html",
+      "sequence": "scenarios/03-compromised-package/sequence/sc03-compromised-package-sequence.html"
+    },
+    "04": {
+      "slug": "04-malicious-update",
+      "architecture": "scenarios/04-malicious-update/architecture/sc04-malicious-update-architecture.html",
+      "sequence": "scenarios/04-malicious-update/sequence/sc04-malicious-update-sequence.html"
+    },
+    "05": {
+      "slug": "05-build-compromise",
+      "architecture": "scenarios/05-build-compromise/architecture/sc05-build-compromise-architecture.html",
+      "sequence": "scenarios/05-build-compromise/sequence/sc05-build-compromise-sequence.html"
+    },
+    "06": {
+      "slug": "06-sha-hulud",
+      "architecture": "scenarios/06-sha-hulud/architecture/sc06-sha-hulud-architecture.html",
+      "sequence": "scenarios/06-sha-hulud/sequence/sc06-sha-hulud-sequence.html"
+    },
+    "07": {
+      "slug": "07-transitive-dependency",
+      "architecture": "scenarios/07-transitive-dependency/architecture/sc07-transitive-dependency-architecture.html",
+      "sequence": "scenarios/07-transitive-dependency/sequence/sc07-transitive-dependency-sequence.html"
+    },
+    "08": {
+      "slug": "08-package-lock-file-manipulation",
+      "architecture": "scenarios/08-package-lock-file-manipulation/architecture/sc08-package-lock-file-manipulation-architecture.html",
+      "sequence": "scenarios/08-package-lock-file-manipulation/sequence/sc08-package-lock-file-manipulation-sequence.html"
+    },
+    "09": {
+      "slug": "09-package-signing-bypass",
+      "architecture": "scenarios/09-package-signing-bypass/architecture/sc09-package-signing-bypass-architecture.html",
+      "sequence": "scenarios/09-package-signing-bypass/sequence/sc09-package-signing-bypass-sequence.html"
+    }
+  }
+}
