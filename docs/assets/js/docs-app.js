@@ -615,12 +615,12 @@
       'html[data-scas-frame="true"]:not([data-present="true"]) .node-outline,',
       'html[data-scas-frame="true"]:not([data-present="true"]) .diagram-nav,',
       'html[data-scas-frame="true"]:not([data-present="true"]) .overview-map,',
-      'html[data-scas-frame="true"]:not([data-present="true"]) .focus-chip,',
       'html[data-scas-frame="true"]:not([data-present="true"]) .route-probe,',
       'html[data-scas-frame="true"]:not([data-present="true"]) .semantic-lens,',
       'html[data-scas-frame="true"]:not([data-present="true"]) .diagram-guide,',
       'html[data-scas-frame="true"]:not([data-present="true"]) .node-finder { display: none !important; }',
-      'html[data-scas-frame="true"] .toolbar { display: flex !important; z-index: 200; }'
+      'html[data-scas-frame="true"] .toolbar { display: flex !important; z-index: 200; }',
+      'html[data-scas-frame="true"] .focus-chip { z-index: 240; }'
     ].join('\n');
     doc.head.appendChild(style);
   }
