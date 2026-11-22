@@ -3,7 +3,7 @@
  * Keep messages aligned with each scenario README "Run the lab" flow.
  *
  * Unique diagrams: documentation/assets/diagrams/observability/{svg,excalidraw}/scas-observability-scenario-NN.*
- * plus Mermaid sequenceDiagram in zero-to-hero guides via generate-observability-section.js.
+ * Phase 2 of each guide is also the attack-steps table. The sequence frame is the Archify HTML, not Mermaid.
  */
 
 const SCENARIO_DIAGRAMS = {

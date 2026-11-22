@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "994c1653-03c4-4f18-85b6-df8ed853def1",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/07-transitive-dependency/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/07-transitive-dependency/workflow/sc07-transitive-dependency-workflow.html",
+  "specification": {
+    "sha256": "e7d76fd0deb8a8693cfb997a3c9fb0fb584d555c9dfd02c4ae3d558d1b49e8d6",
+    "bytes": 4977
+  },
+  "artifact": {
+    "sha256": "0fac6a4a25d7ea703d7fa0e521352c97d2cc2b0e3a8877dc1b48ff8674c85cde",
+    "bytes": 820252
+  }
+}

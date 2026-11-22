@@ -1,5 +1,5 @@
 ---
-description: Excalidraw→SVG diagram pairs under category/{svg,excalidraw}, Mermaid sequence for observability only
+description: Excalidraw to SVG pairs under category/{svg,excalidraw}. Observability guides frame Archify architecture and sequence HTML.
 globs: documentation/assets/diagrams/**,documentation/platform/ARCHITECTURE.md,documentation/platform/OPERATIONS.md,documentation/learning-path/SUPPLY_CHAIN_ATTACKS_ZERO_TO_HERO.md,documentation/scenario-guides/zero-to-hero/**,detection-tools/es/generate-observability-section.js,scripts/lib/diagram-specs.js,scripts/lib/diagram-paths.js,scripts/diagrams/**
 alwaysApply: false
 ---
@@ -24,7 +24,7 @@ Markdown **cannot** render `.excalidraw`. Maintain pairs under:
 ## Strict rules
 
 1. Platform docs: SVG only (no Mermaid).
-2. Scenario observability sections: SVG + Mermaid `sequenceDiagram`.
-3. Scenario codeflow sections: SVG only under `## Code-level workflow`.
+2. Scenario observability sections: Archify architecture iframe in End-to-end flow, and the Archify sequence iframe in Sequence diagram (Phase 1-5). Leave the viewer toolbar on. Do not add `?embed=1`. Keep the SVG swimlane on disk; do not embed it or a Mermaid sequence in those slots.
+3. Scenario codeflow sections: Archify workflow iframe under `## Code-level workflow`, viewer toolbar on. Do not add `?embed=1`. Keep the SVG pair on disk; do not embed it in that slot.
 4. SVG must be well-formed XML - escape `&` as `&amp;`.
 5. After edits: `node scripts/diagrams/check-diagram-assets.js`.

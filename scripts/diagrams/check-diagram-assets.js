@@ -426,6 +426,15 @@ function resolveMarkdownDocs(spec) {
   return docs.sort();
 }
 
+function archifyIframePattern(repoPath) {
+  const siteNeedle = String(repoPath).replace(/^\.archify\//, 'archify/');
+  const escaped = siteNeedle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return {
+    siteNeedle,
+    re: new RegExp(`<iframe\\b[^>]*\\bsrc="${escaped}"`),
+  };
+}
+
 function assertMarkdownContract(spec) {
   const docs = resolveMarkdownDocs(spec);
   if (!docs.length) {
@@ -458,10 +467,16 @@ function assertMarkdownContract(spec) {
       fail(`${genPath}: missing (must emit Mermaid sequenceDiagram for scenarios)`);
     } else {
       const gen = read(genPath);
-      if (!/```mermaid/.test(gen) || !/sequenceDiagram/.test(gen)) {
-        fail(`${genPath}: must emit Mermaid sequenceDiagram alongside scenario SVG embeds`);
+      const hasEmbed = /archify-embed/.test(gen) && !/\?embed=1/.test(gen);
+      const hasArchitecture = hasEmbed && /'architecture'/.test(gen);
+      const hasSequence = hasEmbed && /'sequence'/.test(gen);
+      const hasMermaid = /```mermaid/.test(gen) || /\bsequenceDiagram\b/.test(gen);
+      if (!hasArchitecture || !hasSequence) {
+        fail(`${genPath}: must emit Archify architecture and sequence iframes without ?embed=1`);
+      } else if (hasMermaid) {
+        fail(`${genPath}: must frame the Archify sequence HTML, not a Mermaid sequence`);
       } else {
-        ok(`${genPath}: emits Mermaid sequenceDiagram for scenarios`);
+        ok(`${genPath}: emits Archify architecture + sequence iframes`);
       }
     }
   }
@@ -481,7 +496,19 @@ function assertMarkdownContract(spec) {
     }
     const text = read(doc);
     const { embedNeedle } = diagramAssetPaths(spec.basename, spec.category);
-    if (!text.includes(embedNeedle)) {
+    if (spec.archifyArchitecture || spec.archifyWorkflow) {
+      const repoPath = spec.archifyArchitecture || spec.archifyWorkflow;
+      const slot = spec.archifyArchitecture ? 'End-to-end flow' : 'Code-level workflow';
+      const frame = archifyIframePattern(repoPath);
+      if (!frame.re.test(text)) {
+        fail(`${doc}: ${slot} must iframe ${frame.siteNeedle} with the viewer toolbar`);
+      } else if (!exists(repoPath)) {
+        fail(`${doc}: Archify embed missing file ${repoPath}`);
+      } else {
+        embedHits += 1;
+        resolveHits += 1;
+      }
+    } else if (!text.includes(embedNeedle)) {
       fail(`${doc}: must embed ${embedNeedle}`);
     } else {
       embedHits += 1;
@@ -509,10 +536,22 @@ function assertMarkdownContract(spec) {
     const hasMermaid = /```mermaid\b/.test(mermaidProbe);
     const hasSequence = /```mermaid\b[\s\S]*?\bsequenceDiagram\b/.test(mermaidProbe);
 
-    if (requireSequence) {
+    if (requireSequence && spec.archifySequence) {
+      const frame = archifyIframePattern(spec.archifySequence);
+      const probe = sectionScoped ? mermaidProbe : text;
+      if (!frame.re.test(probe)) {
+        fail(`${doc}: Sequence diagram section must iframe ${frame.siteNeedle} with the viewer toolbar`);
+      } else if (!exists(spec.archifySequence)) {
+        fail(`${doc}: Archify sequence missing file ${spec.archifySequence}`);
+      } else if (hasMermaid) {
+        fail(`${doc}: observability section must frame the Archify sequence HTML, not Mermaid, for ${spec.basename}`);
+      } else {
+        sequenceHits += 1;
+      }
+    } else if (requireSequence) {
       if (!hasSequence) {
         fail(
-          `${doc}: observability section must include Mermaid sequenceDiagram alongside SVG for ${spec.basename}`
+          `${doc}: observability section must include a sequence diagram for ${spec.basename}`
         );
       } else {
         sequenceHits += 1;
@@ -524,30 +563,34 @@ function assertMarkdownContract(spec) {
       );
     }
 
-    const mdDir = path.dirname(path.join(ROOT, doc));
-    const { category } = diagramAssetPaths(spec.basename, spec.category);
-    const match = text.match(
-      new RegExp(
-        `!\\[[^\\]]*\\]\\((\\.\\./(?:\\.\\./)?assets/diagrams/${category}/svg/${spec.basename}\\.svg)\\)`
-      )
-    );
-    if (!match) {
-      fail(
-        `${doc}: image embed path for ${category}/svg/${spec.basename}.svg not found or wrong relative form`
+    if (!spec.archifyArchitecture && !spec.archifyWorkflow) {
+      const mdDir = path.dirname(path.join(ROOT, doc));
+      const { category } = diagramAssetPaths(spec.basename, spec.category);
+      const match = text.match(
+        new RegExp(
+          `!\\[[^\\]]*\\]\\((\\.\\./(?:\\.\\./)?assets/diagrams/${category}/svg/${spec.basename}\\.svg)\\)`
+        )
       );
-    } else {
-      const resolved = path.resolve(mdDir, match[1]);
-      if (!fs.existsSync(resolved)) {
-        fail(`${doc}: embed path resolves missing file ${resolved}`);
+      if (!match) {
+        fail(
+          `${doc}: image embed path for ${category}/svg/${spec.basename}.svg not found or wrong relative form`
+        );
       } else {
-        resolveHits += 1;
+        const resolved = path.resolve(mdDir, match[1]);
+        if (!fs.existsSync(resolved)) {
+          fail(`${doc}: embed path resolves missing file ${resolved}`);
+        } else {
+          resolveHits += 1;
+        }
       }
     }
   }
 
   if (requireSequence) {
     if (sequenceHits === docs.length) {
-      ok(`${spec.basename}: Mermaid sequenceDiagram + SVG in all ${docs.length} target(s)`);
+      ok(
+        `${spec.basename}: Archify sequence frame + ${spec.archifyArchitecture ? 'architecture frame' : 'SVG'} in all ${docs.length} target(s)`
+      );
     }
   } else if (mermaidHits === 0) {
     ok(`${spec.basename}: no Mermaid in contracted markdown section(s)`);
@@ -587,6 +630,13 @@ function main() {
   const readme = `${DIAGRAMS_DIR}/README.md`;
   if (!exists(readme)) fail(`missing ${readme}`);
   else ok(`has ${readme}`);
+
+  const docsApp = 'docs/assets/js/docs-app.js';
+  if (!exists(docsApp) || !read(docsApp).includes('data-scas-frame')) {
+    fail(`${docsApp}: must keep the Archify viewer toolbar visible inside guide iframes`);
+  } else {
+    ok(`${docsApp}: keeps the Archify viewer toolbar`);
+  }
 
   for (const spec of DIAGRAM_SPECS) {
     console.log(`--- ${spec.basename} ---`);

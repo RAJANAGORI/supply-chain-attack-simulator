@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "aa5779e6-acb5-4638-9afa-11ca556061ef",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/11-registry-mirror-poisoning/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/11-registry-mirror-poisoning/workflow/sc11-registry-mirror-poisoning-workflow.html",
+  "specification": {
+    "sha256": "c32e5b66cf6949653e268d1febb03b274c86d275cc8f528bdba605d1fc49f58f",
+    "bytes": 5025
+  },
+  "artifact": {
+    "sha256": "34adb36badbc0f0020b3e9caada09d873c9d92a9d3201374aa70cffb2d3110ec",
+    "bytes": 820340
+  }
+}

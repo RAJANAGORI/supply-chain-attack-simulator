@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "2e03b999-c673-4d1a-bcbb-5e2de285cc5a",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/06-sha-hulud/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/06-sha-hulud/workflow/sc06-sha-hulud-workflow.html",
+  "specification": {
+    "sha256": "bf714595b446dcdd0cfd50269ba7ea3577995aee90f9295f4f436a71b4444d15",
+    "bytes": 5032
+  },
+  "artifact": {
+    "sha256": "dcc7a95b13f22109bc43182d319fc09442474f92ab55bc3842a998b770868dfb",
+    "bytes": 820304
+  }
+}

@@ -29,7 +29,7 @@ Embed SVG only, e.g. `![...](../assets/diagrams/platform/svg/scas-e2e-lab-flow.s
 
 - `scas-observability-scenario-01` ... `23`
 - Generator: [`scripts/diagrams/generate-scenario-observability-diagrams.js`](../../../scripts/diagrams/generate-scenario-observability-diagrams.js)
-- Section injector: [`detection-tools/es/generate-observability-section.js`](../../../detection-tools/es/generate-observability-section.js) - **SVG + Mermaid sequenceDiagram**
+- Section injector: [`detection-tools/es/generate-observability-section.js`](../../../detection-tools/es/generate-observability-section.js). End-to-end flow frames the Archify architecture page, and Sequence diagram (Phase 1-5) frames the Archify sequence page. The SVG pair stays on disk for this harness.
 
 ## Codeflow (23 unique zero-to-hero guides)
 

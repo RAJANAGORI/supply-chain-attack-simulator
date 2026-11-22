@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/05-build-compromise/workflow/candidate.json",
+    "sha256": "a7f3ec77426adef2591897d99d5f8b0cb7478f795fe72d6e595958c458409547",
+    "bytes": 4944
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/05-build-compromise/workflow/sc05-build-compromise-workflow.html",
+    "sha256": "e875ea7aa09bad12e5f925f4b31d84832510bfb12a754057d2544ef16de3e6a2",
+    "bytes": 820202
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/05-build-compromise/workflow/sc05-build-compromise-workflow.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/05-build-compromise/workflow/sc05-build-compromise-workflow.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/05-build-compromise/workflow/sc05-build-compromise-workflow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-22T10:02:04.311Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 6028,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

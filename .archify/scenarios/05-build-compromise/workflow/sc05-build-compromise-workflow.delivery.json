@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "43d3f7b1-5403-41d8-ae9a-ba2ca831674a",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/05-build-compromise/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/05-build-compromise/workflow/sc05-build-compromise-workflow.html",
+  "specification": {
+    "sha256": "a7f3ec77426adef2591897d99d5f8b0cb7478f795fe72d6e595958c458409547",
+    "bytes": 4944
+  },
+  "artifact": {
+    "sha256": "e875ea7aa09bad12e5f925f4b31d84832510bfb12a754057d2544ef16de3e6a2",
+    "bytes": 820202
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "39f03be3-3017-43d1-a6d4-f91b5252a030",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/16-package-cache-poisoning/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/16-package-cache-poisoning/workflow/sc16-package-cache-poisoning-workflow.html",
+  "specification": {
+    "sha256": "a395fd40b6bfdc561a297e508f94dd9bf5839bf057d40ed8cb0f222032b4b74e",
+    "bytes": 4958
+  },
+  "artifact": {
+    "sha256": "971a05c602a1488de2f6ca2d67564938e9aa4ecd6eb9a30924a8187b0f6d46be",
+    "bytes": 820201
+  }
+}

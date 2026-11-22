@@ -6369,6 +6369,44 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
             edgeMatches.reduce(function (count, match) { return count + match.elements.length; }, 0);
       }
 
+      function stampScasCopyright(root) {
+        if (!root || root.querySelector('[data-scas-copyright]')) return;
+        var box = root.viewBox && root.viewBox.baseVal;
+        if (!box || !(box.width > 0) || !(box.height > 0)) return;
+        var ns = 'http://www.w3.org/2000/svg';
+        var g = document.createElementNS(ns, 'g');
+        g.setAttribute('data-scas-copyright', '');
+        var cx = box.x + box.width / 2;
+        var cy = box.y + box.height / 2;
+        var mark = document.createElementNS(ns, 'text');
+        mark.setAttribute('x', String(cx));
+        mark.setAttribute('y', String(cy));
+        mark.setAttribute('text-anchor', 'middle');
+        mark.setAttribute('dominant-baseline', 'middle');
+        mark.setAttribute('transform', 'rotate(-28 ' + cx + ' ' + cy + ')');
+        mark.setAttribute('fill', '#94a3b8');
+        mark.setAttribute('font-size', String(Math.max(22, Math.round(Math.min(box.width, box.height) * 0.07))));
+        mark.setAttribute('font-family', 'ui-sans-serif, system-ui, sans-serif');
+        mark.setAttribute('font-weight', '700');
+        mark.setAttribute('opacity', '0.2');
+        mark.setAttribute('pointer-events', 'none');
+        mark.textContent = 'Raja Nagori · SCAS';
+        var credit = document.createElementNS(ns, 'text');
+        credit.setAttribute('x', String(box.x + box.width - 14));
+        credit.setAttribute('y', String(box.y + box.height - 12));
+        credit.setAttribute('text-anchor', 'end');
+        credit.setAttribute('fill', '#94a3b8');
+        credit.setAttribute('font-size', '12');
+        credit.setAttribute('font-family', 'ui-sans-serif, system-ui, sans-serif');
+        credit.setAttribute('font-weight', '600');
+        credit.setAttribute('opacity', '0.92');
+        credit.setAttribute('pointer-events', 'none');
+        credit.textContent = '© Raja Nagori · SCAS';
+        g.appendChild(mark);
+        g.appendChild(credit);
+        root.appendChild(g);
+      }
+
       function serializeSvg(scale, opts) {
         // scale: multiplier (integer unless the figure is oversized) for intrinsic SVG pixel dimensions used by
         // the raster path. Defaults to 1 (natural size) for SVG download.
@@ -6383,6 +6421,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         var clone = svg.cloneNode(true);
 
         var canonicalStateClean = cleanExportClone(clone);
+        stampScasCopyright(clone);
 
         var vb = svg.viewBox.baseVal;
         var finiteSvgDimensions = Number.isFinite(vb.x) && Number.isFinite(vb.y) &&

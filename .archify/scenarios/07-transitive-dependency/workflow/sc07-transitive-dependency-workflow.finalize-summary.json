@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/07-transitive-dependency/workflow/candidate.json",
+    "sha256": "e7d76fd0deb8a8693cfb997a3c9fb0fb584d555c9dfd02c4ae3d558d1b49e8d6",
+    "bytes": 4977
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/07-transitive-dependency/workflow/sc07-transitive-dependency-workflow.html",
+    "sha256": "0fac6a4a25d7ea703d7fa0e521352c97d2cc2b0e3a8877dc1b48ff8674c85cde",
+    "bytes": 820252
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/07-transitive-dependency/workflow/sc07-transitive-dependency-workflow.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/07-transitive-dependency/workflow/sc07-transitive-dependency-workflow.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/07-transitive-dependency/workflow/sc07-transitive-dependency-workflow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-22T10:02:04.311Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 4874,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

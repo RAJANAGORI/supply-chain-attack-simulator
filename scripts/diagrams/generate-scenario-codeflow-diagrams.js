@@ -682,16 +682,33 @@ ${hEdge(980, 1987, 1060, 'also', { color: C.gate.stroke, marker: '#arrowhead-gat
 `;
 }
 
+function codePathNotes(scenario) {
+  return [
+    'Same path as the diagram:',
+    '',
+    `1. Collector. Start the localhost mock with \`${scenario.mock_start}\`.`,
+    `2. Run lab. \`${scenario.lab_run}\` (${scenario.victim_label}).`,
+    `3. Payload. ${scenario.trigger_action}. The cover behavior still returns, so the lab looks normal.`,
+    "4. TESTBENCH. The malicious call runs only when `TESTBENCH_MODE === 'enabled'`. If it is off, the payload takes SAFE MODE and does not open the network. Do not point this path at a real host.",
+    `5. Exfil. \`${scenario.mock_endpoint}\` stays on localhost. Verify with \`${scenario.verify_cli}\`. Elasticsearch indexing is a later step, not this path.`,
+    '',
+  ].join('\n');
+}
+
 function codeflowSectionMarkdown(scenario) {
   const id = scenario.scenario_id;
-  const basename = `scas-codeflow-scenario-${id}`;
+  const folder = scenario.folder;
+  const file = `sc${folder}-workflow.html`;
+  const site = `archify/scenarios/${folder}/workflow/${file}`;
+  const github = `https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/${folder}/workflow/${file}`;
   return [
     CODE_MARKER,
     '',
-    `![Scenario ${id} code-level workflow: ${scenario.title}](../../assets/diagrams/codeflow/svg/${basename}.svg)`,
+    `<iframe class="archify-embed" title="Scenario ${id} code-level workflow" src="${site}" loading="lazy"></iframe>`,
     '',
-    `*Code-level workflow for Scenario ${id}. Editable source: [\`${basename}.excalidraw\`](../../assets/diagrams/codeflow/excalidraw/${basename}.excalidraw). Regenerate with \`${REGEN_CMD}\`.*`,
+    `<p class="archify-embed-caption">Code path for Scenario ${id}: collector, lab run, payload, the TESTBENCH gate, localhost exfil or SAFE MODE, then verify. <a href="${site}" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="${github}" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>`,
     '',
+    codePathNotes(scenario),
     '',
   ].join('\n');
 }
@@ -735,6 +752,10 @@ function injectGuideSection(scenario) {
 }
 
 function main() {
+  if (process.argv.includes('--inject-only')) {
+    for (const scenario of META) injectGuideSection(scenario);
+    return;
+  }
   let count = 0;
   for (const scenario of META) {
     const id = scenario.scenario_id;

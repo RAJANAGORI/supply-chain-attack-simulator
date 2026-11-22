@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "e75d3f03-e877-4733-a085-2a468c8c9367",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/09-package-signing-bypass/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/09-package-signing-bypass/workflow/sc09-package-signing-bypass-workflow.html",
+  "specification": {
+    "sha256": "6b852e995adc94dd43f7c8e5441ad67065af9a35278e7a6f4e1c53ef88eed544",
+    "bytes": 4993
+  },
+  "artifact": {
+    "sha256": "9580828d48ddfbfb08ce4263ba5c85cb896266889a011e8c75a8186273a7f038",
+    "bytes": 820277
+  }
+}

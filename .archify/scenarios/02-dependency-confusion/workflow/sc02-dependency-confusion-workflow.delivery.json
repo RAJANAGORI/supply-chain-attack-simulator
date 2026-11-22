@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "5728cb67-77d5-4eb5-86e2-92447d2373d5",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/02-dependency-confusion/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/02-dependency-confusion/workflow/sc02-dependency-confusion-workflow.html",
+  "specification": {
+    "sha256": "abd0b4d0a57dda91ad2c668aca7e2e280ee1e007994b39023d7cc2e45c04000e",
+    "bytes": 4978
+  },
+  "artifact": {
+    "sha256": "3f7132cfcda0d20da4a5362fe39901de87865723fb52a66515e276ede0fb136c",
+    "bytes": 820261
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/01-typosquatting/workflow/candidate.json",
+    "sha256": "d1f947faeca650bee25391619559fb2bcbbe46e45399190c4d636dec1ffa3fa6",
+    "bytes": 4865
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/01-typosquatting/workflow/sc01-typosquatting-workflow.html",
+    "sha256": "79246897580c5f17eb1f02d2ddcbb55508fd78012f7466372ccdc80cf68ec57b",
+    "bytes": 820064
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/01-typosquatting/workflow/sc01-typosquatting-workflow.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/01-typosquatting/workflow/sc01-typosquatting-workflow.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/01-typosquatting/workflow/sc01-typosquatting-workflow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-22T10:02:04.311Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 3494,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

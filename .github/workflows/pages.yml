@@ -6,6 +6,9 @@ on:
     paths:
       - 'docs/**'
       - 'documentation/**'
+      - '.archify/scenarios/**/architecture/*.html'
+      - '.archify/scenarios/**/sequence/*.html'
+      - '.archify/scenarios/**/workflow/*.html'
       - 'LEGAL.md'
       - 'ATTRIBUTION.md'
       - 'AUTHORS.md'

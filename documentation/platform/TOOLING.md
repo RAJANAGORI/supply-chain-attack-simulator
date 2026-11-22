@@ -145,7 +145,7 @@ node scripts/diagrams/generate-scenario-codeflow-diagrams.js
 node scripts/diagrams/check-diagram-assets.js
 ```
 
-**Diagrams:** specs in [`scripts/lib/diagram-specs.js`](../../scripts/lib/diagram-specs.js); assets in [`documentation/assets/diagrams/`](../assets/diagrams/README.md) under `platform/`, `observability/`, and `codeflow/` (each with `svg/` + `excalidraw/`). Markdown embeds SVG only. Zero-to-hero uses unique `scas-observability-scenario-NN` and `scas-codeflow-scenario-NN` diagrams for all 25 labs.
+**Diagrams:** specs in [`scripts/lib/diagram-specs.js`](../../scripts/lib/diagram-specs.js); assets in [`documentation/assets/diagrams/`](../assets/diagrams/README.md) under `platform/`, `observability/`, and `codeflow/` (each with `svg/` + `excalidraw/`). Platform and codeflow Markdown embeds SVG only. Each zero-to-hero End-to-end flow embeds that lab's Archify architecture HTML, Phase 1-5 embeds the Archify sequence HTML, and Code-level workflow embeds the Archify workflow HTML (`archify/scenarios/NN-slug/workflow/scNN-slug-workflow.html`). The frame keeps the viewer toolbar (theme, Classic, Still, Export). Do not add `?embed=1`. The codeflow SVG pair stays on disk.
 
 **What goes where:**
 
@@ -156,7 +156,7 @@ node scripts/diagrams/check-diagram-assets.js
 If you change DETECT.md structure or observability flow, also re-run the ES helpers:
 
 ```bash
-node detection-tools/es/generate-observability-section.js   # embeds unique scas-observability-scenario-NN.svg + Phase-2 table (no Mermaid)
+node detection-tools/es/generate-observability-section.js   # End-to-end flow + Phase 1-5: Archify architecture and sequence iframes + Phase-2 table
 node detection-tools/es/load-runbooks.js                    # reload DETECT.md into scas-rules
 ```
 

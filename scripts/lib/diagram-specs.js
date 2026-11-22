@@ -13,7 +13,7 @@
  *
  * When editing a diagram: preserve every requiredLabel and edgeIntent below.
  * Do not invent nodes or collapse fan-out/fan-in. Hand-authored docs stay
- * SVG-only (no Mermaid). Scenario observability guides keep SVG + sequenceDiagram.
+ * SVG-only (no Mermaid). Scenario observability guides frame the Archify architecture and sequence HTML.
  */
 
 const path = require('path');
@@ -33,6 +33,9 @@ const {
  *   generatorMustNotEmitMermaid?: string | string[],
  *   generatorMustEmitMermaidSequence?: string,
  *   requireMermaidSequence?: boolean,
+ *   archifyArchitecture?: string,
+ *   archifySequence?: string,
+ *   archifyWorkflow?: string,
  *   title: string,
  *   purpose: string,
  *   layout: string,
@@ -260,7 +263,9 @@ function buildScenarioObservabilitySpecs() {
       category: 'observability',
       markdownDoc: `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_${id}.md`,
       title: `Scenario ${id} observability flow`,
-      purpose: `Unique Phase 1–5 observability diagram for Scenario ${id} (${scenario.title}), including scenario-specific Phase-2 attack steps.`,
+      purpose: `Unique Phase 1–5 observability diagram for Scenario ${id} (${scenario.title}), including scenario-specific Phase-2 attack steps. The zero-to-hero End-to-end flow embeds the Archify architecture HTML instead of this SVG.`,
+      archifyArchitecture: `.archify/scenarios/${scenario.folder}/architecture/sc${scenario.folder}-architecture.html`,
+      archifySequence: `.archify/scenarios/${scenario.folder}/sequence/sc${scenario.folder}-sequence.html`,
       layout:
         'Title + actors row; Phase 1 collectors; Phase 2 numbered scenario steps; Phase 3–5 exfil / optional ES / Kibana',
       nodes: [
@@ -326,6 +331,7 @@ function buildScenarioCodeflowSpecs() {
       basename: `scas-codeflow-scenario-${id}`,
       category: 'codeflow',
       markdownDoc: `documentation/scenario-guides/zero-to-hero/ZERO_TO_HERO_SCENARIO_${id}.md`,
+      archifyWorkflow: `.archify/scenarios/${scenario.folder}/workflow/sc${scenario.folder}-workflow.html`,
       title: `Scenario ${id} — code-level workflow`,
       purpose: `Low-level runtime/code workflow for Scenario ${id} (${scenario.title}): deception surface, payload path, TESTBENCH gate, mock capture, verify.`,
       layout:
@@ -383,8 +389,9 @@ const DRAWING_RULES = [
   'Preserve every edge in DIAGRAM_SPECS[*].edges — do not collapse fan-out or fan-in.',
   'Preserve every requiredLabels needle in the SVG text content.',
   'Hand-authored platform/curriculum diagrams: do not reintroduce ```mermaid in their markdownDoc paths — SVG only.',
-  'Scenario observability (zero-to-hero): keep BOTH the unique Excalidraw/SVG swimlane (scas-observability-scenario-NN) AND a Mermaid sequenceDiagram in the observability section.',
-  'Scenario codeflow (zero-to-hero): SVG-only embed under ## Code-level workflow (no Mermaid).',
+  'Scenario observability (zero-to-hero): End-to-end flow iframes the Archify architecture HTML, and Sequence diagram (Phase 1-5) iframes the Archify sequence HTML, with the viewer toolbar left on. Do not add ?embed=1. Do not put the SVG swimlane or a Mermaid sequence back in those slots. Keep the Excalidraw/SVG swimlane on disk.',
+  'Scenario codeflow (zero-to-hero): ## Code-level workflow iframes the Archify workflow HTML (archify/scenarios/NN-slug/workflow/scNN-slug-workflow.html) with the viewer toolbar left on. Do not add ?embed=1. Keep the Excalidraw/SVG pair on disk; do not put that SVG back in the section.',
+  'Archify exports: after finalize replaces a scenario HTML file, run node scripts/diagrams/stamp-archify-export-copyright.js so PNG, SVG, and the other exports carry © Raja Nagori · SCAS.',
   'SVG must be well-formed XML: escape & as &amp;, < as &lt;, > as &gt; inside text nodes.',
   'Prefer sparse labels, clear reading order, and edge labels for dashed optional paths (SCAS_ES_URL, SCAS_FLOCI_ENABLED, must not).',
   'Safety captions (TESTBENCH_MODE, localhost) are allowed as footnotes; do not invent new attack capabilities.',

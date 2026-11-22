@@ -533,7 +533,7 @@
     updateDocSeo(path, meta, text);
 
     configureMarked();
-    els.content.innerHTML = marked.parse(text);
+    els.content.innerHTML = withArchifyTheme(marked.parse(text));
 
     els.content.insertAdjacentHTML('beforeend',
       '<div class="docs-source-note">Source: <a href="' + repoBlobUrl(repoPathForResolved(path)) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(repoPathForResolved(path)) + '</a> — © Raja Nagori. Documentation under CC BY-NC-ND 4.0 unless noted.' +
@@ -542,6 +542,7 @@
     );
 
     bindInternalLinks();
+    fitArchifyEmbeds();
     renderPager(path);
     renderSidebar(els.search.value);
     scrollActiveNavIntoView();
@@ -567,6 +568,90 @@
         }
       });
     }
+  }
+
+
+
+  function docsTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  }
+
+  function withArchifyTheme(html) {
+    var theme = docsTheme();
+    return html.replace(
+      /(<iframe\b[^>]*\bsrc=")(archify\/[^"?]+)(\?[^"]*)?(")/g,
+      function (_match, open, path, query, close) {
+        var params = new URLSearchParams(query ? query.slice(1) : '');
+        params.set('theme', theme);
+        params.set('rev', 'copyright');
+        return open + path + '?' + params.toString() + close;
+      }
+    );
+  }
+
+
+  function syncArchifyTheme(doc) {
+    var theme = docsTheme();
+    var html = doc.documentElement;
+    if (!html || html.getAttribute('data-theme') === theme) return;
+    html.setAttribute('data-theme', theme);
+    var label = doc.getElementById('theme-label');
+    if (label) label.textContent = theme === 'dark' ? 'Dark' : 'Light';
+    var btn = doc.getElementById('btn-theme');
+    if (btn) btn.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+  }
+
+  function keepArchifyToolbar(doc) {
+    var html = doc.documentElement;
+    if (!html || html.getAttribute('data-scas-frame') === 'true') return;
+    html.setAttribute('data-scas-frame', 'true');
+    if (doc.getElementById('scas-archify-frame')) return;
+    var style = doc.createElement('style');
+    style.id = 'scas-archify-frame';
+    style.textContent = [
+      'html[data-scas-frame="true"]:not([data-present="true"]) .header,',
+      'html[data-scas-frame="true"]:not([data-present="true"]) .reader-rail,',
+      'html[data-scas-frame="true"]:not([data-present="true"]) .cards,',
+      'html[data-scas-frame="true"]:not([data-present="true"]) .node-outline,',
+      'html[data-scas-frame="true"]:not([data-present="true"]) .diagram-nav,',
+      'html[data-scas-frame="true"]:not([data-present="true"]) .overview-map,',
+      'html[data-scas-frame="true"]:not([data-present="true"]) .focus-chip,',
+      'html[data-scas-frame="true"]:not([data-present="true"]) .route-probe,',
+      'html[data-scas-frame="true"]:not([data-present="true"]) .semantic-lens,',
+      'html[data-scas-frame="true"]:not([data-present="true"]) .diagram-guide,',
+      'html[data-scas-frame="true"]:not([data-present="true"]) .node-finder { display: none !important; }',
+      'html[data-scas-frame="true"] .toolbar { display: flex !important; z-index: 200; }'
+    ].join('\n');
+    doc.head.appendChild(style);
+  }
+
+  function fitArchifyEmbeds() {
+    els.content.querySelectorAll('iframe.archify-embed').forEach(function (frame) {
+      function fit() {
+        try {
+          var doc = frame.contentDocument;
+          if (!doc || !doc.documentElement) return;
+          keepArchifyToolbar(doc);
+          syncArchifyTheme(doc);
+          var svg = doc.querySelector('svg[viewBox]');
+          if (!svg) return;
+          var box = svg.getBoundingClientRect();
+          if (box.height < 80) return;
+          var height = Math.max(box.bottom, doc.documentElement.scrollHeight);
+          frame.style.aspectRatio = 'auto';
+          frame.style.height = Math.ceil(height + 8) + 'px';
+        } catch (err) {}
+      }
+      function schedule() {
+        fit();
+        window.requestAnimationFrame(fit);
+        window.setTimeout(fit, 180);
+      }
+      frame.addEventListener('load', schedule);
+      if (frame.contentDocument && frame.contentDocument.readyState === 'complete') {
+        schedule();
+      }
+    });
   }
 
   function bindInternalLinks() {

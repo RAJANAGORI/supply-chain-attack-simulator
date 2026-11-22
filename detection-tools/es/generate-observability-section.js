@@ -6,7 +6,7 @@ const metadata = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'scenario-observability.json'), 'utf8')
 );
 
-/** Per-scenario Excalidraw SVG (unique Phase 2 + shared phase frame). */
+/** Per-scenario Excalidraw SVG (still generated; not the guide embed). */
 function observabilityBasename(scenarioId) {
   return `scas-observability-scenario-${scenarioId}`;
 }
@@ -16,20 +16,41 @@ function observabilityRel(scenarioId) {
   return `../../assets/diagrams/observability/svg/${base}.svg`;
 }
 
-function observabilitySourceRel(scenarioId) {
-  const base = observabilityBasename(scenarioId);
-  return `../../assets/diagrams/observability/excalidraw/${base}.excalidraw`;
+/** Repo-relative Archify HTML for this lab. kind is `architecture` or `sequence`. */
+function archifyFilePath(scenario, kind) {
+  const file = `sc${scenario.folder}-${kind}.html`;
+  return `.archify/scenarios/${scenario.folder}/${kind}/${file}`;
 }
 
-function shortLabel(label) {
-  return String(label).split(' (')[0].trim();
+function architectureHtmlPath(scenario) {
+  return archifyFilePath(scenario, 'architecture');
 }
 
-function captureFileHint(scenario) {
-  const ep = scenario.mock_endpoint || 'POST /collect';
-  if (/beacon/i.test(ep)) return 'captured beacon JSON';
-  if (/credential/i.test(scenario.mock_label || '')) return 'captured-credentials.json';
-  return scenario.capture_file || 'captured-data.json';
+function sequenceHtmlPath(scenario) {
+  return archifyFilePath(scenario, 'sequence');
+}
+
+/**
+ * Path guide.html can iframe. Resolved against /guide.html, so this lands on
+ * /archify/... which materialize-docs-for-pages.sh publishes from .archify/.
+ */
+function architectureSitePath(scenario) {
+  return archifyFilePath(scenario, 'architecture').replace(/^\.archify\//, 'archify/');
+}
+
+function sequenceSitePath(scenario) {
+  return archifyFilePath(scenario, 'sequence').replace(/^\.archify\//, 'archify/');
+}
+
+function buildArchifyFrame(scenario, kind, title, lead) {
+  const repoPath = archifyFilePath(scenario, kind);
+  const sitePath = repoPath.replace(/^\.archify\//, 'archify/');
+  const github = `https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/${repoPath}`;
+  return [
+    `<iframe class="archify-embed" title="${title}" src="${sitePath}" loading="lazy"></iframe>`,
+    '',
+    `<p class="archify-embed-caption">${lead} <a href="${sitePath}" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="${github}" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>`,
+  ].join('\n');
 }
 
 function escapeMdCell(value) {
@@ -37,94 +58,42 @@ function escapeMdCell(value) {
 }
 
 /**
- * Unique per-scenario Excalidraw→SVG embed.
- * Assets from: node scripts/diagrams/generate-scenario-observability-diagrams.js
+ * End-to-end slot: the Archify architecture HTML, framed in the docs reader.
+ * guide.html allows raw HTML. GitHub's blob page will not render inside a frame,
+ * so the src is the copy published at /archify/... (see pages materialize).
  */
-function buildSvgDiagram(scenario) {
+function buildArchitectureEmbed(scenario) {
   const id = scenario.scenario_id;
-  const base = observabilityBasename(id);
-  return [
-    `![Scenario ${id} observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](${observabilityRel(id)})`,
-    '',
-    `*Swimlane diagram for Scenario ${id}. Editable source: [\`${base}.excalidraw\`](${observabilitySourceRel(id)}). Regenerate with \`node scripts/diagrams/generate-scenario-observability-diagrams.js\`.*`,
-  ].join('\n');
+  return buildArchifyFrame(
+    scenario,
+    'architecture',
+    `Scenario ${id} lab architecture`,
+    `Lab topology for Scenario ${id} (localhost only, TESTBENCH_MODE=enabled on the payload).`
+  );
 }
 
-/**
- * Per-scenario Mermaid sequenceDiagram (Phase 1-5) - kept alongside the SVG
- * so guide.html can expand/lightbox the interaction sequence.
- */
+/** @deprecated alias; the guide embed is the Archify page, not the SVG swimlane. */
+function buildSvgDiagram(scenario) {
+  return buildArchitectureEmbed(scenario);
+}
+
+/** Phase 1-5 slot: the Archify sequence HTML, framed the same way as the architecture page. */
 function buildSequenceDiagram(scenario) {
   const id = scenario.scenario_id;
-  const captureFile = captureFileHint(scenario);
-  const diagramMeta = SCENARIO_DIAGRAMS[id] || {
-    attack_steps: [{ from: 'Learner', to: 'Victim', message: scenario.trigger_action }],
-  };
-
-  const lines = [
-    '```mermaid',
-    'sequenceDiagram',
-    '    autonumber',
-    '    participant Learner as Learner (you)',
-    `    participant Victim as ${shortLabel(scenario.victim_label)}`,
-    `    participant MalPkg as ${scenario.malicious_label}`,
-    `    participant Mock as ${scenario.mock_label}`,
-    '    participant ES as Elasticsearch :9200',
-    '    participant Kibana as Kibana :5601',
-    '',
-    '    Note over Learner,Mock: Phase 1 - Start collectors (Terminal A)',
-    '    Learner->>Mock: export TESTBENCH_MODE=enabled',
-    '    Learner->>Mock: export SCAS_ES_URL=http://localhost:9200 (optional)',
-    `    Learner->>Mock: ${scenario.mock_start}`,
-    '    Mock->>Mock: Listen for exfil POST on localhost',
-    '',
-    '    Note over Learner,MalPkg: Phase 2 - Run the lab (Terminal B)',
-    '    Learner->>Learner: export TESTBENCH_MODE=enabled',
-    '    Learner->>Learner: export SCAS_ES_URL=http://localhost:9200 (optional)',
-  ];
-
-  for (const step of diagramMeta.attack_steps) {
-    lines.push(`    ${step.from}->>${step.to}: ${step.message}`);
-  }
-
-  lines.push(
-    '',
-    '    Note over MalPkg,Mock: Phase 3 - Simulated exfiltration (127.0.0.1 only)',
-    '    Note over MalPkg: Malicious path gated by TESTBENCH_MODE=enabled',
-    `    MalPkg->>Mock: ${scenario.mock_endpoint} JSON payload`,
-    `    Mock->>Mock: Append to infrastructure/${captureFile}`,
-    '    Mock-->>Learner: 200 OK (capture accepted)',
-    '',
-    '    Note over Mock,Kibana: Phase 4 - Optional Elasticsearch indexing',
-    '    alt SCAS_ES_URL is set in Terminal A',
-    `    Mock->>ES: POST scas-detections (scenario_id=${id}, event_type=exfil_capture)`,
-    '    ES->>ES: Store @timestamp, package, detail fields',
-    '    else SCAS_ES_URL not set',
-    '    Mock->>Mock: File-only capture (default lab behavior)',
-    '    end',
-    '',
-    '    Note over ES: Runbook pre-seeded at scas-rules/_doc/' + id,
-    '    Note over Learner,Kibana: Phase 5 - Blue-team review in Kibana',
-    `    Learner->>Kibana: Open Discover → SCAS Detections - Scenario ${id}`,
-    '    Kibana->>ES: Query scenario_id + sort by @timestamp desc',
-    '    ES-->>Kibana: Return capture events for this lab',
-    `    Learner->>Kibana: Open SCAS Rules - Scenario ${id}`,
-    '    ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md',
-    '    Learner->>Learner: Correlate capture detail with runbook IOCs',
-    '```'
+  return buildArchifyFrame(
+    scenario,
+    'sequence',
+    `Scenario ${id} attack sequence`,
+    `Phase 1-5 attack sequence for Scenario ${id}. Collectors, the lab run, localhost exfil, then optional Elasticsearch and Kibana.`
   );
-
-  return lines.join('\n');
 }
 
-/** SVG swimlane + Mermaid sequence - both required for scenario guides. */
+/** Archify architecture frame, then the Archify sequence frame. */
 function buildDiagram(scenario) {
   return [
-    buildSvgDiagram(scenario),
+    buildArchitectureEmbed(scenario),
     '',
     '### Sequence diagram (Phase 1-5)',
-    '',
-    'Same flow as a participant sequence (expandable in the docs hub).',
     '',
     buildSequenceDiagram(scenario),
   ].join('\n');
@@ -350,7 +319,12 @@ if (require.main === module) {
 module.exports = {
   buildSection,
   buildDiagram,
+  buildArchitectureEmbed,
   buildSvgDiagram,
+  architectureHtmlPath,
+  architectureSitePath,
+  sequenceHtmlPath,
+  sequenceSitePath,
   buildSequenceDiagram,
   buildAttackStepsTable,
   buildDiagramLegend,

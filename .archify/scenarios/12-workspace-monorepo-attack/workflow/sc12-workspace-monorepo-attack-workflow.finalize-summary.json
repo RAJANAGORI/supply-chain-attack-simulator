@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/12-workspace-monorepo-attack/workflow/candidate.json",
+    "sha256": "bcc0e4553e5efb368f220dc2074393ac60e62563805b9a3ba34ecb83cca3a95f",
+    "bytes": 5006
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/12-workspace-monorepo-attack/workflow/sc12-workspace-monorepo-attack-workflow.html",
+    "sha256": "875dba954b254c13126bcd194240b71762ccb6720e388a64dc7d9a1899b293b6",
+    "bytes": 820291
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/12-workspace-monorepo-attack/workflow/sc12-workspace-monorepo-attack-workflow.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/12-workspace-monorepo-attack/workflow/sc12-workspace-monorepo-attack-workflow.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/12-workspace-monorepo-attack/workflow/sc12-workspace-monorepo-attack-workflow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-22T10:02:04.311Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 5178,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

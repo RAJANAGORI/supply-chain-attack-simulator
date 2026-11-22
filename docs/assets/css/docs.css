@@ -634,6 +634,23 @@ body.mermaid-lightbox-open {
   border-radius: var(--radius-sm);
 }
 
+.docs-content iframe.archify-embed {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1318 / 780;
+  height: auto;
+  min-height: 280px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: #10141c;
+}
+
+.docs-content .archify-embed-caption {
+  margin: 0.65rem 0 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
 .docs-pager {
   display: grid;
   grid-template-columns: 1fr 1fr;

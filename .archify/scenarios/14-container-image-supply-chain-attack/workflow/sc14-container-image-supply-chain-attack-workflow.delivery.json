@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "c0bff79a-20b8-4d2d-a444-8a9cd153030f",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/14-container-image-supply-chain-attack/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/14-container-image-supply-chain-attack/workflow/sc14-container-image-supply-chain-attack-workflow.html",
+  "specification": {
+    "sha256": "66791be846970797af307b9ae863cccef86158bb8725499d43dde20a8abf7a51",
+    "bytes": 5089
+  },
+  "artifact": {
+    "sha256": "f6e49d73a8bcd54f21d523db260e0d06f3907ba322dfa6e3ba2d502465772f4e",
+    "bytes": 820442
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "fa114b2e-f460-4056-a890-4bdb461cfc9c",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/20-package-version-confusion/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/20-package-version-confusion/workflow/sc20-package-version-confusion-workflow.html",
+  "specification": {
+    "sha256": "0ab897b33a0c14a3bb7750f7959b73082684b099b2e27ef1cbcd601c0589859a",
+    "bytes": 5018
+  },
+  "artifact": {
+    "sha256": "f00023e3370fad365e99f98625961a86cc5c7aa6f971e3c560a9b04448906df9",
+    "bytes": 820317
+  }
+}

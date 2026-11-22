@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "22cf9f21-9e6c-4e2d-aa29-6831c1624881",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/24-slopsquatting/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/24-slopsquatting/workflow/sc24-slopsquatting-workflow.html",
+  "specification": {
+    "sha256": "02c072de3cab1cfe60421518ce41db6f4aad566a9c20aedc7a9005bdf0d23649",
+    "bytes": 4884
+  },
+  "artifact": {
+    "sha256": "37286e7f6e692c01d8e6be72f1baf7fe486b8eac567d6860a35ad7e23f4b891c",
+    "bytes": 820089
+  }
+}

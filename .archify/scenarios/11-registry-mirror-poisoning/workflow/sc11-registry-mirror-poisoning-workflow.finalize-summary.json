@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "finalize",
+  "status": "pass",
+  "type": "workflow",
+  "quality": "showcase",
+  "specification": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/11-registry-mirror-poisoning/workflow/candidate.json",
+    "sha256": "c32e5b66cf6949653e268d1febb03b274c86d275cc8f528bdba605d1fc49f58f",
+    "bytes": 5025
+  },
+  "artifact": {
+    "path": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/11-registry-mirror-poisoning/workflow/sc11-registry-mirror-poisoning-workflow.html",
+    "sha256": "34adb36badbc0f0020b3e9caada09d873c9d92a9d3201374aa70cffb2d3110ec",
+    "bytes": 820340
+  },
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "diagnostics": [],
+  "diagnosticSummary": {
+    "total": 0,
+    "shown": 0,
+    "truncated": false
+  },
+  "evidence": {
+    "receipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/11-registry-mirror-poisoning/workflow/sc11-registry-mirror-poisoning-workflow.finalize.json",
+    "summaryReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/11-registry-mirror-poisoning/workflow/sc11-registry-mirror-poisoning-workflow.finalize-summary.json",
+    "browserCheckReceipt": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/11-registry-mirror-poisoning/workflow/sc11-registry-mirror-poisoning-workflow.browser-check.json"
+  },
+  "update": {
+    "status": "current",
+    "installedVersion": "3.2.0",
+    "availableVersion": "3.2.0",
+    "releaseNotes": null,
+    "checkedAt": "2026-11-22T10:02:04.311Z",
+    "source": "cache",
+    "noticeRequired": false,
+    "noticeText": null
+  },
+  "visualReview": "not-requested",
+  "durationMs": 4984,
+  "browserCheck": {
+    "requested": true,
+    "ran": true
+  }
+}

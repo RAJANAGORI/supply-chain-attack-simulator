@@ -30,10 +30,10 @@ Markdown prose uses ASCII hyphen `-` and straight quotes. No em dash, en dash, c
 2. `node scripts/docs/sync-mitigation-gaps.js` - DETECT `## Mitigation` + README playbooks (01-06)
 3. `node scripts/docs/inject-zero-to-hero-mitigation-playbooks.js` - zero-to-hero playbooks
 4. `node scripts/docs/inject-markdown-toc.js all` - rebuild TOCs
-5. Observability blocks: `detection-tools/es/scenario-diagram-steps.js` → `generate-observability-section.js` (embeds shared `scas-observability-flow.svg`; no Mermaid)
+5. Observability blocks: `detection-tools/es/scenario-diagram-steps.js` then `generate-observability-section.js` (End-to-end flow iframes the Archify architecture HTML; Phase 1-5 iframes the Archify sequence HTML)
 6. `node detection-tools/es/load-runbooks.js` - if `DETECT.md` structure changed
 7. **Add/remove a scenario:** update README / AUTHORS / Pages hero + `docs-manifest` / CATALOG / zero-to-hero + quick-ref + modules indexes / observability N and 2N counts / playbooks / control-plane registry / `lesson.yaml` - then `node scripts/docs/check-info-consistency.js` and `node scripts/docs/check-lesson-yaml.js` (CI-enforced)
-8. **Hand-authored diagrams:** specs in `scripts/lib/diagram-specs.js` (nodes/edges/labels/drawing rules). Assets under `documentation/assets/diagrams/` as `.excalidraw` + `.svg` pairs. Markdown embeds SVG only - no Mermaid in contracted docs / observability sections. Escape `&` as `&amp;` in SVG. After edits: `node scripts/diagrams/check-diagram-assets.js` (CI-enforced)
+8. **Hand-authored diagrams:** specs in `scripts/lib/diagram-specs.js` (nodes/edges/labels/drawing rules). Assets under `documentation/assets/diagrams/` as `.excalidraw` + `.svg` pairs. Platform and codeflow Markdown embeds SVG only. Observability End-to-end flow embeds the Archify architecture HTML, Phase 1-5 embeds the Archify sequence HTML, and Code-level workflow embeds the Archify workflow HTML. Leave the viewer toolbar on; do not add `?embed=1`. Escape `&` as `&amp;` in SVG. After edits: `node scripts/diagrams/check-diagram-assets.js` (CI-enforced)
 9. After Markdown edits: `node scripts/docs/check-markdown-watermarks.js` (CI-enforced in smoke.yml)
 10. Lesson / campaign / classroom copy: keep ASCII; validate lessons with `node scripts/docs/check-lesson-yaml.js`
 

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "ae037d91-5c9b-4dbb-ae50-bcb8743a16ac",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/13-package-metadata-manipulation/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/13-package-metadata-manipulation/workflow/sc13-package-metadata-manipulation-workflow.html",
+  "specification": {
+    "sha256": "01926b768227c47a46345e6a0d25a2a81de8eefc686886df7d9e7cb390b9cd6c",
+    "bytes": 5038
+  },
+  "artifact": {
+    "sha256": "c15807b169bfe64bc50fa412206b782b6ffafc0c7f3b0d7bcafdd7382b4c6e07",
+    "bytes": 820348
+  }
+}

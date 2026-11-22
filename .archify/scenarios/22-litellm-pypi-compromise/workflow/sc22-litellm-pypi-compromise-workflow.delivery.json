@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "802fbf0a-13e6-4192-9b5a-61273b154da2",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/22-litellm-pypi-compromise/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/22-litellm-pypi-compromise/workflow/sc22-litellm-pypi-compromise-workflow.html",
+  "specification": {
+    "sha256": "9b70df253ca8500c555a3dc5daa32a88ac28c00f259a0a23b0a6b94fcbeb8ada",
+    "bytes": 4993
+  },
+  "artifact": {
+    "sha256": "833396605210514b4c60b006aa0a5d0f8e410a1507873b55bd2eae6d0410f94f",
+    "bytes": 820288
+  }
+}

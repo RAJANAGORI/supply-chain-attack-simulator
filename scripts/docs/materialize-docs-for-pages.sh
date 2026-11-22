@@ -62,6 +62,9 @@ relocate_if_present() {
 }
 
 for entry in "$DOCS"/*; do
+  # docs/archify is a local symlink to ../.archify. Pages cannot follow it.
+  # The copy below publishes the architecture HTML at /archify/... for iframes.
+  [[ "$(basename "$entry")" == "archify" ]] && continue
   [[ -L "$entry" ]] && materialize_entry "$(basename "$entry")"
 done
 
@@ -84,6 +87,19 @@ mkdir -p "$DOCS/assets"
 rm -rf "$DOCS/assets/diagrams"
 cp -R "$ROOT/documentation/assets/diagrams" "$DOCS/assets/diagrams"
 echo "materialized: docs/assets/diagrams (from documentation/assets/diagrams)"
+
+# Zero-to-hero iframes load /archify/scenarios/NN-slug/{architecture,sequence,workflow}/*.html
+# guide.html resolves that path from the site root. Copy real files; do not keep the symlink.
+rm -rf "$DOCS/archify"
+copied=0
+while IFS= read -r html; do
+  rel="${html#"$ROOT"/.archify/}"
+  dest="$DOCS/archify/$rel"
+  mkdir -p "$(dirname "$dest")"
+  cp "$html" "$dest"
+  copied=$((copied + 1))
+done < <(find "$ROOT/.archify/scenarios" -type f \( -path '*/architecture/*.html' -o -path '*/sequence/*.html' -o -path '*/workflow/*.html' \) | sort)
+echo "materialized: docs/archify ($copied architecture, sequence, and workflow html files)"
 
 echo "Done. Markdown for guide.html lives under docs/_sources/ (not browsable as raw .md URLs)."
 

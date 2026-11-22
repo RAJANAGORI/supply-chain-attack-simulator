@@ -537,9 +537,17 @@ npm uses semantic versioning (semver) to resolve versions:
 
 ## Code-level workflow
 
-![Scenario 02 code-level workflow: Dependency Confusion](../../assets/diagrams/codeflow/svg/scas-codeflow-scenario-02.svg)
+<iframe class="archify-embed" title="Scenario 02 code-level workflow" src="archify/scenarios/02-dependency-confusion/workflow/sc02-dependency-confusion-workflow.html" loading="lazy"></iframe>
 
-*Code-level workflow for Scenario 02. Editable source: [`scas-codeflow-scenario-02.excalidraw`](../../assets/diagrams/codeflow/excalidraw/scas-codeflow-scenario-02.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-codeflow-diagrams.js`.*
+<p class="archify-embed-caption">Code path for Scenario 02: collector, lab run, payload, the TESTBENCH gate, localhost exfil or SAFE MODE, then verify. <a href="archify/scenarios/02-dependency-confusion/workflow/sc02-dependency-confusion-workflow.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/02-dependency-confusion/workflow/sc02-dependency-confusion-workflow.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
+
+Same path as the diagram:
+
+1. Collector. Start the localhost mock with `node infrastructure/mock-server.js`.
+2. Run lab. `cd corporate-app && npm install && npm start` (corporate-app (npm start)).
+3. Payload. npm install resolves public high version. The cover behavior still returns, so the lab looks normal.
+4. TESTBENCH. The malicious call runs only when `TESTBENCH_MODE === 'enabled'`. If it is off, the payload takes SAFE MODE and does not open the network. Do not point this path at a real host.
+5. Exfil. `POST /collect` stays on localhost. Verify with `curl -s http://localhost:3000/captured-data`. Elasticsearch indexing is a later step, not this path.
 
 ## Mitigation Playbook
 
@@ -583,61 +591,15 @@ Dependency confusion: a scoped internal name resolves to a higher public version
 
 ### End-to-end flow
 
-![Scenario 02 observability flow: Phase 1 collectors → Phase 2 lab steps → Phase 3 localhost exfil → optional Elasticsearch → Kibana Detections and Rules](../../assets/diagrams/observability/svg/scas-observability-scenario-02.svg)
+<iframe class="archify-embed" title="Scenario 02 lab architecture" src="archify/scenarios/02-dependency-confusion/architecture/sc02-dependency-confusion-architecture.html" loading="lazy"></iframe>
 
-*Swimlane diagram for Scenario 02. Editable source: [`scas-observability-scenario-02.excalidraw`](../../assets/diagrams/observability/excalidraw/scas-observability-scenario-02.excalidraw). Regenerate with `node scripts/diagrams/generate-scenario-observability-diagrams.js`.*
+<p class="archify-embed-caption">Lab topology for Scenario 02 (localhost only, TESTBENCH_MODE=enabled on the payload). <a href="archify/scenarios/02-dependency-confusion/architecture/sc02-dependency-confusion-architecture.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/02-dependency-confusion/architecture/sc02-dependency-confusion-architecture.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
 
 ### Sequence diagram (Phase 1-5)
 
-Same flow as a participant sequence (expandable in the docs hub).
+<iframe class="archify-embed" title="Scenario 02 attack sequence" src="archify/scenarios/02-dependency-confusion/sequence/sc02-dependency-confusion-sequence.html" loading="lazy"></iframe>
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Learner as Learner (you)
-    participant Victim as corporate-app
-    participant MalPkg as @techcorp/auth-lib (malicious)
-    participant Mock as mock-server :3000
-    participant ES as Elasticsearch :9200
-    participant Kibana as Kibana :5601
-
-    Note over Learner,Mock: Phase 1 - Start collectors (Terminal A)
-    Learner->>Mock: export TESTBENCH_MODE=enabled
-    Learner->>Mock: export SCAS_ES_URL=http://localhost:9200 (optional)
-    Learner->>Mock: node infrastructure/mock-server.js
-    Mock->>Mock: Listen for exfil POST on localhost
-
-    Note over Learner,MalPkg: Phase 2 - Run the lab (Terminal B)
-    Learner->>Learner: export TESTBENCH_MODE=enabled
-    Learner->>Learner: export SCAS_ES_URL=http://localhost:9200 (optional)
-    Learner->>Victim: npm install in corporate-app (no .npmrc scope lock)
-    Victim->>MalPkg: Resolver picks @techcorp/auth-lib v999.999.999
-    Learner->>Victim: npm start
-    MalPkg->>MalPkg: Run dependency-confusion payload on load
-
-    Note over MalPkg,Mock: Phase 3 - Simulated exfiltration (127.0.0.1 only)
-    Note over MalPkg: Malicious path gated by TESTBENCH_MODE=enabled
-    MalPkg->>Mock: POST /collect JSON payload
-    Mock->>Mock: Append to infrastructure/captured-data.json
-    Mock-->>Learner: 200 OK (capture accepted)
-
-    Note over Mock,Kibana: Phase 4 - Optional Elasticsearch indexing
-    alt SCAS_ES_URL is set in Terminal A
-    Mock->>ES: POST scas-detections (scenario_id=02, event_type=exfil_capture)
-    ES->>ES: Store @timestamp, package, detail fields
-    else SCAS_ES_URL not set
-    Mock->>Mock: File-only capture (default lab behavior)
-    end
-
-    Note over ES: Runbook pre-seeded at scas-rules/_doc/02
-    Note over Learner,Kibana: Phase 5 - Blue-team review in Kibana
-    Learner->>Kibana: Open Discover → SCAS Detections - Scenario 02
-    Kibana->>ES: Query scenario_id + sort by @timestamp desc
-    ES-->>Kibana: Return capture events for this lab
-    Learner->>Kibana: Open SCAS Rules - Scenario 02
-    ES-->>Kibana: Return IOCs, Sigma, YARA from DETECT.md
-    Learner->>Learner: Correlate capture detail with runbook IOCs
-```
+<p class="archify-embed-caption">Phase 1-5 attack sequence for Scenario 02. Collectors, the lab run, localhost exfil, then optional Elasticsearch and Kibana. <a href="archify/scenarios/02-dependency-confusion/sequence/sc02-dependency-confusion-sequence.html" target="_blank" rel="noopener noreferrer">Open the full diagram</a>, or the <a href="https://github.com/RAJANAGORI/supply-chain-attack-simulator/blob/main/.archify/scenarios/02-dependency-confusion/sequence/sc02-dependency-confusion-sequence.html" target="_blank" rel="noopener noreferrer">HTML source on GitHub</a>.</p>
 
 ### Scenario-specific attack steps (Phase 2)
 

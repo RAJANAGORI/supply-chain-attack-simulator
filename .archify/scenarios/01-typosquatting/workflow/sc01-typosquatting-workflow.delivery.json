@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "e7345124-4101-4a7b-a982-fc67657b3e59",
+  "status": "current",
+  "command": "deliver",
+  "type": "workflow",
+  "input": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/01-typosquatting/workflow/candidate.json",
+  "output": "/Users/rajanagori/Documents/vault/Projects/supply-chain-attack-simulator/.archify/scenarios/01-typosquatting/workflow/sc01-typosquatting-workflow.html",
+  "specification": {
+    "sha256": "d1f947faeca650bee25391619559fb2bcbbe46e45399190c4d636dec1ffa3fa6",
+    "bytes": 4865
+  },
+  "artifact": {
+    "sha256": "79246897580c5f17eb1f02d2ddcbb55508fd78012f7466372ccdc80cf68ec57b",
+    "bytes": 820064
+  }
+}
